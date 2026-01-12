@@ -23,29 +23,14 @@ RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 # ============================================================================
 
 # Creates environment to build python binaries
-# Using Ubuntu 20.04 (GLIBC 2.31) for broader compatibility with older systems
-# Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
-FROM ubuntu:20.04 as seedsync_build_pyinstaller_env
-ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update && apt-get install -y software-properties-common
-RUN add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && apt-get install -y \
-    python3.11 \
-    python3.11-dev \
-    python3.11-venv \
-    curl \
-    binutils
-# Switch to Python 3.11
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 1
-RUN update-alternatives --set python /usr/bin/python3.11
-RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 1
-RUN update-alternatives --set python3 /usr/bin/python3.11
+# Using manylinux_2_28 (AlmaLinux 8, GLIBC 2.28) for broad compatibility
+# This ensures the scanfs binary works on most Linux distributions
+FROM quay.io/pypa/manylinux_2_28_x86_64 as seedsync_build_pyinstaller_env
+# Use Python 3.11 from the manylinux image
+ENV PATH="/opt/python/cp311-cp311/bin:$PATH"
 # Install Poetry
-RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py --force-reinstall && \
-    rm get-pip.py
-RUN pip3 install poetry
-RUN poetry config virtualenvs.create false
+RUN pip3 install poetry && \
+    poetry config virtualenvs.create false
 COPY src/python/pyproject.toml /app/python/
 COPY src/python/poetry.lock /app/python/
 WORKDIR /python
