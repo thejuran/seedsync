@@ -1,4 +1,4 @@
-FROM seedsync/build/angular/env as seedsync_test_angular
+FROM seedsync/build/angular/env AS seedsync_test_angular
 
 # Install Chrome for headless testing
 # node:20-slim doesn't include wget, so we need to install it first

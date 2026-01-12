@@ -1,7 +1,7 @@
 # Creates environment to build python binaries
 # Using Debian 11 (bullseye) with GLIBC 2.31 for compatibility with older systems
 # Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
-FROM python:3.11-slim-bullseye as seedsync_build_pyinstaller_env
+FROM python:3.11-slim-bullseye AS seedsync_build_pyinstaller_env
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     binutils \
@@ -19,7 +19,7 @@ RUN cd /app/python && poetry install
 
 # Builds seedsync with pyinstaller
 # Output is in /build/dist/seedsync/
-FROM seedsync_build_pyinstaller_env as seedsync_build_pyinstaller
+FROM seedsync_build_pyinstaller_env AS seedsync_build_pyinstaller
 COPY src/python /python
 COPY src/pyinstaller_hooks /pyinstaller_hooks
 RUN mkdir -p /build
@@ -36,7 +36,7 @@ RUN pyinstaller /python/seedsync.py \
 
 # Builds scanfs with pyinstaller
 # Output is in /build/dist/
-FROM seedsync_build_pyinstaller_env as seedsync_build_scanfs
+FROM seedsync_build_pyinstaller_env AS seedsync_build_scanfs
 COPY src/python /python
 RUN mkdir -p /build
 RUN	pyinstaller /python/scan_fs.py \
@@ -52,21 +52,21 @@ RUN	pyinstaller /python/scan_fs.py \
 # Creates environment for angular
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
-FROM node:20-slim as seedsync_build_angular_env
+FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
 RUN npm install --legacy-peer-deps
 
 # Builds angular app into html
 # Output is in /build/dist/
-FROM seedsync_build_angular_env as seedsync_build_angular
+FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
 RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 
 
 # Creates environment to build deb packages
-FROM ubuntu:22.04 as seedsync_build_deb_env
+FROM ubuntu:22.04 AS seedsync_build_deb_env
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
 # Note: dh-systemd is merged into debhelper in Ubuntu 22.04+
@@ -76,7 +76,7 @@ RUN apt-get install -y devscripts
 
 # Builds debian package
 # Output is in /build/dist/
-FROM seedsync_build_deb_env as seedsync_build_deb
+FROM seedsync_build_deb_env AS seedsync_build_deb
 RUN mkdir -p /build/work
 COPY src/debian /build/work/debian
 COPY --from=seedsync_build_pyinstaller /build/dist/seedsync /build/work/seedsync

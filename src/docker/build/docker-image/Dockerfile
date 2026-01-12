@@ -5,14 +5,14 @@
 # Creates environment for angular
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
-FROM node:20-slim as seedsync_build_angular_env
+FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
 RUN npm install --legacy-peer-deps
 
 # Builds angular app into html
 # Output is in /build/dist/
-FROM seedsync_build_angular_env as seedsync_build_angular
+FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
 RUN mkdir -p /build
@@ -25,7 +25,7 @@ RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 # Creates environment to build python binaries
 # Using Debian 11 (bullseye) with GLIBC 2.31 for compatibility with older systems
 # Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
-FROM python:3.11-slim-bullseye as seedsync_build_pyinstaller_env
+FROM python:3.11-slim-bullseye AS seedsync_build_pyinstaller_env
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     binutils \
@@ -42,7 +42,7 @@ RUN cd /app/python && poetry install
 
 # Builds scanfs with pyinstaller
 # Output is in /build/dist/
-FROM seedsync_build_pyinstaller_env as seedsync_build_scanfs
+FROM seedsync_build_pyinstaller_env AS seedsync_build_scanfs
 COPY src/python /python
 RUN mkdir -p /build
 RUN	pyinstaller /python/scan_fs.py \
@@ -60,7 +60,7 @@ RUN	pyinstaller /python/scan_fs.py \
 
 # Creates environment to run Seedsync python code
 # Installs all python dependencies
-FROM python:3.11-slim as seedsync_run_python_env
+FROM python:3.11-slim AS seedsync_run_python_env
 
 # Install dependencies
 # Debian 12 (Bookworm) uses DEB822 format in /etc/apt/sources.list.d/debian.sources
@@ -97,18 +97,18 @@ RUN cd /app/python && poetry install --only main
 
 
 # Creates environment for Python dev
-FROM seedsync_run_python_env as seedsync_run_python_devenv
+FROM seedsync_run_python_env AS seedsync_run_python_devenv
 RUN cd /app/python && poetry install
 
 
 # Installs Seedsync python code
-FROM seedsync_run_python_env as seedsync_run_python
+FROM seedsync_run_python_env AS seedsync_run_python
 RUN mkdir -p /app
 COPY src/python /app/python
 
 
 # Full Seedsync docker image
-FROM seedsync_run_python as seedsync_run
+FROM seedsync_run_python AS seedsync_run
 COPY --from=seedsync_build_angular /build/dist /app/html
 COPY --from=seedsync_build_scanfs /build/dist/scanfs /app/scanfs
 COPY src/docker/build/docker-image/setup_default_config.sh /scripts/

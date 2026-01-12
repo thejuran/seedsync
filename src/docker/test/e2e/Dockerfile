@@ -1,5 +1,5 @@
 # Creates environment for e2e tests
-FROM node:20-slim as seedsync_test_e2e_env
+FROM node:20-slim AS seedsync_test_e2e_env
 
 COPY src/e2e/package*.json /app/
 WORKDIR /app
@@ -7,7 +7,7 @@ RUN npm install
 
 
 # Builds and runs e2e tests
-FROM seedsync_test_e2e_env as seedsync_test_e2e
+FROM seedsync_test_e2e_env AS seedsync_test_e2e
 
 COPY \
     src/e2e/conf.ts \
