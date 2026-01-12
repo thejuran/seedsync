@@ -23,7 +23,9 @@ RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 # ============================================================================
 
 # Creates environment to build python binaries
-FROM ubuntu:22.04 as seedsync_build_pyinstaller_env
+# Using Ubuntu 20.04 (GLIBC 2.31) for broader compatibility with older systems
+# Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
+FROM ubuntu:20.04 as seedsync_build_pyinstaller_env
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y software-properties-common
 RUN add-apt-repository ppa:deadsnakes/ppa && \
