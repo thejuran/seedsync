@@ -13,6 +13,7 @@ RUN npm install
 FROM seedsync_build_angular_env as seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
+RUN mkdir -p /build
 RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 
 # ============================================================================
