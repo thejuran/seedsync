@@ -1,5 +1,5 @@
 // Karma configuration file, see link for more information
-// https://karma-runner.github.io/6.4/config/configuration-file.html
+// https://karma-runner.github.io/2.0/config/configuration-file.html
 
 module.exports = function (config) {
     config.set({
@@ -15,10 +15,7 @@ module.exports = function (config) {
         ],
         client: {
             clearContext: false, // leave Jasmine Spec Runner output visible in browser
-            captureConsole: false,
-            jasmine: {
-                random: false
-            }
+            captureConsole: false
         },
         coverageIstanbulReporter: {
             reports: ['html', 'lcovonly'],
@@ -39,11 +36,10 @@ module.exports = function (config) {
             ChromeHeadless: {
                 base: 'Chrome',
                 flags: [
-                    '--headless=new',
+                    '--headless',
                     '--disable-gpu',
                     '--remote-debugging-port=9222',
-                    '--no-sandbox',
-                    '--disable-dev-shm-usage'
+                    '--no-sandbox'
                 ]
             }
         },

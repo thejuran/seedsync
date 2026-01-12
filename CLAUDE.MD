@@ -9,7 +9,7 @@ SeedSync is a file syncing tool that syncs files from a remote Linux server (lik
 - **Build System**: Docker/Docker Buildx for builds, Make for orchestration
 - **Package Manager**: Poetry (Python), npm (Angular)
 - **Testing**: pytest (Python), Karma/Jasmine (Angular unit tests), Playwright (E2E)
-- **Linting**: ESLint with @typescript-eslint and @angular-eslint
+- **Linting**: ESLint with @typescript-eslint
 
 ## Project Structure
 
