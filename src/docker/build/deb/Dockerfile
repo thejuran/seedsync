@@ -1,9 +1,11 @@
 # Creates environment to build python binaries
-# Using manylinux_2_28 (AlmaLinux 8, GLIBC 2.28) for broad compatibility
-# This ensures the built binaries work on most Linux distributions
-FROM quay.io/pypa/manylinux_2_28_x86_64 as seedsync_build_pyinstaller_env
-# Use Python 3.11 from the manylinux image
-ENV PATH="/opt/python/cp311-cp311/bin:$PATH"
+# Using Debian 11 (bullseye) with GLIBC 2.31 for compatibility with older systems
+# Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
+FROM python:3.11-slim-bullseye as seedsync_build_pyinstaller_env
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    binutils \
+    && rm -rf /var/lib/apt/lists/*
 # Install Poetry
 RUN pip3 install poetry && \
     poetry config virtualenvs.create false
