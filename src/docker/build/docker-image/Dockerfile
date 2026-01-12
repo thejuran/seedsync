@@ -3,10 +3,11 @@ ARG STAGING_VERSION=latest
 
 # Creates environment to run Seedsync python code
 # Installs all python dependencies
-FROM python:3.8-slim as seedsync_run_python_env
+FROM python:3.11-slim as seedsync_run_python_env
 
 # Install dependencies
-RUN sed -i -e's/ main/ main contrib non-free/g' /etc/apt/sources.list && \
+# Debian 12 (Bookworm) uses DEB822 format in /etc/apt/sources.list.d/debian.sources
+RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && \
     apt-get install -y \
         gcc \
@@ -15,22 +16,18 @@ RUN sed -i -e's/ main/ main contrib non-free/g' /etc/apt/sources.list && \
         openssh-client \
         p7zip \
         p7zip-full \
-        p7zip-rar \
+        unrar \
         bzip2 \
         curl \
         libnss-wrapper \
         libxml2-dev libxslt-dev libffi-dev \
     && apt-get clean
-# Fix for patoolib
-# See: https://github.com/wummel/patool/issues/90
-RUN ln -s /usr/lib/p7zip/Codecs/Rar.so /usr/lib/p7zip/Codecs/Rar29.so
 
-# Install Poetry
-RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py --force-reinstall && \
-    rm get-pip.py
-RUN pip3 install poetry
-RUN poetry config virtualenvs.create false
+# Install Poetry using official installer
+ENV POETRY_HOME="/opt/poetry"
+ENV PATH="$POETRY_HOME/bin:$PATH"
+RUN curl -sSL https://install.python-poetry.org | python3 - && \
+    poetry config virtualenvs.create false
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
@@ -39,7 +36,7 @@ ENV LANG=C.UTF-8
 RUN mkdir -p /app
 COPY src/python/pyproject.toml /app/python/
 COPY src/python/poetry.lock /app/python/
-RUN cd /app/python && poetry install --no-dev
+RUN cd /app/python && poetry install --only main
 
 
 # Creates environment for Python dev
