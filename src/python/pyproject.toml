@@ -19,7 +19,7 @@ requests = "*"
 tblib = "*"
 timeout-decorator = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pyinstaller = "*"
 testfixtures = "*"
 webtest = "*"
