@@ -55,7 +55,7 @@ class Lftp:
         self.logger = logging.getLogger("Lftp")
         self.__expect_pattern = "lftp {}@{}:.*>".format(self.__user, self.__address)
         self.__job_status_parser = LftpJobStatusParser()
-        self.__timeout = 3  # in seconds
+        self.__timeout = 180  # in seconds
         self.__consecutive_status_errors = 0
 
         self.__log_command_output = False
