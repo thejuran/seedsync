@@ -1,4 +1,9 @@
-export class Urls {
-    static readonly APP_BASE_URL = "http://myapp:8800/";
-    static readonly SELENIUM_ADDRESS = "http://localhost:4444/wd/hub";
-}
+// Base URL is configured in playwright.config.ts
+// These paths are relative to the baseURL
+export const Paths = {
+  DASHBOARD: '/dashboard',
+  SETTINGS: '/settings',
+  AUTOQUEUE: '/autoqueue',
+  ABOUT: '/about',
+  LOGS: '/logs',
+} as const;

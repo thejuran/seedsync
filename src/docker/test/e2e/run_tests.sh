@@ -4,12 +4,12 @@ red=`tput setaf 1`
 green=`tput setaf 2`
 reset=`tput sgr0`
 
-END=$((SECONDS+10))
+END=$((SECONDS+30))
 while [ ${SECONDS} -lt ${END} ];
 do
   SERVER_UP=$(
       curl -s myapp:8800/server/status | \
-        python ./parse_seedsync_status.py
+        python3 ./parse_seedsync_status.py
   )
   if [[ "${SERVER_UP}" == 'True' ]]; then
     break
@@ -21,7 +21,7 @@ done
 
 if [[ "${SERVER_UP}" == 'True' ]]; then
   echo "${green}E2E Test detected that Seedsync server is UP${reset}"
-  node_modules/protractor/bin/protractor tmp/conf.js
+  npx playwright test
 else
   echo "${red}E2E Test failed to detect Seedsync server${reset}"
   exit 1

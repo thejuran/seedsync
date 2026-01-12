@@ -1,16 +1,17 @@
-import {browser, by, element} from 'protractor';
-import {promise} from "selenium-webdriver";
-import Promise = promise.Promise;
-
-import {Urls} from "../urls";
-import {App} from "./app";
+import { Page } from '@playwright/test';
+import { Paths } from '../urls';
+import { App } from './app';
 
 export class AboutPage extends App {
-    navigateTo() {
-        return browser.get(Urls.APP_BASE_URL + "about");
+    constructor(page: Page) {
+        super(page);
     }
 
-    getVersion(): Promise<string> {
-        return element(by.css("#version")).getText();
+    async navigateTo() {
+        await this.page.goto(Paths.ABOUT);
+    }
+
+    async getVersion(): Promise<string> {
+        return this.page.locator('#version').textContent() || '';
     }
 }

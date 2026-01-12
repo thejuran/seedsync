@@ -9,10 +9,3 @@ services:
         published: 8800
         protocol: tcp
         mode: host
-
-  chrome:
-    ports:
-      - target: 4444
-        published: 4444
-        protocol: tcp
-        mode: host

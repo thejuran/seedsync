@@ -1,25 +1,22 @@
-import {browser, by, element} from 'protractor';
-import {promise} from "selenium-webdriver";
-import Promise = promise.Promise;
-
-import {Urls} from "../urls";
+import { Page } from '@playwright/test';
 
 export class App {
-    navigateTo() {
-        return browser.get(Urls.APP_BASE_URL);
+    constructor(protected page: Page) {}
+
+    async navigateTo() {
+        await this.page.goto('/');
     }
 
-    getTitle(): Promise<string> {
-        return browser.getTitle();
+    async getTitle(): Promise<string> {
+        return this.page.title();
     }
 
-    getSidebarItems(): Promise<Array<string>> {
-        return element.all(by.css("#sidebar a span.text")).map(function (elm) {
-            return browser.executeScript("return arguments[0].innerHTML;", elm);
-        });
+    async getSidebarItems(): Promise<string[]> {
+        const items = await this.page.locator('#sidebar a span.text').all();
+        return Promise.all(items.map(item => item.innerHTML()));
     }
 
-    getTopTitle(): Promise<string> {
-        return browser.executeScript("return arguments[0].innerHTML;", element(by.css("#title")));
+    async getTopTitle(): Promise<string> {
+        return this.page.locator('#title').innerHTML();
     }
 }

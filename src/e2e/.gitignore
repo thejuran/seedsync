@@ -1,3 +1,5 @@
-*.js
-node_modules
-tmp/
+node_modules/
+dist/
+test-results/
+playwright-report/
+playwright/.cache/

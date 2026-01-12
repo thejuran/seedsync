@@ -1,30 +1,27 @@
-import {browser, by, element} from 'protractor';
-import {promise} from "selenium-webdriver";
-import Promise = promise.Promise;
-
-import {Urls} from "../urls";
-import {App} from "./app";
+import { Page } from '@playwright/test';
+import { Paths } from '../urls';
+import { App } from './app';
 
 export class AutoQueuePage extends App {
-    navigateTo() {
-        return browser.get(Urls.APP_BASE_URL + "autoqueue");
+    constructor(page: Page) {
+        super(page);
     }
 
-    getPatterns(): Promise<Array<string>> {
-        return element.all(by.css("#autoqueue .pattern span.text")).map(function (elm) {
-            return browser.executeScript("return arguments[0].innerHTML;", elm);
-        });
+    async navigateTo() {
+        await this.page.goto(Paths.AUTOQUEUE);
     }
 
-    addPattern(pattern: string) {
-        let input = element(by.css("#add-pattern input"));
-        input.sendKeys(pattern);
-        let button = element(by.css("#add-pattern .button"));
-        button.click();
+    async getPatterns(): Promise<string[]> {
+        const elements = await this.page.locator('#autoqueue .pattern span.text').all();
+        return Promise.all(elements.map(elm => elm.innerHTML()));
     }
 
-    removePattern(index: number) {
-        let button = element.all(by.css("#autoqueue .pattern")).get(index).element(by.css(".button"));
-        button.click();
+    async addPattern(pattern: string) {
+        await this.page.locator('#add-pattern input').fill(pattern);
+        await this.page.locator('#add-pattern .button').click();
+    }
+
+    async removePattern(index: number) {
+        await this.page.locator('#autoqueue .pattern').nth(index).locator('.button').click();
     }
 }

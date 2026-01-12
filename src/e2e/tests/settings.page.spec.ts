@@ -1,14 +1,15 @@
-import {SettingsPage} from "./settings.page";
+import { test, expect } from '@playwright/test';
+import { SettingsPage } from './settings.page';
 
-describe('Testing settings page', () => {
-    let page: SettingsPage;
-
-    beforeEach(() => {
-        page = new SettingsPage();
-        page.navigateTo();
+test.describe('Testing settings page', () => {
+    test.beforeEach(async ({ page }) => {
+        const settingsPage = new SettingsPage(page);
+        await settingsPage.navigateTo();
     });
 
-    it('should have right top title', () => {
-        expect(page.getTopTitle()).toEqual("Settings");
+    test('should have right top title', async ({ page }) => {
+        const settingsPage = new SettingsPage(page);
+        const topTitle = await settingsPage.getTopTitle();
+        expect(topTitle).toBe('Settings');
     });
 });

@@ -1,71 +1,75 @@
-import {AutoQueuePage} from "./autoqueue.page";
+import { test, expect } from '@playwright/test';
+import { AutoQueuePage } from './autoqueue.page';
 
-describe('Testing autoqueue page', () => {
-    let page: AutoQueuePage;
-
-    beforeEach(() => {
-        page = new AutoQueuePage();
-        page.navigateTo();
+test.describe('Testing autoqueue page', () => {
+    test.beforeEach(async ({ page }) => {
+        const autoQueuePage = new AutoQueuePage(page);
+        await autoQueuePage.navigateTo();
     });
 
-    it('should have right top title', () => {
-        expect(page.getTopTitle()).toEqual("AutoQueue");
+    test('should have right top title', async ({ page }) => {
+        const autoQueuePage = new AutoQueuePage(page);
+        const topTitle = await autoQueuePage.getTopTitle();
+        expect(topTitle).toBe('AutoQueue');
     });
 
+    test('should add and remove patterns', async ({ page }) => {
+        const autoQueuePage = new AutoQueuePage(page);
 
-    it('should add and remove patterns', () => {
         // start with an empty list
-        expect(page.getPatterns()).toEqual([]);
+        expect(await autoQueuePage.getPatterns()).toEqual([]);
 
         // add some patterns, and expect them in added order
-        page.addPattern("APattern");
-        page.addPattern("CPattern");
-        page.addPattern("DPattern");
-        page.addPattern("BPattern");
-        expect(page.getPatterns()).toEqual([
-            "APattern", "CPattern", "DPattern", "BPattern"
+        await autoQueuePage.addPattern('APattern');
+        await autoQueuePage.addPattern('CPattern');
+        await autoQueuePage.addPattern('DPattern');
+        await autoQueuePage.addPattern('BPattern');
+        expect(await autoQueuePage.getPatterns()).toEqual([
+            'APattern', 'CPattern', 'DPattern', 'BPattern'
         ]);
 
         // remove patterns one by one
-        page.removePattern(2);
-        expect(page.getPatterns()).toEqual([
-            "APattern", "CPattern", "BPattern"
+        await autoQueuePage.removePattern(2);
+        expect(await autoQueuePage.getPatterns()).toEqual([
+            'APattern', 'CPattern', 'BPattern'
         ]);
-        page.removePattern(0);
-        expect(page.getPatterns()).toEqual([
-            "CPattern", "BPattern"
+        await autoQueuePage.removePattern(0);
+        expect(await autoQueuePage.getPatterns()).toEqual([
+            'CPattern', 'BPattern'
         ]);
-        page.removePattern(1);
-        expect(page.getPatterns()).toEqual([
-            "CPattern"
+        await autoQueuePage.removePattern(1);
+        expect(await autoQueuePage.getPatterns()).toEqual([
+            'CPattern'
         ]);
-        page.removePattern(0);
-        expect(page.getPatterns()).toEqual([]);
+        await autoQueuePage.removePattern(0);
+        expect(await autoQueuePage.getPatterns()).toEqual([]);
     });
 
-    it('should list existing patterns in alphabetical order', () => {
+    test('should list existing patterns in alphabetical order', async ({ page }) => {
+        const autoQueuePage = new AutoQueuePage(page);
+
         // start with an empty list
-        expect(page.getPatterns()).toEqual([]);
+        expect(await autoQueuePage.getPatterns()).toEqual([]);
 
         // add some patterns, and expect them in added order
-        page.addPattern("APattern");
-        page.addPattern("CPattern");
-        page.addPattern("DPattern");
-        page.addPattern("BPattern");
+        await autoQueuePage.addPattern('APattern');
+        await autoQueuePage.addPattern('CPattern');
+        await autoQueuePage.addPattern('DPattern');
+        await autoQueuePage.addPattern('BPattern');
 
         // reload the page
-        page.navigateTo();
+        await autoQueuePage.navigateTo();
 
         // patterns should be in alphabetical order
-        expect(page.getPatterns()).toEqual([
-            "APattern", "BPattern", "CPattern", "DPattern"
+        expect(await autoQueuePage.getPatterns()).toEqual([
+            'APattern', 'BPattern', 'CPattern', 'DPattern'
         ]);
 
         // remove all patterns
-        page.removePattern(0);
-        page.removePattern(0);
-        page.removePattern(0);
-        page.removePattern(0);
-        expect(page.getPatterns()).toEqual([]);
+        await autoQueuePage.removePattern(0);
+        await autoQueuePage.removePattern(0);
+        await autoQueuePage.removePattern(0);
+        await autoQueuePage.removePattern(0);
+        expect(await autoQueuePage.getPatterns()).toEqual([]);
     });
 });

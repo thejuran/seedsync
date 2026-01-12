@@ -8,7 +8,8 @@ SeedSync is a file syncing tool that syncs files from a remote Linux server (lik
 - **Backend**: Python 3.11+ with Bottle web framework
 - **Build System**: Docker/Docker Buildx for builds, Make for orchestration
 - **Package Manager**: Poetry (Python), npm (Angular)
-- **Testing**: pytest (Python), Karma/Jasmine (Angular), Protractor (E2E)
+- **Testing**: pytest (Python), Karma/Jasmine (Angular unit tests), Playwright (E2E)
+- **Linting**: ESLint with @typescript-eslint
 
 ## Project Structure
 
@@ -74,9 +75,21 @@ make run-tests-e2e SEEDSYNC_DEB=`readlink -f build/*.deb` SEEDSYNC_OS=ubu2004
 cd src/python
 poetry run pytest
 
-# Angular tests
+# Angular unit tests
 cd src/angular
 node_modules/@angular/cli/bin/ng test
+
+# Angular e2e tests (requires app running at localhost:4200)
+cd src/angular
+npm run e2e
+
+# Main e2e tests (requires app running at configured baseURL)
+cd src/e2e
+npm test
+
+# Linting
+cd src/angular
+npm run lint
 ```
 
 ## Development Setup
@@ -114,6 +127,9 @@ make run-remote-server  # Runs at localhost:1234
 - `src/debian/changelog` - Version changelog for deb package
 - `Makefile` - All build and test commands
 - `.github/workflows/master.yml` - CI pipeline
+- `src/angular/.eslintrc.json` - ESLint configuration
+- `src/angular/playwright.config.ts` - Angular e2e Playwright config
+- `src/e2e/playwright.config.ts` - Main e2e Playwright config
 
 ## Version Updates
 
