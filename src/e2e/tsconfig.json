@@ -1,15 +1,19 @@
-// Source: https://github.com/angular/protractor/tree/master/exampleTypescript
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "ES2020",
     "module": "commonjs",
     "moduleResolution": "node",
-    "inlineSourceMap": true,
-    "declaration": false,
-    "noImplicitAny": false,
-    "outDir": "tmp"
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist"
   },
+  "include": [
+    "**/*.ts"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }

@@ -1,27 +1,34 @@
-# Creates environment for e2e tests
+# Creates environment for e2e tests with Playwright
 FROM node:20-slim as seedsync_test_e2e_env
+
+# Install dependencies for Playwright
+RUN apt-get update && apt-get install -y \
+    curl \
+    python3 \
+    && rm -rf /var/lib/apt/lists/*
 
 COPY src/e2e/package*.json /app/
 WORKDIR /app
 RUN npm install
+
+# Install Playwright browsers and dependencies
+RUN npx playwright install --with-deps chromium
 
 
 # Builds and runs e2e tests
 FROM seedsync_test_e2e_env as seedsync_test_e2e
 
 COPY \
-    src/e2e/conf.ts \
+    src/e2e/playwright.config.ts \
     src/e2e/tsconfig.json \
+    src/e2e/urls.ts \
     /app/
 COPY src/e2e/tests /app/tests
 COPY \
-    src/docker/test/e2e/urls.ts \
     src/docker/test/e2e/run_tests.sh \
     src/docker/test/e2e/parse_seedsync_status.py \
     /app/
 
 WORKDIR /app
-
-RUN node_modules/typescript/bin/tsc --outDir ./tmp
 
 CMD ["/app/run_tests.sh"]

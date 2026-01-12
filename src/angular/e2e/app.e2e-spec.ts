@@ -1,14 +1,17 @@
+import { test, expect } from '@playwright/test';
 import { AppPage } from './app.po';
 
-describe('seedsync App', () => {
-  let page: AppPage;
+test.describe('SeedSync App', () => {
+  let appPage: AppPage;
 
-  beforeEach(() => {
-    page = new AppPage();
+  test.beforeEach(async ({ page }) => {
+    appPage = new AppPage(page);
   });
 
-  it('should display welcome message', () => {
-    page.navigateTo();
-    expect(page.getParagraphText()).toEqual('Welcome to app!');
+  test('should have correct title', async ({ page }) => {
+    appPage = new AppPage(page);
+    await appPage.navigateTo();
+    const title = await appPage.getTitle();
+    expect(title).toBe('SeedSync');
   });
 });

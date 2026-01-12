@@ -1,31 +1,34 @@
-import {App} from "./app";
+import { test, expect } from '@playwright/test';
+import { App } from './app';
 
-describe('Testing top-level app', () => {
-    let app: App;
-
-    beforeEach(() => {
-        app = new App();
-        app.navigateTo();
+test.describe('Testing top-level app', () => {
+    test.beforeEach(async ({ page }) => {
+        const app = new App(page);
+        await app.navigateTo();
     });
 
-    it('should have right title', () => {
-        expect(app.getTitle()).toEqual("SeedSync");
+    test('should have right title', async ({ page }) => {
+        const app = new App(page);
+        const title = await app.getTitle();
+        expect(title).toBe('SeedSync');
     });
 
-    it('should have all the sidebar items', () => {
-        expect(app.getSidebarItems()).toEqual(
-            [
-                "Dashboard",
-                "Settings",
-                "AutoQueue",
-                "Logs",
-                "About",
-                "Restart"
-            ]
-        );
+    test('should have all the sidebar items', async ({ page }) => {
+        const app = new App(page);
+        const items = await app.getSidebarItems();
+        expect(items).toEqual([
+            'Dashboard',
+            'Settings',
+            'AutoQueue',
+            'Logs',
+            'About',
+            'Restart'
+        ]);
     });
 
-    it('should default to the dashboard page', () => {
-        expect(app.getTopTitle()).toEqual("Dashboard");
+    test('should default to the dashboard page', async ({ page }) => {
+        const app = new App(page);
+        const topTitle = await app.getTopTitle();
+        expect(topTitle).toBe('Dashboard');
     });
 });

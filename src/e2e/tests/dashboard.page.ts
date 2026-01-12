@@ -1,75 +1,67 @@
-import {browser, by, element, ExpectedConditions} from 'protractor';
-import {promise} from "selenium-webdriver";
-import Promise = promise.Promise;
+import { Page } from '@playwright/test';
+import { Paths } from '../urls';
+import { App } from './app';
 
-import {Urls} from "../urls";
-import {App} from "./app";
-
-export class File {
-    constructor(public name,
-                public status,
-                public size) {
-    }
+export interface FileInfo {
+    name: string;
+    status: string;
+    size: string;
 }
 
-export class FileActionButtonState {
-    constructor(public title,
-                public isEnabled) {
-    }
+export interface FileActionButtonState {
+    title: string;
+    isEnabled: boolean;
 }
 
 export class DashboardPage extends App {
-    navigateTo() {
-        return browser.get(Urls.APP_BASE_URL + "dashboard").then(value => {
-            // Wait for the files list to show up
-            return browser.wait(ExpectedConditions.presenceOf(
-                element.all(by.css("#file-list .file")).first()
-            ));
-        })
+    constructor(page: Page) {
+        super(page);
     }
 
-    getFiles(): Promise<Array<File>> {
-        return element.all(by.css("#file-list .file")).map(function (elm) {
-            let name = elm.element(by.css(".name .text")).getText();
-            let statusElm = elm.element(by.css(".content .status"));
-            let status = statusElm.isElementPresent(by.css("span.text")).then(value => {
-                if(value) {
-                    return browser.executeScript(
-                        "return arguments[0].innerHTML;",
-                        statusElm.element(by.css("span.text"))
-                    );
-                } else {
-                    return "";
-                }
+    async navigateTo() {
+        await this.page.goto(Paths.DASHBOARD);
+        // Wait for the files list to show up
+        await this.page.locator('#file-list .file').first().waitFor({ state: 'visible' });
+    }
+
+    async getFiles(): Promise<FileInfo[]> {
+        const fileElements = await this.page.locator('#file-list .file').all();
+        const files: FileInfo[] = [];
+
+        for (const elm of fileElements) {
+            const name = await elm.locator('.name .text').textContent() || '';
+            const statusElm = elm.locator('.content .status span.text');
+            const statusCount = await statusElm.count();
+            const status = statusCount > 0 ? await statusElm.innerHTML() : '';
+            const size = await elm.locator('.size .size_info').textContent() || '';
+            files.push({ name, status, size });
+        }
+
+        return files;
+    }
+
+    async selectFile(index: number) {
+        await this.page.locator('#file-list .file').nth(index).click();
+    }
+
+    async isFileActionsVisible(index: number): Promise<boolean> {
+        return this.page.locator('#file-list .file').nth(index).locator('.actions').isVisible();
+    }
+
+    async getFileActions(index: number): Promise<FileActionButtonState[]> {
+        const fileElement = this.page.locator('#file-list .file').nth(index);
+        const buttons = await fileElement.locator('.actions .button').all();
+        const actions: FileActionButtonState[] = [];
+
+        for (const button of buttons) {
+            const title = await button.locator('div.text span').innerHTML();
+            const disabled = await button.getAttribute('disabled');
+            actions.push({
+                title,
+                isEnabled: disabled === null
             });
-            // let status = browser.executeScript("return arguments[0].innerHTML;", subelm);
-            let size = elm.element(by.css(".size .size_info")).getText();
-            return new File(name, status, size);
-        });
-    }
+        }
 
-    selectFile(index: number) {
-        element.all(by.css("#file-list .file")).get(index).click();
-    }
-
-    isFileActionsVisible(index: number) {
-        return element.all(by.css("#file-list .file")).get(index)
-                            .element(by.css(".actions")).isDisplayed();
-    }
-
-    getFileActions(index: number): Promise<Array<FileActionButtonState>> {
-        return element.all(by.css("#file-list .file")).get(index)
-                    .element(by.css(".actions"))
-                    .all(by.css(".button"))
-                    .map(buttonElm => {
-                        let title = browser.executeScript(
-                            "return arguments[0].innerHTML;",
-                            buttonElm.element(by.css("div.text span"))
-                        );
-                        let isEnabled = buttonElm.getAttribute("disabled").then(value => {
-                            return value == null;
-                        });
-                        return new FileActionButtonState(title, isEnabled);
-                    });
+        return actions;
     }
 }
