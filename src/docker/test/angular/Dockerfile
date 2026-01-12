@@ -9,7 +9,6 @@ RUN apt-get update && \
 
 COPY \
     src/angular/tsconfig.json \
-    src/angular/tslint.json \
     src/angular/karma.conf.js \
     src/angular/.angular-cli.json \
     /app/
