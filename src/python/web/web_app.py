@@ -103,9 +103,11 @@ class WebApp(bottle.Bottle):
     def stop(self):
         """
         Exit gracefully, kill any connections and clean up any state
-        :return: 
+        :return:
         """
-        self.__stop = True
+        # Use object.__setattr__ to bypass Bottle's custom __setattr__
+        # which raises an error when re-setting an already-defined attribute
+        object.__setattr__(self, '_WebApp__stop', True)
 
     def __index(self):
         """

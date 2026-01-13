@@ -654,22 +654,22 @@ class TestLftpJobStatusParser(unittest.TestCase):
 
     def test_jobs_3(self):
         """1 job, 1 file, chunks"""
-        output = """
-        [0] queue (sftp://someone:@localhost) 
+        output = r"""
+        [0] queue (sftp://someone:@localhost)
         sftp://someone:@localhost/home/someone
         Now executing: [1] pget -c /tmp/test_lftp/remote/A.b.C.rar -o /tmp/lftp/
-        [1] pget -c /tmp/test_lftp/remote/A.b.C.rar -o /tmp/lftp/ 
+        [1] pget -c /tmp/test_lftp/remote/A.b.C.rar -o /tmp/lftp/
         sftp://someone:@localhost/home/someone
-        `/tmp/test_lftp/remote/A.b.C.rar', got 2622559389 of 3274103236 (80%) 
+        `/tmp/test_lftp/remote/A.b.C.rar', got 2622559389 of 3274103236 (80%)
         \chunk 0-2752841944
         `/tmp/test_lftp/remote/A.b.C.rar' at 2622559389 (0%) [Receiving data]
-        \chunk 3143787913-3274103235 
+        \chunk 3143787913-3274103235
         `/tmp/test_lftp/remote/A.b.C.rar' at 3143787913 (0%) [Connecting...]
-        \chunk 3013472590-3143787912 
+        \chunk 3013472590-3143787912
         `/tmp/test_lftp/remote/A.b.C.rar' at 3013472590 (0%) [Connecting...]
-        \chunk 2883157267-3013472589 
+        \chunk 2883157267-3013472589
         `/tmp/test_lftp/remote/A.b.C.rar' at 2883157267 (0%) [Connecting...]
-        \chunk 2752841944-2883157266 
+        \chunk 2752841944-2883157266
         `/tmp/test_lftp/remote/A.b.C.rar' at 2752841944 (0%) [Connecting...]
         """
         parser = LftpJobStatusParser()
@@ -779,14 +779,14 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_jobs_mirror_mkdir(self):
-        output = """        
-        [0] queue (sftp://someone:@localhost:22) 
+        output = r"""
+        [0] queue (sftp://someone:@localhost:22)
         sftp://someone:@localhost:22/home/someone
         Now executing: [1] mirror -c /tmp/test_controllerxnx7xw6x/remote/ra /tmp/test_controllerxnx7xw6x/local/ -- 0/1.1k (0%)
         [1] mirror -c /tmp/test_controllerxnx7xw6x/remote/ra /tmp/test_controllerxnx7xw6x/local/  -- 0/1.1k (0%)
-        \\transfer `raa' 
+        \\transfer `raa'
         `raa' at 0 (0%) [Connecting...]
-        \mirror `rab' 
+        \mirror `rab'
         mkdir `/tmp/test_controllerxnx7xw6x/local/ra/rab' []
         """
         parser = LftpJobStatusParser()
@@ -1162,54 +1162,54 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_jobs_chmod(self):
-        output = """
+        output = r"""
         [0] queue (sftp://someone:@localhost:22)  -- 12.26 MiB/s
         sftp://someone:@localhost:22/remote/path
         Now executing: [3] mirror -c /remote/path/Space.Trek.S23E03.720p /local/path/ -- 985M/985M (100%)
             -[4] mirror -c /remote/path/Star.Battle.Movie /local/path/ -- 116M/1.2G (9%) 12.26 MiB/s
         [3] mirror -c /remote/path/Space.Trek.S23E03.720p /local/path/  -- 985M/985M (100%)
-        chmod Space.Trek.S23E03.720p.r06 
+        chmod Space.Trek.S23E03.720p.r06
         file:/local/path/Space.Trek.S23E03.720p
         `Space.Trek.S23E03.720p.r06' []
-        chmod Space.Trek.S23E03.720p.r07 
+        chmod Space.Trek.S23E03.720p.r07
         file:/local/path/Space.Trek.S23E03.720p
         `Space.Trek.S23E03.720p.r07' []
-        chmod Space.Trek.S23E03.720p.r08 
+        chmod Space.Trek.S23E03.720p.r08
         file:/local/path/Space.Trek.S23E03.720p
         `Space.Trek.S23E03.720p.r08' []
-        chmod Space.Trek.S23E03.720p.r09 
+        chmod Space.Trek.S23E03.720p.r09
         file:/local/path/Space.Trek.S23E03.720p
         `Space.Trek.S23E03.720p.r09' []
         [4] mirror -c /remote/path/Star.Battle.Movie /local/path/  -- 116M/1.2G (9%) 12.26 MiB/s
-        \\transfer `star.battle.movie.720p.r07' 
-        `star.battle.movie.720p.r07', got 44628032 of 50000000 (89%) 1.10M/s eta:5s 
+        \\transfer `star.battle.movie.720p.r07'
+        `star.battle.movie.720p.r07', got 44628032 of 50000000 (89%) 1.10M/s eta:5s
         \chunk 9011200-25000000
         `star.battle.movie.720p.r07' at 19628032 (25%) 1.10M/s eta:5s [Receiving data]
-        \\transfer `star.battle.movie.720p.r08' 
-        `star.battle.movie.720p.r08', got 15237120 of 50000000 (30%) 2.04M/s 
+        \\transfer `star.battle.movie.720p.r08'
+        `star.battle.movie.720p.r08', got 15237120 of 50000000 (30%) 2.04M/s
         \chunk 0-25000000
         `star.battle.movie.720p.r08' at 13664256 (27%) 1.36M/s eta:8s [Receiving data]
-        \chunk 37500000-49999999 
+        \chunk 37500000-49999999
         `star.battle.movie.720p.r08' at 38581344 (8%) 696.2K/s eta:16s [Receiving data]
-        \chunk 25000000-37499999 
+        \chunk 25000000-37499999
         `star.battle.movie.720p.r08' at 25491520 (3%) [Receiving data]
-        \\transfer `star.battle.movie.720p.r09' 
-        `star.battle.movie.720p.r09', got 21692416 of 50000000 (43%) 4.05M/s eta:16s 
+        \\transfer `star.battle.movie.720p.r09'
+        `star.battle.movie.720p.r09', got 21692416 of 50000000 (43%) 4.05M/s eta:16s
         \chunk 0-12500000
         `star.battle.movie.720p.r09' at 12419072 (24%) 1.28M/s eta:0s [Receiving data]
-        \chunk 37500000-49999999 
+        \chunk 37500000-49999999
         `star.battle.movie.720p.r09' at 38843488 (10%) 662.8K/s eta:16s [Receiving data]
-        \chunk 25000000-37499999 
+        \chunk 25000000-37499999
         `star.battle.movie.720p.r09' at 28047424 (24%) 963.8K/s eta:10s [Receiving data]
-        \chunk 12500000-24999999 
+        \chunk 12500000-24999999
         `star.battle.movie.720p.r09' at 17382432 (39%) 1.19M/s eta:6s [Receiving data]
-        \\transfer `star.battle.movie.720p.r10' 
-        `star.battle.movie.720p.r10', got 33930272 of 50000000 (67%) 5.06M/s eta:6s 
-        \chunk 37500000-49999999 
+        \\transfer `star.battle.movie.720p.r10'
+        `star.battle.movie.720p.r10', got 33930272 of 50000000 (67%) 5.06M/s eta:6s
+        \chunk 37500000-49999999
         `star.battle.movie.720p.r10' at 43037792 (44%) 1.16M/s eta:6s [Receiving data]
-        \chunk 25000000-37499999 
+        \chunk 25000000-37499999
         `star.battle.movie.720p.r10' at 32503872 (60%) 1.19M/s eta:4s [Receiving data]
-        \chunk 12500000-24999999 
+        \chunk 12500000-24999999
         `star.battle.movie.720p.r10' at 20888608 (67%) 1.33M/s eta:3s [Receiving data]
         """
         parser = LftpJobStatusParser()
@@ -1250,22 +1250,22 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_job2, statuses[1])
 
     def test_jobs_chmod_two_liner(self):
-        output = """
+        output = r"""
         [0] queue (sftp://someone:@localhost:22)  -- 1.8 KiB/s
         sftp://someone:@localhost:22/remote/path
         Now executing: [1] mirror -c /remote/path/Space.Trek /local/path/ -- 3.1k/617M (0%) 1.8 KiB/s
         [1] mirror -c /remote/path/Space.Trek /local/path/  -- 3.1k/617M (0%) 1.8 KiB/s
-        \mirror `Space.Trek.S08E04' 
-        chmod Space.Trek.S08E04.sfv 
+        \mirror `Space.Trek.S08E04'
+        chmod Space.Trek.S08E04.sfv
             file:/local/path/Space.Trek/Space.Trek.S08E04
         \mirror `Space.Trek.S08E05'  -- 605/51M (0%)
-        \\transfer `Space.Trek.S08E05/space.trek.s08e05.r06' 
+        \\transfer `Space.Trek.S08E05/space.trek.s08e05.r06'
             `space.trek.s08e05.r06' at 0 (0%) [Waiting for response...]
         \mirror `Space.Trek.S08E06'  -- 1.6k/517M (0%) 932 B/s
-        \\transfer `Space.Trek.S08E06/space.trek.s08e06.nfo' 
+        \\transfer `Space.Trek.S08E06/space.trek.s08e06.nfo'
             `space.trek.s08e06.nfo' at 932 (100%) [Receiving data]
         \mirror `Space.Trek.S08E07'  -- 932/51M (0%) 932 B/s
-        \\transfer `Space.Trek.S08E07/space.trek.s08e07.nfo' 
+        \\transfer `Space.Trek.S08E07/space.trek.s08e07.nfo'
         `space.trek.s08e07.nfo' at 932 (100%) [Receiving data]
         """
         parser = LftpJobStatusParser()
@@ -1293,28 +1293,28 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_job1, statuses[0])
 
     def test_jobs_chmod_2(self):
-        output = """
+        output = r"""
         jobs -v
         [0] queue (sftp://someone:@localhost:22)  -- 3.45 MiB/s
         sftp://someone:@localhost:22/remote/path
         Now executing: [1] mirror -c /remote/path/Space.Trek /media/WD/Videos/temp/ -- 7.8M/429M (1%) 1.01 MiB/s (52%) 2.44 MiB/s
         [1] mirror -c /remote/path/Space.Trek /media/WD/Videos/temp/  -- 7.8M/429M (1%) 1.01 MiB/s
-        \\transfer `Space.Trek.mkv' 
-        `Space.Trek.mkv', got 7700480 of 425302375 (1%) 1.01M/s eta:7m 
+        \\transfer `Space.Trek.mkv'
+        `Space.Trek.mkv', got 7700480 of 425302375 (1%) 1.01M/s eta:7m
         \chunk 0-106325596
         `Space.Trek.mkv' at 1867776 (0%) 255.6K/s eta:7m [Receiving data]
-        \chunk 318976782-425302374 
+        \chunk 318976782-425302374
         `Space.Trek.mkv' at 320910094 (1%) 257.6K/s eta:7m [Receiving data]
-        \chunk 212651189-318976781 
+        \chunk 212651189-318976781
         `Space.Trek.mkv' at 214584501 (1%) 257.7K/s eta:7m [Receiving data]
-        \chunk 106325596-212651188 
+        \chunk 106325596-212651188
         `Space.Trek.mkv' at 108291676 (1%) 259.4K/s eta:7m [Receiving data]
         \mirror `Screens'  -- 0/2.8M (0%)
-        chmod ./Space.Trek.Screen0001.png 
+        chmod ./Space.Trek.Screen0001.png
         file:/media/WD/Videos/temp/Space.Trek/Screens
-        chmod ./Space.Trek.Screen0002.png 
+        chmod ./Space.Trek.Screen0002.png
         file:/media/WD/Videos/temp/Space.Trek/Screens
-        chmod ./Space.Trek.Screen0003.png 
+        chmod ./Space.Trek.Screen0003.png
         file:/media/WD/Videos/temp/Space.Trek/Screens
         """
         parser = LftpJobStatusParser()
@@ -1422,7 +1422,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_jobs_removes_multiple_jobs_lines(self):
-        output = """
+        output = r"""
         jobs -v
         [0] queue (sftp://user:password@server:22) -- 3.18 MiB/s
         sftp://user:password@server:22/home/someone
