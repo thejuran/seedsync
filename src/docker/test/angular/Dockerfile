@@ -29,4 +29,5 @@ WORKDIR /app/src
 
 CMD ["/app/node_modules/@angular/cli/bin/ng", "test", \
      "--browsers", "ChromeHeadless", \
-     "--single-run"]
+     "--single-run", \
+     "--sourcemaps=false"]
