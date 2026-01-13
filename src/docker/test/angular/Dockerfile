@@ -13,6 +13,9 @@ RUN apt-get update && \
 # Set Chrome binary path for Karma
 ENV CHROME_BIN=/usr/bin/google-chrome-stable
 
+# Node.js 20 compatibility for Angular CLI 1.3.2 (uses older OpenSSL APIs)
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 COPY \
     src/angular/tsconfig.json \
     src/angular/karma.conf.js \
