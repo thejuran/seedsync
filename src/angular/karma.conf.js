@@ -11,7 +11,7 @@ module.exports = function (config) {
             require('karma-jasmine-html-reporter'),
             require('karma-coverage-istanbul-reporter'),
             require('@angular/cli/plugins/karma'),
-            require('karma-mocha-reporter')
+            require('karma-spec-reporter')
         ],
         client: {
             clearContext: false, // leave Jasmine Spec Runner output visible in browser
@@ -24,7 +24,7 @@ module.exports = function (config) {
         angularCli: {
             environment: 'dev'
         },
-        reporters: ['mocha', 'kjhtml'],
+        reporters: ['spec', 'kjhtml'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
@@ -43,9 +43,6 @@ module.exports = function (config) {
                     '--disable-dev-shm-usage'
                 ]
             }
-        },
-        mochaReporter: {
-            output: 'full'
         }
     });
 };
