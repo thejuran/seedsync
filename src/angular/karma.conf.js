@@ -27,10 +27,16 @@ module.exports = function (config) {
         reporters: ['mocha', 'kjhtml'],
         port: 9876,
         colors: true,
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
         autoWatch: true,
         browsers: ['Chrome'],
         singleRun: false,
+
+        // Timeout settings for CI/Docker environments
+        browserDisconnectTimeout: 10000,
+        browserDisconnectTolerance: 3,
+        browserNoActivityTimeout: 60000,
+        captureTimeout: 60000,
 
         customLaunchers: {
             ChromeHeadless: {
@@ -40,7 +46,16 @@ module.exports = function (config) {
                     '--disable-gpu',
                     '--remote-debugging-port=9222',
                     '--no-sandbox',
-                    '--disable-dev-shm-usage'
+                    '--disable-dev-shm-usage',
+                    '--disable-software-rasterizer',
+                    '--disable-extensions',
+                    '--disable-background-networking',
+                    '--disable-default-apps',
+                    '--disable-sync',
+                    '--disable-translate',
+                    '--mute-audio',
+                    '--hide-scrollbars',
+                    '--metrics-recording-only'
                 ]
             }
         },
