@@ -1,6 +1,18 @@
 // Karma configuration file, see link for more information
 // https://karma-runner.github.io/2.0/config/configuration-file.html
 
+// Patch console.log to properly serialize errors (fixes Node 18+ inspect issue)
+const originalLog = console.log;
+console.log = function(...args) {
+    const processedArgs = args.map(arg => {
+        if (arg && typeof arg === 'object' && arg.inspect) {
+            return arg.message || arg.toString();
+        }
+        return arg;
+    });
+    originalLog.apply(console, processedArgs);
+};
+
 module.exports = function (config) {
     config.set({
         basePath: '',
