@@ -1,7 +1,7 @@
-FROM seedsync/build/angular/env AS seedsync_test_angular
+# Use Node 16 for Karma 2.0.5 compatibility (Node 20 has breaking changes)
+FROM node:16-slim AS seedsync_test_angular
 
 # Install Chrome for headless testing via Google's apt repository
-# This ensures all dependencies are properly resolved
 RUN apt-get update && \
     apt-get install -y wget gnupg ca-certificates && \
     wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg && \
@@ -13,8 +13,10 @@ RUN apt-get update && \
 # Set Chrome binary path for Karma
 ENV CHROME_BIN=/usr/bin/google-chrome-stable
 
-# Node.js 20 compatibility for Angular CLI 1.3.2 (uses older OpenSSL APIs)
-ENV NODE_OPTIONS=--openssl-legacy-provider
+# Install npm dependencies with Node 16
+COPY src/angular/package*.json /app/
+WORKDIR /app
+RUN npm install --legacy-peer-deps
 
 COPY \
     src/angular/tsconfig.json \
@@ -22,12 +24,9 @@ COPY \
     src/angular/.angular-cli.json \
     /app/
 
-RUN ls -l /app/
-
 # ng src needs to be mounted on /app/src
 WORKDIR /app/src
 
 CMD ["/app/node_modules/@angular/cli/bin/ng", "test", \
      "--browsers", "ChromeHeadless", \
-     "--single-run", \
-     "--sourcemaps=false"]
+     "--single-run"]

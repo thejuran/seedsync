@@ -135,13 +135,7 @@ run-tests-python: tests-python
 		up --force-recreate --exit-code-from tests
 
 tests-angular:
-	# angular build
-	$(DOCKER) build \
-		-f ${SOURCEDIR}/docker/build/deb/Dockerfile \
-		--target seedsync_build_angular_env \
-		--tag seedsync/build/angular/env \
-		${ROOTDIR}
-	# angular tests
+	# angular tests (uses Node 16 for Karma 2.0.5 compatibility)
 	$(DOCKER_COMPOSE) \
 		-f ${SOURCEDIR}/docker/test/angular/compose.yml \
 		build
