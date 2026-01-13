@@ -38,4 +38,4 @@ ENV PYTHONPATH=/src
 ENV PYTHONUNBUFFERED=1
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["pytest", "-vvs", "--tb=long", "--log-cli-level=DEBUG", "--timeout-verbose", "-x"]
+CMD ["pytest", "-vvs", "--tb=long", "--log-cli-level=DEBUG", "-x"]
