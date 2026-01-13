@@ -67,7 +67,7 @@ class Lftp:
             "sftp://{}".format(self.__address)
         ]
         self.__process = pexpect.spawn("/usr/bin/lftp", args)
-        self.__process.expect(self.__expect_pattern)
+        self.__process.expect(self.__expect_pattern, timeout=self.__timeout)
         self.__setup()
 
     def set_verbose_logging(self, verbose: bool):

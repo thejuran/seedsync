@@ -79,7 +79,7 @@ class Sshcp:
                     'lost connection',  # i=2, connection refused
                     'Could not resolve hostname',  # i=3, bad hostname
                     'Connection refused',  # i=4, connection refused
-                ])
+                ], timeout=self.__TIMEOUT_SECS)
                 if i > 0:
                     before = sp.before.decode().strip() if sp.before != pexpect.EOF else ""
                     after = sp.after.decode().strip() if sp.after != pexpect.EOF else ""
