@@ -51,19 +51,11 @@ module.exports = function (config) {
             ChromeHeadless: {
                 base: 'Chrome',
                 flags: [
-                    '--headless=new',
+                    '--headless',
                     '--disable-gpu',
                     '--no-sandbox',
                     '--disable-dev-shm-usage',
-                    '--disable-software-rasterizer',
-                    '--disable-extensions',
-                    '--disable-background-networking',
-                    '--disable-default-apps',
-                    '--disable-sync',
-                    '--disable-translate',
-                    '--mute-audio',
-                    '--hide-scrollbars',
-                    '--metrics-recording-only'
+                    '--remote-debugging-port=9222'
                 ]
             }
         },
