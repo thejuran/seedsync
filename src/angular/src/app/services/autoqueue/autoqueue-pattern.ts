@@ -1,26 +1,25 @@
-import {Record} from "immutable";
+import { Record } from 'immutable';
 
 interface IAutoQueuePattern {
-    pattern: string;
+  pattern: string | null;
 }
 const DefaultAutoQueuePattern: IAutoQueuePattern = {
-    pattern: null
+  pattern: null,
 };
 const AutoQueuePatternRecord = Record(DefaultAutoQueuePattern);
 
-
 export class AutoQueuePattern extends AutoQueuePatternRecord implements IAutoQueuePattern {
-    pattern: string;
+  declare pattern: string | null;
 
-    constructor(props) {
-        super(props);
-    }
+  constructor(props: Partial<IAutoQueuePattern>) {
+    super(props);
+  }
 }
 
 /**
- * ServerStatus as serialized by the backend.
+ * AutoQueuePattern as serialized by the backend.
  * Note: naming convention matches that used in JSON
  */
 export interface AutoQueuePatternJson {
-    pattern: string;
+  pattern: string;
 }

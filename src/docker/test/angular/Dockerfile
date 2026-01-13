@@ -1,23 +1,16 @@
 FROM seedsync/build/angular/env AS seedsync_test_angular
 
-# Install Chrome for headless testing
-# node:20-slim doesn't include wget, so we need to install it first
-RUN apt-get update && \
-    apt-get install -y wget gnupg && \
-    wget -nv -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    dpkg -i /tmp/chrome.deb || apt-get -fy install
-
+# Copy Angular configuration files
 COPY \
     src/angular/tsconfig.json \
-    src/angular/karma.conf.js \
-    src/angular/.angular-cli.json \
+    src/angular/tsconfig.spec.json \
+    src/angular/angular.json \
     /app/
 
 RUN ls -l /app/
 
 # ng src needs to be mounted on /app/src
-WORKDIR /app/src
+WORKDIR /app
 
-CMD ["/app/node_modules/@angular/cli/bin/ng", "test", \
-     "--browsers", "ChromeHeadless", \
-     "--single-run"]
+# Run tests using Angular CLI with Vitest (Angular 21's default test runner)
+CMD ["npx", "ng", "test", "--no-watch"]

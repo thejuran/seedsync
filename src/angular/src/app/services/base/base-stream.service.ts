@@ -1,7 +1,6 @@
-import {Injectable} from "@angular/core";
+import { Injectable } from '@angular/core';
 
-import {IStreamService} from "./stream-service.registry";
-
+import { IStreamService } from './stream-service.registry';
 
 /**
  * BaseStreamService represents a web services that fetches data
@@ -14,46 +13,42 @@ import {IStreamService} from "./stream-service.registry";
  */
 @Injectable()
 export abstract class BaseStreamService implements IStreamService {
+  private _eventNames: string[] = [];
 
-    private _eventNames: string[] = [];
+  constructor() {}
 
+  getEventNames(): string[] {
+    return this._eventNames;
+  }
 
-    constructor() {}
+  notifyConnected() {
+    this.onConnected();
+  }
 
-    getEventNames(): string[] {
-        return this._eventNames;
-    }
+  notifyDisconnected() {
+    this.onDisconnected();
+  }
 
-    notifyConnected() {
-        this.onConnected();
-    }
+  notifyEvent(eventName: string, data: string) {
+    this.onEvent(eventName, data);
+  }
 
-    notifyDisconnected() {
-        this.onDisconnected();
-    }
+  protected registerEventName(eventName: string) {
+    this._eventNames.push(eventName);
+  }
 
-    notifyEvent(eventName: string, data: string) {
-        this.onEvent(eventName, data);
-    }
+  /**
+   * Callback for a new event
+   */
+  protected abstract onEvent(eventName: string, data: string): void;
 
-    protected registerEventName(eventName: string) {
-        this._eventNames.push(eventName);
-    }
+  /**
+   * Callback for connected
+   */
+  protected abstract onConnected(): void;
 
-    /**
-     * Callback for a new event
-     * @param {string} eventName
-     * @param {string} data
-     */
-    protected abstract onEvent(eventName: string, data: string);
-
-    /**
-     * Callback for connected
-     */
-    protected abstract onConnected();
-
-    /**
-     * Callback for disconnected
-     */
-    protected abstract onDisconnected();
+  /**
+   * Callback for disconnected
+   */
+  protected abstract onDisconnected(): void;
 }

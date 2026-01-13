@@ -50,19 +50,18 @@ RUN	pyinstaller /python/scan_fs.py \
 
 
 # Creates environment for angular
-# Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
-# --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
-FROM node:20-slim AS seedsync_build_angular_env
+# Note: Using Node 22 LTS for Angular 21
+FROM node:22-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
-RUN npm install --legacy-peer-deps
+RUN npm install
 
 # Builds angular app into html
 # Output is in /build/dist/
 FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
-RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
+RUN npx ng build --output-path /build/dist/
 
 
 # Creates environment to build deb packages

@@ -1,39 +1,38 @@
-import {Record} from "immutable";
+import { Record } from 'immutable';
+
+export enum NotificationLevel {
+  SUCCESS = 'success',
+  INFO = 'info',
+  WARNING = 'warning',
+  DANGER = 'danger',
+}
 
 interface INotification {
-    level: Notification.Level;
-    text: string;
-    timestamp: number;
-    dismissible: boolean;
+  level: NotificationLevel | null;
+  text: string | null;
+  timestamp: number | null;
+  dismissible: boolean;
 }
+
 const DefaultNotification: INotification = {
-    level: null,
-    text: null,
-    timestamp: null,
-    dismissible: false,
+  level: null,
+  text: null,
+  timestamp: null,
+  dismissible: false,
 };
+
 const NotificationRecord = Record(DefaultNotification);
 
-
 export class Notification extends NotificationRecord implements INotification {
-    level: Notification.Level;
-    text: string;
-    timestamp: number;
-    dismissible: boolean;
+  declare level: NotificationLevel | null;
+  declare text: string | null;
+  declare timestamp: number | null;
+  declare dismissible: boolean;
 
-    constructor(props) {
-        props.timestamp = Date.now();
-
-        super(props);
-    }
-}
-
-
-export module Notification {
-    export enum Level {
-        SUCCESS         = <any> "success",
-        INFO            = <any> "info",
-        WARNING         = <any> "warning",
-        DANGER          = <any> "danger",
-    }
+  constructor(props: Partial<INotification>) {
+    super({
+      ...props,
+      timestamp: Date.now(),
+    });
+  }
 }

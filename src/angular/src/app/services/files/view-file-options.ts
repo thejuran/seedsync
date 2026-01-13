@@ -1,59 +1,55 @@
-import {Record} from "immutable";
+import { Record } from 'immutable';
 
-import {ViewFile} from "./view-file";
+import { ViewFileStatus } from './view-file';
+
+export enum ViewFileSortMethod {
+  STATUS,
+  NAME_ASC,
+  NAME_DESC,
+}
 
 /**
  * View file options
  * Describes display related options for view files
  */
 interface IViewFileOptions {
-    // Show additional details about the view file
-    showDetails: boolean;
+  // Show additional details about the view file
+  showDetails: boolean | null;
 
-    // Method to use to sort the view file list
-    sortMethod: ViewFileOptions.SortMethod;
+  // Method to use to sort the view file list
+  sortMethod: ViewFileSortMethod | null;
 
-    // Status filter setting
-    selectedStatusFilter: ViewFile.Status;
+  // Status filter setting
+  selectedStatusFilter: ViewFileStatus | null;
 
-    // Name filter setting
-    nameFilter: string;
+  // Name filter setting
+  nameFilter: string | null;
 
-    // Track filter pin status
-    pinFilter: boolean;
+  // Track filter pin status
+  pinFilter: boolean | null;
 }
-
 
 // Boiler plate code to set up an immutable class
 const DefaultViewFileOptions: IViewFileOptions = {
-    showDetails: null,
-    sortMethod: null,
-    selectedStatusFilter: null,
-    nameFilter: null,
-    pinFilter: null,
+  showDetails: null,
+  sortMethod: null,
+  selectedStatusFilter: null,
+  nameFilter: null,
+  pinFilter: null,
 };
 const ViewFileOptionsRecord = Record(DefaultViewFileOptions);
-
 
 /**
  * Immutable class that implements the interface
  */
 export class ViewFileOptions extends ViewFileOptionsRecord implements IViewFileOptions {
-    showDetails: boolean;
-    sortMethod: ViewFileOptions.SortMethod;
-    selectedStatusFilter: ViewFile.Status;
-    nameFilter: string;
-    pinFilter: boolean;
+  declare showDetails: boolean | null;
+  declare sortMethod: ViewFileSortMethod | null;
+  declare selectedStatusFilter: ViewFileStatus | null;
+  declare nameFilter: string | null;
+  declare pinFilter: boolean | null;
 
-    constructor(props) {
-        super(props);
-    }
-}
-
-export module ViewFileOptions {
-    export enum SortMethod {
-        STATUS,
-        NAME_ASC,
-        NAME_DESC
-    }
+  constructor(props: Partial<IViewFileOptions>) {
+    super(props);
+  }
 }
