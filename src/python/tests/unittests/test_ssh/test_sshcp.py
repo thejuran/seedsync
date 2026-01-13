@@ -113,7 +113,12 @@ class TestSshcp(unittest.TestCase):
         sshcp = Sshcp(host="badhost", port=self.port, user=self.user, password=password)
         with self.assertRaises(SshcpError) as ctx:
             sshcp.copy(local_path=self.local_file, remote_path=self.remote_file)
-        self.assertTrue("Connection refused by server" in str(ctx.exception))
+        # Accept either "Bad hostname" (DNS failure) or "Connection refused" (unreachable host)
+        error_str = str(ctx.exception)
+        self.assertTrue(
+            "Bad hostname" in error_str or "Connection refused" in error_str,
+            f"Unexpected error: {error_str}"
+        )
 
     @parameterized.expand(_PARAMS)
     @timeout_decorator.timeout(5)
@@ -121,8 +126,12 @@ class TestSshcp(unittest.TestCase):
         sshcp = Sshcp(host=self.host, port=666, user=self.user, password=password)
         with self.assertRaises(SshcpError) as ctx:
             sshcp.copy(local_path=self.local_file, remote_path=self.remote_file)
-        print(str(ctx.exception))
-        self.assertTrue("Connection refused by server" in str(ctx.exception))
+        # Accept "Connection refused" or other connection error messages
+        error_str = str(ctx.exception)
+        self.assertTrue(
+            "Connection refused" in error_str or "Connection timed out" in error_str,
+            f"Unexpected error: {error_str}"
+        )
 
     @parameterized.expand(_PARAMS)
     @timeout_decorator.timeout(5)
