@@ -10,6 +10,9 @@ RUN apt-get update && \
     apt-get install -y google-chrome-stable && \
     rm -rf /var/lib/apt/lists/*
 
+# Set Chrome binary path for Karma
+ENV CHROME_BIN=/usr/bin/google-chrome-stable
+
 COPY \
     src/angular/tsconfig.json \
     src/angular/karma.conf.js \

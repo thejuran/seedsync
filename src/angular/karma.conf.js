@@ -44,9 +44,17 @@ module.exports = function (config) {
                 flags: [
                     '--headless=new',
                     '--disable-gpu',
-                    '--remote-debugging-port=9222',
                     '--no-sandbox',
-                    '--disable-dev-shm-usage'
+                    '--disable-dev-shm-usage',
+                    '--disable-software-rasterizer',
+                    '--disable-extensions',
+                    '--disable-background-networking',
+                    '--disable-default-apps',
+                    '--disable-sync',
+                    '--disable-translate',
+                    '--mute-audio',
+                    '--hide-scrollbars',
+                    '--metrics-recording-only'
                 ]
             }
         },
