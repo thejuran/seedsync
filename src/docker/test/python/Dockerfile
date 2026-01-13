@@ -34,6 +34,8 @@ EXPOSE 22
 # src needs to be mounted on /src/
 WORKDIR /src/
 ENV PYTHONPATH=/src
+# Force unbuffered output for real-time logging
+ENV PYTHONUNBUFFERED=1
 
 ENTRYPOINT ["/app/entrypoint.sh"]
-CMD ["pytest", "-v"]
+CMD ["pytest", "-vvs", "--tb=long", "--log-cli-level=DEBUG", "--timeout-verbose", "-x"]
