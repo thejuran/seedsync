@@ -1,7 +1,7 @@
 FROM seedsync/build/angular/env AS seedsync_test_angular
 
 # Install Chrome for headless testing
-# node:16-slim doesn't include wget, so we need to install it first
+# node:20-slim doesn't include wget, so we need to install it first
 RUN apt-get update && \
     apt-get install -y wget gnupg && \
     wget -nv -O /tmp/chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
