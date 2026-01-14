@@ -2,7 +2,7 @@ Source: seedsync
 Section: utils
 Priority: extra
 Maintainer: Inderpreet Singh <ipsingh06@gmail.com>
-Build-Depends: debhelper (>= 8.0.0), dh-systemd (>= 1.5)
+Build-Depends: debhelper (>= 13)
 Standards-Version: 4.0.0
 
 Package: seedsync
