@@ -14,4 +14,4 @@ override_dh_auto_install:
 	cp -rf seedsync $(DESTROOT)/usr/lib/
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(CURDIR)/seedsync
+	dh_shlibdeps -l$(CURDIR)/seedsync -l$(CURDIR)/seedsync/_internal -- --ignore-missing-info
