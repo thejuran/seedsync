@@ -12,12 +12,9 @@ services:
     tmpfs:
       - /run
       - /run/lock
+      - /sys/fs/cgroup
     volumes:
       - type: bind
         source: ${SEEDSYNC_DEB}
         target: /install/seedsync.deb
         read_only: true
-
-      - type: bind
-        source: /sys/fs/cgroup
-        target: /sys/fs/cgroup
