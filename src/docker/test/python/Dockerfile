@@ -7,7 +7,8 @@ RUN ls -l /app/python
 RUN apt-get update && \
     apt-get install -y \
         openssh-server \
-        rar
+        rar \
+        unrar
 
 ADD src/docker/test/python/entrypoint.sh /app/
 

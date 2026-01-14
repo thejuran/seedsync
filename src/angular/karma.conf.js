@@ -9,22 +9,22 @@ module.exports = function (config) {
             require('karma-jasmine'),
             require('karma-chrome-launcher'),
             require('karma-jasmine-html-reporter'),
-            require('karma-coverage-istanbul-reporter'),
+            require('karma-coverage'),
             require('@angular/cli/plugins/karma'),
-            require('karma-mocha-reporter')
+            require('karma-spec-reporter')
         ],
         client: {
             clearContext: false, // leave Jasmine Spec Runner output visible in browser
             captureConsole: false
         },
-        coverageIstanbulReporter: {
-            reports: ['html', 'lcovonly'],
-            fixWebpackSourcePaths: true
+        coverageReporter: {
+            type: 'html',
+            dir: 'coverage/'
         },
         angularCli: {
             environment: 'dev'
         },
-        reporters: ['mocha', 'kjhtml'],
+        reporters: ['spec', 'kjhtml'],
         port: 9876,
         colors: true,
         logLevel: config.LOG_INFO,
@@ -43,9 +43,6 @@ module.exports = function (config) {
                     '--disable-dev-shm-usage'
                 ]
             }
-        },
-        mochaReporter: {
-            output: 'full'
         }
     });
 };
