@@ -139,7 +139,7 @@ jobs:
     needs: [ build-docker-image ]
     strategy:
       matrix:
-        arch: [ amd64, arm64, arm/v7 ]
+        arch: [ amd64, arm64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
