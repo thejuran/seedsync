@@ -15,8 +15,7 @@ RUN npm install --legacy-peer-deps
 FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
-RUN mkdir -p /build
-RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
+RUN mkdir -p /build/dist && node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 
 # ============================================================================
 # Scanfs Build Stages
