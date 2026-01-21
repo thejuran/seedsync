@@ -381,7 +381,9 @@ if __name__ == "__main__":
             break
         except ServiceRestart:
             Seedsync.logger.info("Restarting...")
-            continue
+            # Exit with code 0 so the entrypoint script can restart the process
+            # This ensures the socket is properly released and avoids TIME_WAIT issues
+            sys.exit(0)
         except Exception as e:
             Seedsync.logger.exception("Caught exception")
             raise
