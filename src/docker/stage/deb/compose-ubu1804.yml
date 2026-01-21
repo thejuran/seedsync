@@ -6,3 +6,5 @@ services:
     build:
       args:
         - BASE_IMAGE=ubuntu-systemd:18.04
+    networks:
+      - e2e_network
