@@ -183,7 +183,7 @@ run-tests-e2e: tests-e2e-deps
 		if [[ -z "${SEEDSYNC_OS}" ]] ; then \
 			echo "${red}ERROR: SEEDSYNC_OS is required for DEB e2e test${reset}"; \
 			echo "${red}Options include: ubu1604, ubu1804, ubu2004, ubu2204${reset}"; exit 1; \
-		fi
+		fi; \
 	fi
 
 	# Set up environment for image
@@ -191,14 +191,13 @@ run-tests-e2e: tests-e2e-deps
 		if [[ -z "${SEEDSYNC_ARCH}" ]] ; then \
 			echo "${red}ERROR: SEEDSYNC_ARCH is required for docker image e2e test${reset}"; \
 			echo "${red}Options include: amd64, arm64${reset}"; exit 1; \
-		fi
+		fi; \
 		if [[ -z "${STAGING_REGISTRY}" ]] ; then \
 			export STAGING_REGISTRY="${DEFAULT_STAGING_REGISTRY}"; \
-		fi;
-		echo "${green}STAGING_REGISTRY=$${STAGING_REGISTRY}${reset}";
-		# Removing and pulling is the only way to select the arch from a multi-arch image :(
-		$(DOCKER) rmi -f $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION}
-		$(DOCKER) pull $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} --platform linux/$${SEEDSYNC_ARCH}
+		fi; \
+		echo "${green}STAGING_REGISTRY=$${STAGING_REGISTRY}${reset}"; \
+		$(DOCKER) rmi -f $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION}; \
+		$(DOCKER) pull $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} --platform linux/$${SEEDSYNC_ARCH}; \
 	fi
 
 	# Set the flags
