@@ -83,4 +83,8 @@ class MyWSGIRefServer(bottle.ServerAdapter):
 
     def stop(self):
         self.logger.debug("Stopping web server")
-        self.server.server_close()
+        # First call shutdown() to stop serve_forever() loop
+        # Then call server_close() to release the socket
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
