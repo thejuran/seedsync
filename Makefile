@@ -31,6 +31,7 @@ scanfs: builddir
 	$(DOCKER) build \
 		-f ${SOURCEDIR}/docker/build/deb/Dockerfile \
 		--target seedsync_build_scanfs_export \
+		--platform linux/amd64 \
 		--output ${BUILDDIR} \
 		${ROOTDIR}
 
@@ -38,6 +39,7 @@ deb: builddir
 	$(DOCKER) build \
 		-f ${SOURCEDIR}/docker/build/deb/Dockerfile \
 		--target seedsync_build_deb_export \
+		--platform linux/amd64 \
 		--output ${BUILDDIR} \
 		${ROOTDIR}
 
@@ -198,6 +200,8 @@ run-tests-e2e: tests-e2e-deps
 		echo "${green}STAGING_REGISTRY=$${STAGING_REGISTRY}${reset}"; \
 		$(DOCKER) rmi -f $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION}; \
 		$(DOCKER) pull $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} --platform linux/$${SEEDSYNC_ARCH}; \
+		export DOCKER_DEFAULT_PLATFORM=linux/$${SEEDSYNC_ARCH}; \
+		echo "${green}DOCKER_DEFAULT_PLATFORM=linux/$${SEEDSYNC_ARCH}${reset}"; \
 	fi
 
 	# Set the flags
