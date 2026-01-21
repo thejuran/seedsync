@@ -53,4 +53,5 @@ services:
 
 networks:
   e2e_network:
+    name: seedsync_e2e_network
     driver: bridge

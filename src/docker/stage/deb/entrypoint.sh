@@ -6,7 +6,8 @@ set -e
 echo "Running entrypoint"
 
 echo "Installing SeedSync"
-./expect_seedsync.exp
+# Run install script directly (debconf value is pre-set via debconf-set-selections)
+./install_seedsync.sh
 
 # Determine if we should use systemd or run seedsync directly
 # SEEDSYNC_NO_SYSTEMD=1 forces direct mode (useful for CI where systemd doesn't work)
