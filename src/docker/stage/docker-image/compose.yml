@@ -10,3 +10,13 @@ services:
       timeout: 3s
       retries: 24
       start_period: 30s
+    # Explicit DNS to avoid resolution issues in CI
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - e2e_network
+
+networks:
+  e2e_network:
+    driver: bridge

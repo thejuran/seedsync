@@ -17,6 +17,11 @@ services:
         condition: service_completed_successfully
     # Playwright needs more shared memory for browser
     shm_size: 1024M
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - e2e_network
 
   remote:
     image: seedsync/test/e2e/remote
@@ -25,6 +30,11 @@ services:
     build:
       context: ../../../../
       dockerfile: src/docker/test/e2e/remote/Dockerfile
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - e2e_network
 
   configure:
     image: seedsync/test/e2e/configure
@@ -35,3 +45,12 @@ services:
       dockerfile: src/docker/test/e2e/configure/Dockerfile
     depends_on:
       - myapp
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    networks:
+      - e2e_network
+
+networks:
+  e2e_network:
+    driver: bridge
