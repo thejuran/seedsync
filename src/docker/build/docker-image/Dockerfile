@@ -113,6 +113,7 @@ FROM seedsync_run_python AS seedsync_run
 COPY --from=seedsync_build_angular /build/dist /app/html
 COPY --from=seedsync_build_scanfs /build/dist/scanfs /app/scanfs
 COPY src/docker/build/docker-image/setup_default_config.sh /scripts/
+COPY src/docker/build/docker-image/entrypoint.sh /scripts/
 
 # Disable the known hosts prompt
 RUN mkdir -p /root/.ssh && echo "StrictHostKeyChecking no\nUserKnownHostsFile /dev/null" > /root/.ssh/config
@@ -141,14 +142,14 @@ USER seedsync
 # First time config setup and replacement
 RUN /scripts/setup_default_config.sh
 
-# Must run app inside shell
-# Otherwise the container crashes as soon as a child process exits
-CMD [ \
-    "python", \
-    "/app/python/seedsync.py", \
-    "-c", "/config", \
-    "--html", "/app/html", \
-    "--scanfs", "/app/scanfs" \
-]
+# Make entrypoint executable
+USER root
+RUN chmod +x /scripts/entrypoint.sh
+USER seedsync
+
+# Use entrypoint script that handles restarts
+# When seedsync receives a restart command via API, it exits
+# The entrypoint loops to restart it automatically
+CMD ["/scripts/entrypoint.sh"]
 
 EXPOSE 8800
