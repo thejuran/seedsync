@@ -262,11 +262,18 @@ run-tests-e2e: tests-e2e-deps
 
 	EXITCODE=`$(DOCKER) inspect seedsync_test_e2e | jq '.[].State.ExitCode'`
 	if [[ "$${EXITCODE}" != "0" ]] ; then
-		echo "${red}Test failed! Showing myapp container logs for debugging:${reset}"
+		echo "${red}Test failed! Showing container logs for debugging:${reset}"
+		# Show configure container logs (runs before tests)
+		echo "${red}=== Configure service logs ===${reset}"
+		$(DOCKER) logs seedsync_test_e2e_configure 2>/dev/null || true
 		# Show myapp container logs (name varies by OS)
+		echo "${red}=== MyApp container logs ===${reset}"
 		$(DOCKER) logs seedsync_stage_deb_ubu2004 2>/dev/null || true
 		$(DOCKER) logs seedsync_stage_deb_ubu2204 2>/dev/null || true
 		$(DOCKER) logs seedsync_test_e2e_myapp 2>/dev/null || true
+		# Show test container logs
+		echo "${red}=== Test container logs ===${reset}"
+		$(DOCKER) logs seedsync_test_e2e 2>/dev/null || true
 		false
 	fi
 
