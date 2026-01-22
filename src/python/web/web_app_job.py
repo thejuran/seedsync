@@ -92,8 +92,19 @@ class MyWSGIRefServer(bottle.ServerAdapter):
 
     def stop(self):
         self.logger.debug("Stopping web server")
-        # First call shutdown() to stop serve_forever() loop
-        # Then call server_close() to release the socket
+        # First close the socket to reject new connections and cause serve_forever to exit
+        # Then call shutdown to signal the serve_forever loop
+        # Note: shutdown() blocks until serve_forever() returns, which can hang if there are
+        # active connections. By closing the socket first and making server_thread a daemon,
+        # we ensure the process can exit even if shutdown() would block.
         if self.server:
-            self.server.shutdown()
-            self.server.server_close()
+            try:
+                self.server.server_close()
+            except Exception as e:
+                self.logger.debug("Error closing server socket: {}".format(e))
+            try:
+                # shutdown() may block, but since server_thread is a daemon thread,
+                # the process will exit anyway when main thread calls sys.exit()
+                self.server.shutdown()
+            except Exception as e:
+                self.logger.debug("Error shutting down server: {}".format(e))

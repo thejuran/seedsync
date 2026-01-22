@@ -17,7 +17,7 @@ class Job(threading.Thread, ABC):
     _DEFAULT_SLEEP_INTERVAL_IN_SECS = 0.5
 
     def __init__(self, name: str, context: Context):
-        super().__init__()
+        super().__init__(daemon=True)  # Daemon thread won't block process exit
         self.name = name
         self.logger = context.logger
 
