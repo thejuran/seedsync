@@ -3,6 +3,7 @@
 from typing import Type, Callable, Optional
 from abc import ABC, abstractmethod
 import time
+import threading
 
 import bottle
 from bottle import static_file
@@ -65,7 +66,9 @@ class WebApp(bottle.Bottle):
         self._html_path = context.args.html_path
         self._status = context.status
         self.logger.info("Html path set to: {}".format(self._html_path))
-        self._stop_flag = False
+        # Use threading.Event instead of boolean to avoid bottle's __setattr__ restrictions
+        # bottle.Bottle has a custom __setattr__ that blocks reassigning attributes
+        self._stop_event = threading.Event()
         self._streaming_handlers = []  # list of (handler, kwargs) pairs
 
     def add_default_routes(self):
@@ -103,9 +106,9 @@ class WebApp(bottle.Bottle):
     def stop(self):
         """
         Exit gracefully, kill any connections and clean up any state
-        :return: 
+        :return:
         """
-        self._stop_flag = True
+        self._stop_event.set()
 
     def __index(self):
         """
@@ -137,7 +140,7 @@ class WebApp(bottle.Bottle):
                 handler.setup()
 
             # Get streaming values until the connection closes
-            while not self._stop_flag:
+            while not self._stop_event.is_set():
                 for handler in handlers:
                     # Process all values from this handler
                     while True:
@@ -151,7 +154,7 @@ class WebApp(bottle.Bottle):
 
         finally:
             self.logger.debug("Stream connection stopped by {}".format(
-                "server" if self._stop_flag else "client"
+                "server" if self._stop_event.is_set() else "client"
             ))
 
             # Cleanup all handlers
