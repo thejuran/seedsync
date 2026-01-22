@@ -35,7 +35,8 @@ class WebAppJob(Job):
                                           'app': self.__app,
                                           'server': self.__server,
                                           'debug': self.__context.args.debug
-                                      })
+                                      },
+                                      daemon=True)  # Daemon thread won't block process exit
         self.__server_thread.start()
 
     @overrides(Job)
@@ -44,9 +45,17 @@ class WebAppJob(Job):
 
     @overrides(Job)
     def cleanup(self):
+        self.logger.info("WebAppJob cleanup: stopping app")
         self.__app.stop()
+        self.logger.info("WebAppJob cleanup: stopping server")
         self.__server.stop()
-        self.__server_thread.join()
+        self.logger.info("WebAppJob cleanup: joining server thread (timeout=3s)")
+        # Use timeout to prevent blocking forever if server thread doesn't stop
+        self.__server_thread.join(timeout=3.0)
+        if self.__server_thread.is_alive():
+            self.logger.warning("Server thread did not stop within timeout")
+        else:
+            self.logger.info("WebAppJob cleanup: server thread stopped")
 
 
 class MyWSGIHandler(httpserver.WSGIHandler):
