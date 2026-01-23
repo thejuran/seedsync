@@ -245,10 +245,16 @@ class Seedsync:
                             help="Path to directory containing html resources")
 
         # Scanfs path is only required if not running a frozen package
-        # For a frozen package, set default to root/scanfs
+        # For a frozen package, check both _MEIPASS and parent directory
+        # (deb package installs scanfs in parent of _internal)
         # noinspection PyUnresolvedReferences
         # noinspection PyProtectedMember
-        default_scanfs_path = os.path.join(sys._MEIPASS, "scanfs") if is_frozen else None
+        if is_frozen:
+            meipass_scanfs = os.path.join(sys._MEIPASS, "scanfs")
+            parent_scanfs = os.path.join(os.path.dirname(sys._MEIPASS), "scanfs")
+            default_scanfs_path = meipass_scanfs if os.path.exists(meipass_scanfs) else parent_scanfs
+        else:
+            default_scanfs_path = None
         parser.add_argument("--scanfs",
                             required=not is_frozen,
                             default=default_scanfs_path,
