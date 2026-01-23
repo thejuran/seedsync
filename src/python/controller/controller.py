@@ -13,7 +13,7 @@ from .extract import ExtractProcess, ExtractStatus
 from .model_builder import ModelBuilder
 from common import Context, AppError, MultiprocessingLogger, AppOneShotProcess, Constants
 from model import ModelError, ModelFile, Model, ModelDiff, ModelDiffUtil, IModelListener
-from lftp import Lftp, LftpError, LftpJobStatus
+from lftp import Lftp, LftpError, LftpJobStatus, LftpJobStatusParserError
 from .controller_persist import ControllerPersist
 from .delete import DeleteLocalProcess, DeleteRemoteProcess
 
@@ -293,7 +293,7 @@ class Controller:
         lftp_statuses = None
         try:
             lftp_statuses = self.__lftp.status()
-        except LftpError as e:
+        except (LftpError, LftpJobStatusParserError) as e:
             self.logger.warning("Caught lftp error: {}".format(str(e)))
 
         # Grab the latest extract results
