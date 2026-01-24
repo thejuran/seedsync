@@ -5,8 +5,9 @@
 # Creates environment for angular
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
-# Using Dart-based sass instead of node-sass to avoid native compilation issues
 FROM node:20-slim AS seedsync_build_angular_env
+# Install Python and build tools for node-sass compilation
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
 COPY src/angular/package*.json /app/
 WORKDIR /app
 RUN npm install --legacy-peer-deps
