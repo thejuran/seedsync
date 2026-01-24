@@ -5,6 +5,8 @@ test.describe('Testing autoqueue page', () => {
     test.beforeEach(async ({ page }) => {
         const autoQueuePage = new AutoQueuePage(page);
         await autoQueuePage.navigateTo();
+        // Clear any leftover patterns from previous tests
+        await autoQueuePage.clearAllPatterns();
     });
 
     test('should have right top title', async ({ page }) => {
