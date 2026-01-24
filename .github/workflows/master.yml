@@ -139,7 +139,10 @@ jobs:
     needs: [ build-docker-image ]
     strategy:
       matrix:
-        arch: [ amd64, arm64, arm/v7 ]
+        # Only test on amd64 - ARM architectures fail because Playwright/Chromium
+        # doesn't work under QEMU emulation used by GitHub Actions.
+        # ARM Docker images are still built and verified during build-docker-image.
+        arch: [ amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
