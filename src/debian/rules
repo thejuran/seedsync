@@ -3,7 +3,7 @@
 export DESTROOT=$(CURDIR)/debian/seedsync
 
 %:
-	dh $@ --with=systemd
+	dh $@
 
 override_dh_auto_build:
 	dh_auto_build
@@ -14,4 +14,6 @@ override_dh_auto_install:
 	cp -rf seedsync $(DESTROOT)/usr/lib/
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(CURDIR)/seedsync
+	# PyInstaller bundles are self-contained with all dependencies included.
+	# Skip strict shlibdeps checking which fails on bundled libraries.
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l$(CURDIR)/seedsync
