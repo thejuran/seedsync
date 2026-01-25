@@ -83,7 +83,7 @@ docker-image: docker-buildx
 		--tag $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} \
 		--cache-to=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache,mode=max \
 		--cache-from=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache \
-		--platform linux/amd64,linux/arm64,linux/arm/v7 \
+		--platform linux/amd64,linux/arm64 \
 		--push \
 		${ROOTDIR}
 
@@ -113,7 +113,7 @@ docker-image-release:
 		--build-arg STAGING_REGISTRY=$${STAGING_REGISTRY} \
 		--tag ${RELEASE_REGISTRY}/seedsync:${RELEASE_VERSION} \
 		--cache-from=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache \
-		--platform linux/amd64,linux/arm64,linux/arm/v7 \
+		--platform linux/amd64,linux/arm64 \
 		--push \
 		${ROOTDIR}
 
@@ -190,7 +190,7 @@ run-tests-e2e: tests-e2e-deps
 	@if [[ ! -z "${STAGING_VERSION}" ]] ; then \
 		if [[ -z "${SEEDSYNC_ARCH}" ]] ; then \
 			echo "${red}ERROR: SEEDSYNC_ARCH is required for docker image e2e test${reset}"; \
-			echo "${red}Options include: amd64, arm64, arm/v7${reset}"; exit 1; \
+			echo "${red}Options include: amd64, arm64${reset}"; exit 1; \
 		fi
 		if [[ -z "${STAGING_REGISTRY}" ]] ; then \
 			export STAGING_REGISTRY="${DEFAULT_STAGING_REGISTRY}"; \

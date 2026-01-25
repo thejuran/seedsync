@@ -145,4 +145,4 @@ When releasing, update version in these files:
 - Raspberry Pi v2, v3, v4 (ARM builds)
 - Windows/macOS (via Docker)
 
-Docker images are built for: `linux/amd64`, `linux/arm64`, `linux/arm/v7`
+Docker images are built for: `linux/amd64`, `linux/arm64`
