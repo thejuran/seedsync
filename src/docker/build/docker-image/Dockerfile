@@ -26,9 +26,11 @@ RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 # Using Debian 11 (bullseye) with GLIBC 2.31 for compatibility with older systems
 # Ubuntu 22.04 uses GLIBC 2.35 which causes runtime errors on older distros
 FROM python:3.11-slim-bullseye AS seedsync_build_pyinstaller_env
-# Install build dependencies
+# Install build dependencies (gcc and libffi-dev needed for ARM to compile cffi)
 RUN apt-get update && apt-get install -y \
     binutils \
+    gcc \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 # Install Poetry
 RUN pip3 install poetry && \
