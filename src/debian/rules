@@ -14,6 +14,7 @@ override_dh_auto_install:
 	cp -rf seedsync $(DESTROOT)/usr/lib/
 
 override_dh_shlibdeps:
-	# PyInstaller bundles are self-contained with all dependencies included.
-	# Skip strict shlibdeps checking which fails on bundled libraries.
-	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info -l$(CURDIR)/seedsync
+	# PyInstaller bundles are self-contained with all dependencies included
+	# in the _internal directory. Skip shlibdeps entirely as it cannot
+	# resolve the bundled private libraries.
+	@echo "Skipping dh_shlibdeps for PyInstaller bundle"
