@@ -129,6 +129,12 @@ jobs:
           name: deb-${{ github.run_number }}
           path: build/
 
+      # Configure Docker for systemd containers on cgroups v2
+      - name: Configure Docker daemon for cgroups v2
+        run: |
+          echo '{"default-cgroupns-mode": "host"}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl restart docker
+
       # Run e2e test
       - name: Run e2e test
         run: make run-tests-e2e SEEDSYNC_DEB=`readlink -f build/*.deb` SEEDSYNC_OS=${{ matrix.oscode }}

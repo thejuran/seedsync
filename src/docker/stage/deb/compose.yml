@@ -8,7 +8,6 @@ services:
       dockerfile: src/docker/stage/deb/Dockerfile
     tty: true
     privileged: true
-    cgroup: host
     tmpfs:
       - /run
       - /run/lock
