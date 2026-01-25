@@ -4,6 +4,9 @@
 
 FROM ubuntu:16.04
 
+# Ensure /etc/resolv.conf is a regular file to prevent conflicts with Docker's DNS
+RUN rm -f /etc/resolv.conf && echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 ENV container docker
 
 # Don't start any optional services except for the few we need.

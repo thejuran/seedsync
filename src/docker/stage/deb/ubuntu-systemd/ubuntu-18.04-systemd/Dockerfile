@@ -3,6 +3,9 @@
 # https://hub.docker.com/r/solita/ubuntu-systemd/
 FROM ubuntu:18.04
 
+# Ensure /etc/resolv.conf is a regular file to prevent conflicts with Docker's DNS
+RUN rm -f /etc/resolv.conf && echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 RUN apt-get update && apt-get install -y systemd
 
 ENV container docker
