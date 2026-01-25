@@ -5,6 +5,8 @@ FROM python:3.11-slim-bullseye AS seedsync_build_pyinstaller_env
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     binutils \
+    build-essential \
+    libffi-dev \
     && rm -rf /var/lib/apt/lists/*
 # Install Poetry
 RUN pip3 install poetry && \
