@@ -35,6 +35,7 @@ RUN apt-get update && apt-get install -y \
     binutils \
     build-essential \
     libffi-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 # Install Poetry
 RUN pip3 install poetry && \
