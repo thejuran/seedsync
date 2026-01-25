@@ -18,6 +18,9 @@ RUN find /etc/systemd/system \
 
 RUN systemctl set-default multi-user.target
 
+# Mask services that don't work well in containers
+RUN systemctl mask systemd-resolved.service systemd-networkd.service
+
 COPY setup /sbin/
 
 STOPSIGNAL SIGRTMIN+3
