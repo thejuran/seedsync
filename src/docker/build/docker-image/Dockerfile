@@ -80,10 +80,8 @@ RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmwa
         libxml2-dev libxslt-dev libffi-dev \
     && apt-get clean
 
-# Install Poetry using official installer
-ENV POETRY_HOME="/opt/poetry"
-ENV PATH="$POETRY_HOME/bin:$PATH"
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
+# Install Poetry using pip (more reliable than installer script in CI)
+RUN pip3 install poetry && \
     poetry config virtualenvs.create false
 
 ENV LC_ALL=C.UTF-8
