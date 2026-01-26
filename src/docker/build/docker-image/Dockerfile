@@ -6,8 +6,8 @@
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
 FROM node:20-slim AS seedsync_build_angular_env
-# Install Python and build tools for node-sass compilation on ARM
-# (no pre-built binaries available for ARM, so node-gyp must compile from source)
+# Install Python and build tools for any native node modules
+# (kept for compatibility with legacy dependencies that may need compilation)
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
