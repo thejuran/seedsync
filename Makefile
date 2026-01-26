@@ -229,9 +229,14 @@ run-tests-e2e:
 		$(DOCKER) logs -f seedsync_test_e2e
 	fi
 
-	# Show logs from myapp container for debugging
+	# Show logs from myapp container for debugging (try all possible container names)
 	echo "${green}=== Logs from myapp container ===${reset}"
-	$(DOCKER) logs seedsync_stage_deb 2>&1 || $(DOCKER) logs seedsync_test_e2e_myapp 2>&1 || echo "No myapp logs found"
+	$(DOCKER) logs seedsync_stage_deb_ubu1604 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu1804 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu2004 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu2204 2>&1 || \
+		$(DOCKER) logs seedsync_test_e2e_myapp 2>&1 || \
+		echo "No myapp logs found"
 
 	EXITCODE=`$(DOCKER) inspect seedsync_test_e2e | jq '.[].State.ExitCode'`
 	if [[ "$${EXITCODE}" != "0" ]] ; then
