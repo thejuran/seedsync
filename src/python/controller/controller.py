@@ -431,7 +431,7 @@ class Controller:
                     continue
                 try:
                     self.__lftp.kill(file.name)
-                except LftpError as e:
+                except (LftpError, LftpJobStatusParserError) as e:
                     _notify_failure(command, "Lftp error: ".format(str(e)))
                     continue
 
