@@ -65,7 +65,9 @@ class WebApp(bottle.Bottle):
         self._html_path = context.args.html_path
         self._status = context.status
         self.logger.info("Html path set to: {}".format(self._html_path))
-        self._stop_flag = False
+        # Use object.__setattr__ to bypass Bottle's special __setattr__ handling
+        # that prevents attribute reassignment (Bottle thinks it's a plugin conflict)
+        object.__setattr__(self, '_stop_flag', False)
         self._streaming_handlers = []  # list of (handler, kwargs) pairs
 
     def add_default_routes(self):
@@ -103,9 +105,10 @@ class WebApp(bottle.Bottle):
     def stop(self):
         """
         Exit gracefully, kill any connections and clean up any state
-        :return: 
+        :return:
         """
-        self._stop_flag = True
+        # Use object.__setattr__ to bypass Bottle's special __setattr__ handling
+        object.__setattr__(self, '_stop_flag', True)
 
     def __index(self):
         """
