@@ -12,15 +12,16 @@ echo "=== Installing SeedSync ==="
 echo "=== Checking seedsync installation ==="
 ls -la /usr/lib/seedsync/ 2>&1 || true
 
-# Create directories for seedsync
+# Create directories for seedsync (as user)
 mkdir -p /home/user/.seedsync/log
+chown -R user:user /home/user/.seedsync
 
 echo "=== Starting SeedSync directly (no systemd) ==="
-# Run seedsync in a restart loop (it exits when restart is requested)
+# Run seedsync as user "user" in a restart loop
 set +e
 while true; do
-    echo "Starting seedsync..."
-    /usr/lib/seedsync/seedsync --logdir /home/user/.seedsync/log -c /home/user/.seedsync
+    echo "Starting seedsync as user 'user'..."
+    su - user -c "HOME=/home/user /usr/lib/seedsync/seedsync --logdir /home/user/.seedsync/log -c /home/user/.seedsync"
     EXIT_CODE=$?
     echo "Seedsync exited with code $EXIT_CODE"
     if [ $EXIT_CODE -ne 0 ]; then
