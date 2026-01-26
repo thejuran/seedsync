@@ -177,9 +177,11 @@ run-tests-e2e:
 			export STAGING_REGISTRY="${DEFAULT_STAGING_REGISTRY}"; \
 		fi;
 		echo "${green}STAGING_REGISTRY=$${STAGING_REGISTRY}${reset}";
-		# Set platform for remote container to match myapp architecture
+		# Set platform for building and running containers to match myapp architecture
 		export SEEDSYNC_PLATFORM="linux/$${SEEDSYNC_ARCH}";
+		export DOCKER_DEFAULT_PLATFORM="linux/$${SEEDSYNC_ARCH}";
 		echo "${green}SEEDSYNC_PLATFORM=$${SEEDSYNC_PLATFORM}${reset}";
+		echo "${green}DOCKER_DEFAULT_PLATFORM=$${DOCKER_DEFAULT_PLATFORM}${reset}";
 		# Removing and pulling is the only way to select the arch from a multi-arch image :(
 		$(DOCKER) rmi -f $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION}
 		$(DOCKER) pull $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} --platform linux/$${SEEDSYNC_ARCH}
