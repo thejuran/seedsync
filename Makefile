@@ -163,7 +163,7 @@ run-tests-e2e:
 	@if [[ ! -z "${SEEDSYNC_DEB}" ]] ; then \
 		if [[ -z "${SEEDSYNC_OS}" ]] ; then \
 			echo "${red}ERROR: SEEDSYNC_OS is required for DEB e2e test${reset}"; \
-			echo "${red}Options include: ubu1604, ubu1804, ubu2004, ubu2204${reset}"; exit 1; \
+			echo "${red}Options include: ubu2004, ubu2204 (requires GLIBC 2.29+)${reset}"; exit 1; \
 		fi
 	fi
 
