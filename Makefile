@@ -220,11 +220,14 @@ run-tests-e2e:
 	}
 	trap tearDown EXIT
 
-	# Build the test
+	# Build the test containers
+	# For Docker image tests, skip building 'remote' since we pre-built it with the correct platform
 	echo "${green}Building the tests${reset}"
-	$(DOCKER_COMPOSE) \
-		$${COMPOSE_FLAGS} \
-		build
+	if [[ ! -z "${STAGING_VERSION}" ]] ; then \
+		$(DOCKER_COMPOSE) $${COMPOSE_FLAGS} build tests configure
+	else \
+		$(DOCKER_COMPOSE) $${COMPOSE_FLAGS} build
+	fi
 
 	# This suppresses the docker-compose error that image has changed
 	$(DOCKER_COMPOSE) \
