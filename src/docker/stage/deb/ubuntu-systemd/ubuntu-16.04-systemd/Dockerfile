@@ -4,6 +4,8 @@
 
 FROM ubuntu:16.04
 
+RUN apt-get update && apt-get install -y systemd
+
 ENV container docker
 
 # Don't start any optional services except for the few we need.
@@ -20,9 +22,9 @@ RUN systemctl set-default multi-user.target
 # Mask services that don't work well in containers
 RUN systemctl mask systemd-resolved.service systemd-networkd.service
 
-# Make network-online.target reachable without waiting for network services
+# Make network-online.target immediately reachable in containers
 RUN mkdir -p /etc/systemd/system/network-online.target.d && \
-    echo -e '[Unit]\nWants=' > /etc/systemd/system/network-online.target.d/override.conf
+    printf '[Unit]\nDefaultDependencies=no\nRequires=\nWants=\nAfter=\n' > /etc/systemd/system/network-online.target.d/override.conf
 
 COPY setup /sbin/
 
