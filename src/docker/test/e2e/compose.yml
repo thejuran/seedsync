@@ -19,8 +19,6 @@ services:
     build:
       context: ../../../../
       dockerfile: src/docker/test/e2e/remote/Dockerfile
-      platforms:
-        - ${SEEDSYNC_PLATFORM:-linux/amd64}
 
   configure:
     image: seedsync/test/e2e/configure
