@@ -41,6 +41,7 @@ ADD src/docker/stage/deb/entrypoint.sh /scripts/
 STOPSIGNAL SIGRTMIN+3
 
 ENTRYPOINT ["/scripts/entrypoint.sh"]
-CMD ["/bin/bash", "-c", "exec /lib/systemd/systemd --log-target=journal 3>&1"]
+# Use /sbin/init which works on all Ubuntu versions (symlink to systemd)
+CMD ["/bin/bash", "-c", "exec /sbin/init --log-target=journal 3>&1"]
 
 EXPOSE 8800
