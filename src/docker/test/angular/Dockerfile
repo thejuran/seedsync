@@ -9,8 +9,10 @@ RUN apt-get update && \
 
 COPY \
     src/angular/tsconfig.json \
+    src/angular/tsconfig.app.json \
+    src/angular/tsconfig.spec.json \
     src/angular/karma.conf.js \
-    src/angular/.angular-cli.json \
+    src/angular/angular.json \
     /app/
 
 RUN ls -l /app/
@@ -20,4 +22,4 @@ WORKDIR /app/src
 
 CMD ["/app/node_modules/@angular/cli/bin/ng", "test", \
      "--browsers", "ChromeHeadless", \
-     "--single-run"]
+     "--no-watch"]
