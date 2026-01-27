@@ -42,6 +42,16 @@ module.exports = function (config) {
                     '--no-sandbox',
                     '--disable-dev-shm-usage'
                 ]
+            },
+            ChromeHeadlessCI: {
+                base: 'Chrome',
+                flags: [
+                    '--headless=new',
+                    '--disable-gpu',
+                    '--remote-debugging-port=9222',
+                    '--no-sandbox',
+                    '--disable-dev-shm-usage'
+                ]
             }
         }
     });
