@@ -4,35 +4,34 @@ import {ViewFileOptionsService} from "../../../../services/files/view-file-optio
 import {ViewFileOptions} from "../../../../services/files/view-file-options";
 import {ViewFile} from "../../../../services/files/view-file";
 import {LoggerService} from "../../../../services/utils/logger.service";
-import {MockStorageService} from "../../../mocks/mock-storage.service";
-import {LOCAL_STORAGE, StorageService} from "angular-webstorage-service";
 import {StorageKeys} from "../../../../common/storage-keys";
 
 
 function createViewOptionsService(): ViewFileOptionsService {
     return new ViewFileOptionsService(
-        TestBed.get(LoggerService),
-        TestBed.get(LOCAL_STORAGE)
+        TestBed.inject(LoggerService)
     );
 }
 
 
 describe("Testing view file options service", () => {
     let viewOptionsService: ViewFileOptionsService;
-    let storageService: StorageService;
+    let localStorageGetSpy: jasmine.Spy;
+    let localStorageSetSpy: jasmine.Spy;
 
     beforeEach(() => {
+        // Mock localStorage
+        localStorageGetSpy = spyOn(localStorage, "getItem").and.returnValue(null);
+        localStorageSetSpy = spyOn(localStorage, "setItem");
+
         TestBed.configureTestingModule({
             providers: [
                 ViewFileOptionsService,
                 LoggerService,
-                {provide: LOCAL_STORAGE, useClass: MockStorageService},
             ]
         });
 
-        viewOptionsService = TestBed.get(ViewFileOptionsService);
-
-        storageService = TestBed.get(LOCAL_STORAGE);
+        viewOptionsService = TestBed.inject(ViewFileOptionsService);
     });
 
     it("should create an instance", () => {
@@ -87,14 +86,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should load showDetails from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
+        localStorageGetSpy.and.callFake((key: string) => {
             if (key === StorageKeys.VIEW_OPTION_SHOW_DETAILS) {
-                return true;
+                return JSON.stringify(true);
             }
+            return null;
         });
         // Recreate the service
         viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
+        expect(localStorage.getItem).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
 
         let count = 0;
         let showDetails = null;
@@ -110,16 +110,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should save showDetails to storage", fakeAsync(() => {
-        spyOn(storageService, "set");
         viewOptionsService.setShowDetails(true);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_SHOW_DETAILS,
-            true
+            JSON.stringify(true)
         );
         viewOptionsService.setShowDetails(false);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_SHOW_DETAILS,
-            false
+            JSON.stringify(false)
         );
     }));
 
@@ -153,14 +152,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should load sortMethod from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
+        localStorageGetSpy.and.callFake((key: string) => {
             if (key === StorageKeys.VIEW_OPTION_SORT_METHOD) {
-                return ViewFileOptions.SortMethod.NAME_ASC;
+                return JSON.stringify(ViewFileOptions.SortMethod.NAME_ASC);
             }
+            return null;
         });
         // Recreate the service
         viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
+        expect(localStorage.getItem).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
 
         let count = 0;
         let sortMethod = null;
@@ -176,16 +176,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should save sortMethod to storage", fakeAsync(() => {
-        spyOn(storageService, "set");
         viewOptionsService.setSortMethod(ViewFileOptions.SortMethod.NAME_ASC);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_SORT_METHOD,
-            ViewFileOptions.SortMethod.NAME_ASC
+            JSON.stringify(ViewFileOptions.SortMethod.NAME_ASC)
         );
         viewOptionsService.setSortMethod(ViewFileOptions.SortMethod.NAME_DESC);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_SORT_METHOD,
-            ViewFileOptions.SortMethod.NAME_DESC
+            JSON.stringify(ViewFileOptions.SortMethod.NAME_DESC)
         );
     }));
 
@@ -289,14 +288,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should load pinFilter from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
+        localStorageGetSpy.and.callFake((key: string) => {
             if (key === StorageKeys.VIEW_OPTION_PIN) {
-                return true;
+                return JSON.stringify(true);
             }
+            return null;
         });
         // Recreate the service
         viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_PIN);
+        expect(localStorage.getItem).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_PIN);
 
         let count = 0;
         let pinFilter = null;
@@ -312,16 +312,15 @@ describe("Testing view file options service", () => {
     }));
 
     it("should save pinFilter to storage", fakeAsync(() => {
-        spyOn(storageService, "set");
         viewOptionsService.setPinFilter(true);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_PIN,
-            true
+            JSON.stringify(true)
         );
         viewOptionsService.setPinFilter(false);
-        expect(storageService.set).toHaveBeenCalledWith(
+        expect(localStorage.setItem).toHaveBeenCalledWith(
             StorageKeys.VIEW_OPTION_PIN,
-            false
+            JSON.stringify(false)
         );
     }));
 });

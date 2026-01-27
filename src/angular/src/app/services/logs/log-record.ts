@@ -59,9 +59,9 @@ export module LogRecord {
  * Note: naming convention matches that used in JSON
  */
 export interface LogRecordJson {
-    time: number;
+    time: number | string;
     level_name: string;
     logger_name: string;
     message: string;
-    exc_tb: string;
+    exc_tb?: string | null;
 }

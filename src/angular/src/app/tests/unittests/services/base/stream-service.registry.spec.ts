@@ -49,7 +49,7 @@ describe("Testing stream dispatch service", () => {
         spyOn(EventSourceFactory, "createEventSource").and.callFake(
             (url: string) => {
                 mockEventSource = createMockEventSource(url);
-                return mockEventSource;
+                return mockEventSource as unknown as EventSource;
             }
         );
         mockService1 = new MockStreamService();

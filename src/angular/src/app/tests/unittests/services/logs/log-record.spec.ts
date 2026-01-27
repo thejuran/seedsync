@@ -1,10 +1,10 @@
 import * as Immutable from "immutable";
 
-import {LogRecord} from "../../../../services/logs/log-record";
+import {LogRecord, LogRecordJson} from "../../../../services/logs/log-record";
 
 
 describe("Testing log record initialization", () => {
-    let baseJson;
+    let baseJson: LogRecordJson;
     let baseLogRecord: LogRecord;
 
     beforeEach(() => {

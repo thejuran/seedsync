@@ -33,9 +33,9 @@ describe("Testing log service", () => {
 
     it("should send correct record on event", fakeAsync(() => {
         let count = 0;
-        let latestRecord: LogRecord = null;
+        let latestRecord: LogRecord | null = null;
         // noinspection JSUnusedAssignment
-        let json = null;
+        let json: {level_name: string; time: string; logger_name: string; message: string} | null = null;
 
         logService.logs.subscribe({
             next: record => {
@@ -53,7 +53,7 @@ describe("Testing log service", () => {
         logService.notifyEvent("log-record", JSON.stringify(json));
         tick();
         expect(count).toBe(1);
-        expect(Immutable.is(latestRecord, LogRecord.fromJson(json))).toBe(true);
+        expect(Immutable.is(latestRecord, LogRecord.fromJson(json!))).toBe(true);
 
         json = {
             level_name: "WARNING",
@@ -64,24 +64,20 @@ describe("Testing log service", () => {
         logService.notifyEvent("log-record", JSON.stringify(json));
         tick();
         expect(count).toBe(2);
-        expect(Immutable.is(latestRecord, LogRecord.fromJson(json))).toBe(true);
+        expect(Immutable.is(latestRecord, LogRecord.fromJson(json!))).toBe(true);
     }));
 
     it("should cache records", fakeAsync(() => {
         let count = 0;
-        let latestRecord: LogRecord = null;
-        // noinspection JSUnusedAssignment
-        let data1 = null;
-        // noinspection JSUnusedAssignment
-        let data2  = null;
+        let latestRecord: LogRecord | null = null;
 
-        data1 = {
+        const data1 = {
             level_name: "WARNING",
             time: "1514771875.9746701",
             logger_name: "another name",
             message: "another message"
         };
-        data2 = {
+        const data2 = {
             level_name: "DEBUG",
             time: "1514776875.9439101",
             logger_name: "seedsync.Controller.Model",

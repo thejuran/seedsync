@@ -10,20 +10,20 @@ const DoNothing = {next: reaction => {}};
 
 
 class TestBaseStreamService extends BaseStreamService {
-    eventList = [];
+    eventList: [string, string][] = [];
 
-    public registerEventName(eventName: string) {
+    public override registerEventName(eventName: string) {
         super.registerEventName(eventName);
     }
 
-    protected onEvent(eventName: string, data: string) {
+    protected override onEvent(eventName: string, data: string) {
         console.log(eventName, data);
         this.eventList.push([eventName, data]);
     }
 
-    public onConnected() {}
+    public override onConnected() {}
 
-    public onDisconnected() {}
+    public override onDisconnected() {}
 }
 
 
@@ -42,7 +42,7 @@ describe("Testing base stream service", () => {
         spyOn(EventSourceFactory, 'createEventSource').and.callFake(
             (url: string) => {
                 mockEventSource = createMockEventSource(url);
-                return mockEventSource;
+                return mockEventSource as unknown as EventSource;
             }
         );
 

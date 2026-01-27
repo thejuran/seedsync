@@ -13,7 +13,7 @@ import {StreamServiceRegistry} from "../../../../services/base/stream-service.re
 
 
 // noinspection JSUnusedLocalSymbols
-const DoNothing = {next: reaction => {}};
+const DoNothing = {next: (reaction: unknown) => {}};
 
 
 describe("Testing config service", () => {
@@ -87,26 +87,26 @@ describe("Testing config service", () => {
 
         configService.config.subscribe({
             next: config => {
-                expect(config.general.debug).toBe(true);
-                expect(config.lftp.remote_address).toBe("remote.server.com");
-                expect(config.lftp.remote_username).toBe("some.user");
-                expect(config.lftp.remote_password).toBe("my.password");
-                expect(config.lftp.remote_path).toBe("/some/remote/path");
-                expect(config.lftp.local_path).toBe("/some/local/path");
-                expect(config.lftp.remote_path_to_scan_script).toBe("/another/remote/path");
-                expect(config.lftp.use_ssh_key).toBe(true);
-                expect(config.lftp.num_max_parallel_downloads).toBe(2);
-                expect(config.lftp.num_max_parallel_files_per_download).toBe(8);
-                expect(config.lftp.num_max_connections_per_root_file).toBe(32);
-                expect(config.lftp.num_max_connections_per_dir_file).toBe(4);
-                expect(config.lftp.num_max_total_connections).toBe(32);
-                expect(config.lftp.use_temp_file).toBe(true);
-                expect(config.controller.interval_ms_remote_scan).toBe(30000);
-                expect(config.controller.interval_ms_local_scan).toBe(10000);
-                expect(config.controller.interval_ms_downloading_scan).toBe(1000);
-                expect(config.web.port).toBe(8800);
-                expect(config.autoqueue.enabled).toBe(true);
-                expect(config.autoqueue.patterns_only).toBe(false);
+                expect(config!.general!.debug).toBe(true);
+                expect(config!.lftp!.remote_address).toBe("remote.server.com");
+                expect(config!.lftp!.remote_username).toBe("some.user");
+                expect(config!.lftp!.remote_password).toBe("my.password");
+                expect(config!.lftp!.remote_path).toBe("/some/remote/path");
+                expect(config!.lftp!.local_path).toBe("/some/local/path");
+                expect(config!.lftp!.remote_path_to_scan_script).toBe("/another/remote/path");
+                expect(config!.lftp!.use_ssh_key).toBe(true);
+                expect(config!.lftp!.num_max_parallel_downloads).toBe(2);
+                expect(config!.lftp!.num_max_parallel_files_per_download).toBe(8);
+                expect(config!.lftp!.num_max_connections_per_root_file).toBe(32);
+                expect(config!.lftp!.num_max_connections_per_dir_file).toBe(4);
+                expect(config!.lftp!.num_max_total_connections).toBe(32);
+                expect(config!.lftp!.use_temp_file).toBe(true);
+                expect(config!.controller!.interval_ms_remote_scan).toBe(30000);
+                expect(config!.controller!.interval_ms_local_scan).toBe(10000);
+                expect(config!.controller!.interval_ms_downloading_scan).toBe(1000);
+                expect(config!.web!.port).toBe(8800);
+                expect(config!.autoqueue!.enabled).toBe(true);
+                expect(config!.autoqueue!.patterns_only).toBe(false);
             }
         });
 

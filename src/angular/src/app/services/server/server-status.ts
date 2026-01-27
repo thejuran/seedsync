@@ -84,13 +84,13 @@ export module ServerStatus {
 export interface ServerStatusJson {
     server: {
         up: boolean;
-        error_msg: string;
+        error_msg: string | null;
     };
 
     controller: {
-        latest_local_scan_time: string;
-        latest_remote_scan_time: string;
-        latest_remote_scan_failed: boolean;
-        latest_remote_scan_error: string;
+        latest_local_scan_time: string | null;
+        latest_remote_scan_time: string | null;
+        latest_remote_scan_failed: boolean | null;
+        latest_remote_scan_error: string | null;
     };
 }

@@ -826,14 +826,14 @@ describe("Testing view file service", () => {
         tick();
         expect(count).toBe(1);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("aaaa");
-        expect(viewFiles.get(1).name).toBe("tofu");
-        expect(viewFiles.get(2).name).toBe("flower");
-        expect(viewFiles.get(3).name).toBe("power");
-        expect(viewFiles.get(4).name).toBe("max");
-        expect(viewFiles.get(5).name).toBe("mrx");
-        expect(viewFiles.get(6).name).toBe("blueman");
-        expect(viewFiles.get(7).name).toBe("spicy");
+        expect(viewFiles.get(0)!.name).toBe("aaaa");
+        expect(viewFiles.get(1)!.name).toBe("tofu");
+        expect(viewFiles.get(2)!.name).toBe("flower");
+        expect(viewFiles.get(3)!.name).toBe("power");
+        expect(viewFiles.get(4)!.name).toBe("max");
+        expect(viewFiles.get(5)!.name).toBe("mrx");
+        expect(viewFiles.get(6)!.name).toBe("blueman");
+        expect(viewFiles.get(7)!.name).toBe("spicy");
     }));
 
     it("should sort new model correctly", fakeAsync(() => {
@@ -866,14 +866,14 @@ describe("Testing view file service", () => {
         tick();
         expect(count).toBe(1);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("aaaa");
-        expect(viewFiles.get(1).name).toBe("blueman");
-        expect(viewFiles.get(2).name).toBe("flower");
-        expect(viewFiles.get(3).name).toBe("max");
-        expect(viewFiles.get(4).name).toBe("mrx");
-        expect(viewFiles.get(5).name).toBe("power");
-        expect(viewFiles.get(6).name).toBe("spicy");
-        expect(viewFiles.get(7).name).toBe("tofu");
+        expect(viewFiles.get(0)!.name).toBe("aaaa");
+        expect(viewFiles.get(1)!.name).toBe("blueman");
+        expect(viewFiles.get(2)!.name).toBe("flower");
+        expect(viewFiles.get(3)!.name).toBe("max");
+        expect(viewFiles.get(4)!.name).toBe("mrx");
+        expect(viewFiles.get(5)!.name).toBe("power");
+        expect(viewFiles.get(6)!.name).toBe("spicy");
+        expect(viewFiles.get(7)!.name).toBe("tofu");
     }));
 
     it("should sort existing model on setComparator", fakeAsync(() => {
@@ -909,13 +909,13 @@ describe("Testing view file service", () => {
 
         expect(count).toBe(2);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("tofu");
-        expect(viewFiles.get(1).name).toBe("spicy");
-        expect(viewFiles.get(2).name).toBe("power");
-        expect(viewFiles.get(3).name).toBe("mrx");
-        expect(viewFiles.get(4).name).toBe("max");
-        expect(viewFiles.get(5).name).toBe("flower");
-        expect(viewFiles.get(6).name).toBe("blueman");
-        expect(viewFiles.get(7).name).toBe("aaaa");
+        expect(viewFiles.get(0)!.name).toBe("tofu");
+        expect(viewFiles.get(1)!.name).toBe("spicy");
+        expect(viewFiles.get(2)!.name).toBe("power");
+        expect(viewFiles.get(3)!.name).toBe("mrx");
+        expect(viewFiles.get(4)!.name).toBe("max");
+        expect(viewFiles.get(5)!.name).toBe("flower");
+        expect(viewFiles.get(6)!.name).toBe("blueman");
+        expect(viewFiles.get(7)!.name).toBe("aaaa");
     }));
 });

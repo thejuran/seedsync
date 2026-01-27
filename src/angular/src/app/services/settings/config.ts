@@ -128,14 +128,14 @@ export class Config extends ConfigRecord implements IConfig {
     override web!: IWeb | null;
     override autoqueue!: IAutoQueue | null;
 
-    constructor(props: {general: IGeneral; lftp: ILftp; controller: IController; web: IWeb; autoqueue: IAutoQueue}) {
+    constructor(props: {general?: Partial<IGeneral>; lftp?: Partial<ILftp>; controller?: Partial<IController>; web?: Partial<IWeb>; autoqueue?: Partial<IAutoQueue>}) {
         // Create immutable members
         super({
-            general: GeneralRecord(props.general),
-            lftp: LftpRecord(props.lftp),
-            controller: ControllerRecord(props.controller),
-            web: WebRecord(props.web),
-            autoqueue: AutoQueueRecord(props.autoqueue)
+            general: props.general ? GeneralRecord(props.general) : null,
+            lftp: props.lftp ? LftpRecord(props.lftp) : null,
+            controller: props.controller ? ControllerRecord(props.controller) : null,
+            web: props.web ? WebRecord(props.web) : null,
+            autoqueue: props.autoqueue ? AutoQueueRecord(props.autoqueue) : null
         });
     }
 }

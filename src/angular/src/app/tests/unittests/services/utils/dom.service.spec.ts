@@ -23,7 +23,7 @@ describe("Testing view file options service", () => {
 
     it("should forward updates to headerHeight", fakeAsync(() => {
         let count = 0;
-        let headerHeight: number | null = null;
+        let headerHeight: number | null;
         domService.headerHeight.subscribe({
             next: height => {
                 headerHeight = height;
@@ -35,18 +35,18 @@ describe("Testing view file options service", () => {
 
         domService.setHeaderHeight(10);
         tick();
-        expect(headerHeight).toBe(10);
+        expect(headerHeight!).toBe(10);
         expect(count).toBe(2);
 
         domService.setHeaderHeight(20);
         tick();
-        expect(headerHeight).toBe(20);
+        expect(headerHeight!).toBe(20);
         expect(count).toBe(3);
 
         // Setting same value shouldn't trigger an update
         domService.setHeaderHeight(20);
         tick();
-        expect(headerHeight).toBe(20);
+        expect(headerHeight!).toBe(20);
         expect(count).toBe(3);
     }));
 });

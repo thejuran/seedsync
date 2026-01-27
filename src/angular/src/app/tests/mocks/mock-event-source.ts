@@ -2,8 +2,16 @@ declare let spyOn: any;
 
 export class MockEventSource {
     url: string;
-    onopen: (event: Event) => any;
-    onerror: (event: Event) => any;
+    onopen: ((event: Event) => void) | null = null;
+    onerror: ((event: Event) => void) | null = null;
+    onmessage: ((event: MessageEvent) => void) | null = null;
+
+    // EventSource constants
+    readonly CONNECTING = 0;
+    readonly OPEN = 1;
+    readonly CLOSED = 2;
+    readyState = 0;
+    withCredentials = false;
 
     eventListeners: Map<string, EventListener> = new Map();
 
@@ -13,6 +21,14 @@ export class MockEventSource {
 
     addEventListener(type: string, listener: EventListener) {
         this.eventListeners.set(type, listener);
+    }
+
+    removeEventListener(type: string, listener: EventListener) {
+        this.eventListeners.delete(type);
+    }
+
+    dispatchEvent(event: Event): boolean {
+        return true;
     }
 
     close() {}

@@ -51,7 +51,7 @@ export class ConfigService extends BaseWebService {
                 observer.next(new WebReaction(false, null, `Config has no option named ${section}.${option}`));
             });
         }
-        const sectionRecord = currentConfig.get(section) as Record<string, unknown> | null;
+        const sectionRecord = currentConfig.get(section) as unknown as Record<string, unknown> | null;
         if (!sectionRecord || !(option in (sectionRecord as object))) {
             return new Observable(observer => {
                 observer.next(new WebReaction(false, null, `Config has no option named ${section}.${option}`));

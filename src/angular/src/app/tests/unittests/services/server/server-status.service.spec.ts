@@ -31,7 +31,7 @@ describe("Testing server status service", () => {
 
     it("should send correct status on event", fakeAsync(() => {
         let count = 0;
-        let latestStatus: ServerStatus = null;
+        let latestStatus: ServerStatus | null = null;
         serverStatusService.status.subscribe({
             next: status => {
                 count++;
@@ -42,7 +42,7 @@ describe("Testing server status service", () => {
         // Initial status
         tick();
         expect(count).toBe(1);
-        expect(latestStatus.server.up).toBe(false);
+        expect(latestStatus!.server.up).toBe(false);
 
         // New status
         const statusJson: ServerStatusJson = {
@@ -60,7 +60,7 @@ describe("Testing server status service", () => {
         serverStatusService.notifyEvent("status", JSON.stringify(statusJson));
         tick();
         expect(count).toBe(2);
-        expect(latestStatus.server.up).toBe(true);
+        expect(latestStatus!.server.up).toBe(true);
 
         // Status update
         statusJson.server.up = false;
@@ -68,8 +68,8 @@ describe("Testing server status service", () => {
         serverStatusService.notifyEvent("status", JSON.stringify(statusJson));
         tick();
         expect(count).toBe(3);
-        expect(latestStatus.server.up).toBe(false);
-        expect(latestStatus.server.errorMessage).toBe("uh oh spaghettios");
+        expect(latestStatus!.server.up).toBe(false);
+        expect(latestStatus!.server.errorMessage).toBe("uh oh spaghettios");
     }));
 
     it("should send correct status on disconnect", fakeAsync(() => {
@@ -89,7 +89,7 @@ describe("Testing server status service", () => {
         serverStatusService.notifyEvent("status", JSON.stringify(statusJson));
 
         let count = 0;
-        let latestStatus: ServerStatus = null;
+        let latestStatus: ServerStatus | null = null;
         serverStatusService.status.subscribe({
             next: status => {
                 count++;
@@ -104,7 +104,7 @@ describe("Testing server status service", () => {
         serverStatusService.notifyDisconnected();
         tick();
         expect(count).toBe(2);
-        expect(latestStatus.server.up).toBe(false);
+        expect(latestStatus!.server.up).toBe(false);
     }));
 
 });
