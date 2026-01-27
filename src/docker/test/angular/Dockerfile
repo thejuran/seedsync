@@ -21,5 +21,5 @@ RUN ls -l /app/
 WORKDIR /app/src
 
 CMD ["/app/node_modules/@angular/cli/bin/ng", "test", \
-     "--browsers", "ChromeHeadless", \
+     "--browsers", "ChromeHeadlessCI", \
      "--no-watch"]
