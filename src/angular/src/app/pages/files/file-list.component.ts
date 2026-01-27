@@ -1,8 +1,10 @@
 import {Component, ChangeDetectionStrategy} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {CommonModule} from "@angular/common";
+import {Observable} from "rxjs";
 
 import {List} from "immutable";
 
+import {FileComponent} from "./file.component";
 import {ViewFileService} from "../../services/files/view-file.service";
 import {ViewFile} from "../../services/files/view-file";
 import {LoggerService} from "../../services/utils/logger.service";
@@ -14,7 +16,9 @@ import {ViewFileOptionsService} from "../../services/files/view-file-options.ser
     providers: [],
     templateUrl: "./file-list.component.html",
     styleUrls: ["./file-list.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FileComponent]
 })
 
 export class FileListComponent {
@@ -36,7 +40,7 @@ export class FileListComponent {
      * @param item
      */
     static identify(index: number, item: ViewFile): string {
-        return item.name;
+        return item.name ?? '';
     }
 
     onSelect(file: ViewFile): void {

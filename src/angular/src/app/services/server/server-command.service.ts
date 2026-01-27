@@ -1,5 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 import {BaseWebService} from "../base/base-web.service";
 import {StreamServiceRegistry} from "../base/stream-service.registry";

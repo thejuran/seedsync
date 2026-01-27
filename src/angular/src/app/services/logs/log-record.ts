@@ -5,11 +5,11 @@ import {Record} from "immutable";
  * LogRecord immutable
  */
 interface ILogRecord {
-    time: Date;
-    level: LogRecord.Level;
-    loggerName: string;
-    message: string;
-    exceptionTraceback: string;
+    time: Date | null;
+    level: LogRecord.Level | null;
+    loggerName: string | null;
+    message: string | null;
+    exceptionTraceback: string | null;
 }
 const DefaultLogRecord: ILogRecord = {
     time: null,
@@ -20,13 +20,13 @@ const DefaultLogRecord: ILogRecord = {
 };
 const LogRecordRecord = Record(DefaultLogRecord);
 export class LogRecord extends LogRecordRecord implements ILogRecord {
-    time: Date;
-    level: LogRecord.Level;
-    loggerName: string;
-    message: string;
-    exceptionTraceback: string;
+    override time!: Date | null;
+    override level!: LogRecord.Level | null;
+    override loggerName!: string | null;
+    override message!: string | null;
+    override exceptionTraceback!: string | null;
 
-    constructor(props) {
+    constructor(props: Partial<ILogRecord>) {
         super(props);
     }
 }
@@ -37,7 +37,7 @@ export module LogRecord {
         return new LogRecord({
             // str -> number, then sec -> ms
             time: new Date(1000 * +json.time),
-            level: LogRecord.Level[json.level_name],
+            level: LogRecord.Level[json.level_name as keyof typeof LogRecord.Level],
             loggerName: json.logger_name,
             message: json.message,
             exceptionTraceback: json.exc_tb

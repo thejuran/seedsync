@@ -17,9 +17,9 @@ class AndFilterCriteria implements ViewFileFilterCriteria {
 }
 
 class StatusFilterCriteria implements ViewFileFilterCriteria {
-    constructor(private _status: ViewFile.Status) {}
+    constructor(private _status: ViewFile.Status | null) {}
 
-    get status(): ViewFile.Status {
+    get status(): ViewFile.Status | null {
         return this._status;
     }
 
@@ -29,14 +29,14 @@ class StatusFilterCriteria implements ViewFileFilterCriteria {
 }
 
 class NameFilterCriteria implements ViewFileFilterCriteria {
-    private _name: string = null;
-    private _queryCandidates = [];
+    private _name: string | null = null;
+    private _queryCandidates: string[] = [];
 
-    get name(): string {
+    get name(): string | null {
         return this._name;
     }
 
-    constructor(name: string) {
+    constructor(name: string | null) {
         this._name = name;
         if (this._name != null) {
             const query = this._name.toLowerCase();
@@ -51,7 +51,9 @@ class NameFilterCriteria implements ViewFileFilterCriteria {
 
     meetsCriteria(viewFile: ViewFile): boolean {
         if (this._name == null || this._name === "") { return true; }
-        const search = viewFile.name.toLowerCase();
+        const viewFileName = viewFile.name;
+        if (!viewFileName) { return false; }
+        const search = viewFileName.toLowerCase();
         return this._queryCandidates.reduce(
             (a: boolean, b: string) => a || search.indexOf(b) >= 0,
             false  // initial value
@@ -69,8 +71,8 @@ class NameFilterCriteria implements ViewFileFilterCriteria {
  */
 @Injectable()
 export class ViewFileFilterService {
-    private _statusFilter: StatusFilterCriteria = null;
-    private _nameFilter: NameFilterCriteria = null;
+    private _statusFilter: StatusFilterCriteria | null = null;
+    private _nameFilter: NameFilterCriteria | null = null;
 
     constructor(private _logger: LoggerService,
                 private _viewFileService: ViewFileService,
@@ -101,7 +103,7 @@ export class ViewFileFilterService {
         });
     }
 
-    private buildFilterCriteria(): ViewFileFilterCriteria {
+    private buildFilterCriteria(): ViewFileFilterCriteria | null {
         if (this._statusFilter != null && this._nameFilter != null) {
             return new AndFilterCriteria(this._statusFilter, this._nameFilter);
         } else if (this._statusFilter != null) {

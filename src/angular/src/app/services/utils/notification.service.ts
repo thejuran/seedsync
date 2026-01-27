@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -21,18 +20,22 @@ export class NotificationService {
     private _comparator = (a: Notification, b: Notification): number => {
         // First sort by level
         if (a.level !== b.level) {
-            const statusPriorities = {
+            const statusPriorities: {[key: string]: number} = {
                 [Notification.Level.DANGER]: 0,
                 [Notification.Level.WARNING]: 1,
                 [Notification.Level.INFO]: 2,
                 [Notification.Level.SUCCESS]: 3,
             };
-            if (statusPriorities[a.level] !== statusPriorities[b.level]) {
-                return statusPriorities[a.level] - statusPriorities[b.level];
+            const aLevel = a.level ?? Notification.Level.INFO;
+            const bLevel = b.level ?? Notification.Level.INFO;
+            if (statusPriorities[aLevel] !== statusPriorities[bLevel]) {
+                return statusPriorities[aLevel] - statusPriorities[bLevel];
             }
         }
         // Then sort by timestamp
-        return b.timestamp - a.timestamp;
+        const aTimestamp = a.timestamp ?? 0;
+        const bTimestamp = b.timestamp ?? 0;
+        return bTimestamp - aTimestamp;
     }
 
     constructor() {}

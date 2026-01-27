@@ -1,8 +1,11 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
 
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 import {AutoQueueService} from "../../services/autoqueue/autoqueue.service";
 import {AutoQueuePattern} from "../../services/autoqueue/autoqueue-pattern";
 import {Notification} from "../../services/utils/notification";
@@ -18,7 +21,9 @@ import {ConfigService} from "../../services/settings/config.service";
     templateUrl: "./autoqueue-page.component.html",
     styleUrls: ["./autoqueue-page.component.scss"],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FormsModule, ClickStopPropagationDirective]
 })
 
 export class AutoQueuePageComponent implements OnInit {
@@ -26,7 +31,7 @@ export class AutoQueuePageComponent implements OnInit {
     public patterns: Observable<Immutable.List<AutoQueuePattern>>;
     public newPattern: string;
 
-    public config: Observable<Config>;
+    public config: Observable<Config | null>;
 
     public connected: boolean;
     public enabled: boolean;
@@ -41,6 +46,7 @@ export class AutoQueuePageComponent implements OnInit {
                 _streamServiceRegistry: StreamServiceRegistry) {
         this._connectedService = _streamServiceRegistry.connectedService;
         this.patterns = _autoqueueService.patterns;
+        this.config = _configService.config;
         this.newPattern = "";
         this.connected = false;
         this.enabled = false;
@@ -61,9 +67,9 @@ export class AutoQueuePageComponent implements OnInit {
 
         this._configService.config.subscribe({
             next: config => {
-                if(config != null) {
-                    this.enabled = config.autoqueue.enabled;
-                    this.patternsOnly = config.autoqueue.patterns_only;
+                if(config != null && config.autoqueue != null) {
+                    this.enabled = config.autoqueue.enabled ?? false;
+                    this.patternsOnly = config.autoqueue.patterns_only ?? false;
                 } else {
                     this.enabled = false;
                     this.patternsOnly = false;
@@ -93,7 +99,7 @@ export class AutoQueuePageComponent implements OnInit {
     }
 
     onRemovePattern(pattern: AutoQueuePattern) {
-        this._autoqueueService.remove(pattern.pattern).subscribe({
+        this._autoqueueService.remove(pattern.pattern ?? '').subscribe({
             next: reaction => {
                 if (reaction.success) {
                     // Nothing to do

@@ -1,6 +1,6 @@
 import {Injectable} from "@angular/core";
 
-import * as compareVersions from "compare-versions";
+import {compare as compareVersions} from "compare-versions";
 
 import {RestService} from "./rest.service";
 import {LoggerService} from "./logger.service";
@@ -30,7 +30,7 @@ export class VersionCheckService {
     private checkVersion() {
         this._restService.sendRequest(this.GITHUB_LATEST_RELEASE_URL).subscribe({
             next: reaction => {
-                if (reaction.success) {
+                if (reaction.success && reaction.data) {
                     let jsonResponse;
                     let latestVersion;
                     let url;
@@ -64,6 +64,6 @@ export class VersionCheckService {
         version = version.replace(/^v/, "");
         // Replace - with .
         version = version.replace(/-/g, ".");
-        return compareVersions(version, appVersion) > 0;
+        return compareVersions(version, appVersion, '>');
     }
 }

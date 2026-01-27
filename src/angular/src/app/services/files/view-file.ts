@@ -5,28 +5,28 @@ import {Record} from "immutable";
  * Represents the View Model
  */
 interface IViewFile {
-    name: string;
-    isDir: boolean;
-    localSize: number;
-    remoteSize: number;
-    percentDownloaded: number;
-    status: ViewFile.Status;
-    downloadingSpeed: number;
-    eta: number;
-    fullPath: string;
-    isArchive: boolean;  // corresponds to is_extractable in ModelFile
-    isSelected: boolean;
-    isQueueable: boolean;
-    isStoppable: boolean;
+    name: string | null;
+    isDir: boolean | null;
+    localSize: number | null;
+    remoteSize: number | null;
+    percentDownloaded: number | null;
+    status: ViewFile.Status | null;
+    downloadingSpeed: number | null;
+    eta: number | null;
+    fullPath: string | null;
+    isArchive: boolean | null;  // corresponds to is_extractable in ModelFile
+    isSelected: boolean | null;
+    isQueueable: boolean | null;
+    isStoppable: boolean | null;
     // whether file can be queued for extraction (independent of isArchive)
-    isExtractable: boolean;
-    isLocallyDeletable: boolean;
-    isRemotelyDeletable: boolean;
+    isExtractable: boolean | null;
+    isLocallyDeletable: boolean | null;
+    isRemotelyDeletable: boolean | null;
     // timestamps
-    localCreatedTimestamp: Date;
-    localModifiedTimestamp: Date;
-    remoteCreatedTimestamp: Date;
-    remoteModifiedTimestamp: Date;
+    localCreatedTimestamp: Date | null;
+    localModifiedTimestamp: Date | null;
+    remoteCreatedTimestamp: Date | null;
+    remoteModifiedTimestamp: Date | null;
 }
 
 // Boiler plate code to set up an immutable class
@@ -58,29 +58,29 @@ const ViewFileRecord = Record(DefaultViewFile);
  * Immutable class that implements the interface
  */
 export class ViewFile extends ViewFileRecord implements IViewFile {
-    name: string;
-    isDir: boolean;
-    localSize: number;
-    remoteSize: number;
-    percentDownloaded: number;
-    status: ViewFile.Status;
-    downloadingSpeed: number;
-    eta: number;
+    override name!: string | null;
+    override isDir!: boolean | null;
+    override localSize!: number | null;
+    override remoteSize!: number | null;
+    override percentDownloaded!: number | null;
+    override status!: ViewFile.Status | null;
+    override downloadingSpeed!: number | null;
+    override eta!: number | null;
     // noinspection JSUnusedGlobalSymbols
-    fullPath: string;
-    isArchive: boolean;
-    isSelected: boolean;
-    isQueueable: boolean;
-    isStoppable: boolean;
-    isExtractable: boolean;
-    isLocallyDeletable: boolean;
-    isRemotelyDeletable: boolean;
-    localCreatedTimestamp: Date;
-    localModifiedTimestamp: Date;
-    remoteCreatedTimestamp: Date;
-    remoteModifiedTimestamp: Date;
+    override fullPath!: string | null;
+    override isArchive!: boolean | null;
+    override isSelected!: boolean | null;
+    override isQueueable!: boolean | null;
+    override isStoppable!: boolean | null;
+    override isExtractable!: boolean | null;
+    override isLocallyDeletable!: boolean | null;
+    override isRemotelyDeletable!: boolean | null;
+    override localCreatedTimestamp!: Date | null;
+    override localModifiedTimestamp!: Date | null;
+    override remoteCreatedTimestamp!: Date | null;
+    override remoteModifiedTimestamp!: Date | null;
 
-    constructor(props) {
+    constructor(props: Partial<IViewFile>) {
         super(props);
     }
 }

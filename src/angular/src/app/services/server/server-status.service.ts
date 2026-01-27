@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import {Localization} from "../../common/localization";
 import {ServerStatus, ServerStatusJson} from "./server-status";

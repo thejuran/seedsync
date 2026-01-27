@@ -2,7 +2,7 @@
     <div class="content">
         <div class="status">
             <img src="assets/icons/default-remote.svg" id="default-remote"
-                 *ngIf="file.status === ViewFile.Status.DEFAULT && file.remoteSize > 0" />
+                 *ngIf="file.status === ViewFile.Status.DEFAULT && (file.remoteSize ?? 0) > 0" />
             <img src="assets/icons/queued.svg" id="queued"
                  *ngIf="file.status === ViewFile.Status.QUEUED" />
             <img src="assets/icons/downloading.svg" id="downloading"
@@ -30,7 +30,7 @@
                 <div class="title">
                     {{file.name}}
                 </div>
-                <div class="details" *ngIf="(options | async)?.showDetails">
+                <div class="details" *ngIf="options?.showDetails">
                     <div class="details-text">
                         Remote File<br />
                         <span class="tab"></span>Created:

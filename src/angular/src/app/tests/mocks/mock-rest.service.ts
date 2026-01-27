@@ -1,9 +1,9 @@
-import {Observable} from "rxjs/Observable";
+import {Observable, of} from "rxjs";
 
 import {WebReaction} from "../../services/utils/rest.service";
 
 export class MockRestService {
-    public sendRequest(url: string): Observable<WebReaction> {
-        return null;
+    public sendRequest(_url: string): Observable<WebReaction> {
+        return of(new WebReaction(true, null, null));
     }
 }

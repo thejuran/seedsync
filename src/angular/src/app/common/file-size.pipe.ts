@@ -11,7 +11,7 @@ import { Pipe, PipeTransform } from "@angular/core";
  * Source: https://gist.github.com/JonCatmull/ecdf9441aaa37
  *         336d9ae2c7f9cb7289a#file-file-size-pipe-ts
 */
-@Pipe({name: "fileSize"})
+@Pipe({name: "fileSize", standalone: true})
 export class FileSizePipe implements PipeTransform {
 
   private units = [
@@ -23,8 +23,8 @@ export class FileSizePipe implements PipeTransform {
     "PB"
   ];
 
-  transform(bytes: number = 0, precision: number = 2 ): string {
-    if ( isNaN( parseFloat( String(bytes) )) || ! isFinite( bytes ) ) { return "?"; }
+  transform(bytes: number | null | undefined = 0, precision: number = 2 ): string {
+    if (bytes == null || isNaN( parseFloat( String(bytes) )) || ! isFinite( bytes ) ) { return "?"; }
 
     let unit = 0;
 

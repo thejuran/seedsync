@@ -3,20 +3,23 @@ import {
     ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener,
     OnInit, ViewChild, ViewContainerRef
 } from "@angular/core";
+import {CommonModule} from "@angular/common";
 
 import {LogService} from "../../services/logs/log.service";
 import {LogRecord} from "../../services/logs/log-record";
 import {StreamServiceRegistry} from "../../services/base/stream-service.registry";
 import {Localization} from "../../common/localization";
 import {DomService} from "../../services/utils/dom.service";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 @Component({
     selector: "app-logs-page",
     templateUrl: "./logs-page.component.html",
     styleUrls: ["./logs-page.component.scss"],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule]
 })
 
 export class LogsPageComponent implements OnInit, AfterContentChecked {
@@ -25,14 +28,14 @@ export class LogsPageComponent implements OnInit, AfterContentChecked {
 
     public headerHeight: Observable<number>;
 
-    @ViewChild("templateRecord") templateRecord;
-    @ViewChild("templateConnected") templateConnected;
+    @ViewChild("templateRecord") templateRecord!: any;
+    @ViewChild("templateConnected") templateConnected!: any;
 
     // Where to insert the cloned content
-    @ViewChild("container", {read: ViewContainerRef}) container;
+    @ViewChild("container", {read: ViewContainerRef}) container!: ViewContainerRef;
 
-    @ViewChild("logHead") logHead;
-    @ViewChild("logTail") logTail;
+    @ViewChild("logHead") logHead!: any;
+    @ViewChild("logTail") logTail!: any;
 
     public showScrollToTopButton = false;
     public showScrollToBottomButton = false;
@@ -98,7 +101,7 @@ export class LogsPageComponent implements OnInit, AfterContentChecked {
     }
 
     // Source: https://stackoverflow.com/a/7557433
-    private static isElementInViewport(el): boolean {
+    private static isElementInViewport(el: Element): boolean {
         const rect = el.getBoundingClientRect();
         return (
             rect.top >= 0 &&

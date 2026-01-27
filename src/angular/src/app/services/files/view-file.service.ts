@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -82,8 +81,8 @@ export class ViewFileService {
 
     private _prevModelFiles: Immutable.Map<string, ModelFile> = Immutable.Map<string, ModelFile>();
 
-    private _filterCriteria: ViewFileFilterCriteria = null;
-    private _sortComparator: ViewFileComparator = null;
+    private _filterCriteria: ViewFileFilterCriteria | null = null;
+    private _sortComparator: ViewFileComparator | null = null;
 
     constructor(private _logger: LoggerService,
                 private _streamServiceRegistry: StreamServiceRegistry) {
@@ -141,8 +140,12 @@ export class ViewFileService {
         updatedNames.forEach(
             name => {
                 const index = this._indices.get(name);
+                if (index === undefined) return;
                 const oldViewFile = newViewFiles.get(index);
-                const newViewFile = ViewFileService.createViewFile(modelFiles.get(name), oldViewFile.isSelected);
+                if (!oldViewFile) return;
+                const modelFile = modelFiles.get(name);
+                if (!modelFile) return;
+                const newViewFile = ViewFileService.createViewFile(modelFile, oldViewFile.isSelected === true);
                 newViewFiles = newViewFiles.set(index, newViewFile);
                 if (this._sortComparator != null && this._sortComparator(oldViewFile, newViewFile) !== 0) {
                     reSort = true;
@@ -153,7 +156,9 @@ export class ViewFileService {
         addedNames.forEach(
             name => {
                 reSort = true;
-                const viewFile = ViewFileService.createViewFile(modelFiles.get(name));
+                const modelFile = modelFiles.get(name);
+                if (!modelFile) return;
+                const viewFile = ViewFileService.createViewFile(modelFile);
                 newViewFiles = newViewFiles.push(viewFile);
                 this._indices.set(name, newViewFiles.size - 1);
             }
@@ -176,7 +181,11 @@ export class ViewFileService {
         if (updateIndices) {
             this._indices.clear();
             newViewFiles.forEach(
-                (value, index) => this._indices.set(value.name, index)
+                (value, index) => {
+                    if (value.name) {
+                        this._indices.set(value.name, index);
+                    }
+                }
             );
         }
 
@@ -205,25 +214,32 @@ export class ViewFileService {
         //       but that would duplicate state and can introduce
         //       bugs, so we just search instead
         let viewFiles = this._files;
-        const unSelectIndex = viewFiles.findIndex(value => value.isSelected);
+        const unSelectIndex = viewFiles.findIndex(value => value.isSelected === true);
 
         // Unset the previously selected file, if any
         if (unSelectIndex >= 0) {
-            let unSelectViewFile = viewFiles.get(unSelectIndex);
+            const unSelectViewFile = viewFiles.get(unSelectIndex);
 
             // Do nothing if file is already selected
-            if (unSelectViewFile.name === file.name) { return; }
+            if (unSelectViewFile && unSelectViewFile.name === file.name) { return; }
 
-            unSelectViewFile = new ViewFile(unSelectViewFile.set("isSelected", false));
-            viewFiles = viewFiles.set(unSelectIndex, unSelectViewFile);
+            if (unSelectViewFile) {
+                const updatedViewFile = new ViewFile(unSelectViewFile.set("isSelected", false));
+                viewFiles = viewFiles.set(unSelectIndex, updatedViewFile);
+            }
         }
 
         // Set the new selected file
-        if (this._indices.has(file.name)) {
-            const index = this._indices.get(file.name);
-            let viewFile = viewFiles.get(index);
-            viewFile = new ViewFile(viewFile.set("isSelected", true));
-            viewFiles = viewFiles.set(index, viewFile);
+        const fileName = file.name;
+        if (fileName && this._indices.has(fileName)) {
+            const index = this._indices.get(fileName);
+            if (index !== undefined) {
+                const viewFile = viewFiles.get(index);
+                if (viewFile) {
+                    const updatedViewFile = new ViewFile(viewFile.set("isSelected", true));
+                    viewFiles = viewFiles.set(index, updatedViewFile);
+                }
+            }
         } else {
             this._logger.error("Can't find file to select: " + file.name);
         }
@@ -239,18 +255,20 @@ export class ViewFileService {
     public unsetSelected() {
         // Unset the previously selected file, if any
         let viewFiles = this._files;
-        const unSelectIndex = viewFiles.findIndex(value => value.isSelected);
+        const unSelectIndex = viewFiles.findIndex(value => value.isSelected === true);
 
         // Unset the previously selected file, if any
         if (unSelectIndex >= 0) {
-            let unSelectViewFile = viewFiles.get(unSelectIndex);
+            const unSelectViewFile = viewFiles.get(unSelectIndex);
 
-            unSelectViewFile = new ViewFile(unSelectViewFile.set("isSelected", false));
-            viewFiles = viewFiles.set(unSelectIndex, unSelectViewFile);
+            if (unSelectViewFile) {
+                const updatedViewFile = new ViewFile(unSelectViewFile.set("isSelected", false));
+                viewFiles = viewFiles.set(unSelectIndex, updatedViewFile);
 
-            // Send update
-            this._files = viewFiles;
-            this.pushViewFiles();
+                // Send update
+                this._files = viewFiles;
+                this.pushViewFiles();
+            }
         }
     }
 
@@ -308,16 +326,16 @@ export class ViewFileService {
      * Set a new filter criteria
      * @param {ViewFileFilterCriteria} criteria
      */
-    public setFilterCriteria(criteria: ViewFileFilterCriteria) {
+    public setFilterCriteria(criteria: ViewFileFilterCriteria | null) {
         this._filterCriteria = criteria;
         this.pushViewFiles();
     }
 
     /**
      * Sets a new comparator.
-     * @param {ViewFileComparator} comparator
+     * @param {ViewFileComparator | null} comparator
      */
-    public setComparator(comparator: ViewFileComparator) {
+    public setComparator(comparator: ViewFileComparator | null) {
         this._sortComparator = comparator;
 
         // Re-sort and regenerate index cache
@@ -329,7 +347,11 @@ export class ViewFileService {
         this._files = newViewFiles;
         this._indices.clear();
         newViewFiles.forEach(
-            (value, index) => this._indices.set(value.name, index)
+            (value, index) => {
+                if (value.name) {
+                    this._indices.set(value.name, index);
+                }
+            }
         );
 
         this.pushViewFiles();
@@ -337,15 +359,9 @@ export class ViewFileService {
 
     private static createViewFile(modelFile: ModelFile, isSelected: boolean = false): ViewFile {
         // Use zero for unknown sizes
-        let localSize: number = modelFile.local_size;
-        if (localSize == null) {
-            localSize = 0;
-        }
-        let remoteSize: number = modelFile.remote_size;
-        if (remoteSize == null) {
-            remoteSize = 0;
-        }
-        let percentDownloaded: number = null;
+        const localSize: number = modelFile.local_size ?? 0;
+        const remoteSize: number = modelFile.remote_size ?? 0;
+        let percentDownloaded: number;
         if (remoteSize > 0) {
             percentDownloaded = Math.trunc(100.0 * localSize / remoteSize);
         } else {
@@ -353,7 +369,7 @@ export class ViewFileService {
         }
 
         // Translate the status
-        let status = null;
+        let status: ViewFile.Status = ViewFile.Status.DEFAULT;
         switch (modelFile.state) {
             case ModelFile.State.DEFAULT: {
                 if (localSize > 0 && remoteSize > 0) {
@@ -445,17 +461,20 @@ export class ViewFileService {
     private createAction(file: ViewFile,
                          action: (file: ModelFile) => Observable<WebReaction>)
             : Observable<WebReaction> {
-        return Observable.create(observer => {
-            if (!this._prevModelFiles.has(file.name)) {
+        return new Observable(observer => {
+            const fileName = file.name;
+            if (!fileName || !this._prevModelFiles.has(fileName)) {
                 // File not found, exit early
-                this._logger.error("File to queue not found: " + file.name);
-                observer.next(new WebReaction(false, null, `File '${file.name}' not found`));
+                this._logger.error("File to queue not found: " + fileName);
+                observer.next(new WebReaction(false, null, `File '${fileName}' not found`));
             } else {
-                const modelFile = this._prevModelFiles.get(file.name);
-                action(modelFile).subscribe(reaction => {
-                    this._logger.debug("Received model reaction: %O", reaction);
-                    observer.next(reaction);
-                });
+                const modelFile = this._prevModelFiles.get(fileName);
+                if (modelFile) {
+                    action(modelFile).subscribe(reaction => {
+                        this._logger.debug("Received model reaction: %O", reaction);
+                        observer.next(reaction);
+                    });
+                }
             }
         });
     }
@@ -466,9 +485,10 @@ export class ViewFileService {
 
         // Filtered files
         let filteredFiles = this._files;
-        if (this._filterCriteria != null) {
+        const filterCriteria = this._filterCriteria;
+        if (filterCriteria != null) {
             filteredFiles = Immutable.List<ViewFile>(
-                this._files.filter(f => this._filterCriteria.meetsCriteria(f))
+                this._files.filter(f => filterCriteria.meetsCriteria(f))
             );
         }
         this._filteredFilesSubject.next(filteredFiles);

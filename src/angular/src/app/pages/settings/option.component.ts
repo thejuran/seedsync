@@ -1,28 +1,33 @@
 import {Component, Input, Output, ChangeDetectionStrategy, EventEmitter, OnInit} from "@angular/core";
-import {Subject} from "rxjs/Subject";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {Subject} from "rxjs";
+import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
 @Component({
     selector: "app-option",
     providers: [],
     templateUrl: "./option.component.html",
     styleUrls: ["./option.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FormsModule]
 })
 
 export class OptionComponent implements OnInit {
-    @Input() type: OptionType;
-    @Input() label: string;
-    @Input() value: any;
-    @Input() description: string;
+    @Input() type!: OptionType;
+    @Input() label!: string;
+    @Input() value: unknown;
+    @Input() description!: string;
 
-    @Output() changeEvent = new EventEmitter<any>();
+    @Output() changeEvent = new EventEmitter<unknown>();
 
     // expose to template
     public OptionType = OptionType;
 
     private readonly DEBOUNCE_TIME_MS: number = 1000;
 
-    private newValue = new Subject<any>();
+    private newValue = new Subject<unknown>();
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
@@ -30,13 +35,13 @@ export class OptionComponent implements OnInit {
         // References:
         //      https://angular.io/tutorial/toh-pt6#fix-the-herosearchcomponent-class
         //      https://stackoverflow.com/a/41965515
-        this.newValue
-            .debounceTime(this.DEBOUNCE_TIME_MS)
-            .distinctUntilChanged()
-            .subscribe({next: val => this.changeEvent.emit(val)});
+        this.newValue.pipe(
+            debounceTime(this.DEBOUNCE_TIME_MS),
+            distinctUntilChanged()
+        ).subscribe({next: val => this.changeEvent.emit(val)});
     }
 
-    onChange(value: any) {
+    onChange(value: unknown) {
         this.newValue.next(value);
     }
 }

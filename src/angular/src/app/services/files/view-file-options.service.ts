@@ -1,11 +1,9 @@
-import {Inject, Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Injectable} from "@angular/core";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import {LoggerService} from "../utils/logger.service";
 import {ViewFileOptions} from "./view-file-options";
 import {ViewFile} from "./view-file";
-import {LOCAL_STORAGE, StorageService} from "angular-webstorage-service";
 import {StorageKeys} from "../../common/storage-keys";
 
 
@@ -21,16 +19,18 @@ export class ViewFileOptionsService {
 
     private _options: BehaviorSubject<ViewFileOptions>;
 
-    constructor(private _logger: LoggerService,
-                @Inject(LOCAL_STORAGE) private _storage: StorageService) {
-        // Load some options from storage
-        const showDetails: boolean =
-            this._storage.get(StorageKeys.VIEW_OPTION_SHOW_DETAILS) || false;
-        const sortMethod: ViewFileOptions.SortMethod =
-            this._storage.get(StorageKeys.VIEW_OPTION_SORT_METHOD) ||
-                ViewFileOptions.SortMethod.STATUS;
-        const pinFilter: boolean =
-            this._storage.get(StorageKeys.VIEW_OPTION_PIN) || false;
+    constructor(private _logger: LoggerService) {
+        // Load some options from storage using native localStorage
+        const showDetailsStr = localStorage.getItem(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
+        const showDetails: boolean = showDetailsStr ? JSON.parse(showDetailsStr) : false;
+
+        const sortMethodStr = localStorage.getItem(StorageKeys.VIEW_OPTION_SORT_METHOD);
+        const sortMethod: ViewFileOptions.SortMethod = sortMethodStr
+            ? JSON.parse(sortMethodStr)
+            : ViewFileOptions.SortMethod.STATUS;
+
+        const pinFilterStr = localStorage.getItem(StorageKeys.VIEW_OPTION_PIN);
+        const pinFilter: boolean = pinFilterStr ? JSON.parse(pinFilterStr) : false;
 
         this._options = new BehaviorSubject(
             new ViewFileOptions({
@@ -52,7 +52,7 @@ export class ViewFileOptionsService {
         if (options.showDetails !== show) {
             const newOptions = new ViewFileOptions(options.set("showDetails", show));
             this._options.next(newOptions);
-            this._storage.set(StorageKeys.VIEW_OPTION_SHOW_DETAILS, show);
+            localStorage.setItem(StorageKeys.VIEW_OPTION_SHOW_DETAILS, JSON.stringify(show));
             this._logger.debug("ViewOption showDetails set to: " + newOptions.showDetails);
         }
     }
@@ -62,12 +62,12 @@ export class ViewFileOptionsService {
         if (options.sortMethod !== sortMethod) {
             const newOptions = new ViewFileOptions(options.set("sortMethod", sortMethod));
             this._options.next(newOptions);
-            this._storage.set(StorageKeys.VIEW_OPTION_SORT_METHOD, sortMethod);
+            localStorage.setItem(StorageKeys.VIEW_OPTION_SORT_METHOD, JSON.stringify(sortMethod));
             this._logger.debug("ViewOption sortMethod set to: " + newOptions.sortMethod);
         }
     }
 
-    public setSelectedStatusFilter(status: ViewFile.Status) {
+    public setSelectedStatusFilter(status: ViewFile.Status | null) {
         const options = this._options.getValue();
         if (options.selectedStatusFilter !== status) {
             const newOptions = new ViewFileOptions(options.set("selectedStatusFilter", status));
@@ -90,7 +90,7 @@ export class ViewFileOptionsService {
         if (options.pinFilter !== pinned) {
             const newOptions = new ViewFileOptions(options.set("pinFilter", pinned));
             this._options.next(newOptions);
-            this._storage.set(StorageKeys.VIEW_OPTION_PIN, pinned);
+            localStorage.setItem(StorageKeys.VIEW_OPTION_PIN, JSON.stringify(pinned));
             this._logger.debug("ViewOption pinFilter set to: " + newOptions.pinFilter);
         }
     }

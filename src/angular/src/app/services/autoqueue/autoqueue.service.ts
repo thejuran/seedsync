@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -19,11 +18,11 @@ import {RestService, WebReaction} from "../utils/rest.service";
 export class AutoQueueService extends BaseWebService {
 
     private readonly AUTOQUEUE_GET_URL = "/server/autoqueue/get";
-    private readonly AUTOQUEUE_ADD_URL = (pattern) => `/server/autoqueue/add/${pattern}`;
-    private readonly AUTOQUEUE_REMOVE_URL = (pattern) => `/server/autoqueue/remove/${pattern}`;
+    private readonly AUTOQUEUE_ADD_URL = (pattern: string) => `/server/autoqueue/add/${pattern}`;
+    private readonly AUTOQUEUE_REMOVE_URL = (pattern: string) => `/server/autoqueue/remove/${pattern}`;
 
     private _patterns: BehaviorSubject<Immutable.List<AutoQueuePattern>> =
-            new BehaviorSubject(Immutable.List([]));
+            new BehaviorSubject<Immutable.List<AutoQueuePattern>>(Immutable.List<AutoQueuePattern>([]));
 
     constructor(_streamServiceProvider: StreamServiceRegistry,
                 private _restService: RestService,
@@ -49,7 +48,7 @@ export class AutoQueueService extends BaseWebService {
 
         // Value check
         if (pattern == null || pattern.trim().length === 0) {
-            return Observable.create(observer => {
+            return new Observable(observer => {
                 observer.next(new WebReaction(false, null, Localization.Notification.AUTOQUEUE_PATTERN_EMPTY));
             });
         }
@@ -57,7 +56,7 @@ export class AutoQueueService extends BaseWebService {
         const currentPatterns = this._patterns.getValue();
         const index = currentPatterns.findIndex(pat => pat.pattern === pattern);
         if (index >= 0) {
-            return Observable.create(observer => {
+            return new Observable(observer => {
                 observer.next(new WebReaction(false, null, `Pattern '${pattern}' already exists.`));
             });
         } else {
@@ -94,7 +93,7 @@ export class AutoQueueService extends BaseWebService {
         const currentPatterns = this._patterns.getValue();
         const index = currentPatterns.findIndex(pat => pat.pattern === pattern);
         if (index < 0) {
-            return Observable.create(observer => {
+            return new Observable(observer => {
                 observer.next(new WebReaction(false, null, `Pattern '${pattern}' not found.`));
             });
         } else {
@@ -117,21 +116,21 @@ export class AutoQueueService extends BaseWebService {
         }
     }
 
-    protected onConnected() {
+    protected onConnected(): void {
         // Retry the get
         this.getPatterns();
     }
 
-    protected onDisconnected() {
+    protected onDisconnected(): void {
         // Send empty list
-        this._patterns.next(Immutable.List([]));
+        this._patterns.next(Immutable.List<AutoQueuePattern>([]));
     }
 
     private getPatterns() {
         this._logger.debug("Getting autoqueue patterns...");
         this._restService.sendRequest(this.AUTOQUEUE_GET_URL).subscribe({
             next: reaction => {
-                if (reaction.success) {
+                if (reaction.success && reaction.data) {
                     const parsed: AutoQueuePatternJson[] = JSON.parse(reaction.data);
                     const newPatterns: AutoQueuePattern[] = [];
                     for (const patternJson of parsed) {
@@ -139,9 +138,9 @@ export class AutoQueueService extends BaseWebService {
                             pattern: patternJson.pattern
                         }));
                     }
-                    this._patterns.next(Immutable.List(newPatterns));
+                    this._patterns.next(Immutable.List<AutoQueuePattern>(newPatterns));
                 } else {
-                    this._patterns.next(Immutable.List([]));
+                    this._patterns.next(Immutable.List<AutoQueuePattern>([]));
                 }
             }
         });

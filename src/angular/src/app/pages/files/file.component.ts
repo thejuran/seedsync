@@ -1,9 +1,13 @@
 import {
     Component, Input, Output, ChangeDetectionStrategy,
-    EventEmitter, OnChanges, SimpleChanges, ViewChild
+    EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef
 } from "@angular/core";
+import {CommonModule} from "@angular/common";
 
-import {Modal} from "ngx-modialog/plugins/bootstrap";
+import {FileSizePipe} from "../../common/file-size.pipe";
+import {EtaPipe} from "../../common/eta.pipe";
+import {CapitalizePipe} from "../../common/capitalize.pipe";
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 
 import {ViewFile} from "../../services/files/view-file";
 import {Localization} from "../../common/localization";
@@ -14,7 +18,9 @@ import {ViewFileOptions} from "../../services/files/view-file-options";
     providers: [],
     templateUrl: "./file.component.html",
     styleUrls: ["./file.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FileSizePipe, EtaPipe, CapitalizePipe, ClickStopPropagationDirective]
 })
 
 export class FileComponent implements OnChanges {
@@ -24,14 +30,14 @@ export class FileComponent implements OnChanges {
     // Make FileAction accessible from template
     FileAction = FileAction;
 
-    // Expose min function for template
-    min = Math.min;
+    // Expose min function for template (handles null values)
+    min = (a: number | null, b: number): number => Math.min(a ?? 0, b);
 
     // Entire div element
-    @ViewChild("fileElement") fileElement: any;
+    @ViewChild("fileElement") fileElement!: ElementRef;
 
-    @Input() file: ViewFile;
-    @Input() options: ViewFileOptions;
+    @Input() file!: ViewFile;
+    @Input() options!: ViewFileOptions;
 
     @Output() queueEvent = new EventEmitter<ViewFile>();
     @Output() stopEvent = new EventEmitter<ViewFile>();
@@ -40,14 +46,12 @@ export class FileComponent implements OnChanges {
     @Output() deleteRemoteEvent = new EventEmitter<ViewFile>();
 
     // Indicates an active action on-going
-    activeAction: FileAction = null;
-
-    constructor(private modal: Modal) {}
+    activeAction: FileAction | null = null;
 
     ngOnChanges(changes: SimpleChanges): void {
         // Check for status changes
-        const oldFile: ViewFile = changes.file.previousValue;
-        const newFile: ViewFile = changes.file.currentValue;
+        const oldFile: ViewFile = changes['file'].previousValue;
+        const newFile: ViewFile = changes['file'].currentValue;
         if (oldFile != null && newFile != null && oldFile.status !== newFile.status) {
             // Reset any active action
             this.activeAction = null;
@@ -60,23 +64,11 @@ export class FileComponent implements OnChanges {
     }
 
     showDeleteConfirmation(title: string, message: string, callback: () => void) {
-        const dialogRef = this.modal.confirm()
-            .title(title)
-            .okBtn("Delete")
-            .okBtnClass("btn btn-danger")
-            .cancelBtn("Cancel")
-            .cancelBtnClass("btn btn-secondary")
-            .isBlocking(false)
-            .showClose(false)
-            .body(message)
-            .open();
-
-        dialogRef.then( dRef => {
-           dRef.result.then(
-               () => { callback(); },
-               () => { return; }
-           );
-        });
+        // Using native browser confirm dialog
+        // Can be replaced with a Bootstrap modal component if more sophisticated UI is needed
+        if (window.confirm(`${title}\n\n${message}`)) {
+            callback();
+        }
     }
 
     isQueueable() {
@@ -120,7 +112,7 @@ export class FileComponent implements OnChanges {
     onDeleteLocal(file: ViewFile) {
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_LOCAL_TITLE,
-            Localization.Modal.DELETE_LOCAL_MESSAGE(file.name),
+            Localization.Modal.DELETE_LOCAL_MESSAGE(file.name ?? ''),
             () => {
                 this.activeAction = FileAction.DELETE_LOCAL;
                 // Pass to parent component
@@ -132,7 +124,7 @@ export class FileComponent implements OnChanges {
     onDeleteRemote(file: ViewFile) {
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_REMOTE_TITLE,
-            Localization.Modal.DELETE_REMOTE_MESSAGE(file.name),
+            Localization.Modal.DELETE_REMOTE_MESSAGE(file.name ?? ''),
             () => {
                 this.activeAction = FileAction.DELETE_REMOTE;
                 // Pass to parent component
@@ -142,13 +134,13 @@ export class FileComponent implements OnChanges {
     }
 
     // Source: https://stackoverflow.com/a/7557433
-    private static isElementInViewport (el) {
+    private static isElementInViewport(el: HTMLElement): boolean {
         const rect = el.getBoundingClientRect();
         return (
             rect.top >= 0 &&
             rect.left >= 0 &&
-            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && /*or $(window).height() */
-            rect.right <= (window.innerWidth || document.documentElement.clientWidth) /*or $(window).width() */
+            rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+            rect.right <= (window.innerWidth || document.documentElement.clientWidth)
         );
     }
 }

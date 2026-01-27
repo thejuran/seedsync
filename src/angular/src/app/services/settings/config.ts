@@ -9,7 +9,7 @@ import {Record} from "immutable";
  * GENERAL
  */
 interface IGeneral {
-    debug: boolean;
+    debug: boolean | null;
 }
 const DefaultGeneral: IGeneral = {
     debug: null
@@ -20,20 +20,20 @@ const GeneralRecord = Record(DefaultGeneral);
  * LFTP
  */
 interface ILftp {
-    remote_address: string;
-    remote_username: string;
-    remote_password: string;
-    remote_port: number;
-    remote_path: string;
-    local_path: string;
-    remote_path_to_scan_script: string;
-    use_ssh_key: boolean;
-    num_max_parallel_downloads: number;
-    num_max_parallel_files_per_download: number;
-    num_max_connections_per_root_file: number;
-    num_max_connections_per_dir_file: number;
-    num_max_total_connections: number;
-    use_temp_file: boolean;
+    remote_address: string | null;
+    remote_username: string | null;
+    remote_password: string | null;
+    remote_port: number | null;
+    remote_path: string | null;
+    local_path: string | null;
+    remote_path_to_scan_script: string | null;
+    use_ssh_key: boolean | null;
+    num_max_parallel_downloads: number | null;
+    num_max_parallel_files_per_download: number | null;
+    num_max_connections_per_root_file: number | null;
+    num_max_connections_per_dir_file: number | null;
+    num_max_total_connections: number | null;
+    use_temp_file: boolean | null;
 }
 const DefaultLftp: ILftp = {
     remote_address: null,
@@ -57,11 +57,11 @@ const LftpRecord = Record(DefaultLftp);
  * CONTROLLER
  */
 interface IController {
-    interval_ms_remote_scan: number;
-    interval_ms_local_scan: number;
-    interval_ms_downloading_scan: number;
-    extract_path: string;
-    use_local_path_as_extract_path: boolean;
+    interval_ms_remote_scan: number | null;
+    interval_ms_local_scan: number | null;
+    interval_ms_downloading_scan: number | null;
+    extract_path: string | null;
+    use_local_path_as_extract_path: boolean | null;
 }
 const DefaultController: IController = {
     interval_ms_remote_scan: null,
@@ -76,7 +76,7 @@ const ControllerRecord = Record(DefaultController);
  * WEB
  */
 interface IWeb {
-    port: number;
+    port: number | null;
 }
 const DefaultWeb: IWeb = {
     port: null
@@ -87,9 +87,9 @@ const WebRecord = Record(DefaultWeb);
  * AUTOQUEUE
  */
 interface IAutoQueue {
-    enabled: boolean;
-    patterns_only: boolean;
-    auto_extract: boolean;
+    enabled: boolean | null;
+    patterns_only: boolean | null;
+    auto_extract: boolean | null;
 }
 const DefaultAutoQueue: IAutoQueue = {
     enabled: null,
@@ -104,11 +104,11 @@ const AutoQueueRecord = Record(DefaultAutoQueue);
  * CONFIG
  */
 export interface IConfig {
-    general: IGeneral;
-    lftp: ILftp;
-    controller: IController;
-    web: IWeb;
-    autoqueue: IAutoQueue;
+    general: IGeneral | null;
+    lftp: ILftp | null;
+    controller: IController | null;
+    web: IWeb | null;
+    autoqueue: IAutoQueue | null;
 
 }
 const DefaultConfig: IConfig = {
@@ -122,13 +122,13 @@ const ConfigRecord = Record(DefaultConfig);
 
 
 export class Config extends ConfigRecord implements IConfig {
-    general: IGeneral;
-    lftp: ILftp;
-    controller: IController;
-    web: IWeb;
-    autoqueue: IAutoQueue;
+    override general!: IGeneral | null;
+    override lftp!: ILftp | null;
+    override controller!: IController | null;
+    override web!: IWeb | null;
+    override autoqueue!: IAutoQueue | null;
 
-    constructor(props) {
+    constructor(props: {general: IGeneral; lftp: ILftp; controller: IController; web: IWeb; autoqueue: IAutoQueue}) {
         // Create immutable members
         super({
             general: GeneralRecord(props.general),

@@ -1,13 +1,11 @@
 import {fakeAsync, TestBed, tick} from "@angular/core/testing";
-
-import * as compareVersions from "compare-versions";
+import {Subject} from "rxjs";
 
 import {VersionCheckService} from "../../../../services/utils/version-check.service";
 import {RestService, WebReaction} from "../../../../services/utils/rest.service";
 import {NotificationService} from "../../../../services/utils/notification.service";
 import {LoggerService} from "../../../../services/utils/logger.service";
 import {MockRestService} from "../../../mocks/mock-rest.service";
-import {Subject} from "rxjs/Subject";
 
 
 describe("Testing version check service", () => {
@@ -27,21 +25,21 @@ describe("Testing version check service", () => {
             ]
         });
 
-        notifService = TestBed.get(NotificationService);
-        restService = TestBed.get(RestService);
+        notifService = TestBed.inject(NotificationService);
+        restService = TestBed.inject(RestService);
 
         spyOn(notifService, "show");
         sendRequestSpy = spyOn(restService, "sendRequest").and.returnValue(
             new Subject<WebReaction>());
 
-        versionCheckService = TestBed.get(VersionCheckService);
+        versionCheckService = TestBed.inject(VersionCheckService);
     });
 
     function createVersionCheckService(): VersionCheckService {
         return new VersionCheckService(
             restService,
             notifService,
-            TestBed.get(LoggerService)
+            TestBed.inject(LoggerService)
         );
     }
 

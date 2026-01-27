@@ -8,19 +8,19 @@ import {ViewFile} from "./view-file";
  */
 interface IViewFileOptions {
     // Show additional details about the view file
-    showDetails: boolean;
+    showDetails: boolean | null;
 
     // Method to use to sort the view file list
-    sortMethod: ViewFileOptions.SortMethod;
+    sortMethod: ViewFileOptions.SortMethod | null;
 
     // Status filter setting
-    selectedStatusFilter: ViewFile.Status;
+    selectedStatusFilter: ViewFile.Status | null;
 
     // Name filter setting
-    nameFilter: string;
+    nameFilter: string | null;
 
     // Track filter pin status
-    pinFilter: boolean;
+    pinFilter: boolean | null;
 }
 
 
@@ -39,13 +39,13 @@ const ViewFileOptionsRecord = Record(DefaultViewFileOptions);
  * Immutable class that implements the interface
  */
 export class ViewFileOptions extends ViewFileOptionsRecord implements IViewFileOptions {
-    showDetails: boolean;
-    sortMethod: ViewFileOptions.SortMethod;
-    selectedStatusFilter: ViewFile.Status;
-    nameFilter: string;
-    pinFilter: boolean;
+    override showDetails!: boolean | null;
+    override sortMethod!: ViewFileOptions.SortMethod | null;
+    override selectedStatusFilter!: ViewFile.Status | null;
+    override nameFilter!: string | null;
+    override pinFilter!: boolean | null;
 
-    constructor(props) {
+    constructor(props: Partial<IViewFileOptions>) {
         super(props);
     }
 }

@@ -4,7 +4,7 @@ export interface IOption {
     type: OptionType;
     label: string;
     valuePath: [string, string];
-    description: string;
+    description: string | null;
 }
 export interface IOptionsContext {
     header: string;

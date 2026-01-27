@@ -1,6 +1,5 @@
 import {Injectable} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import {BehaviorSubject} from "rxjs/Rx";
+import {Observable, BehaviorSubject} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -51,7 +50,8 @@ export class ModelFileService extends BaseStreamService {
     public queue(file: ModelFile): Observable<WebReaction> {
         this._logger.debug("Queue model file: " + file.name);
         // Double-encode the value
-        const fileNameEncoded = encodeURIComponent(encodeURIComponent(file.name));
+        const fileName = file.name ?? '';
+        const fileNameEncoded = encodeURIComponent(encodeURIComponent(fileName));
         const url: string = "/server/command/queue/" + fileNameEncoded;
         return this._restService.sendRequest(url);
     }
@@ -64,7 +64,8 @@ export class ModelFileService extends BaseStreamService {
     public stop(file: ModelFile): Observable<WebReaction> {
         this._logger.debug("Stop model file: " + file.name);
         // Double-encode the value
-        const fileNameEncoded = encodeURIComponent(encodeURIComponent(file.name));
+        const fileName = file.name ?? '';
+        const fileNameEncoded = encodeURIComponent(encodeURIComponent(fileName));
         const url: string = "/server/command/stop/" + fileNameEncoded;
         return this._restService.sendRequest(url);
     }
@@ -77,7 +78,8 @@ export class ModelFileService extends BaseStreamService {
     public extract(file: ModelFile): Observable<WebReaction> {
         this._logger.debug("Extract model file: " + file.name);
         // Double-encode the value
-        const fileNameEncoded = encodeURIComponent(encodeURIComponent(file.name));
+        const fileName = file.name ?? '';
+        const fileNameEncoded = encodeURIComponent(encodeURIComponent(fileName));
         const url: string = "/server/command/extract/" + fileNameEncoded;
         return this._restService.sendRequest(url);
     }
@@ -90,7 +92,8 @@ export class ModelFileService extends BaseStreamService {
     public deleteLocal(file: ModelFile): Observable<WebReaction> {
         this._logger.debug("Delete locally model file: " + file.name);
         // Double-encode the value
-        const fileNameEncoded = encodeURIComponent(encodeURIComponent(file.name));
+        const fileName = file.name ?? '';
+        const fileNameEncoded = encodeURIComponent(encodeURIComponent(fileName));
         const url: string = "/server/command/delete_local/" + fileNameEncoded;
         return this._restService.sendRequest(url);
     }
@@ -103,20 +106,21 @@ export class ModelFileService extends BaseStreamService {
     public deleteRemote(file: ModelFile): Observable<WebReaction> {
         this._logger.debug("Delete remotely model file: " + file.name);
         // Double-encode the value
-        const fileNameEncoded = encodeURIComponent(encodeURIComponent(file.name));
+        const fileName = file.name ?? '';
+        const fileNameEncoded = encodeURIComponent(encodeURIComponent(fileName));
         const url: string = "/server/command/delete_remote/" + fileNameEncoded;
         return this._restService.sendRequest(url);
     }
 
-    protected onEvent(eventName: string, data: string) {
+    protected onEvent(eventName: string, data: string): void {
         this.parseEvent(eventName, data);
     }
 
-    protected onConnected() {
+    protected onConnected(): void {
         // nothing to do
     }
 
-    protected onDisconnected() {
+    protected onDisconnected(): void {
         // Update clients by clearing the model
         this._files.next(this._files.getValue().clear());
     }
@@ -133,21 +137,24 @@ export class ModelFileService extends BaseStreamService {
             let t1: number;
 
             t0 = performance.now();
-            const parsed: [any] = JSON.parse(data);
+            const parsed: unknown[] = JSON.parse(data);
             t1 = performance.now();
             this._logger.debug("Parsing took", (t1 - t0).toFixed(0), "ms");
 
             t0 = performance.now();
             const newFiles: ModelFile[] = [];
             for (const file of parsed) {
-                newFiles.push(ModelFile.fromJson(file));
+                newFiles.push(ModelFile.fromJson(file as Parameters<typeof ModelFile.fromJson>[0]));
             }
             t1 = performance.now();
             this._logger.debug("ModelFile creation took", (t1 - t0).toFixed(0), "ms");
 
             // Replace the entire model
             t0 = performance.now();
-            const newMap = Immutable.Map<string, ModelFile>(newFiles.map(value => ([value.name, value])));
+            const entries: [string, ModelFile][] = newFiles
+                .filter(value => value.name !== null)
+                .map(value => [value.name as string, value]);
+            const newMap = Immutable.Map<string, ModelFile>(entries);
             t1 = performance.now();
             this._logger.debug("ModelFile map creation took", (t1 - t0).toFixed(0), "ms");
 
@@ -156,35 +163,44 @@ export class ModelFileService extends BaseStreamService {
         } else if (name === this.EVENT_ADDED) {
             // Added event receives old and new ModelFiles
             // Only new file is relevant
-            const parsed: {new_file: any} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.new_file);
-            if (this._files.getValue().has(file.name)) {
-                this._logger.error("ModelFile named " + file.name + " already exists");
+            const parsed: {new_file: unknown} = JSON.parse(data);
+            const file = ModelFile.fromJson(parsed.new_file as Parameters<typeof ModelFile.fromJson>[0]);
+            const fileName = file.name;
+            if (!fileName) {
+                this._logger.error("ModelFile has no name");
+            } else if (this._files.getValue().has(fileName)) {
+                this._logger.error("ModelFile named " + fileName + " already exists");
             } else {
-                this._files.next(this._files.getValue().set(file.name, file));
+                this._files.next(this._files.getValue().set(fileName, file));
                 this._logger.debug("Added file: %O", file.toJS());
             }
         } else if (name === this.EVENT_REMOVED) {
             // Removed event receives old and new ModelFiles
             // Only old file is relevant
-            const parsed: {old_file: any} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.old_file);
-            if (this._files.getValue().has(file.name)) {
-                this._files.next(this._files.getValue().remove(file.name));
+            const parsed: {old_file: unknown} = JSON.parse(data);
+            const file = ModelFile.fromJson(parsed.old_file as Parameters<typeof ModelFile.fromJson>[0]);
+            const fileName = file.name;
+            if (!fileName) {
+                this._logger.error("ModelFile has no name");
+            } else if (this._files.getValue().has(fileName)) {
+                this._files.next(this._files.getValue().remove(fileName));
                 this._logger.debug("Removed file: %O", file.toJS());
             } else {
-                this._logger.error("Failed to find ModelFile named " + file.name);
+                this._logger.error("Failed to find ModelFile named " + fileName);
             }
         } else if (name === this.EVENT_UPDATED) {
             // Updated event received old and new ModelFiles
             // We will only use the new one here
-            const parsed: {new_file: any} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.new_file);
-            if (this._files.getValue().has(file.name)) {
-                this._files.next(this._files.getValue().set(file.name, file));
+            const parsed: {new_file: unknown} = JSON.parse(data);
+            const file = ModelFile.fromJson(parsed.new_file as Parameters<typeof ModelFile.fromJson>[0]);
+            const fileName = file.name;
+            if (!fileName) {
+                this._logger.error("ModelFile has no name");
+            } else if (this._files.getValue().has(fileName)) {
+                this._files.next(this._files.getValue().set(fileName, file));
                 this._logger.debug("Updated file: %O", file.toJS());
             } else {
-                this._logger.error("Failed to find ModelFile named " + file.name);
+                this._logger.error("Failed to find ModelFile named " + fileName);
             }
         } else {
             this._logger.error("Unrecognized event:", name);

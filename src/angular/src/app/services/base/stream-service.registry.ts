@@ -1,6 +1,5 @@
 import {Injectable, NgZone} from "@angular/core";
-import {Observable} from "rxjs/Observable";
-import EventSource = require("eventsource");
+import {Observable} from "rxjs";
 
 import {ModelFileService} from "../files/model-file.service";
 import {ServerStatusService} from "../server/server-status.service";
@@ -26,19 +25,19 @@ export interface IStreamService {
     /**
      * Notifies the stream service that it is now connected
      */
-    notifyConnected();
+    notifyConnected(): void;
 
     /**
      * Notifies the stream service that it is now disconnected
      */
-    notifyDisconnected();
+    notifyDisconnected(): void;
 
     /**
      * Notifies the stream service of an event
      * @param {string} eventName
      * @param {string} data
      */
-    notifyEvent(eventName: string, data: string);
+    notifyEvent(eventName: string, data: string): void;
 }
 
 
@@ -81,7 +80,7 @@ export class StreamDispatchService {
     }
 
     private createSseObserver() {
-        const observable = Observable.create(observer => {
+        const observable = new Observable(observer => {
             const eventSource = EventSourceFactory.createEventSource(this.STREAM_URL);
             for (let eventName of Array.from(this._eventNameToServiceMap.keys())) {
                 eventSource.addEventListener(eventName, event => observer.next(
@@ -113,11 +112,15 @@ export class StreamDispatchService {
         });
         observable.subscribe({
             next: (x) => {
-                let eventName = x["event"];
-                let eventData = x["data"];
+                const eventObj = x as {event: string; data: string};
+                const eventName = eventObj.event;
+                const eventData = eventObj.data;
                 // this._logger.debug("Received event:", eventName);
                 this._zone.run(() => {
-                    this._eventNameToServiceMap.get(eventName).notifyEvent(eventName, eventData);
+                    const service = this._eventNameToServiceMap.get(eventName);
+                    if (service) {
+                        service.notifyEvent(eventName, eventData);
+                    }
                 });
             },
             error: err => {

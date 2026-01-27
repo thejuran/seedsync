@@ -1,4 +1,6 @@
 import {Component, OnInit} from "@angular/core";
+import {CommonModule} from "@angular/common";
+import {RouterLink, RouterLinkActive} from "@angular/router";
 
 import {ROUTE_INFOS} from "../../routes";
 import {ServerCommandService} from "../../services/server/server-command.service";
@@ -8,6 +10,8 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
 
 @Component({
     selector: "app-sidebar",
+    standalone: true,
+    imports: [CommonModule, RouterLink, RouterLinkActive],
     templateUrl: "./sidebar.component.html",
     styleUrls: ["./sidebar.component.scss"]
 })

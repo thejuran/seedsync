@@ -1,7 +1,7 @@
 import {Record} from "immutable";
 
 interface IAutoQueuePattern {
-    pattern: string;
+    pattern: string | null;
 }
 const DefaultAutoQueuePattern: IAutoQueuePattern = {
     pattern: null
@@ -10,9 +10,9 @@ const AutoQueuePatternRecord = Record(DefaultAutoQueuePattern);
 
 
 export class AutoQueuePattern extends AutoQueuePatternRecord implements IAutoQueuePattern {
-    pattern: string;
+    override pattern!: string | null;
 
-    constructor(props) {
+    constructor(props: Partial<IAutoQueuePattern>) {
         super(props);
     }
 }

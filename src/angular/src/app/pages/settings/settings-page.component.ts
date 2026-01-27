@@ -1,6 +1,9 @@
 import {ChangeDetectionStrategy, Component, OnInit} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {CommonModule} from "@angular/common";
+import {Observable} from "rxjs";
 
+import {OptionComponent} from "./option.component";
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 import {LoggerService} from "../../services/utils/logger.service";
 import {ConfigService} from "../../services/settings/config.service";
 import {Config} from "../../services/settings/config";
@@ -20,7 +23,9 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     templateUrl: "./settings-page.component.html",
     styleUrls: ["./settings-page.component.scss"],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, OptionComponent, ClickStopPropagationDirective]
 })
 
 export class SettingsPageComponent implements OnInit {
@@ -31,7 +36,7 @@ export class SettingsPageComponent implements OnInit {
     public OPTIONS_CONTEXT_AUTOQUEUE = OPTIONS_CONTEXT_AUTOQUEUE;
     public OPTIONS_CONTEXT_EXTRACT = OPTIONS_CONTEXT_EXTRACT;
 
-    public config: Observable<Config>;
+    public config: Observable<Config | null>;
 
     public commandsEnabled: boolean;
 
@@ -79,7 +84,10 @@ export class SettingsPageComponent implements OnInit {
 
                     // Hide bad value notification, if any
                     if (this._badValueNotifs.has(notifKey)) {
-                        this._notifService.hide(this._badValueNotifs.get(notifKey));
+                        const notif = this._badValueNotifs.get(notifKey);
+                        if (notif) {
+                            this._notifService.hide(notif);
+                        }
                         this._badValueNotifs.delete(notifKey);
                     }
 
@@ -93,7 +101,10 @@ export class SettingsPageComponent implements OnInit {
                         text: reaction.errorMessage
                     });
                     if (this._badValueNotifs.has(notifKey)) {
-                        this._notifService.hide(this._badValueNotifs.get(notifKey));
+                        const existingNotif = this._badValueNotifs.get(notifKey);
+                        if (existingNotif) {
+                            this._notifService.hide(existingNotif);
+                        }
                     }
                     this._notifService.show(notif);
                     this._badValueNotifs.set(notifKey, notif);

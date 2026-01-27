@@ -1,5 +1,7 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {CommonModule} from "@angular/common";
+import {FormsModule} from "@angular/forms";
+import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -14,7 +16,9 @@ import {DomService} from "../../services/utils/dom.service";
     providers: [],
     templateUrl: "./file-options.component.html",
     styleUrls: ["./file-options.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FormsModule]
 })
 
 export class FileOptionsComponent implements OnInit {
@@ -32,7 +36,7 @@ export class FileOptionsComponent implements OnInit {
     public isQueuedStatusEnabled = false;
     public isStoppedStatusEnabled = false;
 
-    private _latestOptions: ViewFileOptions;
+    private _latestOptions: ViewFileOptions | null = null;
 
     constructor(private _changeDetector: ChangeDetectorRef,
                 private viewFileOptionsService: ViewFileOptionsService,
@@ -74,7 +78,7 @@ export class FileOptionsComponent implements OnInit {
         this.viewFileOptionsService.setNameFilter(name);
     }
 
-    onFilterByStatus(status: ViewFile.Status) {
+    onFilterByStatus(status: ViewFile.Status | null) {
         this.viewFileOptionsService.setSelectedStatusFilter(status);
     }
 
@@ -83,11 +87,15 @@ export class FileOptionsComponent implements OnInit {
     }
 
     onToggleShowDetails(){
-        this.viewFileOptionsService.setShowDetails(!this._latestOptions.showDetails);
+        if (this._latestOptions) {
+            this.viewFileOptionsService.setShowDetails(!this._latestOptions.showDetails);
+        }
     }
 
     onTogglePinFilter() {
-        this.viewFileOptionsService.setPinFilter(!this._latestOptions.pinFilter);
+        if (this._latestOptions) {
+            this.viewFileOptionsService.setPinFilter(!this._latestOptions.pinFilter);
+        }
     }
 
     private static isStatusEnabled(files: Immutable.List<ViewFile>, status: ViewFile.Status) {

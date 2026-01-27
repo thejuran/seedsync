@@ -1,9 +1,9 @@
 import {Record} from "immutable";
 
 interface INotification {
-    level: Notification.Level;
-    text: string;
-    timestamp: number;
+    level: Notification.Level | null;
+    text: string | null;
+    timestamp: number | null;
     dismissible: boolean;
 }
 const DefaultNotification: INotification = {
@@ -16,15 +16,18 @@ const NotificationRecord = Record(DefaultNotification);
 
 
 export class Notification extends NotificationRecord implements INotification {
-    level: Notification.Level;
-    text: string;
-    timestamp: number;
-    dismissible: boolean;
+    override level!: Notification.Level | null;
+    override text!: string | null;
+    override timestamp!: number | null;
+    override dismissible!: boolean;
 
-    constructor(props) {
-        props.timestamp = Date.now();
+    constructor(props: Partial<INotification>) {
+        const propsWithTimestamp = {
+            ...props,
+            timestamp: Date.now()
+        };
 
-        super(props);
+        super(propsWithTimestamp);
     }
 }
 

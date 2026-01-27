@@ -1,5 +1,4 @@
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
+import {Subject, Observable} from "rxjs";
 
 import {ViewFileOptions} from "../../services/files/view-file-options";
 

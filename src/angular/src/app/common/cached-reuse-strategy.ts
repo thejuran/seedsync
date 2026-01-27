@@ -16,15 +16,17 @@ export class CachedReuseStrategy implements RouteReuseStrategy {
     }
 
     store(route: ActivatedRouteSnapshot, handle: DetachedRouteHandle): void {
-        this.handlers[route.routeConfig.path] = handle;
+        if (route.routeConfig?.path !== undefined) {
+            this.handlers[route.routeConfig.path] = handle;
+        }
     }
 
     shouldAttach(route: ActivatedRouteSnapshot): boolean {
-        return !!route.routeConfig && !!this.handlers[route.routeConfig.path];
+        return !!route.routeConfig && route.routeConfig.path !== undefined && !!this.handlers[route.routeConfig.path];
     }
 
-    retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle {
-        if (!route.routeConfig) { return null; }
+    retrieve(route: ActivatedRouteSnapshot): DetachedRouteHandle | null {
+        if (!route.routeConfig || route.routeConfig.path === undefined) { return null; }
         return this.handlers[route.routeConfig.path];
     }
 

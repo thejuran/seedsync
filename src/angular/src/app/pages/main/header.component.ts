@@ -1,5 +1,6 @@
 import {Component, OnInit} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {CommonModule} from "@angular/common";
+import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
 
@@ -14,6 +15,8 @@ import {Localization} from "../../common/localization";
     selector: "app-header",
     templateUrl: "./header.component.html",
     styleUrls: ["./header.component.scss"],
+    standalone: true,
+    imports: [CommonModule]
 })
 
 export class HeaderComponent implements OnInit {
@@ -24,9 +27,9 @@ export class HeaderComponent implements OnInit {
 
     private _serverStatusService: ServerStatusService;
 
-    private _prevServerNotification: Notification;
-    private _prevWaitingForRemoteScanNotification: Notification;
-    private _prevRemoteServerErrorNotification: Notification;
+    private _prevServerNotification: Notification | null = null;
+    private _prevWaitingForRemoteScanNotification: Notification | null = null;
+    private _prevRemoteServerErrorNotification: Notification | null = null;
 
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
@@ -102,7 +105,7 @@ export class HeaderComponent implements OnInit {
                 if (status.server.up && status.controller.latestRemoteScanFailed === true) {
                     // Server up and remote scan failed - show notification if not already shown
                     const level = Notification.Level.WARNING;
-                    const text = Localization.Notification.STATUS_REMOTE_SERVER_ERROR(status.controller.latestRemoteScanError);
+                    const text = Localization.Notification.STATUS_REMOTE_SERVER_ERROR(status.controller.latestRemoteScanError ?? '');
                     if (this._prevRemoteServerErrorNotification != null
                            && this._prevRemoteServerErrorNotification.text !== text) {
                         // Text changed, hide old notification
