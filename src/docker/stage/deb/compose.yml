@@ -1,4 +1,3 @@
-version: "3.4"
 services:
 
   myapp:
@@ -8,18 +7,14 @@ services:
       context: ../../../..
       dockerfile: src/docker/stage/deb/Dockerfile
     tty: true
-    tmpfs:
-      - /run
-      - /run/lock
-    security_opt:
-      - seccomp:unconfined
     volumes:
       - type: bind
         source: ${SEEDSYNC_DEB}
         target: /install/seedsync.deb
         read_only: true
-
-      - type: bind
-        source: /sys/fs/cgroup
-        target: /sys/fs/cgroup
-        read_only: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8800/server/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 24
+      start_period: 10s

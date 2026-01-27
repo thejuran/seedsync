@@ -29,11 +29,11 @@ export class DashboardPage extends App {
         const files: FileInfo[] = [];
 
         for (const elm of fileElements) {
-            const name = await elm.locator('.name .text').textContent() || '';
+            const name = (await elm.locator('.name .text').textContent() || '').trim();
             const statusElm = elm.locator('.content .status span.text');
             const statusCount = await statusElm.count();
-            const status = statusCount > 0 ? await statusElm.innerHTML() : '';
-            const size = await elm.locator('.size .size_info').textContent() || '';
+            const status = statusCount > 0 ? (await statusElm.innerHTML()).trim() : '';
+            const size = (await elm.locator('.size .size_info').textContent() || '').trim();
             files.push({ name, status, size });
         }
 

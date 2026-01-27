@@ -6,8 +6,12 @@
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
 FROM node:20-slim AS seedsync_build_angular_env
+# Install build tools for node-sass native compilation (requires Python and gcc)
+RUN apt-get update && apt-get install -y python3 build-essential && rm -rf /var/lib/apt/lists/*
 COPY src/angular/package*.json /app/
 WORKDIR /app
+# Suppress C++ warnings in libsass that are treated as errors with newer compilers
+ENV CXXFLAGS="-Wno-range-loop-construct"
 RUN npm install --legacy-peer-deps
 
 # Builds angular app into html
@@ -29,6 +33,9 @@ FROM python:3.11-slim-bullseye AS seedsync_build_pyinstaller_env
 # Install build dependencies
 RUN apt-get update && apt-get install -y \
     binutils \
+    build-essential \
+    libffi-dev \
+    zlib1g-dev \
     && rm -rf /var/lib/apt/lists/*
 # Install Poetry
 RUN pip3 install poetry && \
@@ -67,7 +74,7 @@ FROM python:3.11-slim AS seedsync_run_python_env
 RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmware/g' /etc/apt/sources.list.d/debian.sources && \
     apt-get update && \
     apt-get install -y \
-        gcc \
+        build-essential \
         libssl-dev \
         lftp \
         openssh-client \
@@ -80,10 +87,8 @@ RUN sed -i 's/Components: main/Components: main contrib non-free non-free-firmwa
         libxml2-dev libxslt-dev libffi-dev \
     && apt-get clean
 
-# Install Poetry using official installer
-ENV POETRY_HOME="/opt/poetry"
-ENV PATH="$POETRY_HOME/bin:$PATH"
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
+# Install Poetry using pip (more reliable than installer script in CI)
+RUN pip3 install poetry && \
     poetry config virtualenvs.create false
 
 ENV LC_ALL=C.UTF-8

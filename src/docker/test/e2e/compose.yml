@@ -1,4 +1,3 @@
-version: "3.4"
 services:
   tests:
     image: seedsync/test/e2e
@@ -15,6 +14,8 @@ services:
   remote:
     image: seedsync/test/e2e/remote
     container_name: seedsync_test_e2e_remote
+    # Platform must match myapp so scanfs binary can execute
+    platform: ${SEEDSYNC_PLATFORM:-linux/amd64}
     build:
       context: ../../../../
       dockerfile: src/docker/test/e2e/remote/Dockerfile

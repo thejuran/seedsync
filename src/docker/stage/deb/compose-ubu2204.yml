@@ -1,8 +1,7 @@
-version: "3.4"
 services:
   myapp:
     image: seedsync/stage/deb/ubu2204
     container_name: seedsync_stage_deb_ubu2204
     build:
       args:
-        - BASE_IMAGE=ubuntu-systemd:22.04
+        - BASE_IMAGE=ubuntu:22.04

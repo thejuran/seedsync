@@ -5,6 +5,8 @@ test.describe('Testing autoqueue page', () => {
     test.beforeEach(async ({ page }) => {
         const autoQueuePage = new AutoQueuePage(page);
         await autoQueuePage.navigateTo();
+        // Clean up any existing patterns to ensure test isolation
+        await autoQueuePage.removeAllPatterns();
     });
 
     test('should have right top title', async ({ page }) => {
@@ -66,10 +68,7 @@ test.describe('Testing autoqueue page', () => {
         ]);
 
         // remove all patterns
-        await autoQueuePage.removePattern(0);
-        await autoQueuePage.removePattern(0);
-        await autoQueuePage.removePattern(0);
-        await autoQueuePage.removePattern(0);
+        await autoQueuePage.removeAllPatterns();
         expect(await autoQueuePage.getPatterns()).toEqual([]);
     });
 });

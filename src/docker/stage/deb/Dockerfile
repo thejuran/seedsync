@@ -2,14 +2,15 @@ ARG BASE_IMAGE=ubuntu:22.04
 
 FROM $BASE_IMAGE
 
-# Install dependencies
+# Install dependencies (including curl for healthcheck)
 RUN apt-get update && apt-get install -y \
     sudo \
     libssl-dev \
     libexpat1 \
     expect \
     lftp \
-    openssh-client
+    openssh-client \
+    curl
 
 # Create non-root user
 RUN useradd --create-home -s /bin/bash user && \
@@ -38,7 +39,7 @@ ADD src/docker/stage/deb/install_seedsync.sh /scripts/
 ADD src/docker/stage/deb/expect_seedsync.exp /scripts/
 ADD src/docker/stage/deb/entrypoint.sh /scripts/
 
+# Run seedsync directly (no systemd needed)
 ENTRYPOINT ["/scripts/entrypoint.sh"]
-CMD ["/lib/systemd/systemd --log-target=journal 3>&1"]
 
 EXPOSE 8800

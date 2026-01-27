@@ -151,26 +151,7 @@ run-tests-angular: tests-angular
 		-f ${SOURCEDIR}/docker/test/angular/compose.yml \
 		up --force-recreate --exit-code-from tests
 
-tests-e2e-deps:
-	# deb pre-reqs
-	$(DOCKER) build \
-		${SOURCEDIR}/docker/stage/deb/ubuntu-systemd/ubuntu-16.04-systemd \
-		-t ubuntu-systemd:16.04
-	$(DOCKER) build \
-		${SOURCEDIR}/docker/stage/deb/ubuntu-systemd/ubuntu-18.04-systemd \
-		-t ubuntu-systemd:18.04
-	$(DOCKER) build \
-		${SOURCEDIR}/docker/stage/deb/ubuntu-systemd/ubuntu-20.04-systemd \
-		-t ubuntu-systemd:20.04
-	$(DOCKER) build \
-		${SOURCEDIR}/docker/stage/deb/ubuntu-systemd/ubuntu-22.04-systemd \
-		-t ubuntu-systemd:22.04
-
-	# Setup docker for the systemd container
-	# See: https://github.com/solita/docker-systemd
-	$(DOCKER) run --rm --privileged -v /:/host solita/ubuntu-systemd setup
-
-run-tests-e2e: tests-e2e-deps
+run-tests-e2e:
 	# Check our settings
 	@if [[ -z "${STAGING_VERSION}" ]] && [[ -z "${SEEDSYNC_DEB}" ]]; then \
 		echo "${red}ERROR: One of STAGING_VERSION or SEEDSYNC_DEB must be set${reset}"; exit 1; \
@@ -182,7 +163,7 @@ run-tests-e2e: tests-e2e-deps
 	@if [[ ! -z "${SEEDSYNC_DEB}" ]] ; then \
 		if [[ -z "${SEEDSYNC_OS}" ]] ; then \
 			echo "${red}ERROR: SEEDSYNC_OS is required for DEB e2e test${reset}"; \
-			echo "${red}Options include: ubu1604, ubu1804, ubu2004, ubu2204${reset}"; exit 1; \
+			echo "${red}Options include: ubu2004, ubu2204 (requires GLIBC 2.29+)${reset}"; exit 1; \
 		fi
 	fi
 
@@ -196,9 +177,22 @@ run-tests-e2e: tests-e2e-deps
 			export STAGING_REGISTRY="${DEFAULT_STAGING_REGISTRY}"; \
 		fi;
 		echo "${green}STAGING_REGISTRY=$${STAGING_REGISTRY}${reset}";
+		# Set platform for remote container to match myapp architecture
+		# Note: We cannot use DOCKER_DEFAULT_PLATFORM because Playwright doesn't support arm/v7
+		export SEEDSYNC_PLATFORM="linux/$${SEEDSYNC_ARCH}";
+		echo "${green}SEEDSYNC_PLATFORM=$${SEEDSYNC_PLATFORM}${reset}";
 		# Removing and pulling is the only way to select the arch from a multi-arch image :(
 		$(DOCKER) rmi -f $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION}
 		$(DOCKER) pull $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} --platform linux/$${SEEDSYNC_ARCH}
+		# Pre-build the remote container for the target platform
+		# This is needed because docker-compose build doesn't respect platform for building
+		echo "${green}Building remote container for platform $${SEEDSYNC_PLATFORM}${reset}";
+		$(DOCKER) buildx build \
+			--platform $${SEEDSYNC_PLATFORM} \
+			--load \
+			-t seedsync/test/e2e/remote \
+			-f ${SOURCEDIR}/docker/test/e2e/remote/Dockerfile \
+			.
 	fi
 
 	# Set the flags
@@ -247,6 +241,15 @@ run-tests-e2e: tests-e2e-deps
 	if [[ "${DEV}" != "1" ]] ; then
 		$(DOCKER) logs -f seedsync_test_e2e
 	fi
+
+	# Show logs from myapp container for debugging (try all possible container names)
+	echo "${green}=== Logs from myapp container ===${reset}"
+	$(DOCKER) logs seedsync_stage_deb_ubu1604 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu1804 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu2004 2>&1 || \
+		$(DOCKER) logs seedsync_stage_deb_ubu2204 2>&1 || \
+		$(DOCKER) logs seedsync_test_e2e_myapp 2>&1 || \
+		echo "No myapp logs found"
 
 	EXITCODE=`$(DOCKER) inspect seedsync_test_e2e | jq '.[].State.ExitCode'`
 	if [[ "$${EXITCODE}" != "0" ]] ; then

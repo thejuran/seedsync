@@ -14,4 +14,5 @@ override_dh_auto_install:
 	cp -rf seedsync $(DESTROOT)/usr/lib/
 
 override_dh_shlibdeps:
-	dh_shlibdeps -l$(CURDIR)/seedsync
+	# Skip dh_shlibdeps - PyInstaller bundles all dependencies into
+	# self-contained executables, so system library checks don't apply

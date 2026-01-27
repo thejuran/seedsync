@@ -232,7 +232,7 @@ make run-tests-angular
 # E2E Tests
 # Docker image (arch=amd64,arm64,arm/v7)
 make run-tests-e2e STAGING_VERSION=latest SEEDSYNC_ARCH=<arch code>
-# Debian package (os=ubu1604,ubu1804,ubu2004)
+# Debian package (os=ubu2004,ubu2204) - requires GLIBC 2.29+
 make run-tests-e2e SEEDSYNC_DEB=`readlink -f build/*.deb` SEEDSYNC_OS=<os code>
 ```
 
