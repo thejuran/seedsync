@@ -72,6 +72,7 @@ RUN npm install @types/jasmine@2.8.8 @types/node@8.0.0 --save-dev --legacy-peer-
 FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
+RUN mkdir -p /build
 RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
 
 
