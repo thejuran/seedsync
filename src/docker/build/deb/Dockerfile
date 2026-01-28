@@ -55,12 +55,11 @@ RUN	pyinstaller /python/scan_fs.py \
 # Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
 # --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
 FROM node:20-slim AS seedsync_build_angular_env
-# Install build tools for node-sass native compilation
+# Install build tools for node-sass native compilation (requires Python and gcc)
 RUN apt-get update && apt-get install -y python3 build-essential && rm -rf /var/lib/apt/lists/*
 COPY src/angular/package*.json /app/
 WORKDIR /app
 # Suppress C++ warnings in libsass that are treated as errors with newer compilers
-# (range-loop-construct warnings about unnecessary copies in for loops)
 ENV CXXFLAGS="-Wno-range-loop-construct"
 RUN npm install --legacy-peer-deps
 # Force exact @types versions compatible with TypeScript 2.4.x
