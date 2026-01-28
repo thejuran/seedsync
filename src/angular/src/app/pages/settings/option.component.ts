@@ -1,5 +1,7 @@
 import {Component, Input, Output, ChangeDetectionStrategy, EventEmitter, OnInit} from "@angular/core";
 import {Subject} from "rxjs/Subject";
+import "rxjs/add/operator/debounceTime";
+import "rxjs/add/operator/distinctUntilChanged";
 
 @Component({
     selector: "app-option",
