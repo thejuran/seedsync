@@ -2,4 +2,15 @@
 
 from .lftp import Lftp, LftpError
 from .job_status import LftpJobStatus
-from .job_status_parser import LftpJobStatusParser, LftpJobStatusParserError
+from .job_status_parser import (
+    LftpJobStatusParser,
+    LftpJobStatusParserError,
+    RegexPatterns,
+    TransferStateParser,
+    BaseJobParser,
+    PgetJobParser,
+    MirrorJobParser,
+    JobParserFactory,
+    QueueParser,
+    ActiveJobsParser,
+)
