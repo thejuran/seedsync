@@ -400,6 +400,116 @@ class Controller:
         if latest_local_scan is not None:
             self.__context.status.controller.latest_local_scan_time = latest_local_scan.timestamp
 
+    def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str):
+        """
+        Handle QUEUE command action.
+        Returns (success, error_message) tuple.
+        """
+        if file.remote_size is None:
+            return False, "File '{}' does not exist remotely".format(command.filename)
+        try:
+            self.__lftp.queue(file.name, file.is_dir)
+            return True, None
+        except LftpError as e:
+            return False, "Lftp error: ".format(str(e))
+
+    def __handle_stop_command(self, file: ModelFile, command: Command) -> (bool, str):
+        """
+        Handle STOP command action.
+        Returns (success, error_message) tuple.
+        """
+        if file.state not in (ModelFile.State.DOWNLOADING, ModelFile.State.QUEUED):
+            return False, "File '{}' is not Queued or Downloading".format(command.filename)
+        try:
+            self.__lftp.kill(file.name)
+            return True, None
+        except (LftpError, LftpJobStatusParserError) as e:
+            return False, "Lftp error: ".format(str(e))
+
+    def __handle_extract_command(self, file: ModelFile, command: Command) -> (bool, str):
+        """
+        Handle EXTRACT command action.
+        Returns (success, error_message) tuple.
+        """
+        # Note: We don't check the is_extractable flag because it's just a guess
+        if file.state not in (
+                ModelFile.State.DEFAULT,
+                ModelFile.State.DOWNLOADED,
+                ModelFile.State.EXTRACTED
+        ):
+            return False, "File '{}' in state {} cannot be extracted".format(
+                command.filename, str(file.state)
+            )
+        elif file.local_size is None:
+            return False, "File '{}' does not exist locally".format(command.filename)
+        else:
+            self.__extract_process.extract(file)
+            return True, None
+
+    def __handle_delete_command(self, file: ModelFile, command: Command) -> (bool, str):
+        """
+        Handle DELETE_LOCAL and DELETE_REMOTE command actions.
+        Returns (success, error_message) tuple.
+        """
+        if command.action == Controller.Command.Action.DELETE_LOCAL:
+            if file.state not in (
+                ModelFile.State.DEFAULT,
+                ModelFile.State.DOWNLOADED,
+                ModelFile.State.EXTRACTED
+            ):
+                return False, "Local file '{}' cannot be deleted in state {}".format(
+                    command.filename, str(file.state)
+                )
+            elif file.local_size is None:
+                return False, "File '{}' does not exist locally".format(command.filename)
+            else:
+                process = DeleteLocalProcess(
+                    local_path=self.__context.config.lftp.local_path,
+                    file_name=file.name
+                )
+                process.set_multiprocessing_logger(self.__mp_logger)
+                post_callback = self.__local_scan_process.force_scan
+                command_wrapper = Controller.CommandProcessWrapper(
+                    process=process,
+                    post_callback=post_callback
+                )
+                self.__active_command_processes.append(command_wrapper)
+                command_wrapper.process.start()
+                return True, None
+
+        elif command.action == Controller.Command.Action.DELETE_REMOTE:
+            if file.state not in (
+                ModelFile.State.DEFAULT,
+                ModelFile.State.DOWNLOADED,
+                ModelFile.State.EXTRACTED,
+                ModelFile.State.DELETED
+            ):
+                return False, "Remote file '{}' cannot be deleted in state {}".format(
+                    command.filename, str(file.state)
+                )
+            elif file.remote_size is None:
+                return False, "File '{}' does not exist remotely".format(command.filename)
+            else:
+                process = DeleteRemoteProcess(
+                    remote_address=self.__context.config.lftp.remote_address,
+                    remote_username=self.__context.config.lftp.remote_username,
+                    remote_password=self.__password,
+                    remote_port=self.__context.config.lftp.remote_port,
+                    remote_path=self.__context.config.lftp.remote_path,
+                    file_name=file.name
+                )
+                process.set_multiprocessing_logger(self.__mp_logger)
+                post_callback = self.__remote_scan_process.force_scan
+                command_wrapper = Controller.CommandProcessWrapper(
+                    process=process,
+                    post_callback=post_callback
+                )
+                self.__active_command_processes.append(command_wrapper)
+                command_wrapper.process.start()
+                return True, None
+
+        return False, "Unknown delete action"
+
     def __process_commands(self):
         def _notify_failure(_command: Controller.Command, _msg: str):
             self.logger.warning("Command failed. {}".format(_msg))
@@ -415,101 +525,25 @@ class Controller:
                 _notify_failure(command, "File '{}' not found".format(command.filename))
                 continue
 
+            success = False
+            error_msg = None
+
             if command.action == Controller.Command.Action.QUEUE:
-                if file.remote_size is None:
-                    _notify_failure(command, "File '{}' does not exist remotely".format(command.filename))
-                    continue
-                try:
-                    self.__lftp.queue(file.name, file.is_dir)
-                except LftpError as e:
-                    _notify_failure(command, "Lftp error: ".format(str(e)))
-                    continue
+                success, error_msg = self.__handle_queue_command(file, command)
 
             elif command.action == Controller.Command.Action.STOP:
-                if file.state not in (ModelFile.State.DOWNLOADING, ModelFile.State.QUEUED):
-                    _notify_failure(command, "File '{}' is not Queued or Downloading".format(command.filename))
-                    continue
-                try:
-                    self.__lftp.kill(file.name)
-                except (LftpError, LftpJobStatusParserError) as e:
-                    _notify_failure(command, "Lftp error: ".format(str(e)))
-                    continue
+                success, error_msg = self.__handle_stop_command(file, command)
 
             elif command.action == Controller.Command.Action.EXTRACT:
-                # Note: We don't check the is_extractable flag because it's just a guess
-                if file.state not in (
-                        ModelFile.State.DEFAULT,
-                        ModelFile.State.DOWNLOADED,
-                        ModelFile.State.EXTRACTED
-                ):
-                    _notify_failure(command, "File '{}' in state {} cannot be extracted".format(
-                        command.filename, str(file.state)
-                    ))
-                    continue
-                elif file.local_size is None:
-                    _notify_failure(command, "File '{}' does not exist locally".format(command.filename))
-                    continue
-                else:
-                    self.__extract_process.extract(file)
+                success, error_msg = self.__handle_extract_command(file, command)
 
-            elif command.action == Controller.Command.Action.DELETE_LOCAL:
-                if file.state not in (
-                    ModelFile.State.DEFAULT,
-                    ModelFile.State.DOWNLOADED,
-                    ModelFile.State.EXTRACTED
-                ):
-                    _notify_failure(command, "Local file '{}' cannot be deleted in state {}".format(
-                        command.filename, str(file.state)
-                    ))
-                    continue
-                elif file.local_size is None:
-                    _notify_failure(command, "File '{}' does not exist locally".format(command.filename))
-                    continue
-                else:
-                    process = DeleteLocalProcess(
-                        local_path=self.__context.config.lftp.local_path,
-                        file_name=file.name
-                    )
-                    process.set_multiprocessing_logger(self.__mp_logger)
-                    post_callback = self.__local_scan_process.force_scan
-                    command_wrapper = Controller.CommandProcessWrapper(
-                        process=process,
-                        post_callback=post_callback
-                    )
-                    self.__active_command_processes.append(command_wrapper)
-                    command_wrapper.process.start()
+            elif command.action in (Controller.Command.Action.DELETE_LOCAL,
+                                    Controller.Command.Action.DELETE_REMOTE):
+                success, error_msg = self.__handle_delete_command(file, command)
 
-            elif command.action == Controller.Command.Action.DELETE_REMOTE:
-                if file.state not in (
-                    ModelFile.State.DEFAULT,
-                    ModelFile.State.DOWNLOADED,
-                    ModelFile.State.EXTRACTED,
-                    ModelFile.State.DELETED
-                ):
-                    _notify_failure(command, "Remote file '{}' cannot be deleted in state {}".format(
-                        command.filename, str(file.state)
-                    ))
-                    continue
-                elif file.remote_size is None:
-                    _notify_failure(command, "File '{}' does not exist remotely".format(command.filename))
-                    continue
-                else:
-                    process = DeleteRemoteProcess(
-                        remote_address=self.__context.config.lftp.remote_address,
-                        remote_username=self.__context.config.lftp.remote_username,
-                        remote_password=self.__password,
-                        remote_port=self.__context.config.lftp.remote_port,
-                        remote_path=self.__context.config.lftp.remote_path,
-                        file_name=file.name
-                    )
-                    process.set_multiprocessing_logger(self.__mp_logger)
-                    post_callback = self.__remote_scan_process.force_scan
-                    command_wrapper = Controller.CommandProcessWrapper(
-                        process=process,
-                        post_callback=post_callback
-                    )
-                    self.__active_command_processes.append(command_wrapper)
-                    command_wrapper.process.start()
+            if not success:
+                _notify_failure(command, error_msg)
+                continue
 
             # If we get here, it was a success
             for callback in command.callbacks:
