@@ -59,7 +59,13 @@ COPY src/angular/package*.json /app/
 WORKDIR /app
 # Ensure NODE_ENV is not production so devDependencies (including @angular/cli) are installed
 ENV NODE_ENV=development
-RUN npm install --legacy-peer-deps && \
+# Debug: show package.json contents and npm install output
+RUN cat package.json && \
+    npm install --legacy-peer-deps 2>&1 && \
+    echo "=== Checking node_modules ===" && \
+    ls -la node_modules/ | head -30 && \
+    echo "=== Checking @angular packages ===" && \
+    ls -la node_modules/@angular/ 2>/dev/null || echo "No @angular directory" && \
     ls -la node_modules/@angular/cli/bin/ng
 
 # Builds angular app into html
