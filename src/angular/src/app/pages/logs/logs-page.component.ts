@@ -25,14 +25,14 @@ export class LogsPageComponent implements OnInit, AfterContentChecked {
 
     public headerHeight: Observable<number>;
 
-    @ViewChild("templateRecord") templateRecord;
-    @ViewChild("templateConnected") templateConnected;
+    @ViewChild("templateRecord", {static: false}) templateRecord;
+    @ViewChild("templateConnected", {static: false}) templateConnected;
 
     // Where to insert the cloned content
-    @ViewChild("container", {read: ViewContainerRef}) container;
+    @ViewChild("container", {static: false, read: ViewContainerRef}) container;
 
-    @ViewChild("logHead") logHead;
-    @ViewChild("logTail") logTail;
+    @ViewChild("logHead", {static: false}) logHead;
+    @ViewChild("logTail", {static: false}) logTail;
 
     public showScrollToTopButton = false;
     public showScrollToBottomButton = false;

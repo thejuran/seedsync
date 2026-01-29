@@ -11,7 +11,7 @@ import {DomService} from "../../services/utils/dom.service";
     styleUrls: ["./app.component.scss"]
 })
 export class AppComponent implements OnInit, AfterViewInit {
-    @ViewChild("topHeader") topHeader: ElementRef;
+    @ViewChild("topHeader", {static: false}) topHeader: ElementRef;
 
     showSidebar = false;
     activeRoute: RouteInfo;

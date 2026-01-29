@@ -28,7 +28,7 @@ export class FileComponent implements OnChanges {
     min = Math.min;
 
     // Entire div element
-    @ViewChild("fileElement") fileElement: any;
+    @ViewChild("fileElement", {static: false}) fileElement: any;
 
     @Input() file: ViewFile;
     @Input() options: ViewFileOptions;
