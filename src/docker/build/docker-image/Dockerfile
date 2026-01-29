@@ -8,6 +8,8 @@
 FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
+# Ensure NODE_ENV is not production so devDependencies (including @angular/cli) are installed
+ENV NODE_ENV=development
 RUN npm install --legacy-peer-deps && \
     ls -la node_modules/@angular/cli/bin/ng
 
