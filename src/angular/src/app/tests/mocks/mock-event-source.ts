@@ -14,17 +14,20 @@ export class MockEventSource implements EventSource {
     onerror: ((this: EventSource, ev: Event) => any) | null = null;
     onmessage: ((this: EventSource, ev: MessageEvent) => any) | null = null;
 
+    // Use EventListener (function type) for test compatibility
     eventListeners: Map<string, EventListener> = new Map();
 
     constructor(url: string) {
         this.url = url;
     }
 
-    addEventListener(type: string, listener: EventListener) {
-        this.eventListeners.set(type, listener);
+    addEventListener(type: string, listener: EventListenerOrEventListenerObject | null, _options?: boolean | AddEventListenerOptions) {
+        if (listener && typeof listener === 'function') {
+            this.eventListeners.set(type, listener as EventListener);
+        }
     }
 
-    removeEventListener(type: string, _listener?: EventListener) {
+    removeEventListener(type: string, _listener?: EventListenerOrEventListenerObject | null, _options?: boolean | EventListenerOptions) {
         this.eventListeners.delete(type);
     }
 

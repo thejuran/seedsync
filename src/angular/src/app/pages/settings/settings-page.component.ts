@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, OnInit} from "@angular/core";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 import {LoggerService} from "../../services/utils/logger.service";
 import {ConfigService} from "../../services/settings/config.service";

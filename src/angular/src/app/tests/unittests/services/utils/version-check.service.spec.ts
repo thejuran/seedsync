@@ -7,7 +7,7 @@ import {RestService, WebReaction} from "../../../../services/utils/rest.service"
 import {NotificationService} from "../../../../services/utils/notification.service";
 import {LoggerService} from "../../../../services/utils/logger.service";
 import {MockRestService} from "../../../mocks/mock-rest.service";
-import {Subject} from "rxjs/Subject";
+import {Subject} from "rxjs";
 
 
 describe("Testing version check service", () => {

@@ -3,12 +3,17 @@
 # ============================================================================
 
 # Creates environment for angular
-# Note: Using Node 20 LTS with Angular 6.x and Dart Sass
-# --legacy-peer-deps required for peer dependency conflicts (ngx-modialog)
+# Note: Using Node 20 LTS with Angular 13.x and Dart Sass
+# --legacy-peer-deps required for peer dependency conflicts
 FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
-RUN npm install --legacy-peer-deps
+# Ensure NODE_ENV is not production so devDependencies (including @angular/cli) are installed
+ENV NODE_ENV=development
+# Install all dependencies including devDependencies
+# Note: Angular 13+ CLI binary is ng.js, not ng
+RUN npm install --include=dev --legacy-peer-deps && \
+    test -f node_modules/@angular/cli/bin/ng.js || (echo "ERROR: @angular/cli not installed" && exit 1)
 
 # Builds angular app into html
 # Output is in /build/dist/
@@ -16,9 +21,13 @@ FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
 RUN mkdir -p /build
+# Verify node_modules exists, reinstall if missing (handles Docker cache issues)
+RUN if [ ! -f node_modules/@angular/cli/bin/ng.js ]; then npm install --legacy-peer-deps; fi
 # Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
 ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN node_modules/@angular/cli/bin/ng build --prod --output-path /build/dist/
+# Use --configuration=production (--prod is deprecated in Angular 12+)
+# Note: Angular 13+ CLI binary is ng.js
+RUN node node_modules/@angular/cli/bin/ng.js build --configuration=production --output-path /build/dist/
 
 # ============================================================================
 # Scanfs Build Stages

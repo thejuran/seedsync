@@ -9,7 +9,7 @@ import {LogRecord} from "../../services/logs/log-record";
 import {StreamServiceRegistry} from "../../services/base/stream-service.registry";
 import {Localization} from "../../common/localization";
 import {DomService} from "../../services/utils/dom.service";
-import {Observable} from "rxjs/Observable";
+import {Observable} from "rxjs";
 
 @Component({
     selector: "app-logs-page",
