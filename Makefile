@@ -75,6 +75,8 @@ docker-image: docker-buildx
 		${ROOTDIR}
 
 	# final image
+	# Note: arm64 excluded - node-sass compilation segfaults under QEMU emulation
+	# arm/v7 validates ARM compatibility; arm64 can be re-added after migrating to Dart Sass
 	$(DOCKER) buildx build \
 		-f ${SOURCEDIR}/docker/build/docker-image/Dockerfile \
 		--target seedsync_run \
@@ -83,7 +85,7 @@ docker-image: docker-buildx
 		--tag $${STAGING_REGISTRY}/seedsync:$${STAGING_VERSION} \
 		--cache-to=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache,mode=max \
 		--cache-from=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache \
-		--platform linux/amd64,linux/arm64,linux/arm/v7 \
+		--platform linux/amd64,linux/arm/v7 \
 		--push \
 		${ROOTDIR}
 
@@ -106,6 +108,7 @@ docker-image-release:
 	echo "${green}RELEASE_VERSION=${RELEASE_VERSION}${reset}"
 
 	# final image
+	# Note: arm64 excluded - node-sass compilation segfaults under QEMU emulation
 	$(DOCKER) buildx build \
 		-f ${SOURCEDIR}/docker/build/docker-image/Dockerfile \
 		--target seedsync_run \
@@ -113,7 +116,7 @@ docker-image-release:
 		--build-arg STAGING_REGISTRY=$${STAGING_REGISTRY} \
 		--tag ${RELEASE_REGISTRY}/seedsync:${RELEASE_VERSION} \
 		--cache-from=type=registry,ref=$${STAGING_REGISTRY}/seedsync:cache \
-		--platform linux/amd64,linux/arm64,linux/arm/v7 \
+		--platform linux/amd64,linux/arm/v7 \
 		--push \
 		${ROOTDIR}
 
