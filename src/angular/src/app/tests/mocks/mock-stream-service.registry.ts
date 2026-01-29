@@ -6,7 +6,7 @@ import {MockModelFileService} from "./mock-model-file.service";
 
 export class MockStreamServiceRegistry {
     // Real connected service
-    connectedService = TestBed.get(ConnectedService);
+    connectedService = TestBed.inject(ConnectedService);
 
     // Fake model file service
     modelFileService = new MockModelFileService();

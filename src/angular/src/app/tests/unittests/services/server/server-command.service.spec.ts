@@ -28,9 +28,9 @@ describe("Testing server command service", () => {
             ]
         });
 
-        mockRegistry = TestBed.get(StreamServiceRegistry);
-        httpMock = TestBed.get(HttpTestingController);
-        commandService = TestBed.get(ServerCommandService);
+        mockRegistry = TestBed.inject(StreamServiceRegistry) as unknown as MockStreamServiceRegistry;
+        httpMock = TestBed.inject(HttpTestingController);
+        commandService = TestBed.inject(ServerCommandService);
 
         // Connect the services
         mockRegistry.connect();

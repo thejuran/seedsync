@@ -46,7 +46,7 @@ describe("Testing base stream service", () => {
             }
         );
 
-        baseStreamService = TestBed.get(TestBaseStreamService);
+        baseStreamService = TestBed.inject(TestBaseStreamService);
         spyOn(baseStreamService, "onConnected");
         spyOn(baseStreamService, "onDisconnected");
     });

@@ -21,9 +21,9 @@ describe("Testing rest service", () => {
                 LoggerService,
             ]
         });
-        httpMock = TestBed.get(HttpTestingController);
+        httpMock = TestBed.inject(HttpTestingController);
 
-        restService = TestBed.get(RestService);
+        restService = TestBed.inject(RestService);
     });
 
     it("should create an instance", () => {

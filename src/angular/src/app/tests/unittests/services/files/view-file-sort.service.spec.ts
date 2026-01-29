@@ -26,15 +26,15 @@ describe("Testing view file sort service", () => {
                 {provide: ViewFileOptionsService, useClass: MockViewFileOptionsService}
             ]
         });
-        viewFileService = TestBed.get(ViewFileService);
+        viewFileService = TestBed.inject(ViewFileService) as unknown as MockViewFileService;
         sortComparator = undefined;  // Reset before each test
         spyOn(viewFileService, "setComparator").and.callFake(
             value => sortComparator = value
         );
 
-        viewFileOptionsService = TestBed.get(ViewFileOptionsService);
+        viewFileOptionsService = TestBed.inject(ViewFileOptionsService) as unknown as MockViewFileOptionsService;
 
-        viewSortService = TestBed.get(ViewFileSortService);
+        viewSortService = TestBed.inject(ViewFileSortService);
     });
 
     it("should create an instance", () => {

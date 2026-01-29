@@ -27,21 +27,21 @@ describe("Testing version check service", () => {
             ]
         });
 
-        notifService = TestBed.get(NotificationService);
-        restService = TestBed.get(RestService);
+        notifService = TestBed.inject(NotificationService);
+        restService = TestBed.inject(RestService);
 
         spyOn(notifService, "show");
         sendRequestSpy = spyOn(restService, "sendRequest").and.returnValue(
             new Subject<WebReaction>());
 
-        versionCheckService = TestBed.get(VersionCheckService);
+        versionCheckService = TestBed.inject(VersionCheckService);
     });
 
     function createVersionCheckService(): VersionCheckService {
         return new VersionCheckService(
             restService,
             notifService,
-            TestBed.get(LoggerService)
+            TestBed.inject(LoggerService)
         );
     }
 

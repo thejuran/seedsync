@@ -11,8 +11,8 @@ import {StorageKeys} from "../../../../common/storage-keys";
 
 function createViewOptionsService(): ViewFileOptionsService {
     return new ViewFileOptionsService(
-        TestBed.get(LoggerService),
-        TestBed.get(LOCAL_STORAGE)
+        TestBed.inject(LoggerService),
+        TestBed.inject(LOCAL_STORAGE)
     );
 }
 
@@ -30,9 +30,9 @@ describe("Testing view file options service", () => {
             ]
         });
 
-        viewOptionsService = TestBed.get(ViewFileOptionsService);
+        viewOptionsService = TestBed.inject(ViewFileOptionsService);
 
-        storageService = TestBed.get(LOCAL_STORAGE);
+        storageService = TestBed.inject(LOCAL_STORAGE);
     });
 
     it("should create an instance", () => {

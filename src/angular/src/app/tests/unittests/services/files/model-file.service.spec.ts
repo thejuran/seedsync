@@ -29,9 +29,9 @@ describe("Testing model file service", () => {
             ]
         });
 
-        httpMock = TestBed.get(HttpTestingController);
+        httpMock = TestBed.inject(HttpTestingController);
 
-        modelFileService = TestBed.get(ModelFileService);
+        modelFileService = TestBed.inject(ModelFileService);
     });
 
     it("should create an instance", () => {

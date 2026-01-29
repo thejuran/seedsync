@@ -57,7 +57,7 @@ describe("Testing stream dispatch service", () => {
         spyOn(mockService1, "getEventNames").and.returnValue(['event1a', 'event1b']);
         spyOn(mockService2, "getEventNames").and.returnValue(['event2a', 'event2b']);
 
-        dispatchService = TestBed.get(StreamDispatchService);
+        dispatchService = TestBed.inject(StreamDispatchService);
 
         dispatchService.registerService(mockService1);
         dispatchService.registerService(mockService2);
@@ -201,7 +201,7 @@ describe("Testing stream service registry", () => {
             ]
         });
 
-        registry = TestBed.get(StreamServiceRegistry);
+        registry = TestBed.inject(StreamServiceRegistry);
     });
 
     it("should create an instance", () => {

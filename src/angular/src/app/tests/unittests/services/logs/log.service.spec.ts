@@ -18,7 +18,7 @@ describe("Testing log service", () => {
             ]
         });
 
-        logService = TestBed.get(LogService);
+        logService = TestBed.inject(LogService);
     });
 
     it("should create an instance", () => {

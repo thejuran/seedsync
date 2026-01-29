@@ -16,7 +16,7 @@ describe("Testing server status service", () => {
             ]
         });
 
-        serverStatusService = TestBed.get(ServerStatusService);
+        serverStatusService = TestBed.inject(ServerStatusService);
     });
 
     it("should create an instance", () => {
