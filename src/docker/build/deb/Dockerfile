@@ -60,8 +60,9 @@ WORKDIR /app
 # Ensure NODE_ENV is not production so devDependencies (including @angular/cli) are installed
 ENV NODE_ENV=development
 # Install all dependencies including devDependencies
+# Note: Angular 13+ CLI binary is ng.js, not ng
 RUN npm install --include=dev --legacy-peer-deps && \
-    test -f node_modules/@angular/cli/bin/ng || (echo "ERROR: @angular/cli not installed" && exit 1)
+    test -f node_modules/@angular/cli/bin/ng.js || (echo "ERROR: @angular/cli not installed" && exit 1)
 
 # Builds angular app into html
 # Output is in /build/dist/
@@ -70,11 +71,12 @@ COPY src/angular /app
 WORKDIR /app
 RUN mkdir -p /build
 # Verify node_modules exists, reinstall if missing (handles Docker cache issues)
-RUN if [ ! -f node_modules/@angular/cli/bin/ng ]; then npm install --legacy-peer-deps; fi
+RUN if [ ! -f node_modules/@angular/cli/bin/ng.js ]; then npm install --legacy-peer-deps; fi
 # Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
 ENV NODE_OPTIONS=--openssl-legacy-provider
 # Use --configuration=production (--prod is deprecated in Angular 12+)
-RUN node_modules/@angular/cli/bin/ng build --configuration=production --output-path /build/dist/
+# Note: Angular 13+ CLI binary is ng.js
+RUN node node_modules/@angular/cli/bin/ng.js build --configuration=production --output-path /build/dist/
 
 
 # Creates environment to build deb packages
