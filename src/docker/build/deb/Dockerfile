@@ -52,19 +52,12 @@ RUN	pyinstaller /python/scan_fs.py \
 
 
 # Creates environment for angular
-# Note: Using Node 20 LTS. Angular 4.x is legacy but npm/build still works.
-# --legacy-peer-deps required for old Angular 4.x peer dependency conflicts
+# Note: Using Node 20 LTS with Angular 6.x and Dart Sass
+# --legacy-peer-deps required for peer dependency conflicts (ngx-modialog)
 FROM node:20-slim AS seedsync_build_angular_env
-# Install build tools for node-sass native compilation (requires Python and gcc)
-RUN apt-get update && apt-get install -y python3 build-essential && rm -rf /var/lib/apt/lists/*
 COPY src/angular/package*.json /app/
 WORKDIR /app
-# Suppress C++ warnings in libsass that are treated as errors with newer compilers
-ENV CXXFLAGS="-Wno-range-loop-construct"
 RUN npm install --legacy-peer-deps
-# Force exact @types versions compatible with TypeScript 2.4.x
-# (newer versions use TS 3.x+ syntax that the old compiler can't parse)
-RUN npm install @types/jasmine@2.8.8 @types/node@8.0.0 --save-dev --legacy-peer-deps
 
 # Builds angular app into html
 # Output is in /build/dist/
@@ -74,7 +67,7 @@ WORKDIR /app
 RUN mkdir -p /build
 # Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
 ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN node_modules/@angular/cli/bin/ng build -prod --output-path /build/dist/
+RUN node_modules/@angular/cli/bin/ng build --prod --output-path /build/dist/
 
 
 # Creates environment to build deb packages

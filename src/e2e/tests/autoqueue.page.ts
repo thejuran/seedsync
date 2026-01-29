@@ -9,6 +9,20 @@ export class AutoQueuePage extends App {
 
     async navigateTo() {
         await this.page.goto(Paths.AUTOQUEUE);
+        // Wait for the page to fully load and SSE stream to connect
+        // The autoqueue container should be present once the app is initialized
+        await this.page.locator('#autoqueue').waitFor({ state: 'visible' });
+    }
+
+    async waitForPatternsToLoad(expectedCount: number) {
+        // Wait for the expected number of patterns to appear (with a timeout)
+        if (expectedCount > 0) {
+            await this.page.waitForFunction(
+                (expected) => document.querySelectorAll('#autoqueue .pattern').length >= expected,
+                expectedCount,
+                { timeout: 5000 }
+            );
+        }
     }
 
     async getPatterns(): Promise<string[]> {

@@ -62,6 +62,9 @@ test.describe('Testing autoqueue page', () => {
         // reload the page
         await autoQueuePage.navigateTo();
 
+        // Wait for patterns to load from server after page reload
+        await autoQueuePage.waitForPatternsToLoad(4);
+
         // patterns should be in alphabetical order
         expect(await autoQueuePage.getPatterns()).toEqual([
             'APattern', 'BPattern', 'CPattern', 'DPattern'
