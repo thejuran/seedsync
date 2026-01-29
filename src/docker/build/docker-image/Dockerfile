@@ -8,7 +8,8 @@
 FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
-RUN npm install --legacy-peer-deps
+RUN npm install --legacy-peer-deps && \
+    ls -la node_modules/@angular/cli/bin/ng
 
 # Builds angular app into html
 # Output is in /build/dist/
@@ -16,6 +17,8 @@ FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
 RUN mkdir -p /build
+# Verify node_modules exists, reinstall if missing (handles Docker cache issues)
+RUN if [ ! -f node_modules/@angular/cli/bin/ng ]; then npm install --legacy-peer-deps; fi
 # Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
 ENV NODE_OPTIONS=--openssl-legacy-provider
 # Use --configuration=production (--prod is deprecated in Angular 12+)
