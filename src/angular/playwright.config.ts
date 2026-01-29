@@ -19,7 +19,12 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          executablePath: process.env.CHROME_BIN || '/root/.cache/ms-playwright/chromium-1194/chrome-linux/chrome',
+        },
+      },
     },
   ],
   webServer: {
