@@ -141,8 +141,8 @@ jobs:
     needs: [ build-docker-image ]
     strategy:
       matrix:
-        # Note: arm64 excluded - too slow under QEMU emulation, arm/v7 validates ARM compatibility
-        arch: [ amd64, arm/v7 ]
+        # Note: arm64 excluded from e2e tests - too slow under QEMU emulation
+        arch: [ amd64 ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4

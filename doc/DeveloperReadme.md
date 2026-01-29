@@ -62,7 +62,7 @@ npm install
    docker buildx use mybuilder
    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
    docker buildx inspect --bootstrap
-   # Make sure the following architectures are listed: linux/amd64, linux/arm64, linux/arm/v7 
+   # Make sure the following architectures are listed: linux/amd64
    ```
 
 2. Multi-arch docker images can only be stored in a registry.
@@ -230,7 +230,7 @@ make run-tests-python
 make run-tests-angular
 
 # E2E Tests
-# Docker image (arch=amd64,arm64,arm/v7)
+# Docker image (arch=amd64)
 make run-tests-e2e STAGING_VERSION=latest SEEDSYNC_ARCH=<arch code>
 # Debian package (os=ubu2004,ubu2204) - requires GLIBC 2.29+
 make run-tests-e2e SEEDSYNC_DEB=`readlink -f build/*.deb` SEEDSYNC_OS=<os code>

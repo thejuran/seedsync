@@ -142,7 +142,8 @@ When releasing, update version in these files:
 ## Supported Platforms
 
 - Linux (native deb package)
-- Raspberry Pi v2, v3, v4 (ARM builds)
 - Windows/macOS (via Docker)
 
-Docker images are built for: `linux/amd64`, `linux/arm64`, `linux/arm/v7`
+Docker images are built for: `linux/amd64`
+
+Note: ARM64 support (Raspberry Pi 3/4/5) temporarily disabled during Angular migration.
