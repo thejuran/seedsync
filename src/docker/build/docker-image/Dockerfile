@@ -3,8 +3,8 @@
 # ============================================================================
 
 # Creates environment for angular
-# Note: Using Node 20 LTS with Angular 6.x and Dart Sass
-# --legacy-peer-deps required for peer dependency conflicts (ngx-modialog)
+# Note: Using Node 20 LTS with Angular 13.x and Dart Sass
+# --legacy-peer-deps required for peer dependency conflicts
 FROM node:20-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
@@ -18,7 +18,8 @@ WORKDIR /app
 RUN mkdir -p /build
 # Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
 ENV NODE_OPTIONS=--openssl-legacy-provider
-RUN node_modules/@angular/cli/bin/ng build --prod --output-path /build/dist/
+# Use --configuration=production (--prod is deprecated in Angular 12+)
+RUN node_modules/@angular/cli/bin/ng build --configuration=production --output-path /build/dist/
 
 # ============================================================================
 # Scanfs Build Stages
