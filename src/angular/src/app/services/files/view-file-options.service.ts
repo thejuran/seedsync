@@ -30,12 +30,14 @@ export class ViewFileOptionsService {
                 ViewFileOptions.SortMethod.STATUS;
         const pinFilter: boolean =
             this._storage.get(StorageKeys.VIEW_OPTION_PIN) || false;
+        const defaultStatusFilter: ViewFile.Status =
+            this._storage.get(StorageKeys.VIEW_OPTION_DEFAULT_STATUS_FILTER) || null;
 
         this._options = new BehaviorSubject(
             new ViewFileOptions({
                 showDetails: showDetails,
                 sortMethod: sortMethod,
-                selectedStatusFilter: null,
+                selectedStatusFilter: defaultStatusFilter,
                 nameFilter: null,
                 pinFilter: pinFilter,
             })
@@ -71,6 +73,7 @@ export class ViewFileOptionsService {
         if (options.selectedStatusFilter !== status) {
             const newOptions = new ViewFileOptions(options.set("selectedStatusFilter", status));
             this._options.next(newOptions);
+            this._storage.set(StorageKeys.VIEW_OPTION_DEFAULT_STATUS_FILTER, status);
             this._logger.debug("ViewOption selectedStatusFilter set to: " + newOptions.selectedStatusFilter);
         }
     }
