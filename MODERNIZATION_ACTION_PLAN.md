@@ -969,6 +969,10 @@ Session 16 (Frontend Dependency Modernization)
 
 8. **74% line reduction achieved**: The method went from 137 lines to 36 lines - a 74% reduction. This is comparable to Session 12's reduction of `build_model()` from 249 to 28 lines (89%). Both methods are now purely orchestration code.
 
+9. **Clarity over micro-optimization**: The original code called `get_file_names()` once and reused it for both `_prune_extracted_files()` and `_prune_downloaded_files()`. The refactored version calls it twice (once per method). This is slightly less efficient but makes each helper method self-contained. Since we hold the model lock throughout and `get_file_names()` is O(1) (dict keys), the trade-off favors clarity.
+
+10. **Thread safety verification**: The persist collections (`downloaded_file_names`, `extracted_file_names`) are only modified from the controller thread, so the copy-under-lock pattern from Sessions 3-4 doesn't apply here. The model lock protects against web request threads reading the model, not against concurrent persist access.
+
 ---
 
 *Action plan generated from MODERNIZATION_REPORT.md*
