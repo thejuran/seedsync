@@ -557,23 +557,48 @@ The original 137-line `__update_model()` method has been refactored into 11 focu
 
 #### Tasks
 
-- [ ] Identify all scan-related methods in Controller
-- [ ] Design `ScanManager` interface
-- [ ] Create `src/python/controller/scan_manager.py`
-- [ ] Extract scan methods:
+- [x] Identify all scan-related methods in Controller
+- [x] Design `ScanManager` interface
+- [x] Create `src/python/controller/scan_manager.py`
+- [x] Extract scan methods:
   - Scanner process management
   - Scan state tracking
   - Scan-related callbacks
-- [ ] Update Controller to delegate to ScanManager
-- [ ] Ensure proper dependency injection
-- [ ] Run full test suite
+- [x] Update Controller to delegate to ScanManager
+- [x] Ensure proper dependency injection
+- [x] Run full test suite — **287 passed** (277 original + 10 new)
 
 #### Success Criteria
 
-- ScanManager is independent class
-- Controller delegates scan operations
-- No circular dependencies
-- Tests pass
+- ScanManager is independent class ✓
+- Controller delegates scan operations ✓
+- No circular dependencies ✓
+- Tests pass ✓
+
+#### Notes
+
+**Extracted to ScanManager:**
+1. All scanner instances (`ActiveScanner`, `LocalScanner`, `RemoteScanner`)
+2. All scanner processes (`ScannerProcess` for each scanner)
+3. Scanner lifecycle management (`start()`, `stop()`)
+4. Result collection (`pop_latest_results()`)
+5. Active file tracking (`update_active_files()`)
+6. Exception propagation (`propagate_exceptions()`)
+7. Force scan triggers (`force_local_scan()`, `force_remote_scan()`)
+
+**Controller Changes:**
+- Replaced 6 scanner-related fields with single `__scan_manager` field
+- Updated `__init__()`: Moved `MultiprocessingLogger` creation earlier, then creates `ScanManager`
+- Updated `start()`: Delegates to `scan_manager.start()`
+- Updated `exit()`: Delegates to `scan_manager.stop()`
+- Updated `_collect_scan_results()`: Delegates to `scan_manager.pop_latest_results()`
+- Updated `_update_active_file_tracking()`: Delegates to `scan_manager.update_active_files()`
+- Updated `__propagate_exceptions()`: Delegates to `scan_manager.propagate_exceptions()`
+- Updated `__handle_delete_command()`: Uses `scan_manager.force_local_scan()` and `force_remote_scan()`
+
+**Test Coverage:**
+- Added 10 new unit tests in `tests/unittests/test_controller/test_scan_manager.py`
+- Tests cover: initialization, start/stop lifecycle, result collection, active files, exception propagation, force scan methods, SSH key mode
 
 ---
 
@@ -768,7 +793,7 @@ Session 16 (Frontend Dependency Modernization)
 
 | Session | Status | Completed Date | Notes |
 |---------|--------|----------------|-------|
-| 14 | Not Started | | |
+| 14 | Completed | 2026-01-30 | Extracted ScanManager from Controller (287 tests pass) |
 | 15 | Not Started | | |
 
 ### Phase 4 Status
@@ -972,6 +997,24 @@ Session 16 (Frontend Dependency Modernization)
 9. **Clarity over micro-optimization**: The original code called `get_file_names()` once and reused it for both `_prune_extracted_files()` and `_prune_downloaded_files()`. The refactored version calls it twice (once per method). This is slightly less efficient but makes each helper method self-contained. Since we hold the model lock throughout and `get_file_names()` is O(1) (dict keys), the trade-off favors clarity.
 
 10. **Thread safety verification**: The persist collections (`downloaded_file_names`, `extracted_file_names`) are only modified from the controller thread, so the copy-under-lock pattern from Sessions 3-4 doesn't apply here. The model lock protects against web request threads reading the model, not against concurrent persist access.
+
+### Session 14 Learnings
+
+1. **Manager classes simplify Controllers**: Extracting scanner functionality into a `ScanManager` class reduced the Controller's responsibility and improved cohesion. The Controller now orchestrates high-level behavior while ScanManager handles scanner lifecycle.
+
+2. **Dependency injection enables testability**: The `ScanManager` receives its dependencies (`Context`, `MultiprocessingLogger`) via constructor injection. This makes the class easy to test with mocked dependencies.
+
+3. **Comprehensive unit tests with mocking**: By mocking the `ScannerProcess`, `ActiveScanner`, `LocalScanner`, and `RemoteScanner` classes, we can test the ScanManager in isolation without starting real processes. This makes tests fast and reliable.
+
+4. **Move shared resources up the call chain**: The `MultiprocessingLogger` is needed by both `ScanManager` and `ExtractProcess`. Moving its creation earlier in `__init__()` ensures it's available for both components.
+
+5. **Consistent method naming**: The `ScanManager` uses action-oriented method names (`start()`, `stop()`, `pop_latest_results()`, `force_local_scan()`) that match the Controller's delegation style.
+
+6. **Export new public classes**: When adding a new public class like `ScanManager`, remember to add it to the module's `__init__.py` exports so it can be imported by other modules.
+
+7. **Preserve the original interface**: The refactoring maintains backward compatibility - external callers of `Controller` see no API changes. The delegation to `ScanManager` is an internal implementation detail.
+
+8. **Scanner field consolidation**: Replacing 6 individual fields (`__active_scanner`, `__local_scanner`, `__remote_scanner`, `__active_scan_process`, `__local_scan_process`, `__remote_scan_process`) with a single `__scan_manager` field simplifies the Controller's state.
 
 ---
 

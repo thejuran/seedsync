@@ -7,7 +7,7 @@ from queue import Queue
 from enum import Enum
 
 # my libs
-from .scan import ScannerProcess, ActiveScanner, LocalScanner, RemoteScanner
+from .scan_manager import ScanManager
 from .extract import ExtractProcess, ExtractStatus
 from .model_builder import ModelBuilder
 from .memory_monitor import MemoryMonitor
@@ -130,34 +130,13 @@ class Controller:
         self.__lftp.temp_file_name = "*" + Constants.LFTP_TEMP_FILE_SUFFIX
         self.__lftp.set_verbose_logging(self.__context.config.general.verbose)
 
-        # Setup the scanners and scanner processes
-        self.__active_scanner = ActiveScanner(self.__context.config.lftp.local_path)
-        self.__local_scanner = LocalScanner(
-            local_path=self.__context.config.lftp.local_path,
-            use_temp_file=self.__context.config.lftp.use_temp_file
-        )
-        self.__remote_scanner = RemoteScanner(
-            remote_address=self.__context.config.lftp.remote_address,
-            remote_username=self.__context.config.lftp.remote_username,
-            remote_password=self.__password,
-            remote_port=self.__context.config.lftp.remote_port,
-            remote_path_to_scan=self.__context.config.lftp.remote_path,
-            local_path_to_scan_script=self.__context.args.local_path_to_scanfs,
-            remote_path_to_scan_script=self.__context.config.lftp.remote_path_to_scan_script
-        )
+        # Setup multiprocess logging (needed by scan_manager and extract_process)
+        self.__mp_logger = MultiprocessingLogger(self.logger)
 
-        self.__active_scan_process = ScannerProcess(
-            scanner=self.__active_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_downloading_scan,
-            verbose=False
-        )
-        self.__local_scan_process = ScannerProcess(
-            scanner=self.__local_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_local_scan,
-        )
-        self.__remote_scan_process = ScannerProcess(
-            scanner=self.__remote_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_remote_scan,
+        # Setup the scan manager
+        self.__scan_manager = ScanManager(
+            context=self.__context,
+            mp_logger=self.__mp_logger
         )
 
         # Setup extract process
@@ -170,11 +149,7 @@ class Controller:
             local_path=self.__context.config.lftp.local_path
         )
 
-        # Setup multiprocess logging
-        self.__mp_logger = MultiprocessingLogger(self.logger)
-        self.__active_scan_process.set_multiprocessing_logger(self.__mp_logger)
-        self.__local_scan_process.set_multiprocessing_logger(self.__mp_logger)
-        self.__remote_scan_process.set_multiprocessing_logger(self.__mp_logger)
+        # Setup multiprocess logging for extract process
         self.__extract_process.set_multiprocessing_logger(self.__mp_logger)
 
         # Keep track of active files
@@ -218,9 +193,7 @@ class Controller:
         :return:
         """
         self.logger.debug("Starting controller")
-        self.__active_scan_process.start()
-        self.__local_scan_process.start()
-        self.__remote_scan_process.start()
+        self.__scan_manager.start()
         self.__extract_process.start()
         self.__mp_logger.start()
         self.__started = True
@@ -244,13 +217,8 @@ class Controller:
         self.logger.debug("Exiting controller")
         if self.__started:
             self.__lftp.exit()
-            self.__active_scan_process.terminate()
-            self.__local_scan_process.terminate()
-            self.__remote_scan_process.terminate()
+            self.__scan_manager.stop()
             self.__extract_process.terminate()
-            self.__active_scan_process.join()
-            self.__local_scan_process.join()
-            self.__remote_scan_process.join()
             self.__extract_process.join()
             self.__mp_logger.stop()
             self.__started = False
@@ -337,10 +305,7 @@ class Controller:
             Tuple of (remote_scan, local_scan, active_scan) results.
             Each element is None if no new result is available.
         """
-        latest_remote_scan = self.__remote_scan_process.pop_latest_result()
-        latest_local_scan = self.__local_scan_process.pop_latest_result()
-        latest_active_scan = self.__active_scan_process.pop_latest_result()
-        return latest_remote_scan, latest_local_scan, latest_active_scan
+        return self.__scan_manager.pop_latest_results()
 
     def _collect_lftp_status(self) -> Optional[List[LftpJobStatus]]:
         """
@@ -389,8 +354,8 @@ class Controller:
                 s.name for s in extract_statuses.statuses if s.state == ExtractStatus.State.EXTRACTING
             ]
 
-        # Update the active scanner's state
-        self.__active_scanner.set_active_files(
+        # Update the active scanner's state via the scan manager
+        self.__scan_manager.update_active_files(
             self.__active_downloading_file_names + self.__active_extracting_file_names
         )
 
@@ -705,7 +670,7 @@ class Controller:
                     file_name=file.name
                 )
                 process.set_multiprocessing_logger(self.__mp_logger)
-                post_callback = self.__local_scan_process.force_scan
+                post_callback = self.__scan_manager.force_local_scan
                 command_wrapper = Controller.CommandProcessWrapper(
                     process=process,
                     post_callback=post_callback
@@ -736,7 +701,7 @@ class Controller:
                     file_name=file.name
                 )
                 process.set_multiprocessing_logger(self.__mp_logger)
-                post_callback = self.__remote_scan_process.force_scan
+                post_callback = self.__scan_manager.force_remote_scan
                 command_wrapper = Controller.CommandProcessWrapper(
                     process=process,
                     post_callback=post_callback
@@ -793,9 +758,7 @@ class Controller:
         :return:
         """
         self.__lftp.raise_pending_error()
-        self.__active_scan_process.propagate_exception()
-        self.__local_scan_process.propagate_exception()
-        self.__remote_scan_process.propagate_exception()
+        self.__scan_manager.propagate_exceptions()
         self.__mp_logger.propagate_exception()
         self.__extract_process.propagate_exception()
 
