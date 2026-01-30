@@ -12,6 +12,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
 
   unittests-python:
@@ -101,9 +105,9 @@ jobs:
       - name: Show buildx available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
 
-      # Login using a PAT with write:packages scope
+      # Login to GHCR
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       # Set staging registry
       - name: Set staging registry env variable
         run: echo "staging_registry=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
@@ -167,9 +171,9 @@ jobs:
       - name: Show buildx available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
 
-      # Login using a PAT with write:packages scope
+      # Login to GHCR
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       # Set staging registry
       - name: Set staging registry env variable
         run: echo "staging_registry=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
@@ -207,29 +211,25 @@ jobs:
       - name: Show buildx available platforms
         run: echo ${{ steps.buildx.outputs.platforms }}
 
-      # Login to GHCR using a PAT with write:packages scope
+      # Login to GHCR
       - name: Log into GitHub Container Registry
-        run: echo "${{ secrets.CR_PAT }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
-      # Login to Dockerhub
-      - name: Log into Dockerhub registry
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" |
-          docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login https://ghcr.io -u ${{ github.actor }} --password-stdin
       # Set staging registry
       - name: Set staging registry env variable
         run: echo "staging_registry=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
 
-      # Push image to dockerhub
-      - name: Push to Dockerhub (tag vX.X.X)
+      # Push image to GHCR
+      - name: Push to GHCR (tag vX.X.X)
         run: make docker-image-release \
           STAGING_REGISTRY=${{ env.staging_registry }} \
           STAGING_VERSION=${{ github.run_number }} \
-          RELEASE_REGISTRY=docker.io/ipsingh06 \
+          RELEASE_REGISTRY=ghcr.io/thejuran \
           RELEASE_VERSION=${{ env.RELEASE_VERSION }}
-      - name: Push to Dockerhub (tag latest)
+      - name: Push to GHCR (tag latest)
         run: make docker-image-release \
           STAGING_REGISTRY=${{ env.staging_registry }} \
           STAGING_VERSION=${{ github.run_number }} \
-          RELEASE_REGISTRY=docker.io/ipsingh06 \
+          RELEASE_REGISTRY=ghcr.io/thejuran \
           RELEASE_VERSION=latest
 
   publish-deb:
