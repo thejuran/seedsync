@@ -78,6 +78,21 @@ class LftpJobStatus:
         """
         return list(zip(self.__active_files_state.keys(), self.__active_files_state.values()))
 
+    def clear_active_files(self):
+        """
+        Clears all active file transfer states.
+        This prevents memory accumulation from completed file transfers.
+        """
+        self.__active_files_state.clear()
+
+    def get_active_files_count(self) -> int:
+        """
+        Returns the number of active file transfer states being tracked.
+        Useful for memory monitoring.
+        :return: Number of active file entries
+        """
+        return len(self.__active_files_state)
+
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 

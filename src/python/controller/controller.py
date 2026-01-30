@@ -11,6 +11,7 @@ import copy
 from .scan import ScannerProcess, ActiveScanner, LocalScanner, RemoteScanner
 from .extract import ExtractProcess, ExtractStatus
 from .model_builder import ModelBuilder
+from .memory_monitor import MemoryMonitor
 from common import Context, AppError, MultiprocessingLogger, AppOneShotProcess, Constants
 from model import ModelError, ModelFile, Model, ModelDiff, ModelDiffUtil, IModelListener
 from lftp import Lftp, LftpError, LftpJobStatus, LftpJobStatusParserError
@@ -172,6 +173,22 @@ class Controller:
         # Keep track of active command processes
         self.__active_command_processes = []
 
+        # Memory monitor for detecting leaks
+        self.__memory_monitor = MemoryMonitor()
+        self.__memory_monitor.set_base_logger(self.logger)
+        self.__memory_monitor.register_data_source(
+            'downloaded_files',
+            lambda: len(self.__persist.downloaded_file_names)
+        )
+        self.__memory_monitor.register_data_source(
+            'extracted_files',
+            lambda: len(self.__persist.extracted_file_names)
+        )
+        self.__memory_monitor.register_data_source(
+            'model_files',
+            lambda: len(self.__model.get_file_names())
+        )
+
         self.__started = False
 
     def start(self):
@@ -200,6 +217,8 @@ class Controller:
         self.__cleanup_commands()
         self.__process_commands()
         self.__update_model()
+        # Periodically log memory statistics
+        self.__memory_monitor.log_stats_if_due()
 
     def exit(self):
         self.logger.debug("Exiting controller")

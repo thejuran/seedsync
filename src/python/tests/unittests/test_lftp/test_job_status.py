@@ -187,3 +187,48 @@ class TestLftpJobStatus(unittest.TestCase):
         s2.add_active_file_transfer_state("aa", LftpJobStatus.TransferState(1, 2, 3, 4, 5))
         s2.add_active_file_transfer_state("ab", LftpJobStatus.TransferState(6, 7, 8, 9, 10))
         self.assertFalse(s1 == s2)
+
+    def test_get_active_files_count_empty(self):
+        status = LftpJobStatus(job_id=-1,
+                               job_type=LftpJobStatus.Type.MIRROR,
+                               state=LftpJobStatus.State.RUNNING,
+                               name="",
+                               flags="")
+        self.assertEqual(0, status.get_active_files_count())
+
+    def test_get_active_files_count_with_files(self):
+        status = LftpJobStatus(job_id=-1,
+                               job_type=LftpJobStatus.Type.MIRROR,
+                               state=LftpJobStatus.State.RUNNING,
+                               name="",
+                               flags="")
+        status.add_active_file_transfer_state("a", LftpJobStatus.TransferState(10, 20, 50, 0, 0))
+        status.add_active_file_transfer_state("b", LftpJobStatus.TransferState(25, 100, 25, 0, 0))
+        status.add_active_file_transfer_state("c", LftpJobStatus.TransferState(50, 200, 25, 0, 0))
+        self.assertEqual(3, status.get_active_files_count())
+
+    def test_clear_active_files(self):
+        status = LftpJobStatus(job_id=-1,
+                               job_type=LftpJobStatus.Type.MIRROR,
+                               state=LftpJobStatus.State.RUNNING,
+                               name="",
+                               flags="")
+        status.add_active_file_transfer_state("a", LftpJobStatus.TransferState(10, 20, 50, 0, 0))
+        status.add_active_file_transfer_state("b", LftpJobStatus.TransferState(25, 100, 25, 0, 0))
+        self.assertEqual(2, status.get_active_files_count())
+        self.assertEqual(2, len(status.get_active_file_transfer_states()))
+
+        # Clear and verify
+        status.clear_active_files()
+        self.assertEqual(0, status.get_active_files_count())
+        self.assertEqual([], status.get_active_file_transfer_states())
+
+    def test_clear_active_files_on_empty(self):
+        status = LftpJobStatus(job_id=-1,
+                               job_type=LftpJobStatus.Type.MIRROR,
+                               state=LftpJobStatus.State.RUNNING,
+                               name="",
+                               flags="")
+        # Should not raise on empty
+        status.clear_active_files()
+        self.assertEqual(0, status.get_active_files_count())
