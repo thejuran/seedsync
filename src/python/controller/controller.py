@@ -389,6 +389,26 @@ class Controller:
                 self.__persist.extracted_file_names.difference_update(remove_extracted_file_names)
                 self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
 
+            # Prune the downloaded files list of any files that were deleted locally
+            # This prevents unbounded memory growth from tracking files indefinitely.
+            # After removal, the file returns to DEFAULT state on next scan (if still on remote).
+            remove_downloaded_file_names = set()
+            for downloaded_file_name in self.__persist.downloaded_file_names:
+                if downloaded_file_name in existing_file_names:
+                    file = self.__model.get_file(downloaded_file_name)
+                    if file.state == ModelFile.State.DELETED:
+                        # Deleted locally, remove from tracking
+                        remove_downloaded_file_names.add(downloaded_file_name)
+                else:
+                    # Not in the model at all - file is completely gone from both local and remote
+                    # Only remove if we've had at least one successful remote scan
+                    if latest_remote_scan is not None and not latest_remote_scan.failed:
+                        remove_downloaded_file_names.add(downloaded_file_name)
+            if remove_downloaded_file_names:
+                self.logger.info("Removing from downloaded list: {}".format(remove_downloaded_file_names))
+                self.__persist.downloaded_file_names.difference_update(remove_downloaded_file_names)
+                self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
+
             # Release the model
             self.__model_lock.release()
 
