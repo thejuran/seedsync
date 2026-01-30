@@ -37,7 +37,7 @@ class DummyListener(IModelListener):
 
 class DummyCommandCallback(Controller.Command.ICallback):
     @overrides(Controller.Command.ICallback)
-    def on_failure(self, error: str):
+    def on_failure(self, error: str, error_code: int = 400):
         pass
 
     @overrides(Controller.Command.ICallback)

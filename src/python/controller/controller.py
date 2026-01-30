@@ -51,8 +51,18 @@ class Controller:
                 pass
 
             @abstractmethod
-            def on_failure(self, error: str):
-                """Called on action failure"""
+            def on_failure(self, error: str, error_code: int = 400):
+                """
+                Called on action failure.
+
+                Args:
+                    error: Human-readable error message
+                    error_code: HTTP status code for the error (default 400)
+                        - 400: Bad request (invalid state, validation error)
+                        - 404: Resource not found
+                        - 409: Conflict (resource in wrong state)
+                        - 500: Internal server error
+                """
                 pass
 
         def __init__(self, action: Action, filename: str):
@@ -452,36 +462,36 @@ class Controller:
         if latest_local_scan is not None:
             self.__context.status.controller.latest_local_scan_time = latest_local_scan.timestamp
 
-    def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str):
+    def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
         Handle QUEUE command action.
-        Returns (success, error_message) tuple.
+        Returns (success, error_message, error_code) tuple.
         """
         if file.remote_size is None:
-            return False, "File '{}' does not exist remotely".format(command.filename)
+            return False, "File '{}' does not exist remotely".format(command.filename), 404
         try:
             self.__lftp.queue(file.name, file.is_dir)
-            return True, None
+            return True, None, None
         except LftpError as e:
-            return False, "Lftp error: {}".format(str(e))
+            return False, "Lftp error: {}".format(str(e)), 500
 
-    def __handle_stop_command(self, file: ModelFile, command: Command) -> (bool, str):
+    def __handle_stop_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
         Handle STOP command action.
-        Returns (success, error_message) tuple.
+        Returns (success, error_message, error_code) tuple.
         """
         if file.state not in (ModelFile.State.DOWNLOADING, ModelFile.State.QUEUED):
-            return False, "File '{}' is not Queued or Downloading".format(command.filename)
+            return False, "File '{}' is not Queued or Downloading".format(command.filename), 409
         try:
             self.__lftp.kill(file.name)
-            return True, None
+            return True, None, None
         except (LftpError, LftpJobStatusParserError) as e:
-            return False, "Lftp error: {}".format(str(e))
+            return False, "Lftp error: {}".format(str(e)), 500
 
-    def __handle_extract_command(self, file: ModelFile, command: Command) -> (bool, str):
+    def __handle_extract_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
         Handle EXTRACT command action.
-        Returns (success, error_message) tuple.
+        Returns (success, error_message, error_code) tuple.
         """
         # Note: We don't check the is_extractable flag because it's just a guess
         if file.state not in (
@@ -491,17 +501,17 @@ class Controller:
         ):
             return False, "File '{}' in state {} cannot be extracted".format(
                 command.filename, str(file.state)
-            )
+            ), 409
         elif file.local_size is None:
-            return False, "File '{}' does not exist locally".format(command.filename)
+            return False, "File '{}' does not exist locally".format(command.filename), 404
         else:
             self.__extract_process.extract(file)
-            return True, None
+            return True, None, None
 
-    def __handle_delete_command(self, file: ModelFile, command: Command) -> (bool, str):
+    def __handle_delete_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
         Handle DELETE_LOCAL and DELETE_REMOTE command actions.
-        Returns (success, error_message) tuple.
+        Returns (success, error_message, error_code) tuple.
         """
         if command.action == Controller.Command.Action.DELETE_LOCAL:
             if file.state not in (
@@ -511,9 +521,9 @@ class Controller:
             ):
                 return False, "Local file '{}' cannot be deleted in state {}".format(
                     command.filename, str(file.state)
-                )
+                ), 409
             elif file.local_size is None:
-                return False, "File '{}' does not exist locally".format(command.filename)
+                return False, "File '{}' does not exist locally".format(command.filename), 404
             else:
                 process = DeleteLocalProcess(
                     local_path=self.__context.config.lftp.local_path,
@@ -527,7 +537,7 @@ class Controller:
                 )
                 self.__active_command_processes.append(command_wrapper)
                 command_wrapper.process.start()
-                return True, None
+                return True, None, None
 
         elif command.action == Controller.Command.Action.DELETE_REMOTE:
             if file.state not in (
@@ -538,9 +548,9 @@ class Controller:
             ):
                 return False, "Remote file '{}' cannot be deleted in state {}".format(
                     command.filename, str(file.state)
-                )
+                ), 409
             elif file.remote_size is None:
-                return False, "File '{}' does not exist remotely".format(command.filename)
+                return False, "File '{}' does not exist remotely".format(command.filename), 404
             else:
                 process = DeleteRemoteProcess(
                     remote_address=self.__context.config.lftp.remote_address,
@@ -558,15 +568,15 @@ class Controller:
                 )
                 self.__active_command_processes.append(command_wrapper)
                 command_wrapper.process.start()
-                return True, None
+                return True, None, None
 
-        return False, "Unknown delete action"
+        return False, "Unknown delete action", 500
 
     def __process_commands(self):
-        def _notify_failure(_command: Controller.Command, _msg: str):
+        def _notify_failure(_command: Controller.Command, _msg: str, _code: int = 400):
             self.logger.warning("Command failed. {}".format(_msg))
             for _callback in _command.callbacks:
-                _callback.on_failure(_msg)
+                _callback.on_failure(_msg, _code)
 
         while not self.__command_queue.empty():
             command = self.__command_queue.get()
@@ -574,27 +584,28 @@ class Controller:
             try:
                 file = self.__model.get_file(command.filename)
             except ModelError:
-                _notify_failure(command, "File '{}' not found".format(command.filename))
+                _notify_failure(command, "File '{}' not found".format(command.filename), 404)
                 continue
 
             success = False
             error_msg = None
+            error_code = 400
 
             if command.action == Controller.Command.Action.QUEUE:
-                success, error_msg = self.__handle_queue_command(file, command)
+                success, error_msg, error_code = self.__handle_queue_command(file, command)
 
             elif command.action == Controller.Command.Action.STOP:
-                success, error_msg = self.__handle_stop_command(file, command)
+                success, error_msg, error_code = self.__handle_stop_command(file, command)
 
             elif command.action == Controller.Command.Action.EXTRACT:
-                success, error_msg = self.__handle_extract_command(file, command)
+                success, error_msg, error_code = self.__handle_extract_command(file, command)
 
             elif command.action in (Controller.Command.Action.DELETE_LOCAL,
                                     Controller.Command.Action.DELETE_REMOTE):
-                success, error_msg = self.__handle_delete_command(file, command)
+                success, error_msg, error_code = self.__handle_delete_command(file, command)
 
             if not success:
-                _notify_failure(command, error_msg)
+                _notify_failure(command, error_msg, error_code)
                 continue
 
             # If we get here, it was a success

@@ -32,7 +32,7 @@ class AutoQueueHandler(IHandler):
         aqp = AutoQueuePattern(pattern=pattern)
 
         if aqp in self.__auto_queue_persist.patterns:
-            return HTTPResponse(body="Auto-queue pattern '{}' already exists.".format(pattern), status=400)
+            return HTTPResponse(body="Auto-queue pattern '{}' already exists.".format(pattern), status=409)
         else:
             try:
                 self.__auto_queue_persist.add_pattern(aqp)
@@ -47,7 +47,7 @@ class AutoQueueHandler(IHandler):
         aqp = AutoQueuePattern(pattern=pattern)
 
         if aqp not in self.__auto_queue_persist.patterns:
-            return HTTPResponse(body="Auto-queue pattern '{}' doesn't exist.".format(pattern), status=400)
+            return HTTPResponse(body="Auto-queue pattern '{}' doesn't exist.".format(pattern), status=404)
         else:
             self.__auto_queue_persist.remove_pattern(aqp)
             return HTTPResponse(body="Removed auto-queue pattern '{}'.".format(pattern))
