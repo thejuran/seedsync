@@ -797,6 +797,10 @@ Session 16 (Frontend Dependency Modernization)
 
 7. **Serialization preserves order**: When serializing to JSON, items are stored in insertion order (oldest first). On load, if the stored data exceeds `maxlen`, the oldest entries are evicted to fit within the limit.
 
+8. **Integration test fixtures need config updates**: When adding new config options, remember to update integration test fixtures in addition to unit test fixtures. The `test_controller.py` integration tests have their own `config_dict` that must include all required config properties.
+
+9. **pexpect.after can be None**: When using pexpect with timeout decorators, `process.after` can be `None` (not just `pexpect.TIMEOUT`). Always check for both conditions: `if process.after not in (pexpect.TIMEOUT, None)`.
+
 ---
 
 *Action plan generated from MODERNIZATION_REPORT.md*
