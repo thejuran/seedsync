@@ -49,7 +49,8 @@ export class ConfigService extends BaseWebService implements OnDestroy {
     public set(section: string, option: string, value: any): Observable<WebReaction> {
         const valueStr: string = value;
         const currentConfig = this._config.getValue();
-        if (!currentConfig.has(section) || !currentConfig.get(section).has(option)) {
+        if (!currentConfig.has(section as keyof IConfig) ||
+            !(currentConfig.get(section as keyof IConfig) as unknown as {has: (key: string) => boolean}).has(option)) {
             return new Observable<WebReaction>(observer => {
                 observer.next(new WebReaction(false, null, `Config has no option named ${section}.${option}`));
             });
