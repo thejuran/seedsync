@@ -1,4 +1,6 @@
-import {Injectable} from "@angular/core";
+import {Injectable, OnDestroy} from "@angular/core";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 import {StreamServiceRegistry} from "./stream-service.registry";
 import {ConnectedService} from "../utils/connected.service";
@@ -10,15 +12,20 @@ import {ConnectedService} from "../utils/connected.service";
  * can use these notifications to re-issue get requests.
  */
 @Injectable()
-export abstract class BaseWebService {
-
+export abstract class BaseWebService implements OnDestroy {
+    /**
+     * Subject for cleanup - child classes can use this with takeUntil() for their subscriptions
+     */
+    protected destroy$ = new Subject<void>();
     private _connectedService: ConnectedService;
 
     /**
      * Call this method to finish initialization
      */
     public onInit() {
-        this._connectedService.connected.subscribe({
+        this._connectedService.connected.pipe(
+            takeUntil(this.destroy$)
+        ).subscribe({
             next: connected => {
                 if(connected) {
                     this.onConnected();
@@ -27,6 +34,11 @@ export abstract class BaseWebService {
                 }
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     constructor(_streamServiceProvider: StreamServiceRegistry) {

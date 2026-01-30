@@ -1,4 +1,5 @@
 import {TestBed} from "@angular/core/testing";
+import {Injectable, OnDestroy} from "@angular/core";
 
 import {BaseWebService} from "../../../../services/base/base-web.service";
 import {StreamServiceRegistry} from "../../../../services/base/stream-service.registry";
@@ -7,10 +8,15 @@ import {LoggerService} from "../../../../services/utils/logger.service";
 import {ConnectedService} from "../../../../services/utils/connected.service";
 
 
-class TestBaseWebService extends BaseWebService {
+@Injectable()
+class TestBaseWebService extends BaseWebService implements OnDestroy {
     public onConnected(): void {}
 
     public onDisconnected(): void {}
+
+    override ngOnDestroy(): void {
+        super.ngOnDestroy();
+    }
 }
 
 describe("Testing base web service", () => {
@@ -50,5 +56,25 @@ describe("Testing base web service", () => {
     it("should forward the disconnected notification", () => {
         mockRegistry.connectedService.notifyDisconnected();
         expect(baseWebService.onDisconnected).toHaveBeenCalledTimes(1);
+    });
+
+    it("should stop receiving notifications after ngOnDestroy", () => {
+        // Verify initial subscription works
+        mockRegistry.connectedService.notifyConnected();
+        expect(baseWebService.onConnected).toHaveBeenCalledTimes(1);
+
+        // Call ngOnDestroy to clean up
+        baseWebService.ngOnDestroy();
+
+        // Further notifications should not trigger callbacks
+        mockRegistry.connectedService.notifyConnected();
+        mockRegistry.connectedService.notifyDisconnected();
+        expect(baseWebService.onConnected).toHaveBeenCalledTimes(1);
+        expect(baseWebService.onDisconnected).toHaveBeenCalledTimes(0);
+    });
+
+    it("should handle ngOnDestroy being called multiple times", () => {
+        baseWebService.ngOnDestroy();
+        expect(() => baseWebService.ngOnDestroy()).not.toThrow();
     });
 });

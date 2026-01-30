@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {Observable, BehaviorSubject, Subject} from "rxjs";
+import {Observable, BehaviorSubject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
 import {Config, IConfig} from "./config";
@@ -15,8 +15,6 @@ import {RestService, WebReaction} from "../utils/rest.service";
  */
 @Injectable()
 export class ConfigService extends BaseWebService implements OnDestroy {
-    private destroy$ = new Subject<void>();
-
     private readonly CONFIG_GET_URL = "/server/config/get";
 
     // noinspection UnterminatedStatementJS
@@ -89,9 +87,8 @@ export class ConfigService extends BaseWebService implements OnDestroy {
         this._config.next(null);
     }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
+    override ngOnDestroy() {
+        super.ngOnDestroy();
     }
 
     private getConfig() {
