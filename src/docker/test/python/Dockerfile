@@ -18,6 +18,11 @@ RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa && \
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
 # Disable the known hosts prompt
 RUN echo "StrictHostKeyChecking no\nUserKnownHostsFile /dev/null\nLogLevel=quiet" > /root/.ssh/config
+# Enable password authentication in sshd (required for OpenSSH 9.x in Debian Bookworm)
+# Also enable keyboard-interactive for compatibility
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "KbdInteractiveAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "UsePAM yes" >> /etc/ssh/sshd_config
 
 # create the seedsynctest user, add root's public key to seedsynctest
 RUN useradd --create-home -s /bin/bash seedsynctest && \
