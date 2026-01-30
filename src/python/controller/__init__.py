@@ -6,4 +6,5 @@ from .controller_persist import ControllerPersist
 from .model_builder import ModelBuilder
 from .auto_queue import AutoQueue, AutoQueuePersist, IAutoQueuePersistListener, AutoQueuePattern
 from .scan import IScanner, ScannerResult, ScannerProcess, ScannerError
+from .scan_manager import ScanManager
 from .memory_monitor import MemoryMonitor, MemoryStats
