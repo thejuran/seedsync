@@ -7,10 +7,12 @@
     #wrapper {
         margin-top: 50px;
         text-align: center;
+        max-width: 500px;
 
         #banner {
             display: flex;
             align-items: center;
+            justify-content: center;
 
             img {
                 max-width: 80px;
@@ -28,10 +30,69 @@
 
         #version {
             font-size: 150%;
+            margin-bottom: 15px;
+        }
+
+        #description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        #features, #platforms {
+            margin-bottom: 20px;
+            text-align: left;
+
+            .section-title {
+                font-weight: bold;
+                margin-bottom: 8px;
+                text-align: center;
+            }
+
+            ul {
+                list-style-type: none;
+                padding-left: 0;
+                margin: 0;
+
+                li {
+                    padding: 4px 0;
+                    &::before {
+                        content: "\2022";
+                        color: $logo-color;
+                        font-weight: bold;
+                        display: inline-block;
+                        width: 1em;
+                        margin-left: 1em;
+                    }
+                }
+            }
+        }
+
+        #links {
+            margin: 20px 0;
+
+            .separator {
+                margin: 0 10px;
+                color: #999;
+            }
+        }
+
+        #license {
+            margin-bottom: 10px;
+        }
+
+        #copyright {
+            margin-bottom: 10px;
+        }
+
+        #fork-note {
+            font-size: 90%;
+            margin-bottom: 15px;
+            color: #666;
         }
 
         #icons {
             font-size: 80%;
+            color: #999;
         }
     }
 }
