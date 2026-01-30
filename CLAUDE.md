@@ -180,13 +180,48 @@ The API uses proper HTTP status codes:
 Key configuration options in the `[Controller]` section:
 - `max_tracked_files` - Maximum files to track in downloaded/extracted sets (default: 10000)
 
-## Version Updates
+## Releases
+
+### Versioning Scheme
+
+The project follows [Semantic Versioning](https://semver.org/):
+
+| Release Type | Version Format | Example | When to Use |
+|--------------|----------------|---------|-------------|
+| **Production** | `X.Y.Z` | `1.0.0`, `1.1.0` | Stable, tested releases |
+| **Pre-release** | `X.Y.Z-beta.N` | `1.1.0-beta.1` | Feature-complete, needs testing |
+| **Dev builds** | `X.Y.Z-dev.N` | `1.1.0-dev.42` | Bleeding edge (optional) |
+
+### Docker Tag Strategy
+
+```
+ghcr.io/thejuran/seedsync:latest       # Latest stable release (production)
+ghcr.io/thejuran/seedsync:1.0.0        # Pinned version (production)
+ghcr.io/thejuran/seedsync:1.0          # Minor version track (gets patch updates)
+```
+
+| User Type | Recommended Tag | Why |
+|-----------|-----------------|-----|
+| Most users | `:latest` or `:X.Y.Z` | Stable, tested |
+| Want auto-updates | `:X.Y` | Gets patch releases automatically |
+| Debugging issues | `:X.Y.Z` exact | Reproducible environment |
+
+### Version Files
 
 When releasing, update version in these files:
 1. `src/angular/package.json`
 2. `src/debian/changelog`
 3. `src/e2e/tests/about.page.spec.ts`
 4. `src/angular/src/app/pages/main/about-page.component.html` (copyright year)
+
+### Release Checklist
+
+1. Update version in all 4 locations listed above
+2. Update `src/debian/changelog` with release notes
+3. Ensure all tests pass
+4. Create and push git tag: `git tag -a vX.Y.Z -m "Release X.Y.Z"`
+5. CI automatically builds and publishes
+6. Verify artifacts are available (GHCR image, GitHub Release .deb)
 
 ## Supported Platforms
 
