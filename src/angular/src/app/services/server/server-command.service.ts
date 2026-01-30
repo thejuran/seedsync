@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {Observable, Subject} from "rxjs";
+import {Observable} from "rxjs";
 
 import {BaseWebService} from "../base/base-web.service";
 import {StreamServiceRegistry} from "../base/stream-service.registry";
@@ -11,8 +11,6 @@ import {RestService, WebReaction} from "../utils/rest.service";
  */
 @Injectable()
 export class ServerCommandService extends BaseWebService implements OnDestroy {
-    private destroy$ = new Subject<void>();
-
     private readonly RESTART_URL = "/server/command/restart";
 
     constructor(_streamServiceProvider: StreamServiceRegistry,
@@ -36,9 +34,8 @@ export class ServerCommandService extends BaseWebService implements OnDestroy {
         // Nothing to do
     }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
+    override ngOnDestroy() {
+        super.ngOnDestroy();
     }
 }
 

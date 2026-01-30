@@ -1,5 +1,5 @@
 import {Injectable, OnDestroy} from "@angular/core";
-import {Observable, BehaviorSubject, Subject} from "rxjs";
+import {Observable, BehaviorSubject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
 import * as Immutable from "immutable";
@@ -17,8 +17,6 @@ import {RestService, WebReaction} from "../utils/rest.service";
  */
 @Injectable()
 export class AutoQueueService extends BaseWebService implements OnDestroy {
-    private destroy$ = new Subject<void>();
-
     private readonly AUTOQUEUE_GET_URL = "/server/autoqueue/get";
     private readonly AUTOQUEUE_ADD_URL = (pattern) => `/server/autoqueue/add/${pattern}`;
     private readonly AUTOQUEUE_REMOVE_URL = (pattern) => `/server/autoqueue/remove/${pattern}`;
@@ -128,9 +126,8 @@ export class AutoQueueService extends BaseWebService implements OnDestroy {
         this._patterns.next(Immutable.List([]));
     }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
+    override ngOnDestroy() {
+        super.ngOnDestroy();
     }
 
     private getPatterns() {
