@@ -2,7 +2,7 @@ import {Injectable, OnDestroy} from "@angular/core";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
-import * as compareVersions from "compare-versions";
+import { compare } from "compare-versions";
 
 import {RestService} from "./rest.service";
 import {LoggerService} from "./logger.service";
@@ -72,6 +72,6 @@ export class VersionCheckService implements OnDestroy {
         version = version.replace(/^v/, "");
         // Replace - with .
         version = version.replace(/-/g, ".");
-        return compareVersions(version, appVersion) > 0;
+        return compare(version, appVersion, ">");
     }
 }

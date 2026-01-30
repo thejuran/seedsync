@@ -196,45 +196,45 @@ class TestLftpJobStatusParser(unittest.TestCase):
         `aa' at 2976 (12%) 997b/s eta:22s [Receiving data]
         \\transfer `ab'
         `ab', got 13733 of 25165824 (0%) 4.0K/s eta:1h45m
-        \chunk 0-6291456
+        \\chunk 0-6291456
         `ab' at 4362 (0%) 1.1K/s eta:92m [Receiving data]
-        \chunk 18874368-25165823
+        \\chunk 18874368-25165823
         `ab' at 18877569 (0%) 1001b/s eta:1h45m [Receiving data]
-        \chunk 12582912-18874367
+        \\chunk 12582912-18874367
         `ab' at 12585895 (0%) 997b/s eta:1h45m [Receiving data]
-        \chunk 6291456-12582911
+        \\chunk 6291456-12582911
         `ab' at 6294643 (0%) 999b/s eta:1h45m [Receiving data]
         [3] mirror -c /tmp/test_lftp/remote/b /tmp/test_lftp/local/  -- 35k/394k (8%) 10.8 KiB/s
         \\transfer `bb'
         `bb', got 12333 of 131072 (9%) 3.9K/s eta:30s
-        \chunk 0-32768
+        \\chunk 0-32768
         `bb' at 2970 (2%) 996b/s eta:30s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `bb' at 101288 (9%) 998b/s eta:30s [Receiving data]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `bb' at 68727 (9%) 1001b/s eta:30s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `bb' at 35956 (9%) 998b/s eta:30s [Receiving data]
-        \mirror `ba'  -- 23k/263k (8%) 6.9 KiB/s
+        \\mirror `ba'  -- 23k/263k (8%) 6.9 KiB/s
        \\transfer `ba/baa'
         `baa', got 9342 of 131072 (7%) 2.9K/s
-        \chunk 0-32768
+        \\chunk 0-32768
         `baa' at 3192 (2%) 998b/s eta:30s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `baa' at 98304 (0%) [ssh_exchange_identification: Connection closed by remote host]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `baa' at 68721 (9%) 998b/s eta:30s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `baa' at 35733 (9%) 993b/s eta:30s [Receiving data]
         \\transfer `ba/bab'
         `bab', got 13128 of 131072 (10%) 4.0K/s eta:30s
-        \chunk 0-32768
+        \\chunk 0-32768
         `bab' at 4170 (3%) 1.1K/s eta:26s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `bab' at 101297 (9%) 1001b/s eta:30s [Receiving data]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `bab' at 68525 (9%) 999b/s eta:30s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `bab' at 35744 (9%) 997b/s eta:30s [Receiving data]
         """
         parser = LftpJobStatusParser()
@@ -303,45 +303,45 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /tmp/test_lftp/remote/a /tmp/test_lftp/local/  -- 152k/26M (0%) 3.9 KiB/s
         \\transfer `ab'
         `ab', got 126558 of 25165824 (0%) 3.9K/s eta:1h45m
-        \chunk 0-6291456
+        \\chunk 0-6291456
         `ab' at 32115 (0%) 1006b/s eta:1h43m [Receiving data]
-        \chunk 18874368-25165823
+        \\chunk 18874368-25165823
         `ab' at 18906710 (0%) 1007b/s eta:1h43m [Receiving data]
-        \chunk 12582912-18874367
+        \\chunk 12582912-18874367
         `ab' at 12614060 (0%) 998b/s eta:1h45m [Receiving data]
-        \chunk 6291456-12582911
+        \\chunk 6291456-12582911
         `ab' at 6322409 (0%) 998b/s eta:1h45m [Receiving data]
         [2] mirror -c /tmp/test_lftp/remote/b /tmp/test_lftp/local/  -- 350k/394k (88%) 11.7 KiB/s
         \\transfer `bb'
         `bb', got 124150 of 131072 (94%) 3.9K/s eta:2s
-        \chunk 0-32768
+        \\chunk 0-32768
         `bb' at 30932 (23%) 997b/s eta:2s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `bb' at 129447 (95%) 998b/s eta:2s [Receiving data]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `bb' at 96690 (95%) 998b/s eta:2s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `bb' at 63689 (94%) 997b/s eta:2s [Receiving data]
-        \mirror `ba'  -- 225k/263k (85%) 7.8 KiB/s
+        \\mirror `ba'  -- 225k/263k (85%) 7.8 KiB/s
         \\transfer `ba/baa'
         `baa', got 123531 of 131072 (94%) 3.9K/s eta:2s
-        \chunk 0-32768
+        \\chunk 0-32768
         `baa' at 30944 (23%) 998b/s eta:2s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `baa' at 129234 (94%) 997b/s eta:2s [Receiving data]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `baa' at 96253 (93%) 998b/s eta:2s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `baa' at 63708 (94%) 997b/s eta:2s [Receiving data]
         \\transfer `ba/bab'
         `bab', got 101391 of 131072 (77%) 3.9K/s eta:26s
-        \chunk 0-32768
+        \\chunk 0-32768
         `bab' at 31890 (24%) 1003b/s eta:1s [Receiving data]
-        \chunk 98304-131071
+        \\chunk 98304-131071
         `bab' at 129233 (94%) 997b/s eta:2s [Receiving data]
-        \chunk 65536-98303
+        \\chunk 65536-98303
         `bab' at 96253 (93%) 997b/s eta:2s [Receiving data]
-        \chunk 32768-65535
+        \\chunk 32768-65535
         `bab' at 40623 (23%) 960b/s eta:26s [Receiving data]
         """
         parser = LftpJobStatusParser()
@@ -445,7 +445,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_queue_and_jobs_4(self):
-        """Queued items, parallel jobs running, '\mirror' line with 'Getting file list'"""
+        """Queued items, parallel jobs running, '\\mirror' line with 'Getting file list'"""
         output = """
         [0] queue (sftp://someone:@localhost) 
         sftp://someone:@localhost/home/someone
@@ -456,7 +456,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /tmp/test_controller_zph2s53/remote/ra /tmp/test_controller_zph2s53/local/  -- 0/1.1k (0%)
         \\transfer `raa' 
         `raa' at 0 (0%) [Connecting...]
-        \mirror `rab' 
+        \\mirror `rab' 
         rab: Getting file list (27) [Receiving data]
         [2] mirror -c /tmp/test_controller_zph2s53/remote/rb /tmp/test_controller_zph2s53/local/  -- 20/9.3k (0%)
         \\transfer `rba' 
@@ -496,7 +496,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_queue_and_jobs_5(self):
-        """Queued items, parallel jobs running, '\mirror' line with 'cd'"""
+        """Queued items, parallel jobs running, '\\mirror' line with 'cd'"""
         # noinspection PyPep8
         output = """
         [0] queue (sftp://someone:@localhost) 
@@ -508,7 +508,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /tmp/test_controllerw0sbqxe_/remote/ra /tmp/test_controllerw0sbqxe_/local/  -- 0/1.1k (0%)
         \\transfer `raa' 
         `raa' at 0 (0%) [Connecting...]
-        \mirror `rab' 
+        \\mirror `rab' 
         cd `/tmp/test_controllerw0sbqxe_/remote/ra/rab' [Connecting...]
         [2] mirror -c /tmp/test_controllerw0sbqxe_/remote/rb /tmp/test_controllerw0sbqxe_/local/  -- 49/9.3k (0%)
         \\transfer `rba' 
@@ -548,7 +548,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         self.assertEqual(golden_jobs, statuses_jobs)
 
     def test_queue_and_jobs_6(self):
-        """Queued items, parallel jobs running, '\mirror' line with no units for local_size"""
+        """Queued items, parallel jobs running, '\\mirror' line with no units for local_size"""
         output = """
         [0] queue (sftp://someone:@localhost)  -- 252 B/s
         sftp://someone:@localhost/home/someone
@@ -559,7 +559,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /tmp/test_controllerbsn4wlu2/remote/ra /tmp/test_controllerbsn4wlu2/local/  -- 249/8.2k (3%) 100 B/s
         \\transfer `raa' 
         `raa' at 238 (23%) 100b/s eta:8s [Receiving data]
-        \mirror `rab'  -- 0/7.2k (0%)
+        \\mirror `rab'  -- 0/7.2k (0%)
         \\transfer `rab/raba' 
         `raba' at 0 (0%) [Connecting...]
         \\transfer `rab/rabb' 
@@ -661,15 +661,15 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] pget -c /tmp/test_lftp/remote/A.b.C.rar -o /tmp/lftp/ 
         sftp://someone:@localhost/home/someone
         `/tmp/test_lftp/remote/A.b.C.rar', got 2622559389 of 3274103236 (80%) 
-        \chunk 0-2752841944
+        \\chunk 0-2752841944
         `/tmp/test_lftp/remote/A.b.C.rar' at 2622559389 (0%) [Receiving data]
-        \chunk 3143787913-3274103235 
+        \\chunk 3143787913-3274103235 
         `/tmp/test_lftp/remote/A.b.C.rar' at 3143787913 (0%) [Connecting...]
-        \chunk 3013472590-3143787912 
+        \\chunk 3013472590-3143787912 
         `/tmp/test_lftp/remote/A.b.C.rar' at 3013472590 (0%) [Connecting...]
-        \chunk 2883157267-3013472589 
+        \\chunk 2883157267-3013472589 
         `/tmp/test_lftp/remote/A.b.C.rar' at 2883157267 (0%) [Connecting...]
-        \chunk 2752841944-2883157266 
+        \\chunk 2752841944-2883157266 
         `/tmp/test_lftp/remote/A.b.C.rar' at 2752841944 (0%) [Connecting...]
         """
         parser = LftpJobStatusParser()
@@ -759,7 +759,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [2] mirror -c /tmp/test_lftp_1d7axxcf/remote/a /tmp/test_lftp_1d7axxcf/local/  -- 100/100 (100%) 59 B/s
         \\transfer `aa' 
         `aa' at 59 (59%)
-        \\mirror `Sample' 
+        \\\\mirror `Sample' 
         Sample: 
         """
         parser = LftpJobStatusParser()
@@ -786,7 +786,7 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /tmp/test_controllerxnx7xw6x/remote/ra /tmp/test_controllerxnx7xw6x/local/  -- 0/1.1k (0%)
         \\transfer `raa' 
         `raa' at 0 (0%) [Connecting...]
-        \mirror `rab' 
+        \\mirror `rab' 
         mkdir `/tmp/test_controllerxnx7xw6x/local/ra/rab' []
         """
         parser = LftpJobStatusParser()
@@ -1183,33 +1183,33 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [4] mirror -c /remote/path/Star.Battle.Movie /local/path/  -- 116M/1.2G (9%) 12.26 MiB/s
         \\transfer `star.battle.movie.720p.r07' 
         `star.battle.movie.720p.r07', got 44628032 of 50000000 (89%) 1.10M/s eta:5s 
-        \chunk 9011200-25000000
+        \\chunk 9011200-25000000
         `star.battle.movie.720p.r07' at 19628032 (25%) 1.10M/s eta:5s [Receiving data]
         \\transfer `star.battle.movie.720p.r08' 
         `star.battle.movie.720p.r08', got 15237120 of 50000000 (30%) 2.04M/s 
-        \chunk 0-25000000
+        \\chunk 0-25000000
         `star.battle.movie.720p.r08' at 13664256 (27%) 1.36M/s eta:8s [Receiving data]
-        \chunk 37500000-49999999 
+        \\chunk 37500000-49999999 
         `star.battle.movie.720p.r08' at 38581344 (8%) 696.2K/s eta:16s [Receiving data]
-        \chunk 25000000-37499999 
+        \\chunk 25000000-37499999 
         `star.battle.movie.720p.r08' at 25491520 (3%) [Receiving data]
         \\transfer `star.battle.movie.720p.r09' 
         `star.battle.movie.720p.r09', got 21692416 of 50000000 (43%) 4.05M/s eta:16s 
-        \chunk 0-12500000
+        \\chunk 0-12500000
         `star.battle.movie.720p.r09' at 12419072 (24%) 1.28M/s eta:0s [Receiving data]
-        \chunk 37500000-49999999 
+        \\chunk 37500000-49999999 
         `star.battle.movie.720p.r09' at 38843488 (10%) 662.8K/s eta:16s [Receiving data]
-        \chunk 25000000-37499999 
+        \\chunk 25000000-37499999 
         `star.battle.movie.720p.r09' at 28047424 (24%) 963.8K/s eta:10s [Receiving data]
-        \chunk 12500000-24999999 
+        \\chunk 12500000-24999999 
         `star.battle.movie.720p.r09' at 17382432 (39%) 1.19M/s eta:6s [Receiving data]
         \\transfer `star.battle.movie.720p.r10' 
         `star.battle.movie.720p.r10', got 33930272 of 50000000 (67%) 5.06M/s eta:6s 
-        \chunk 37500000-49999999 
+        \\chunk 37500000-49999999 
         `star.battle.movie.720p.r10' at 43037792 (44%) 1.16M/s eta:6s [Receiving data]
-        \chunk 25000000-37499999 
+        \\chunk 25000000-37499999 
         `star.battle.movie.720p.r10' at 32503872 (60%) 1.19M/s eta:4s [Receiving data]
-        \chunk 12500000-24999999 
+        \\chunk 12500000-24999999 
         `star.battle.movie.720p.r10' at 20888608 (67%) 1.33M/s eta:3s [Receiving data]
         """
         parser = LftpJobStatusParser()
@@ -1255,16 +1255,16 @@ class TestLftpJobStatusParser(unittest.TestCase):
         sftp://someone:@localhost:22/remote/path
         Now executing: [1] mirror -c /remote/path/Space.Trek /local/path/ -- 3.1k/617M (0%) 1.8 KiB/s
         [1] mirror -c /remote/path/Space.Trek /local/path/  -- 3.1k/617M (0%) 1.8 KiB/s
-        \mirror `Space.Trek.S08E04' 
+        \\mirror `Space.Trek.S08E04' 
         chmod Space.Trek.S08E04.sfv 
             file:/local/path/Space.Trek/Space.Trek.S08E04
-        \mirror `Space.Trek.S08E05'  -- 605/51M (0%)
+        \\mirror `Space.Trek.S08E05'  -- 605/51M (0%)
         \\transfer `Space.Trek.S08E05/space.trek.s08e05.r06' 
             `space.trek.s08e05.r06' at 0 (0%) [Waiting for response...]
-        \mirror `Space.Trek.S08E06'  -- 1.6k/517M (0%) 932 B/s
+        \\mirror `Space.Trek.S08E06'  -- 1.6k/517M (0%) 932 B/s
         \\transfer `Space.Trek.S08E06/space.trek.s08e06.nfo' 
             `space.trek.s08e06.nfo' at 932 (100%) [Receiving data]
-        \mirror `Space.Trek.S08E07'  -- 932/51M (0%) 932 B/s
+        \\mirror `Space.Trek.S08E07'  -- 932/51M (0%) 932 B/s
         \\transfer `Space.Trek.S08E07/space.trek.s08e07.nfo' 
         `space.trek.s08e07.nfo' at 932 (100%) [Receiving data]
         """
@@ -1301,15 +1301,15 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c /remote/path/Space.Trek /media/WD/Videos/temp/  -- 7.8M/429M (1%) 1.01 MiB/s
         \\transfer `Space.Trek.mkv' 
         `Space.Trek.mkv', got 7700480 of 425302375 (1%) 1.01M/s eta:7m 
-        \chunk 0-106325596
+        \\chunk 0-106325596
         `Space.Trek.mkv' at 1867776 (0%) 255.6K/s eta:7m [Receiving data]
-        \chunk 318976782-425302374 
+        \\chunk 318976782-425302374 
         `Space.Trek.mkv' at 320910094 (1%) 257.6K/s eta:7m [Receiving data]
-        \chunk 212651189-318976781 
+        \\chunk 212651189-318976781 
         `Space.Trek.mkv' at 214584501 (1%) 257.7K/s eta:7m [Receiving data]
-        \chunk 106325596-212651188 
+        \\chunk 106325596-212651188 
         `Space.Trek.mkv' at 108291676 (1%) 259.4K/s eta:7m [Receiving data]
-        \mirror `Screens'  -- 0/2.8M (0%)
+        \\mirror `Screens'  -- 0/2.8M (0%)
         chmod ./Space.Trek.Screen0001.png 
         file:/media/WD/Videos/temp/Space.Trek/Screens
         chmod ./Space.Trek.Screen0002.png 
@@ -1430,23 +1430,23 @@ class TestLftpJobStatusParser(unittest.TestCase):
         [1] mirror -c files/sync/movie /incoming// -- 628M/21G (3%) 3.18 MiB/s
         \\transfer `movie.mkv'
         `movie.mkv', got 627933184 of 20757383669 (3%) 3.18M/s eta:69m
-        \chunk 0-2594672963
+        \\chunk 0-2594672963
         `movie.mkv' at 79953920 (0%) 407.2K/s eta:46m [Receiving data]
-        \chunk 18162710711-20757383668
+        \\chunk 18162710711-20757383668
         `movie.mkv' at 18251249847 (3%) 471.1K/s eta:42m [Receiving data]
-        \chunk 15568037753-18162710710
+        \\chunk 15568037753-18162710710
         `movie.mkv' at 15636785017 (2%) 341.4K/s eta:54m [Receiving data]
-        \chunk 12973364795-15568037752
+        \\chunk 12973364795-15568037752
         `movie.mkv' at 13027497531 (2%) 321.5K/s eta:69m [Receiving data]
-        \chunk 10378691837-12973364794
+        \\chunk 10378691837-12973364794
         `movie.mkv' at 10463528189 (3%) 419.7K/s eta:44m [Receiving data]
-        \chunk 7784018879-10378691836
+        \\chunk 7784018879-10378691836
         `movie.mkv' at 7865185215 (3%) 419.2K/s eta:46m [Receiving data]
-        \chunk 5189345921-7784018878
+        \\chunk 5189345921-7784018878
         `movie.mkv' at 5271265921 (3%) 426.4K/s eta:45m [Receiving data]
         jobs -v
         jobs -v
-        \chunk 2594672963-5189345920
+        \\chunk 2594672963-5189345920
         `movie.mkv' at 2683310403 (3%) 449.5K/s eta:42m [Receiving data]
         """
         parser = LftpJobStatusParser()

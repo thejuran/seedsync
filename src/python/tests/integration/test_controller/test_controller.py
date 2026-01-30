@@ -913,7 +913,7 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -977,7 +977,7 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1081,7 +1081,7 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1153,7 +1153,7 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1213,7 +1213,7 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1792,7 +1792,7 @@ class TestController(unittest.TestCase):
 
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1850,7 +1850,7 @@ class TestController(unittest.TestCase):
 
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1941,7 +1941,7 @@ class TestController(unittest.TestCase):
 
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 100
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 100
 
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2328,9 +2328,9 @@ class TestController(unittest.TestCase):
         self.controller = Controller(self.context, self.controller_persist)
         self.controller.start()
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.rate_limit = 5*1024
+        self.controller._Controller__lftp_manager.lftp.rate_limit = 5*1024
         # noinspection PyUnresolvedReferences
-        self.controller._Controller__lftp.min_chunk_size = "10"
+        self.controller._Controller__lftp_manager.lftp.min_chunk_size = "10"
 
         # wait for initial scan
         self.__wait_for_initial_model()

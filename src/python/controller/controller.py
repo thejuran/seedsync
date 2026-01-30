@@ -1,21 +1,22 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import List, Callable, Optional, Tuple
+from typing import List, Optional, Tuple
 from threading import Lock
 from queue import Queue
 from enum import Enum
 
 # my libs
-from .scan import ScannerProcess, ActiveScanner, LocalScanner, RemoteScanner
-from .extract import ExtractProcess, ExtractStatus
+from .scan_manager import ScanManager
+from .lftp_manager import LftpManager
+from .file_operation_manager import FileOperationManager
+from .extract import ExtractStatus
 from .model_builder import ModelBuilder
 from .memory_monitor import MemoryMonitor
-from common import Context, AppError, MultiprocessingLogger, AppOneShotProcess, Constants
+from common import Context, AppError, MultiprocessingLogger
 from model import ModelError, ModelFile, Model, ModelDiff, ModelDiffUtil, IModelListener
-from lftp import Lftp, LftpError, LftpJobStatus, LftpJobStatusParserError
+from lftp import LftpError, LftpJobStatus, LftpJobStatusParserError
 from .controller_persist import ControllerPersist
-from .delete import DeleteLocalProcess, DeleteRemoteProcess
 
 
 class ControllerError(AppError):
@@ -73,14 +74,6 @@ class Controller:
         def add_callback(self, callback: ICallback):
             self.callbacks.append(callback)
 
-    class CommandProcessWrapper:
-        """
-        Wraps any one-shot command processes launched by the controller
-        """
-        def __init__(self, process: AppOneShotProcess, post_callback: Callable):
-            self.process = process
-            self.post_callback = post_callback
-
     def __init__(self,
                  context: Context,
                  persist: ControllerPersist):
@@ -89,9 +82,6 @@ class Controller:
         self.logger = context.logger.getChild("Controller")
         # Set logger for persist to enable eviction logging
         self.__persist.set_base_logger(self.logger)
-
-        # Decide the password here
-        self.__password = context.config.lftp.remote_password if not context.config.lftp.use_ssh_key else None
 
         # The command queue
         self.__command_queue = Queue()
@@ -112,77 +102,28 @@ class Controller:
         self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
         self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
 
-        # Lftp
-        self.__lftp = Lftp(address=self.__context.config.lftp.remote_address,
-                           port=self.__context.config.lftp.remote_port,
-                           user=self.__context.config.lftp.remote_username,
-                           password=self.__password)
-        self.__lftp.set_base_logger(self.logger)
-        self.__lftp.set_base_remote_dir_path(self.__context.config.lftp.remote_path)
-        self.__lftp.set_base_local_dir_path(self.__context.config.lftp.local_path)
-        # Configure Lftp
-        self.__lftp.num_parallel_jobs = self.__context.config.lftp.num_max_parallel_downloads
-        self.__lftp.num_parallel_files = self.__context.config.lftp.num_max_parallel_files_per_download
-        self.__lftp.num_connections_per_root_file = self.__context.config.lftp.num_max_connections_per_root_file
-        self.__lftp.num_connections_per_dir_file = self.__context.config.lftp.num_max_connections_per_dir_file
-        self.__lftp.num_max_total_connections = self.__context.config.lftp.num_max_total_connections
-        self.__lftp.use_temp_file = self.__context.config.lftp.use_temp_file
-        self.__lftp.temp_file_name = "*" + Constants.LFTP_TEMP_FILE_SUFFIX
-        self.__lftp.set_verbose_logging(self.__context.config.general.verbose)
-
-        # Setup the scanners and scanner processes
-        self.__active_scanner = ActiveScanner(self.__context.config.lftp.local_path)
-        self.__local_scanner = LocalScanner(
-            local_path=self.__context.config.lftp.local_path,
-            use_temp_file=self.__context.config.lftp.use_temp_file
-        )
-        self.__remote_scanner = RemoteScanner(
-            remote_address=self.__context.config.lftp.remote_address,
-            remote_username=self.__context.config.lftp.remote_username,
-            remote_password=self.__password,
-            remote_port=self.__context.config.lftp.remote_port,
-            remote_path_to_scan=self.__context.config.lftp.remote_path,
-            local_path_to_scan_script=self.__context.args.local_path_to_scanfs,
-            remote_path_to_scan_script=self.__context.config.lftp.remote_path_to_scan_script
-        )
-
-        self.__active_scan_process = ScannerProcess(
-            scanner=self.__active_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_downloading_scan,
-            verbose=False
-        )
-        self.__local_scan_process = ScannerProcess(
-            scanner=self.__local_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_local_scan,
-        )
-        self.__remote_scan_process = ScannerProcess(
-            scanner=self.__remote_scanner,
-            interval_in_ms=self.__context.config.controller.interval_ms_remote_scan,
-        )
-
-        # Setup extract process
-        if self.__context.config.controller.use_local_path_as_extract_path:
-            out_dir_path = self.__context.config.lftp.local_path
-        else:
-            out_dir_path = self.__context.config.controller.extract_path
-        self.__extract_process = ExtractProcess(
-            out_dir_path=out_dir_path,
-            local_path=self.__context.config.lftp.local_path
-        )
-
-        # Setup multiprocess logging
+        # Setup multiprocess logging (needed by managers)
         self.__mp_logger = MultiprocessingLogger(self.logger)
-        self.__active_scan_process.set_multiprocessing_logger(self.__mp_logger)
-        self.__local_scan_process.set_multiprocessing_logger(self.__mp_logger)
-        self.__remote_scan_process.set_multiprocessing_logger(self.__mp_logger)
-        self.__extract_process.set_multiprocessing_logger(self.__mp_logger)
 
-        # Keep track of active files
+        # Setup the LFTP manager
+        self.__lftp_manager = LftpManager(context=self.__context)
+
+        # Setup the scan manager
+        self.__scan_manager = ScanManager(
+            context=self.__context,
+            mp_logger=self.__mp_logger
+        )
+
+        # Setup the file operation manager
+        self.__file_op_manager = FileOperationManager(
+            context=self.__context,
+            mp_logger=self.__mp_logger,
+            force_local_scan_callback=self.__scan_manager.force_local_scan,
+            force_remote_scan_callback=self.__scan_manager.force_remote_scan
+        )
+
+        # Keep track of active downloading files
         self.__active_downloading_file_names = []
-        self.__active_extracting_file_names = []
-
-        # Keep track of active command processes
-        self.__active_command_processes = []
 
         # Memory monitor for detecting leaks
         self.__memory_monitor = MemoryMonitor()
@@ -218,10 +159,8 @@ class Controller:
         :return:
         """
         self.logger.debug("Starting controller")
-        self.__active_scan_process.start()
-        self.__local_scan_process.start()
-        self.__remote_scan_process.start()
-        self.__extract_process.start()
+        self.__scan_manager.start()
+        self.__file_op_manager.start()
         self.__mp_logger.start()
         self.__started = True
 
@@ -234,7 +173,7 @@ class Controller:
         if not self.__started:
             raise ControllerError("Cannot process, controller is not started")
         self.__propagate_exceptions()
-        self.__cleanup_commands()
+        self.__file_op_manager.cleanup_completed_processes()
         self.__process_commands()
         self.__update_model()
         # Periodically log memory statistics
@@ -243,15 +182,9 @@ class Controller:
     def exit(self):
         self.logger.debug("Exiting controller")
         if self.__started:
-            self.__lftp.exit()
-            self.__active_scan_process.terminate()
-            self.__local_scan_process.terminate()
-            self.__remote_scan_process.terminate()
-            self.__extract_process.terminate()
-            self.__active_scan_process.join()
-            self.__local_scan_process.join()
-            self.__remote_scan_process.join()
-            self.__extract_process.join()
+            self.__lftp_manager.exit()
+            self.__scan_manager.stop()
+            self.__file_op_manager.stop()
             self.__mp_logger.stop()
             self.__started = False
             self.logger.info("Exited controller")
@@ -337,10 +270,7 @@ class Controller:
             Tuple of (remote_scan, local_scan, active_scan) results.
             Each element is None if no new result is available.
         """
-        latest_remote_scan = self.__remote_scan_process.pop_latest_result()
-        latest_local_scan = self.__local_scan_process.pop_latest_result()
-        latest_active_scan = self.__active_scan_process.pop_latest_result()
-        return latest_remote_scan, latest_local_scan, latest_active_scan
+        return self.__scan_manager.pop_latest_results()
 
     def _collect_lftp_status(self) -> Optional[List[LftpJobStatus]]:
         """
@@ -349,11 +279,7 @@ class Controller:
         Returns:
             List of LftpJobStatus objects, or None if an error occurred.
         """
-        try:
-            return self.__lftp.status()
-        except (LftpError, LftpJobStatusParserError) as e:
-            self.logger.warning("Caught lftp error: {}".format(str(e)))
-            return None
+        return self.__lftp_manager.status()
 
     def _collect_extract_results(self) -> Tuple[Optional[object], List]:
         """
@@ -364,8 +290,8 @@ class Controller:
             extract_statuses is None if no new status available.
             completed_extractions is a list of completed extraction results.
         """
-        latest_extract_statuses = self.__extract_process.pop_latest_statuses()
-        latest_extracted_results = self.__extract_process.pop_completed()
+        latest_extract_statuses = self.__file_op_manager.pop_extract_statuses()
+        latest_extracted_results = self.__file_op_manager.pop_completed_extractions()
         return latest_extract_statuses, latest_extracted_results
 
     def _update_active_file_tracking(self,
@@ -384,14 +310,14 @@ class Controller:
             self.__active_downloading_file_names = [
                 s.name for s in lftp_statuses if s.state == LftpJobStatus.State.RUNNING
             ]
-        if extract_statuses is not None:
-            self.__active_extracting_file_names = [
-                s.name for s in extract_statuses.statuses if s.state == ExtractStatus.State.EXTRACTING
-            ]
 
-        # Update the active scanner's state
-        self.__active_scanner.set_active_files(
-            self.__active_downloading_file_names + self.__active_extracting_file_names
+        # Update the file operation manager's tracking of active extractions
+        self.__file_op_manager.update_active_extracting_files(extract_statuses)
+
+        # Update the active scanner's state via the scan manager
+        self.__scan_manager.update_active_files(
+            self.__active_downloading_file_names +
+            self.__file_op_manager.get_active_extracting_file_names()
         )
 
     def _feed_model_builder(self,
@@ -645,7 +571,7 @@ class Controller:
         if file.remote_size is None:
             return False, "File '{}' does not exist remotely".format(command.filename), 404
         try:
-            self.__lftp.queue(file.name, file.is_dir)
+            self.__lftp_manager.queue(file.name, file.is_dir)
             return True, None, None
         except LftpError as e:
             return False, "Lftp error: {}".format(str(e)), 500
@@ -658,7 +584,7 @@ class Controller:
         if file.state not in (ModelFile.State.DOWNLOADING, ModelFile.State.QUEUED):
             return False, "File '{}' is not Queued or Downloading".format(command.filename), 409
         try:
-            self.__lftp.kill(file.name)
+            self.__lftp_manager.kill(file.name)
             return True, None, None
         except (LftpError, LftpJobStatusParserError) as e:
             return False, "Lftp error: {}".format(str(e)), 500
@@ -680,7 +606,7 @@ class Controller:
         elif file.local_size is None:
             return False, "File '{}' does not exist locally".format(command.filename), 404
         else:
-            self.__extract_process.extract(file)
+            self.__file_op_manager.extract(file)
             return True, None, None
 
     def __handle_delete_command(self, file: ModelFile, command: Command) -> (bool, str, int):
@@ -700,18 +626,7 @@ class Controller:
             elif file.local_size is None:
                 return False, "File '{}' does not exist locally".format(command.filename), 404
             else:
-                process = DeleteLocalProcess(
-                    local_path=self.__context.config.lftp.local_path,
-                    file_name=file.name
-                )
-                process.set_multiprocessing_logger(self.__mp_logger)
-                post_callback = self.__local_scan_process.force_scan
-                command_wrapper = Controller.CommandProcessWrapper(
-                    process=process,
-                    post_callback=post_callback
-                )
-                self.__active_command_processes.append(command_wrapper)
-                command_wrapper.process.start()
+                self.__file_op_manager.delete_local(file)
                 return True, None, None
 
         elif command.action == Controller.Command.Action.DELETE_REMOTE:
@@ -727,22 +642,7 @@ class Controller:
             elif file.remote_size is None:
                 return False, "File '{}' does not exist remotely".format(command.filename), 404
             else:
-                process = DeleteRemoteProcess(
-                    remote_address=self.__context.config.lftp.remote_address,
-                    remote_username=self.__context.config.lftp.remote_username,
-                    remote_password=self.__password,
-                    remote_port=self.__context.config.lftp.remote_port,
-                    remote_path=self.__context.config.lftp.remote_path,
-                    file_name=file.name
-                )
-                process.set_multiprocessing_logger(self.__mp_logger)
-                post_callback = self.__remote_scan_process.force_scan
-                command_wrapper = Controller.CommandProcessWrapper(
-                    process=process,
-                    post_callback=post_callback
-                )
-                self.__active_command_processes.append(command_wrapper)
-                command_wrapper.process.start()
+                self.__file_op_manager.delete_remote(file)
                 return True, None, None
 
         return False, "Unknown delete action", 500
@@ -792,25 +692,7 @@ class Controller:
         Propagate any exceptions from child processes/threads to this thread
         :return:
         """
-        self.__lftp.raise_pending_error()
-        self.__active_scan_process.propagate_exception()
-        self.__local_scan_process.propagate_exception()
-        self.__remote_scan_process.propagate_exception()
+        self.__lftp_manager.raise_pending_error()
+        self.__scan_manager.propagate_exceptions()
         self.__mp_logger.propagate_exception()
-        self.__extract_process.propagate_exception()
-
-    def __cleanup_commands(self):
-        """
-        Cleanup the list of active commands and do any callbacks
-        :return:
-        """
-        still_active_processes = []
-        for command_process in self.__active_command_processes:
-            if command_process.process.is_alive():
-                still_active_processes.append(command_process)
-            else:
-                # Do the post callback
-                command_process.post_callback()
-                # Propagate the exception
-                command_process.process.propagate_exception()
-        self.__active_command_processes = still_active_processes
+        self.__file_op_manager.propagate_exception()

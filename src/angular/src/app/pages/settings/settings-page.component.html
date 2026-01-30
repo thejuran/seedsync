@@ -4,12 +4,12 @@
         <h3 class="card-header" id="heading-{{id}}">
             <button class="btn"
                     type="button"
-                    data-toggle="collapse"
-                    attr.data-target="#collapse-{{id}}">
+                    data-bs-toggle="collapse"
+                    attr.data-bs-target="#collapse-{{id}}">
                 {{header}}
             </button>
         </h3>
-        <div id="collapse-{{id}}" class="collapse" data-parent="#accordion">
+        <div id="collapse-{{id}}" class="collapse" data-bs-parent="#accordion">
             <div class="card-body">
                 <div *ngFor="let option of options">
                     <app-option
