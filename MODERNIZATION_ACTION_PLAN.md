@@ -37,6 +37,7 @@ This plan breaks the modernization effort into **15 focused sessions**, each opt
 | 13 | Code Quality: Controller __update_model() Refactor | 2 | High | High |
 | 14 | Architecture: Controller Split (Part 1) | 3 | High | High |
 | 15 | Architecture: Controller Split (Part 2) & Cleanup | 3 | High | High |
+| 16 | Frontend Dependency Modernization | 4 | Medium | High |
 
 ---
 
@@ -490,6 +491,57 @@ Implemented the "freeze-on-add" pattern:
 
 ---
 
+## Phase 4: Dependency Modernization
+
+### Session 16: Frontend Dependency Modernization
+
+**Focus:** Eliminate npm deprecation warnings and update outdated packages
+**Files:** `src/angular/package.json`, `src/angular/src/styles.scss`, various component templates
+**Estimated Time:** 120-180 minutes
+
+#### Background
+
+CI builds show multiple npm deprecation warnings that should be addressed:
+- `popper.js@1.16.1` - deprecated, migrate to `@popperjs/core`
+- `bootstrap@4.6.2` - no longer supported, upgrade to v5
+- Transitive dependencies (`glob`, `rimraf`, `inflight`, `tar`) - will resolve with Angular CLI updates
+
+#### Tasks
+
+- [ ] Audit current Bootstrap 4 usage in templates and styles
+- [ ] Review Bootstrap 4 → 5 migration guide for breaking changes
+- [ ] Update `package.json`:
+  - Remove `popper.js` (Bootstrap 5 includes Popper v2)
+  - Upgrade `bootstrap` from 4.6.2 to 5.3.x
+  - Update `compare-versions` from 3.x to 6.x (API changes)
+- [ ] Update SCSS imports in `styles.scss`
+- [ ] Fix Bootstrap 5 breaking changes in templates:
+  - `data-*` attributes → `data-bs-*`
+  - `ml-*`/`mr-*` classes → `ms-*`/`me-*`
+  - `pl-*`/`pr-*` classes → `ps-*`/`pe-*`
+  - `float-left`/`float-right` → `float-start`/`float-end`
+  - Form control classes updated
+  - Navbar classes updated
+- [ ] Update `compare-versions` usage (API changed from function to object)
+- [ ] Remove `--legacy-peer-deps` flag if possible
+- [ ] Run Angular build to verify no errors
+- [ ] Run Angular unit tests
+- [ ] Visual regression test of UI components
+
+#### Success Criteria
+
+- Zero npm deprecation warnings during install
+- All Bootstrap components render correctly
+- Angular build succeeds without `--legacy-peer-deps`
+- Unit tests pass
+- No visual regressions in UI
+
+#### Notes
+
+This session has higher complexity due to Bootstrap 5's breaking changes affecting templates throughout the application. Consider splitting into sub-tasks if the template changes are extensive.
+
+---
+
 ## Appendix A: Session Dependencies
 
 ```
@@ -537,6 +589,9 @@ Session 14 (Controller Split Part 1)
 
 Session 15 (Controller Split Part 2)
     └── After Session 14
+
+Session 16 (Frontend Dependency Modernization)
+    └── Independent, can start anytime (Angular-only changes)
 ```
 
 ---
@@ -599,6 +654,12 @@ Session 15 (Controller Split Part 2)
 |---------|--------|----------------|-------|
 | 14 | Not Started | | |
 | 15 | Not Started | | |
+
+### Phase 4 Status
+
+| Session | Status | Completed Date | Notes |
+|---------|--------|----------------|-------|
+| 16 | Not Started | | Frontend dependency modernization to eliminate npm deprecation warnings |
 
 ---
 
