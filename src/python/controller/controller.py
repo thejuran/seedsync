@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import List, Callable
+from typing import List, Callable, Optional, Tuple
 from threading import Lock
 from queue import Queue
 from enum import Enum
@@ -325,33 +325,68 @@ class Controller:
             model_files.append(self.__model.get_file(filename))
         return model_files
 
-    def __update_model(self):
-        # Grab the latest scan results
+    # =========================================================================
+    # __update_model() helper methods
+    # =========================================================================
+
+    def _collect_scan_results(self) -> Tuple[Optional[object], Optional[object], Optional[object]]:
+        """
+        Collect the latest scan results from all scanner processes.
+
+        Returns:
+            Tuple of (remote_scan, local_scan, active_scan) results.
+            Each element is None if no new result is available.
+        """
         latest_remote_scan = self.__remote_scan_process.pop_latest_result()
         latest_local_scan = self.__local_scan_process.pop_latest_result()
         latest_active_scan = self.__active_scan_process.pop_latest_result()
+        return latest_remote_scan, latest_local_scan, latest_active_scan
 
-        # Grab the Lftp status
-        lftp_statuses = None
+    def _collect_lftp_status(self) -> Optional[List[LftpJobStatus]]:
+        """
+        Collect the current LFTP job statuses.
+
+        Returns:
+            List of LftpJobStatus objects, or None if an error occurred.
+        """
         try:
-            lftp_statuses = self.__lftp.status()
+            return self.__lftp.status()
         except (LftpError, LftpJobStatusParserError) as e:
             self.logger.warning("Caught lftp error: {}".format(str(e)))
+            return None
 
-        # Grab the latest extract results
+    def _collect_extract_results(self) -> Tuple[Optional[object], List]:
+        """
+        Collect extract process status and completed extractions.
+
+        Returns:
+            Tuple of (extract_statuses, completed_extractions).
+            extract_statuses is None if no new status available.
+            completed_extractions is a list of completed extraction results.
+        """
         latest_extract_statuses = self.__extract_process.pop_latest_statuses()
-
-        # Grab the latest extracted file names
         latest_extracted_results = self.__extract_process.pop_completed()
+        return latest_extract_statuses, latest_extracted_results
 
-        # Update list of active file names
+    def _update_active_file_tracking(self,
+                                     lftp_statuses: Optional[List[LftpJobStatus]],
+                                     extract_statuses: Optional[object]) -> None:
+        """
+        Update the lists of actively downloading and extracting files.
+
+        Also updates the active scanner with the combined list of active files.
+
+        Args:
+            lftp_statuses: Current LFTP job statuses, or None.
+            extract_statuses: Current extract statuses, or None.
+        """
         if lftp_statuses is not None:
             self.__active_downloading_file_names = [
                 s.name for s in lftp_statuses if s.state == LftpJobStatus.State.RUNNING
             ]
-        if latest_extract_statuses is not None:
+        if extract_statuses is not None:
             self.__active_extracting_file_names = [
-                s.name for s in latest_extract_statuses.statuses if s.state == ExtractStatus.State.EXTRACTING
+                s.name for s in extract_statuses.statuses if s.state == ExtractStatus.State.EXTRACTING
             ]
 
         # Update the active scanner's state
@@ -359,108 +394,248 @@ class Controller:
             self.__active_downloading_file_names + self.__active_extracting_file_names
         )
 
-        # Update model builder state
-        if latest_remote_scan is not None:
-            self.__model_builder.set_remote_files(latest_remote_scan.files)
-        if latest_local_scan is not None:
-            self.__model_builder.set_local_files(latest_local_scan.files)
-        if latest_active_scan is not None:
-            self.__model_builder.set_active_files(latest_active_scan.files)
+    def _feed_model_builder(self,
+                            remote_scan: Optional[object],
+                            local_scan: Optional[object],
+                            active_scan: Optional[object],
+                            lftp_statuses: Optional[List[LftpJobStatus]],
+                            extract_statuses: Optional[object],
+                            extracted_results: List) -> None:
+        """
+        Feed the model builder with all collected data.
+
+        Updates the model builder's state with new scan results, LFTP statuses,
+        and extract information. Also updates persist state for completed extractions.
+
+        Args:
+            remote_scan: Latest remote scan result, or None.
+            local_scan: Latest local scan result, or None.
+            active_scan: Latest active (downloading) scan result, or None.
+            lftp_statuses: Current LFTP job statuses, or None.
+            extract_statuses: Current extract statuses, or None.
+            extracted_results: List of completed extraction results.
+        """
+        if remote_scan is not None:
+            self.__model_builder.set_remote_files(remote_scan.files)
+        if local_scan is not None:
+            self.__model_builder.set_local_files(local_scan.files)
+        if active_scan is not None:
+            self.__model_builder.set_active_files(active_scan.files)
         if lftp_statuses is not None:
             self.__model_builder.set_lftp_statuses(lftp_statuses)
-        if latest_extract_statuses is not None:
-            self.__model_builder.set_extract_statuses(latest_extract_statuses.statuses)
-        if latest_extracted_results:
-            for result in latest_extracted_results:
+        if extract_statuses is not None:
+            self.__model_builder.set_extract_statuses(extract_statuses.statuses)
+        if extracted_results:
+            for result in extracted_results:
                 self.__persist.extracted_file_names.add(result.name)
             self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
 
-        # Build the new model, if needed
-        if self.__model_builder.has_changes():
-            new_model = self.__model_builder.build_model()
+    def _detect_and_track_download(self, diff: ModelDiff) -> None:
+        """
+        Detect if a file was just downloaded and update persist state.
 
-            # Lock the model
-            self.__model_lock.acquire()
+        A file is considered "just downloaded" if:
+        - It was added in DOWNLOADED state, OR
+        - It was updated and transitioned TO DOWNLOADED state from a non-DOWNLOADED state
 
+        Args:
+            diff: A single model diff entry.
+        """
+        downloaded = False
+        if diff.change == ModelDiff.Change.ADDED and \
+                diff.new_file.state == ModelFile.State.DOWNLOADED:
+            downloaded = True
+        elif diff.change == ModelDiff.Change.UPDATED and \
+                diff.new_file.state == ModelFile.State.DOWNLOADED and \
+                diff.old_file.state != ModelFile.State.DOWNLOADED:
+            downloaded = True
+
+        if downloaded:
+            self.__persist.downloaded_file_names.add(diff.new_file.name)
+            self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
+
+    def _prune_extracted_files(self) -> None:
+        """
+        Remove deleted files from the extracted files tracking list.
+
+        This prevents files from going to EXTRACTED state if they are re-downloaded
+        after being deleted locally.
+
+        Must be called while holding the model lock.
+        """
+        remove_extracted_file_names = set()
+        existing_file_names = self.__model.get_file_names()
+
+        for extracted_file_name in self.__persist.extracted_file_names:
+            if extracted_file_name in existing_file_names:
+                file = self.__model.get_file(extracted_file_name)
+                if file.state == ModelFile.State.DELETED:
+                    # Deleted locally, remove
+                    remove_extracted_file_names.add(extracted_file_name)
+            # Note: Files not in model could be because scans aren't available yet
+
+        if remove_extracted_file_names:
+            self.logger.info("Removing from extracted list: {}".format(remove_extracted_file_names))
+            self.__persist.extracted_file_names.difference_update(remove_extracted_file_names)
+            self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
+
+    def _prune_downloaded_files(self, latest_remote_scan: Optional[object]) -> None:
+        """
+        Remove deleted or missing files from the downloaded files tracking list.
+
+        This prevents unbounded memory growth from tracking files indefinitely.
+        After removal, the file returns to DEFAULT state on next scan if still remote.
+
+        A file is removed from tracking if:
+        - It exists in model but is in DELETED state, OR
+        - It doesn't exist in model AND we've had a successful remote scan
+
+        Must be called while holding the model lock.
+
+        Args:
+            latest_remote_scan: Latest remote scan result for checking scan availability.
+        """
+        remove_downloaded_file_names = set()
+        existing_file_names = self.__model.get_file_names()
+
+        for downloaded_file_name in self.__persist.downloaded_file_names:
+            if downloaded_file_name in existing_file_names:
+                file = self.__model.get_file(downloaded_file_name)
+                if file.state == ModelFile.State.DELETED:
+                    # Deleted locally, remove from tracking
+                    remove_downloaded_file_names.add(downloaded_file_name)
+            else:
+                # Not in the model at all - file is completely gone from both local and remote
+                # Only remove if we've had at least one successful remote scan
+                if latest_remote_scan is not None and not latest_remote_scan.failed:
+                    remove_downloaded_file_names.add(downloaded_file_name)
+
+        if remove_downloaded_file_names:
+            self.logger.info("Removing from downloaded list: {}".format(remove_downloaded_file_names))
+            self.__persist.downloaded_file_names.difference_update(remove_downloaded_file_names)
+            self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
+
+    def _apply_model_diff(self, model_diff: List[ModelDiff]) -> None:
+        """
+        Apply model differences to update the internal model state.
+
+        For each diff entry:
+        - ADDED: Add the new file to the model
+        - REMOVED: Remove the old file from the model
+        - UPDATED: Update the file in the model
+
+        Also detects newly downloaded files and updates tracking.
+
+        Must be called while holding the model lock.
+
+        Args:
+            model_diff: List of model diff entries to apply.
+        """
+        for diff in model_diff:
+            if diff.change == ModelDiff.Change.ADDED:
+                self.__model.add_file(diff.new_file)
+            elif diff.change == ModelDiff.Change.REMOVED:
+                self.__model.remove_file(diff.old_file.name)
+            elif diff.change == ModelDiff.Change.UPDATED:
+                self.__model.update_file(diff.new_file)
+
+            # Detect if a file was just Downloaded and update persist state
+            self._detect_and_track_download(diff)
+
+    def _build_and_apply_model(self, latest_remote_scan: Optional[object]) -> None:
+        """
+        Build a new model and apply changes if the model builder has updates.
+
+        This method:
+        1. Builds a new model from the model builder
+        2. Diffs the new model against the current model
+        3. Applies the diff (add/remove/update files)
+        4. Tracks newly downloaded files
+        5. Prunes stale entries from extracted/downloaded tracking lists
+
+        All model operations are performed while holding the model lock.
+
+        Args:
+            latest_remote_scan: Latest remote scan result, used for pruning decisions.
+        """
+        if not self.__model_builder.has_changes():
+            return
+
+        new_model = self.__model_builder.build_model()
+
+        # Lock the model for all modifications
+        self.__model_lock.acquire()
+        try:
             # Diff the new model with old model
             model_diff = ModelDiffUtil.diff_models(self.__model, new_model)
 
-            # Apply changes to the new model
-            for diff in model_diff:
-                if diff.change == ModelDiff.Change.ADDED:
-                    self.__model.add_file(diff.new_file)
-                elif diff.change == ModelDiff.Change.REMOVED:
-                    self.__model.remove_file(diff.old_file.name)
-                elif diff.change == ModelDiff.Change.UPDATED:
-                    self.__model.update_file(diff.new_file)
+            # Apply changes to the model
+            self._apply_model_diff(model_diff)
 
-                # Detect if a file was just Downloaded
-                #   an Added file in Downloaded state
-                #   an Updated file transitioning to Downloaded state
-                # If so, update the persist state
-                # Note: This step is done after the new model is build because
-                #       model_builder is the one that discovers when a file is Downloaded
-                downloaded = False
-                if diff.change == ModelDiff.Change.ADDED and \
-                        diff.new_file.state == ModelFile.State.DOWNLOADED:
-                    downloaded = True
-                elif diff.change == ModelDiff.Change.UPDATED and \
-                        diff.new_file.state == ModelFile.State.DOWNLOADED and \
-                        diff.old_file.state != ModelFile.State.DOWNLOADED:
-                    downloaded = True
-                if downloaded:
-                    self.__persist.downloaded_file_names.add(diff.new_file.name)
-                    self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
-
-            # Prune the extracted files list of any files that were deleted locally
-            # This prevents these files from going to EXTRACTED state if they are re-downloaded
-            remove_extracted_file_names = set()
-            existing_file_names = self.__model.get_file_names()
-            for extracted_file_name in self.__persist.extracted_file_names:
-                if extracted_file_name in existing_file_names:
-                    file = self.__model.get_file(extracted_file_name)
-                    if file.state == ModelFile.State.DELETED:
-                        # Deleted locally, remove
-                        remove_extracted_file_names.add(extracted_file_name)
-                else:
-                    # Not in the model at all
-                    # This could be because local and remote scans are not yet available
-                    pass
-            if remove_extracted_file_names:
-                self.logger.info("Removing from extracted list: {}".format(remove_extracted_file_names))
-                self.__persist.extracted_file_names.difference_update(remove_extracted_file_names)
-                self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
-
-            # Prune the downloaded files list of any files that were deleted locally
-            # This prevents unbounded memory growth from tracking files indefinitely.
-            # After removal, the file returns to DEFAULT state on next scan (if still on remote).
-            remove_downloaded_file_names = set()
-            for downloaded_file_name in self.__persist.downloaded_file_names:
-                if downloaded_file_name in existing_file_names:
-                    file = self.__model.get_file(downloaded_file_name)
-                    if file.state == ModelFile.State.DELETED:
-                        # Deleted locally, remove from tracking
-                        remove_downloaded_file_names.add(downloaded_file_name)
-                else:
-                    # Not in the model at all - file is completely gone from both local and remote
-                    # Only remove if we've had at least one successful remote scan
-                    if latest_remote_scan is not None and not latest_remote_scan.failed:
-                        remove_downloaded_file_names.add(downloaded_file_name)
-            if remove_downloaded_file_names:
-                self.logger.info("Removing from downloaded list: {}".format(remove_downloaded_file_names))
-                self.__persist.downloaded_file_names.difference_update(remove_downloaded_file_names)
-                self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
-
+            # Prune stale tracking entries
+            self._prune_extracted_files()
+            self._prune_downloaded_files(latest_remote_scan)
+        finally:
             # Release the model
             self.__model_lock.release()
 
-        # Update the controller status
-        if latest_remote_scan is not None:
-            self.__context.status.controller.latest_remote_scan_time = latest_remote_scan.timestamp
-            self.__context.status.controller.latest_remote_scan_failed = latest_remote_scan.failed
-            self.__context.status.controller.latest_remote_scan_error = latest_remote_scan.error_message
-        if latest_local_scan is not None:
-            self.__context.status.controller.latest_local_scan_time = latest_local_scan.timestamp
+    def _update_controller_status(self,
+                                  remote_scan: Optional[object],
+                                  local_scan: Optional[object]) -> None:
+        """
+        Update the controller status with latest scan information.
+
+        Args:
+            remote_scan: Latest remote scan result, or None.
+            local_scan: Latest local scan result, or None.
+        """
+        if remote_scan is not None:
+            self.__context.status.controller.latest_remote_scan_time = remote_scan.timestamp
+            self.__context.status.controller.latest_remote_scan_failed = remote_scan.failed
+            self.__context.status.controller.latest_remote_scan_error = remote_scan.error_message
+        if local_scan is not None:
+            self.__context.status.controller.latest_local_scan_time = local_scan.timestamp
+
+    # =========================================================================
+    # End of __update_model() helper methods
+    # =========================================================================
+
+    def __update_model(self):
+        """
+        Advance the model state by collecting data from all sources and updating accordingly.
+
+        This method orchestrates the model update process:
+        1. Collect scan results, LFTP status, and extract results
+        2. Update active file tracking for the active scanner
+        3. Feed collected data to the model builder
+        4. Build and apply model changes (if any)
+        5. Update controller status with scan timestamps
+
+        The actual work is delegated to focused helper methods for maintainability.
+        """
+        # Step 1: Collect all data from external sources
+        latest_remote_scan, latest_local_scan, latest_active_scan = self._collect_scan_results()
+        lftp_statuses = self._collect_lftp_status()
+        latest_extract_statuses, latest_extracted_results = self._collect_extract_results()
+
+        # Step 2: Update active file tracking
+        self._update_active_file_tracking(lftp_statuses, latest_extract_statuses)
+
+        # Step 3: Feed data to model builder
+        self._feed_model_builder(
+            latest_remote_scan,
+            latest_local_scan,
+            latest_active_scan,
+            lftp_statuses,
+            latest_extract_statuses,
+            latest_extracted_results
+        )
+
+        # Step 4: Build and apply model changes
+        self._build_and_apply_model(latest_remote_scan)
+
+        # Step 5: Update controller status
+        self._update_controller_status(latest_remote_scan, latest_local_scan)
 
     def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """

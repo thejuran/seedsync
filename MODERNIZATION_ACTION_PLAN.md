@@ -497,23 +497,53 @@ The original 249-line `build_model()` method has been refactored into 20 focused
 
 #### Tasks
 
-- [ ] Read and understand `__update_model()` (137 lines)
-- [ ] Identify state transitions and side effects
-- [ ] Extract logical groups:
-  - `_update_scan_state()`
-  - `_update_transfer_state()`
-  - `_process_completed_transfers()`
-  - etc.
-- [ ] Consider state machine pattern if appropriate
-- [ ] Reduce method to <50 lines
-- [ ] Add state transition documentation
-- [ ] Run tests
+- [x] Read and understand `__update_model()` (137 lines)
+- [x] Identify state transitions and side effects
+- [x] Extract helper methods:
+  - `_collect_scan_results()` - Collect latest scan results from all scanners
+  - `_collect_lftp_status()` - Collect LFTP job statuses with error handling
+  - `_collect_extract_results()` - Collect extract statuses and completed extractions
+  - `_update_active_file_tracking()` - Update actively downloading/extracting file lists
+  - `_feed_model_builder()` - Feed collected data to model builder
+  - `_detect_and_track_download()` - Detect and track newly downloaded files
+  - `_prune_extracted_files()` - Remove deleted files from extracted tracking
+  - `_prune_downloaded_files()` - Remove deleted files from downloaded tracking
+  - `_apply_model_diff()` - Apply model diff changes to the model
+  - `_build_and_apply_model()` - Build new model and apply changes (orchestrates above)
+  - `_update_controller_status()` - Update controller status timestamps
+- [x] Reduce method to <50 lines — **36 lines** (down from 137)
+- [x] Add comprehensive docstrings to all methods
+- [x] Run tests — **277 passed**
 
 #### Success Criteria
 
-- `__update_model()` reduced to clear orchestration
-- State transitions documented
-- Tests pass
+- `__update_model()` reduced to clear orchestration ✓ (36 lines, 74% reduction)
+- State transitions documented ✓ (docstrings explain data flow)
+- Tests pass ✓
+
+#### Notes
+
+The original 137-line `__update_model()` method has been refactored into 11 focused helper methods:
+
+**Method line counts after refactoring:**
+- `__update_model`: 36 lines (orchestration only)
+- `_build_and_apply_model`: 36 lines (largest helper)
+- `_feed_model_builder`: 35 lines
+- `_prune_downloaded_files`: 35 lines
+- `_apply_model_diff`: 26 lines
+- `_update_active_file_tracking`: 25 lines
+- `_prune_extracted_files`: 24 lines
+- `_detect_and_track_download`: 23 lines
+- `_update_controller_status`: 16 lines
+- `_collect_scan_results`: 12 lines
+- `_collect_lftp_status`: 12 lines
+- `_collect_extract_results`: 12 lines
+
+**Key design decisions:**
+1. Named methods by what they DO, not by state machine terminology (clearer for this codebase)
+2. Used `try/finally` pattern in `_build_and_apply_model()` to ensure lock release
+3. Kept related operations together (e.g., pruning both extracted and downloaded files is called from same parent)
+4. Added comprehensive docstrings documenting preconditions (e.g., "must hold model lock")
 
 ---
 
@@ -732,7 +762,7 @@ Session 16 (Frontend Dependency Modernization)
 |---------|--------|----------------|-------|
 | 11 | Completed | 2026-01-30 | Improved HTTP status codes (404, 409, 500) - chose simpler approach over full envelope |
 | 12 | Completed | 2026-01-30 | Refactored build_model() from 249 lines to 28 lines + 20 helper methods |
-| 13 | Not Started | | |
+| 13 | Completed | 2026-01-30 | Refactored __update_model() from 137 lines to 36 lines + 11 helper methods |
 
 ### Phase 3 Status
 
@@ -920,6 +950,28 @@ Session 16 (Frontend Dependency Modernization)
 7. **Preserve behavior exactly**: The refactoring was purely structural - no behavior changes. All 46 existing tests pass unchanged, proving the refactoring preserved the original logic.
 
 8. **Line count as a metric**: Using Python's AST module to count lines per method provides objective verification of the <50 line constraint. Manual counting is error-prone for methods with docstrings and blank lines.
+
+### Session 13 Learnings
+
+1. **Name methods by action, not abstraction**: The original plan suggested state machine-style names like `_update_scan_state()` and `_update_transfer_state()`. These were replaced with action-oriented names like `_collect_scan_results()` and `_update_active_file_tracking()` that directly describe what the method does, making the code more self-documenting.
+
+2. **Data flow is the organizing principle**: The `__update_model()` method follows a clear data flow: collect → update tracking → feed builder → build/apply → update status. Grouping helper methods by their position in this flow makes the orchestrating method read like a high-level description of the algorithm.
+
+3. **Try/finally for lock safety**: The original code used manual `acquire()`/`release()` without exception handling. The refactored `_build_and_apply_model()` uses `try/finally` to ensure the lock is always released, even if an exception occurs during model operations.
+
+4. **Docstring preconditions**: Several helper methods require the model lock to be held. Adding "Must be called while holding the model lock." to docstrings documents this implicit requirement and helps prevent threading bugs.
+
+5. **Single return type simplifies callers**: Methods like `_collect_scan_results()` return tuples that can be unpacked directly. This is cleaner than having multiple out-parameters or requiring the caller to make multiple method calls.
+
+6. **Helper method visibility**: Using single-underscore prefix (`_method`) instead of double-underscore (`__method`) for the new helpers signals they're internal but allows testing if needed. The Python name mangling of `__method` would make testing harder.
+
+7. **Consistent with Session 12 patterns**: This refactoring applied the same principles as Session 12's `build_model()` refactoring - extract by responsibility, keep methods under 50 lines, add comprehensive docstrings. Consistency across sessions makes the codebase more predictable.
+
+8. **74% line reduction achieved**: The method went from 137 lines to 36 lines - a 74% reduction. This is comparable to Session 12's reduction of `build_model()` from 249 to 28 lines (89%). Both methods are now purely orchestration code.
+
+9. **Clarity over micro-optimization**: The original code called `get_file_names()` once and reused it for both `_prune_extracted_files()` and `_prune_downloaded_files()`. The refactored version calls it twice (once per method). This is slightly less efficient but makes each helper method self-contained. Since we hold the model lock throughout and `get_file_names()` is O(1) (dict keys), the trade-off favors clarity.
+
+10. **Thread safety verification**: The persist collections (`downloaded_file_names`, `extracted_file_names`) are only modified from the controller thread, so the copy-under-lock pattern from Sessions 3-4 doesn't apply here. The model lock protects against web request threads reading the model, not against concurrent persist access.
 
 ---
 
