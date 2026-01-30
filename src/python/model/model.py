@@ -100,6 +100,8 @@ class Model:
         self.logger.debug("LftpModel: Adding file '{}'".format(file.name))
         if file.name in self.__files:
             raise ModelError("File already exists in the model")
+        # Freeze the file to make it immutable before storing
+        file.freeze()
         self.__files[file.name] = file
         # Copy-under-lock: copy listeners while holding lock, then iterate outside lock
         with self.__listeners_lock:
@@ -135,6 +137,8 @@ class Model:
             raise ModelError("File does not exist in the model")
         old_file = self.__files[file.name]
         new_file = file
+        # Freeze the new file to make it immutable before storing
+        new_file.freeze()
         self.__files[file.name] = new_file
         # Copy-under-lock: copy listeners while holding lock, then iterate outside lock
         with self.__listeners_lock:
@@ -144,7 +148,8 @@ class Model:
 
     def get_file(self, name: str) -> ModelFile:
         """
-        Returns a copy of the file of the given name
+        Returns the file of the given name.
+        The returned file is frozen (immutable) and safe to use across threads.
         :param name:
         :return:
         """

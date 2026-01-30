@@ -10,11 +10,16 @@ import os
 class ModelFile:
     """
     Represents a file or directory
+
     The information in this object may be inconsistent. E.g. the size of a directory
     may not match the sum of its children. This is allowed as a source may have
     updated only certain levels in the hierarchy. Specifically for this example,
     an Lftp status provides local sizes for a downloading directory but not its
     children.
+
+    Thread-safety: ModelFile objects become immutable once frozen via freeze().
+    After freezing, all setter operations will raise an error. This allows
+    safe sharing of file references across threads without deep copying.
     """
     class State(Enum):
         DEFAULT = 0
@@ -44,21 +49,48 @@ class ModelFile:
         self.__update_timestamp = datetime.now()
         self.__children = []  # children files
         self.__parent = None  # direct predecessor
+        self.__frozen = False  # immutability flag
+
+    @property
+    def is_frozen(self) -> bool:
+        """Returns True if this file is frozen (immutable)"""
+        return self.__frozen
+
+    def freeze(self):
+        """
+        Freeze this file and all its children, making them immutable.
+        This method is idempotent - calling it multiple times has no additional effect.
+        After freezing, any attempt to modify the file will raise an error.
+        """
+        if self.__frozen:
+            return  # Already frozen
+        self.__frozen = True
+        # Recursively freeze all children
+        for child in self.__children:
+            child.freeze()
+
+    def _check_frozen(self):
+        """Raises an error if the file is frozen"""
+        if self.__frozen:
+            raise ValueError("Cannot modify frozen ModelFile '{}'".format(self.__name))
 
     def __eq__(self, other):
         # disregard in comparisons:
         #   timestamp: we don't care about it
         #   parent: semantics are to check self and children only
         #   children: check these manually for easier debugging
+        #   frozen: immutability flag doesn't affect equality
         ka = set(self.__dict__).difference({
             "_ModelFile__update_timestamp",
             "_ModelFile__parent",
-            "_ModelFile__children"
+            "_ModelFile__children",
+            "_ModelFile__frozen"
         })
         kb = set(other.__dict__).difference({
             "_ModelFile__update_timestamp",
             "_ModelFile__parent",
-            "_ModelFile__children"
+            "_ModelFile__children",
+            "_ModelFile__frozen"
         })
         # Check self properties
         if ka != kb:
@@ -93,6 +125,7 @@ class ModelFile:
 
     @state.setter
     def state(self, state: State):
+        self._check_frozen()
         if type(state) != ModelFile.State:
             raise TypeError
         self.__state = state
@@ -102,6 +135,7 @@ class ModelFile:
 
     @remote_size.setter
     def remote_size(self, remote_size: Optional[int]):
+        self._check_frozen()
         if type(remote_size) == int:
             if remote_size < 0:
                 raise ValueError
@@ -116,6 +150,7 @@ class ModelFile:
 
     @local_size.setter
     def local_size(self, local_size: Optional[int]):
+        self._check_frozen()
         if type(local_size) == int:
             if local_size < 0:
                 raise ValueError
@@ -130,6 +165,7 @@ class ModelFile:
 
     @transferred_size.setter
     def transferred_size(self, transferred_size: Optional[int]):
+        self._check_frozen()
         if type(transferred_size) == int:
             if transferred_size < 0:
                 raise ValueError
@@ -144,6 +180,7 @@ class ModelFile:
 
     @downloading_speed.setter
     def downloading_speed(self, downloading_speed: Optional[int]):
+        self._check_frozen()
         if type(downloading_speed) == int:
             if downloading_speed < 0:
                 raise ValueError
@@ -158,6 +195,7 @@ class ModelFile:
 
     @update_timestamp.setter
     def update_timestamp(self, update_timestamp: datetime):
+        self._check_frozen()
         if type(update_timestamp) != datetime:
             raise TypeError
         self.__update_timestamp = update_timestamp
@@ -167,6 +205,7 @@ class ModelFile:
 
     @eta.setter
     def eta(self, eta: Optional[int]):
+        self._check_frozen()
         if type(eta) == int:
             if eta < 0:
                 raise ValueError
@@ -181,6 +220,7 @@ class ModelFile:
 
     @is_extractable.setter
     def is_extractable(self, is_extractable: bool):
+        self._check_frozen()
         self.__is_extractable = is_extractable
 
     @property
@@ -188,6 +228,7 @@ class ModelFile:
 
     @local_created_timestamp.setter
     def local_created_timestamp(self, local_created_timestamp: datetime):
+        self._check_frozen()
         if type(local_created_timestamp) != datetime:
             raise TypeError
         self.__local_created_timestamp = local_created_timestamp
@@ -197,6 +238,7 @@ class ModelFile:
 
     @local_modified_timestamp.setter
     def local_modified_timestamp(self, local_modified_timestamp: datetime):
+        self._check_frozen()
         if type(local_modified_timestamp) != datetime:
             raise TypeError
         self.__local_modified_timestamp = local_modified_timestamp
@@ -206,6 +248,7 @@ class ModelFile:
 
     @remote_created_timestamp.setter
     def remote_created_timestamp(self, remote_created_timestamp: datetime):
+        self._check_frozen()
         if type(remote_created_timestamp) != datetime:
             raise TypeError
         self.__remote_created_timestamp = remote_created_timestamp
@@ -215,6 +258,7 @@ class ModelFile:
 
     @remote_modified_timestamp.setter
     def remote_modified_timestamp(self, remote_modified_timestamp: datetime):
+        self._check_frozen()
         if type(remote_modified_timestamp) != datetime:
             raise TypeError
         self.__remote_modified_timestamp = remote_modified_timestamp
@@ -227,6 +271,8 @@ class ModelFile:
         return self.name
 
     def add_child(self, child_file: "ModelFile"):
+        self._check_frozen()
+        child_file._check_frozen()
         if not self.is_dir:
             raise TypeError("Cannot add child to a non-directory")
         if child_file is self:
@@ -234,7 +280,7 @@ class ModelFile:
         if child_file.name in (f.name for f in self.__children):
             raise ValueError("Cannot add child more than once")
         self.__children.append(child_file)
-        child_file.__parent = self
+        child_file._ModelFile__parent = self
 
     def get_children(self) -> List["ModelFile"]:
         return copy.copy(self.__children)

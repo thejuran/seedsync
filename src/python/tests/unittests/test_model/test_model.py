@@ -56,13 +56,16 @@ class TestLftpModel(unittest.TestCase):
             self.model.remove_file("test")
 
     def test_update_file(self):
+        # Add initial file
         file = ModelFile("test", False)
         file.local_size = 100
         self.model.add_file(file)
         recv_file = self.model.get_file("test")
         self.assertEqual(100, recv_file.local_size)
-        recv_file.local_size = 200
-        self.model.update_file(recv_file)
+        # Create a new file with updated values (files are immutable after adding)
+        new_file = ModelFile("test", False)
+        new_file.local_size = 200
+        self.model.update_file(new_file)
         recv_file = self.model.get_file("test")
         self.assertEqual(200, recv_file.local_size)
 
@@ -138,3 +141,27 @@ class TestLftpModel(unittest.TestCase):
         self.model.update_file(new_file)
         # noinspection PyUnresolvedReferences
         listener.file_updated.assert_called_once_with(old_file, new_file)
+
+    def test_file_immutable_after_add(self):
+        """Files become frozen (immutable) after being added to the model"""
+        file = ModelFile("test", False)
+        file.local_size = 100
+        self.assertFalse(file.is_frozen)
+        self.model.add_file(file)
+        self.assertTrue(file.is_frozen)
+        # Attempting to modify a frozen file should raise an error
+        with self.assertRaises(ValueError):
+            file.local_size = 200
+
+    def test_file_immutable_after_update(self):
+        """Files become frozen (immutable) after being used to update the model"""
+        old_file = ModelFile("test", False)
+        self.model.add_file(old_file)
+        new_file = ModelFile("test", False)
+        new_file.local_size = 200
+        self.assertFalse(new_file.is_frozen)
+        self.model.update_file(new_file)
+        self.assertTrue(new_file.is_frozen)
+        # Attempting to modify a frozen file should raise an error
+        with self.assertRaises(ValueError):
+            new_file.local_size = 300

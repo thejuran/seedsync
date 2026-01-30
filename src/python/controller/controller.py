@@ -5,7 +5,6 @@ from typing import List, Callable
 from threading import Lock
 from queue import Queue
 from enum import Enum
-import copy
 
 # my libs
 from .scan import ScannerProcess, ActiveScanner, LocalScanner, RemoteScanner
@@ -297,9 +296,12 @@ class Controller:
         self.__command_queue.put(command)
 
     def __get_model_files(self) -> List[ModelFile]:
+        # Files are frozen (immutable) after being added to the model,
+        # so we can safely return direct references without deep copying.
+        # This significantly reduces memory churn on API requests.
         model_files = []
         for filename in self.__model.get_file_names():
-            model_files.append(copy.deepcopy(self.__model.get_file(filename)))
+            model_files.append(self.__model.get_file(filename))
         return model_files
 
     def __update_model(self):
