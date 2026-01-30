@@ -22,13 +22,21 @@ export class MockEventSource {
         this.url = url;
     }
 
-    addEventListener(type: string, listener: EventListenerOrEventListenerObject | null, _options?: boolean | AddEventListenerOptions): void {
+    addEventListener(
+        type: string,
+        listener: EventListenerOrEventListenerObject | null,
+        _options?: boolean | AddEventListenerOptions
+    ): void {
         if (listener && typeof listener === "function") {
             this.listeners.set(type, listener as EventListener);
         }
     }
 
-    removeEventListener(type: string, _listener?: EventListenerOrEventListenerObject | null, _options?: boolean | EventListenerOptions): void {
+    removeEventListener(
+        type: string,
+        _listener?: EventListenerOrEventListenerObject | null,
+        _options?: boolean | EventListenerOptions
+    ): void {
         this.listeners.delete(type);
     }
 

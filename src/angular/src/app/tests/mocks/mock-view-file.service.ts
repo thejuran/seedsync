@@ -20,8 +20,8 @@ export class MockViewFileService {
     }
 
     // noinspection JSUnusedLocalSymbols
-    public setFilterCriteria(criteria: ViewFileFilterCriteria) {}
+    public setFilterCriteria(_criteria: ViewFileFilterCriteria): void {}
 
     // noinspection JSUnusedLocalSymbols
-    public setComparator(comparator: ViewFileComparator) {}
+    public setComparator(_comparator: ViewFileComparator): void {}
 }

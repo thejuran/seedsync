@@ -2,7 +2,9 @@ import {fakeAsync, TestBed, tick} from "@angular/core/testing";
 
 import {createMockEventSource, MockEventSource} from "../../../mocks/mock-event-source";
 import {LoggerService} from "../../../../services/utils/logger.service";
-import {EventSourceFactory, IStreamService, StreamDispatchService, StreamServiceRegistry} from "../../../../services/base/stream-service.registry";
+import {
+    EventSourceFactory, IStreamService, StreamDispatchService, StreamServiceRegistry
+} from "../../../../services/base/stream-service.registry";
 import {ModelFileService} from "../../../../services/files/model-file.service";
 import {ServerStatusService} from "../../../../services/server/server-status.service";
 import {ConnectedService} from "../../../../services/utils/connected.service";

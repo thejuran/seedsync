@@ -3,7 +3,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 /*
  * Convert seconds to an eta in the form "Xh Ym Zs"
 */
-@Pipe({name: "eta"})
+@Pipe({name: "eta", standalone: false})
 export class EtaPipe implements PipeTransform {
 
   private units = {

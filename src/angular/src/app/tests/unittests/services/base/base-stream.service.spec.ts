@@ -5,10 +5,6 @@ import {createMockEventSource, MockEventSource} from "../../../mocks/mock-event-
 import {EventSourceFactory} from "../../../../services/base/stream-service.registry";
 
 
-// noinspection JSUnusedLocalSymbols
-const DoNothing = {next: reaction => {}};
-
-
 class TestBaseStreamService extends BaseStreamService {
     eventList = [];
 

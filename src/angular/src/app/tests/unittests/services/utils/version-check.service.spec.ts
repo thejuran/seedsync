@@ -1,7 +1,5 @@
 import {fakeAsync, TestBed, tick} from "@angular/core/testing";
 
-import * as compareVersions from "compare-versions";
-
 import {VersionCheckService} from "../../../../services/utils/version-check.service";
 import {RestService, WebReaction} from "../../../../services/utils/rest.service";
 import {NotificationService} from "../../../../services/utils/notification.service";

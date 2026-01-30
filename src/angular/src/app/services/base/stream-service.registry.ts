@@ -93,7 +93,7 @@ export class StreamDispatchService {
 
             // noinspection SpellCheckingInspection
             // noinspection JSUnusedLocalSymbols
-            eventSource.onopen = event => {
+            eventSource.onopen = _event => {
                 this._logger.info("Connected to server stream");
 
                 // Notify all services of connection

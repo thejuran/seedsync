@@ -11,7 +11,7 @@ export class CachedReuseStrategy implements RouteReuseStrategy {
     handlers: {[key: string]: DetachedRouteHandle} = {};
 
     // noinspection JSUnusedLocalSymbols
-    shouldDetach(route: ActivatedRouteSnapshot): boolean {
+    shouldDetach(_route: ActivatedRouteSnapshot): boolean {
         return true;
     }
 

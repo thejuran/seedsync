@@ -20,9 +20,9 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     templateUrl: "./settings-page.component.html",
     styleUrls: ["./settings-page.component.scss"],
     providers: [],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
-
 export class SettingsPageComponent implements OnInit {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;
     public OPTIONS_CONTEXT_DISCOVERY = OPTIONS_CONTEXT_DISCOVERY;

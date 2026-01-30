@@ -9,9 +9,9 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
 @Component({
     selector: "app-sidebar",
     templateUrl: "./sidebar.component.html",
-    styleUrls: ["./sidebar.component.scss"]
+    styleUrls: ["./sidebar.component.scss"],
+    standalone: false
 })
-
 export class SidebarComponent implements OnInit {
     routeInfos = ROUTE_INFOS;
 

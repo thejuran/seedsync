@@ -20,7 +20,7 @@ export class LocalStorageService implements StorageService {
         }
         try {
             return JSON.parse(item);
-        } catch (e) {
+        } catch {
             return item;
         }
     }

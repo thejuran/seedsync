@@ -13,6 +13,7 @@ import {Localization} from "../../common/localization";
 @Component({
     selector: "app-header",
     templateUrl: "./header.component.html",
+    standalone: false,
     styleUrls: ["./header.component.scss"],
 })
 

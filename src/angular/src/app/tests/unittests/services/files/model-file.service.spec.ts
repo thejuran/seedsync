@@ -10,7 +10,7 @@ import {RestService} from "../../../../services/utils/rest.service";
 
 
 // noinspection JSUnusedLocalSymbols
-const DoNothing = {next: reaction => {}};
+const DoNothing = {next: (_reaction: unknown): void => {}};
 
 
 describe("Testing model file service", () => {

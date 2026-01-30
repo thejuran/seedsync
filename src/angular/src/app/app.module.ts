@@ -121,6 +121,6 @@ export class AppModule {
 }
 
 // noinspection JSUnusedLocalSymbols
-export function dummyFactory(s) {
+export function dummyFactory(_s: unknown): () => null {
     return () => null;
 }

@@ -13,9 +13,9 @@ import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
     providers: [],
     templateUrl: "./file.component.html",
     styleUrls: ["./file.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
-
 export class FileComponent implements OnChanges {
     // Make ViewFile optionType accessible from template
     ViewFile = ViewFile;

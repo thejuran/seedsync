@@ -8,7 +8,8 @@ import {DomService} from "../../services/utils/dom.service";
 @Component({
     selector: "app-root",
     templateUrl: "./app.component.html",
-    styleUrls: ["./app.component.scss"]
+    styleUrls: ["./app.component.scss"],
+    standalone: false
 })
 export class AppComponent implements OnInit, AfterViewInit {
     @ViewChild("topHeader", {static: false}) topHeader: ElementRef;

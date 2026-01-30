@@ -14,9 +14,9 @@ import {DomService} from "../../services/utils/dom.service";
     providers: [],
     templateUrl: "./file-options.component.html",
     styleUrls: ["./file-options.component.scss"],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
-
 export class FileOptionsComponent implements OnInit {
     public ViewFile = ViewFile;
     public ViewFileOptions = ViewFileOptions;

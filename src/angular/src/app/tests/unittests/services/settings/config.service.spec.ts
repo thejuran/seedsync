@@ -13,7 +13,7 @@ import {StreamServiceRegistry} from "../../../../services/base/stream-service.re
 
 
 // noinspection JSUnusedLocalSymbols
-const DoNothing = {next: reaction => {}};
+const DoNothing = {next: (_reaction: unknown): void => {}};
 
 
 describe("Testing config service", () => {

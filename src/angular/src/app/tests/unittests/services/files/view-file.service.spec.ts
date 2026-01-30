@@ -515,7 +515,7 @@ describe("Testing view file service", () => {
                 expect(list.get(2).name).toBe("c");
                 list.forEach((item, index) => {
                     // Only 1 file is selected at a time
-                    if(index == expectedSelectedFileIndex) {
+                    if(index === expectedSelectedFileIndex) {
                         expect(item.isSelected).toBe(true);
                     } else {
                         expect(item.isSelected).toBe(false);

@@ -1,9 +1,7 @@
 import {Injectable, OnDestroy} from "@angular/core";
 import {Observable, BehaviorSubject, Subject} from "rxjs";
 
-import {LoggerService} from "./logger.service";
 import {BaseStreamService} from "../base/base-stream.service";
-import {RestService} from "./rest.service";
 
 
 /**
@@ -26,7 +24,7 @@ export class ConnectedService extends BaseStreamService implements OnDestroy {
         return this._connectedSubject.asObservable();
     }
 
-    protected onEvent(eventName: string, data: string) {
+    protected onEvent(_eventName: string, _data: string): void {
         // Nothing to do
     }
 
