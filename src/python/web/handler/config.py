@@ -27,10 +27,10 @@ class ConfigHandler(IHandler):
         value = unquote(value)
 
         if not self.__config.has_section(section):
-            return HTTPResponse(body="There is no section '{}' in config".format(section), status=400)
+            return HTTPResponse(body="There is no section '{}' in config".format(section), status=404)
         inner_config = getattr(self.__config, section)
         if not inner_config.has_property(key):
-            return HTTPResponse(body="Section '{}' in config has no option '{}'".format(section, key), status=400)
+            return HTTPResponse(body="Section '{}' in config has no option '{}'".format(section, key), status=404)
         try:
             inner_config.set_property(key, value)
             return HTTPResponse(body="{}.{} set to {}".format(section, key, value))
