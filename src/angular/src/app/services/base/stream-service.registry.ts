@@ -45,6 +45,11 @@ export interface IStreamService {
  * StreamDispatchService is the top-level service that connects to
  * the multiplexed SSE stream. It listens for SSE events and dispatches
  * them to whichever IStreamService that requested them.
+ *
+ * Includes idle connection detection: if no events (including heartbeat pings)
+ * are received within the timeout period, the connection is proactively
+ * closed and reconnected. This handles cases where the connection becomes
+ * stale (e.g., proxy/firewall closes it) without triggering an error event.
  */
 @Injectable()
 export class StreamDispatchService {
@@ -52,8 +57,24 @@ export class StreamDispatchService {
 
     private readonly STREAM_RETRY_INTERVAL_MS = 3000;
 
+    // Heartbeat event name - sent by server every 15 seconds
+    private readonly HEARTBEAT_EVENT = "ping";
+
+    // Connection timeout: if no events received within this period, reconnect.
+    // Set to 30 seconds (2x the server's 15-second heartbeat interval) to allow
+    // for some network jitter while still detecting stale connections promptly.
+    private readonly CONNECTION_TIMEOUT_MS = 30000;
+
+    // How often to check for connection timeout
+    private readonly TIMEOUT_CHECK_INTERVAL_MS = 5000;
+
     private _eventNameToServiceMap: Map<string, IStreamService> = new Map();
     private _services: IStreamService[] = [];
+
+    // Track last event time for idle detection
+    private _lastEventTime = 0;
+    private _timeoutCheckInterval: ReturnType<typeof setInterval> | null = null;
+    private _currentEventSource: EventSource | null = null;
 
     constructor(private _logger: LoggerService,
                 private _zone: NgZone) {
@@ -64,6 +85,62 @@ export class StreamDispatchService {
      */
     public onInit() {
         this.createSseObserver();
+        this.startTimeoutChecker();
+    }
+
+    /**
+     * Start periodic timeout checking
+     */
+    private startTimeoutChecker() {
+        if (this._timeoutCheckInterval) {
+            clearInterval(this._timeoutCheckInterval);
+        }
+
+        this._timeoutCheckInterval = setInterval(() => {
+            this.checkConnectionTimeout();
+        }, this.TIMEOUT_CHECK_INTERVAL_MS);
+    }
+
+    /**
+     * Check if the connection has timed out due to inactivity
+     */
+    private checkConnectionTimeout() {
+        if (this._lastEventTime === 0) {
+            // No events received yet, connection is still initializing
+            return;
+        }
+
+        const elapsed = Date.now() - this._lastEventTime;
+        if (elapsed > this.CONNECTION_TIMEOUT_MS) {
+            this._logger.warn(
+                `No events received for ${elapsed}ms, reconnecting due to idle timeout`
+            );
+            this.reconnectDueToTimeout();
+        }
+    }
+
+    /**
+     * Proactively close and reconnect when idle timeout is detected
+     */
+    private reconnectDueToTimeout() {
+        // Close the current EventSource if it exists
+        if (this._currentEventSource) {
+            this._currentEventSource.close();
+            this._currentEventSource = null;
+        }
+
+        // Reset last event time to prevent immediate re-trigger
+        this._lastEventTime = 0;
+
+        // Notify all services of disconnection
+        for (const service of this._services) {
+            this._zone.run(() => {
+                service.notifyDisconnected();
+            });
+        }
+
+        // Reconnect after a short delay
+        setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
     }
 
     /**
@@ -82,19 +159,36 @@ export class StreamDispatchService {
     private createSseObserver() {
         const observable = new Observable(observer => {
             const eventSource = EventSourceFactory.createEventSource(this.STREAM_URL);
+
+            // Store reference for proactive close on timeout
+            this._currentEventSource = eventSource;
+
+            // Listen for registered service events
             for (const eventName of Array.from(this._eventNameToServiceMap.keys())) {
-                eventSource.addEventListener(eventName, event => observer.next(
-                    {
+                eventSource.addEventListener(eventName, event => {
+                    // Update last event time for timeout detection
+                    this._lastEventTime = Date.now();
+                    observer.next({
                         "event": eventName,
                         "data": (<MessageEvent>event).data
-                    }
-                ));
+                    });
+                });
             }
+
+            // Listen for heartbeat ping events (not dispatched to services, just for keepalive)
+            eventSource.addEventListener(this.HEARTBEAT_EVENT, () => {
+                this._lastEventTime = Date.now();
+                // Heartbeat events are not dispatched to services - they're only
+                // used to keep the connection alive and detect timeouts
+            });
 
             // noinspection SpellCheckingInspection
             // noinspection JSUnusedLocalSymbols
             eventSource.onopen = _event => {
                 this._logger.info("Connected to server stream");
+
+                // Initialize last event time on connection
+                this._lastEventTime = Date.now();
 
                 // Notify all services of connection
                 for (const service of this._services) {
@@ -108,6 +202,7 @@ export class StreamDispatchService {
 
             return () => {
                 eventSource.close();
+                this._currentEventSource = null;
             };
         });
         observable.subscribe({
@@ -121,6 +216,9 @@ export class StreamDispatchService {
             },
             error: err => {
                 this._logger.error("Error in stream: %O", err);
+
+                // Clear the EventSource reference
+                this._currentEventSource = null;
 
                 // Notify all services of disconnection
                 for (const service of this._services) {

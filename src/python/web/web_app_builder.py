@@ -10,6 +10,7 @@ from .handler.server import ServerHandler
 from .handler.config import ConfigHandler
 from .handler.auto_queue import AutoQueueHandler
 from .handler.stream_log import LogStreamHandler
+from .handler.stream_heartbeat import HeartbeatStreamHandler
 from .handler.status import StatusHandler
 
 
@@ -42,6 +43,8 @@ class WebAppBuilder:
 
         ModelStreamHandler.register(web_app=web_app,
                                     controller=self.__controller)
+
+        HeartbeatStreamHandler.register(web_app=web_app)
 
         self.controller_handler.add_routes(web_app)
         self.server_handler.add_routes(web_app)
