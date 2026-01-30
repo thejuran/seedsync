@@ -1,7 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from "@angular/core";
 import {NgIf, AsyncPipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 import * as Immutable from "immutable";
 
@@ -20,7 +21,7 @@ import {DomService} from "../../services/utils/dom.service";
     standalone: true,
     imports: [NgIf, AsyncPipe, FormsModule]
 })
-export class FileOptionsComponent implements OnInit {
+export class FileOptionsComponent implements OnInit, OnDestroy {
     public ViewFile = ViewFile;
     public ViewFileOptions = ViewFileOptions;
 
@@ -36,6 +37,7 @@ export class FileOptionsComponent implements OnInit {
     public isStoppedStatusEnabled = false;
 
     private _latestOptions: ViewFileOptions;
+    private destroy$ = new Subject<void>();
 
     constructor(private _changeDetector: ChangeDetectorRef,
                 private viewFileOptionsService: ViewFileOptionsService,
@@ -47,7 +49,7 @@ export class FileOptionsComponent implements OnInit {
 
     ngOnInit() {
         // Use the unfiltered files to enable/disable the filter status buttons
-        this._viewFileService.files.subscribe(files => {
+        this._viewFileService.files.pipe(takeUntil(this.destroy$)).subscribe(files => {
             this.isExtractedStatusEnabled = FileOptionsComponent.isStatusEnabled(
                 files, ViewFile.Status.EXTRACTED
             );
@@ -70,7 +72,12 @@ export class FileOptionsComponent implements OnInit {
         });
 
         // Keep the latest options for toggle behaviour implementation
-        this.viewFileOptionsService.options.subscribe(options => this._latestOptions = options);
+        this.viewFileOptionsService.options.pipe(takeUntil(this.destroy$)).subscribe(options => this._latestOptions = options);
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onFilterByName(name: string) {
