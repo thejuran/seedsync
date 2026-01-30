@@ -1,3 +1,13 @@
+seedsync (1.0.0) stable; urgency=low
+
+  * Fork maintained by thejuran
+  * Re-enable ARM64 support
+  * Modernized Angular frontend (Angular 19.x)
+  * Modernized Bootstrap (5.3)
+  * Version 1.0.0 release
+
+ -- thejuran <thejuran@users.noreply.github.com>  Thu, 30 Jan 2026 12:00:00 +0000
+
 seedsync (0.8.6) stable; urgency=low
 
   * Fixed broken rar extraction in previous release

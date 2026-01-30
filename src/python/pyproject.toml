@@ -1,9 +1,9 @@
 [tool]
 [tool.poetry]
 name = "seedsync"
-version = "0.0.0"
-description = ""
-authors = []
+version = "1.0.0"
+description = "Fast file syncing from remote servers with a web UI, powered by LFTP"
+authors = ["thejuran"]
 package-mode = false
 
 [tool.poetry.dependencies]
