@@ -1,4 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {NgIf, AsyncPipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
@@ -15,7 +17,8 @@ import {DomService} from "../../services/utils/dom.service";
     templateUrl: "./file-options.component.html",
     styleUrls: ["./file-options.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgIf, AsyncPipe, FormsModule]
 })
 export class FileOptionsComponent implements OnInit {
     public ViewFile = ViewFile;

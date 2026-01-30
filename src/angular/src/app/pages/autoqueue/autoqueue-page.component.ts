@@ -1,8 +1,11 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {NgFor, NgIf, AsyncPipe} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
 
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 import {AutoQueueService} from "../../services/autoqueue/autoqueue.service";
 import {AutoQueuePattern} from "../../services/autoqueue/autoqueue-pattern";
 import {Notification} from "../../services/utils/notification";
@@ -19,7 +22,8 @@ import {ConfigService} from "../../services/settings/config.service";
     styleUrls: ["./autoqueue-page.component.scss"],
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgFor, NgIf, AsyncPipe, FormsModule, ClickStopPropagationDirective]
 })
 export class AutoQueuePageComponent implements OnInit {
 

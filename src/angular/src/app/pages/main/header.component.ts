@@ -1,4 +1,5 @@
 import {Component, OnInit} from "@angular/core";
+import {NgFor, NgIf, AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
@@ -13,7 +14,8 @@ import {Localization} from "../../common/localization";
 @Component({
     selector: "app-header",
     templateUrl: "./header.component.html",
-    standalone: false,
+    standalone: true,
+    imports: [NgFor, NgIf, AsyncPipe],
     styleUrls: ["./header.component.scss"],
 })
 

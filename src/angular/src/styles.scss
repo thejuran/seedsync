@@ -1,4 +1,4 @@
-@import 'app/common/common';
+@use 'app/common/common' as *;
 
 html {
     -ms-text-size-adjust: 100%;

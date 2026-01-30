@@ -18,9 +18,6 @@ RUN ls -l /app/
 # ng src needs to be mounted on /app/src
 WORKDIR /app/src
 
-# Use legacy OpenSSL provider for Node.js 17+ compatibility with old webpack
-ENV NODE_OPTIONS=--openssl-legacy-provider
-
 # Note: Angular 13+ CLI binary is ng.js
 CMD ["node", "/app/node_modules/@angular/cli/bin/ng.js", "test", \
      "--browsers", "ChromeHeadless", \

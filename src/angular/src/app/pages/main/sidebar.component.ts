@@ -1,4 +1,6 @@
 import {Component, OnInit} from "@angular/core";
+import {NgFor} from "@angular/common";
+import {RouterLink, RouterLinkActive} from "@angular/router";
 
 import {ROUTE_INFOS} from "../../routes";
 import {ServerCommandService} from "../../services/server/server-command.service";
@@ -10,7 +12,8 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     selector: "app-sidebar",
     templateUrl: "./sidebar.component.html",
     styleUrls: ["./sidebar.component.scss"],
-    standalone: false
+    standalone: true,
+    imports: [NgFor, RouterLink, RouterLinkActive]
 })
 export class SidebarComponent implements OnInit {
     routeInfos = ROUTE_INFOS;

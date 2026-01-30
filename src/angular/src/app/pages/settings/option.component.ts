@@ -1,4 +1,6 @@
 import {Component, Input, Output, ChangeDetectionStrategy, EventEmitter, OnInit} from "@angular/core";
+import {NgIf} from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Subject} from "rxjs";
 import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 
@@ -8,7 +10,8 @@ import {debounceTime, distinctUntilChanged} from "rxjs/operators";
     templateUrl: "./option.component.html",
     styleUrls: ["./option.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgIf, FormsModule]
 })
 export class OptionComponent implements OnInit {
     @Input() type: OptionType;

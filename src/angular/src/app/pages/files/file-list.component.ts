@@ -1,8 +1,10 @@
 import {Component, ChangeDetectionStrategy} from "@angular/core";
+import {NgFor, AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 
 import {List} from "immutable";
 
+import {FileComponent} from "./file.component";
 import {ViewFileService} from "../../services/files/view-file.service";
 import {ViewFile} from "../../services/files/view-file";
 import {LoggerService} from "../../services/utils/logger.service";
@@ -15,7 +17,8 @@ import {ViewFileOptionsService} from "../../services/files/view-file-options.ser
     templateUrl: "./file-list.component.html",
     styleUrls: ["./file-list.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgFor, AsyncPipe, FileComponent]
 })
 export class FileListComponent {
     public files: Observable<List<ViewFile>>;

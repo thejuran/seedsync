@@ -2,7 +2,12 @@ import {
     Component, Input, Output, ChangeDetectionStrategy,
     EventEmitter, OnChanges, SimpleChanges, ViewChild
 } from "@angular/core";
+import {NgIf, DatePipe} from "@angular/common";
 
+import {CapitalizePipe} from "../../common/capitalize.pipe";
+import {EtaPipe} from "../../common/eta.pipe";
+import {FileSizePipe} from "../../common/file-size.pipe";
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 import {ViewFile} from "../../services/files/view-file";
 import {Localization} from "../../common/localization";
 import {ViewFileOptions} from "../../services/files/view-file-options";
@@ -14,7 +19,8 @@ import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
     templateUrl: "./file.component.html",
     styleUrls: ["./file.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgIf, DatePipe, CapitalizePipe, EtaPipe, FileSizePipe, ClickStopPropagationDirective]
 })
 export class FileComponent implements OnChanges {
     // Make ViewFile optionType accessible from template

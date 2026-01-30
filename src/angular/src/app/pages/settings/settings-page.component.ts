@@ -1,7 +1,10 @@
 import {ChangeDetectionStrategy, Component, OnInit} from "@angular/core";
+import {NgFor, NgTemplateOutlet, AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 
 import {LoggerService} from "../../services/utils/logger.service";
+import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
+import {OptionComponent} from "./option.component";
 import {ConfigService} from "../../services/settings/config.service";
 import {Config} from "../../services/settings/config";
 import {Notification} from "../../services/utils/notification";
@@ -21,7 +24,8 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     styleUrls: ["./settings-page.component.scss"],
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgFor, NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
 })
 export class SettingsPageComponent implements OnInit {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;

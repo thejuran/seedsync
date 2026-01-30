@@ -8,7 +8,7 @@ const { version: appVersion } = require("../../../../package.json");
     templateUrl: "./about-page.component.html",
     styleUrls: ["./about-page.component.scss"],
     providers: [],
-    standalone: false
+    standalone: true
 })
 export class AboutPageComponent {
 

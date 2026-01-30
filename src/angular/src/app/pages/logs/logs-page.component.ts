@@ -3,6 +3,7 @@ import {
     ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener,
     OnInit, ViewChild, ViewContainerRef
 } from "@angular/core";
+import {NgIf, DatePipe, AsyncPipe} from "@angular/common";
 
 import {LogService} from "../../services/logs/log.service";
 import {LogRecord} from "../../services/logs/log-record";
@@ -17,7 +18,8 @@ import {Observable} from "rxjs";
     styleUrls: ["./logs-page.component.scss"],
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone: false
+    standalone: true,
+    imports: [NgIf, DatePipe, AsyncPipe]
 })
 export class LogsPageComponent implements OnInit, AfterContentChecked {
     public readonly LogRecord = LogRecord;
