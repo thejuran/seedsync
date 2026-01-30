@@ -15,8 +15,9 @@ markdown_extensions:
       guess_lang: false
   - toc:
       permalink: true
-repo_name: ipsingh06/seedsync
-repo_url: https://github.com/ipsingh06/seedsync
+site_url: https://thejuran.github.io/seedsync
+repo_name: thejuran/seedsync
+repo_url: https://github.com/thejuran/seedsync
 nav:
   - Home: index.md
   - Installation: install.md

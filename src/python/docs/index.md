@@ -11,5 +11,5 @@ On the left navigation you will find useful links.
 
 External links:
 
-* Github: [ipsingh06/seedsync](https://github.com/ipsingh06/seedsync)
-* Docker Hub: [ipsingh06/seedsync](https://hub.docker.com/repository/docker/ipsingh06/seedsync)
+* Github: [thejuran/seedsync](https://github.com/thejuran/seedsync)
+* Docker: [ghcr.io/thejuran/seedsync](https://ghcr.io/thejuran/seedsync)
