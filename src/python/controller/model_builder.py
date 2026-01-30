@@ -2,6 +2,7 @@
 
 import os
 import logging
+import time
 from typing import List, Optional, Set
 import math
 
@@ -21,6 +22,9 @@ class ModelBuilder:
       * remote file system as a Dict[name, SystemFile]
       * lftp status as Dict[name, LftpJobStatus]
     """
+    # TTL for cached model in seconds (30 minutes)
+    CACHE_TTL_SECONDS = 30 * 60
+
     def __init__(self):
         self.logger = logging.getLogger("ModelBuilder")
         self.__local_files = dict()
@@ -30,6 +34,7 @@ class ModelBuilder:
         self.__extract_statuses = dict()
         self.__extracted_files = set()
         self.__cached_model = None
+        self.__cache_timestamp = None
 
     def set_base_logger(self, base_logger: logging.Logger):
         self.logger = base_logger.getChild("ModelBuilder")
@@ -92,6 +97,7 @@ class ModelBuilder:
         self.__extract_statuses.clear()
         self.__extracted_files.clear()
         self.__cached_model = None
+        self.__cache_timestamp = None
 
     def has_changes(self) -> bool:
         """
@@ -101,6 +107,14 @@ class ModelBuilder:
         return self.__cached_model is None
 
     def build_model(self) -> Model:
+        # Check if cache has expired (TTL-based invalidation)
+        if self.__cached_model is not None and self.__cache_timestamp is not None:
+            cache_age = time.time() - self.__cache_timestamp
+            if cache_age > self.CACHE_TTL_SECONDS:
+                self.logger.debug("Model cache expired after {:.0f} seconds".format(cache_age))
+                self.__cached_model = None
+                self.__cache_timestamp = None
+
         if self.__cached_model is not None:
             return self.__cached_model
 
@@ -339,4 +353,5 @@ class ModelBuilder:
             model.add_file(model_file)
 
         self.__cached_model = model
+        self.__cache_timestamp = time.time()
         return model
