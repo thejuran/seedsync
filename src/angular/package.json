@@ -22,10 +22,9 @@
     "@angular/router": "^19.2.18",
     "bootstrap": "^4.2.1",
     "compare-versions": "^3.4.0",
-    "core-js": "^2.4.1",
     "css-element-queries": "^1.1.1",
     "font-awesome": "^4.7.0",
-    "immutable": "^3.8.2",
+    "immutable": "^4.3.0",
     "jquery": "^3.7.1",
     "popper.js": "^1.14.6",
     "rxjs": "^7.5.0",
@@ -58,5 +57,10 @@
     "playwright": "^1.48.0",
     "ts-node": "~10.9.0",
     "typescript": "~5.7.3"
+  },
+  "overrides": {
+    "karma-jasmine": {
+      "jasmine-core": "$jasmine-core"
+    }
   }
 }
