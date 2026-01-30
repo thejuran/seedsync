@@ -136,7 +136,7 @@ class Lftp:
             if self.__log_command_output:
                 self.logger.debug("out ({} bytes):\n {}".format(len(out), out))
                 after = self.__process.after.decode('utf8', 'replace').strip() \
-                    if self.__process.after != pexpect.TIMEOUT else ""
+                    if self.__process.after not in (pexpect.TIMEOUT, None) else ""
                 self.logger.debug("after: {}".format(after))
 
         # let's try and detect some errors
@@ -155,7 +155,7 @@ class Lftp:
                 if self.__log_command_output:
                     self.logger.debug("retry out ({} bytes):\n {}".format(len(out), out))
                     after = self.__process.after.decode('utf8', 'replace').strip() \
-                        if self.__process.after != pexpect.TIMEOUT else ""
+                        if self.__process.after not in (pexpect.TIMEOUT, None) else ""
                     self.logger.debug("retry after: {}".format(after))
                 self.logger.error("Lftp detected error: {}".format(error_out))
                 # save pending error
