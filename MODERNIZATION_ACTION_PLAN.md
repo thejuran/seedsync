@@ -593,4 +593,22 @@ Session 15 (Controller Split Part 2)
 
 ---
 
+## Appendix D: Session Learnings
+
+### Session 1 Learnings
+
+1. **Test infrastructure limitations**: Many tests (lftp, ssh, integration) require external services that may not be available in all environments. To run unit tests without external dependencies:
+   ```bash
+   cd src/python
+   poetry run pytest tests/unittests/test_controller/ tests/unittests/test_model/ tests/unittests/test_common/ -v
+   ```
+
+2. **Codebase-wide searches are valuable**: The format string search found an additional bug in `test_sshcp.py:227` not listed in the original plan. Always perform broad searches when fixing bug patterns.
+
+3. **Poetry setup required**: Run `poetry install` before tests if the virtualenv isn't initialized. The first test run will fail with import errors otherwise.
+
+4. **Format string bug pattern**: Look for `"...".format(arg)` where the string has no `{}` placeholder - the argument is silently ignored.
+
+---
+
 *Action plan generated from MODERNIZATION_REPORT.md*
