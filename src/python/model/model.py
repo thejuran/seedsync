@@ -1,6 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import logging
+import threading
 from abc import ABC, abstractmethod
 from typing import Set
 
@@ -52,11 +53,16 @@ class IModelListener(ABC):
 class Model:
     """
     Represents the entire state of lftp
+
+    Thread-safety: Listener operations are protected by __listeners_lock.
+    The copy-under-lock pattern is used when notifying listeners to prevent
+    race conditions with concurrent add/remove operations.
     """
     def __init__(self):
         self.logger = logging.getLogger("Model")
         self.__files = {}  # name->LftpFile
         self.__listeners = []
+        self.__listeners_lock = threading.Lock()
 
     def set_base_logger(self, base_logger: logging.Logger):
         self.logger = base_logger.getChild("Model")
@@ -68,20 +74,22 @@ class Model:
         :return:
         """
         self.logger.debug("LftpModel: Adding a listener")
-        if listener not in self.__listeners:
-            self.__listeners.append(listener)
+        with self.__listeners_lock:
+            if listener not in self.__listeners:
+                self.__listeners.append(listener)
 
     def remove_listener(self, listener: IModelListener):
         """
-        Add a model listener
+        Remove a model listener
         :param listener:
         :return:
         """
         self.logger.debug("LftpModel: Removing a listener")
-        if listener not in self.__listeners:
-            self.logger.error("LftpModel: listener does not exist!")
-        else:
-            self.__listeners.remove(listener)
+        with self.__listeners_lock:
+            if listener not in self.__listeners:
+                self.logger.error("LftpModel: listener does not exist!")
+            else:
+                self.__listeners.remove(listener)
 
     def add_file(self, file: ModelFile):
         """
@@ -93,7 +101,10 @@ class Model:
         if file.name in self.__files:
             raise ModelError("File already exists in the model")
         self.__files[file.name] = file
-        for listener in self.__listeners:
+        # Copy-under-lock: copy listeners while holding lock, then iterate outside lock
+        with self.__listeners_lock:
+            listeners = list(self.__listeners)
+        for listener in listeners:
             listener.file_added(self.__files[file.name])
 
     def remove_file(self, filename: str):
@@ -107,7 +118,10 @@ class Model:
             raise ModelError("File does not exist in the model")
         file = self.__files[filename]
         del self.__files[filename]
-        for listener in self.__listeners:
+        # Copy-under-lock: copy listeners while holding lock, then iterate outside lock
+        with self.__listeners_lock:
+            listeners = list(self.__listeners)
+        for listener in listeners:
             listener.file_removed(file)
 
     def update_file(self, file: ModelFile):
@@ -122,7 +136,10 @@ class Model:
         old_file = self.__files[file.name]
         new_file = file
         self.__files[file.name] = new_file
-        for listener in self.__listeners:
+        # Copy-under-lock: copy listeners while holding lock, then iterate outside lock
+        with self.__listeners_lock:
+            listeners = list(self.__listeners)
+        for listener in listeners:
             listener.file_updated(old_file, new_file)
 
     def get_file(self, name: str) -> ModelFile:

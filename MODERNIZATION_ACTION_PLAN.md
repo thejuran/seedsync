@@ -149,21 +149,21 @@ This plan breaks the modernization effort into **15 focused sessions**, each opt
 
 #### Tasks
 
-- [ ] Review `model/model.py` for thread safety issues
-- [ ] Add `threading.Lock` to `Model.__listeners` (lines 59, 71-72)
-- [ ] Implement copy-under-lock pattern for listener notification
-- [ ] Review `auto_queue.py` for thread safety issues
-- [ ] Add `threading.Lock` to `AutoQueuePersist.__listeners` (lines 63, 76-83)
-- [ ] Ensure pattern modifications are atomic
-- [ ] Add thread-safety documentation comments
-- [ ] Run tests to verify
+- [x] Review `model/model.py` for thread safety issues
+- [x] Add `threading.Lock` to `Model.__listeners` (lines 59, 71-72)
+- [x] Implement copy-under-lock pattern for listener notification
+- [x] Review `auto_queue.py` for thread safety issues
+- [x] Add `threading.Lock` to `AutoQueuePersist.__listeners` (lines 63, 76-83)
+- [x] Ensure pattern modifications are atomic
+- [x] Add thread-safety documentation comments
+- [x] Run tests to verify — **243 passed**
 
 #### Success Criteria
 
-- All Model listener operations thread-safe
-- All AutoQueuePersist operations thread-safe
-- No list modification during iteration possible
-- Tests pass
+- All Model listener operations thread-safe ✓
+- All AutoQueuePersist operations thread-safe ✓
+- No list modification during iteration possible ✓
+- Tests pass ✓
 
 ---
 
@@ -566,7 +566,7 @@ Session 15 (Controller Split Part 2)
 | 1 | Completed | 2026-01-30 | Fixed 3 format string bugs (controller.py:453, 466, test_sshcp.py:227) |
 | 2 | Completed | 2026-01-30 | No changes needed - CVEs don't apply (see notes) |
 | 3 | Completed | 2026-01-30 | Added locks to ServerHandler and StatusComponent |
-| 4 | Not Started | | |
+| 4 | Completed | 2026-01-30 | Added locks to Model and AutoQueuePersist |
 
 ### Phase 1 Status
 
@@ -630,6 +630,16 @@ Session 15 (Controller Split Part 2)
 2. **File path corrections**: The plan listed `src/python/web/server.py` but the actual file is at `src/python/web/handler/server.py`. Always verify file paths before starting.
 
 3. **Status already partially thread-safe**: The `Status` class already had `_listeners_lock`, but `StatusComponent` didn't. When adding thread safety, check what's already in place.
+
+### Session 4 Learnings
+
+1. **Consistent pattern application**: The same copy-under-lock pattern used in Session 3 applies directly to Model and AutoQueuePersist. Consistency makes the codebase easier to understand and maintain.
+
+2. **Lock both add and notification paths**: Don't just protect the iteration - also protect add_listener/remove_listener operations with the same lock to ensure complete thread safety.
+
+3. **Documentation in docstrings**: Adding thread-safety documentation to class docstrings helps future developers understand the synchronization strategy without reading all the code.
+
+4. **Poetry virtualenv caching**: When switching branches or sessions, the Poetry virtualenv may need to be recreated. Run `poetry install` if you see import errors about missing modules like `tblib` or `timeout_decorator`.
 
 ---
 
