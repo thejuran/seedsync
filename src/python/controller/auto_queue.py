@@ -198,20 +198,37 @@ class AutoQueue:
         ###
         # Queue
         ###
-        queue_candidate_files = []
+        # Process new files separately from modified files to apply different filtering:
+        # - New files: don't queue if local_size > 0 (STOPPED files shouldn't restart on app startup)
+        # - Modified files (remote_size changed): queue regardless of local_size (legitimate update)
 
-        # Candidate all new files
-        queue_candidate_files += self.__model_listener.new_files
+        # Filter new files: only queue if no local content (prevents STOPPED files from being re-queued)
+        new_files_to_queue = self.__filter_candidates(
+            candidates=self.__model_listener.new_files,
+            accept=lambda f: (f.remote_size is not None and
+                              f.state == ModelFile.State.DEFAULT and
+                              (f.local_size is None or f.local_size == 0))
+        )
 
-        # Candidate modified files where the remote size changed
+        # Filter modified files where remote size changed: allow regardless of local_size
+        # This handles legitimate scenarios like remote file updates or discovering a remote
+        # for a partial local file
+        modified_candidates = []
         for old_file, new_file in self.__model_listener.modified_files:
             if old_file.remote_size != new_file.remote_size:
-                queue_candidate_files.append(new_file)
+                modified_candidates.append(new_file)
 
-        files_to_queue = self.__filter_candidates(
-            candidates=queue_candidate_files,
+        modified_files_to_queue = self.__filter_candidates(
+            candidates=modified_candidates,
             accept=lambda f: f.remote_size is not None and f.state == ModelFile.State.DEFAULT
         )
+
+        # Combine results, avoiding duplicates by using dict keyed on filename
+        files_to_queue_dict = {name: pattern for name, pattern in new_files_to_queue}
+        for name, pattern in modified_files_to_queue:
+            if name not in files_to_queue_dict:
+                files_to_queue_dict[name] = pattern
+        files_to_queue = list(files_to_queue_dict.items())
 
         ###
         # Extract

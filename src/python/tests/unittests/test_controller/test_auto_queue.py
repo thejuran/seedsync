@@ -667,6 +667,89 @@ class TestAutoQueue(unittest.TestCase):
         auto_queue.process()
         self.controller.queue_command.assert_called_once_with(unittest.mock.ANY)
 
+    def test_stopped_files_are_not_queued_on_startup(self):
+        """
+        Test that STOPPED files (partially downloaded files with local_size > 0)
+        are NOT auto-queued on startup. These files were explicitly stopped by the
+        user and should not be automatically restarted.
+        """
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # File.One is a STOPPED file (partially downloaded)
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = 100
+        file_one.local_size = 50  # Partially downloaded = STOPPED
+        file_one.state = ModelFile.State.DEFAULT
+
+        # File.Two is a new file (not started)
+        file_two = ModelFile("File.Two", True)
+        file_two.remote_size = 200
+        file_two.local_size = None  # Not started = should be queued
+
+        # File.Three is a STOPPED file (partially downloaded)
+        file_three = ModelFile("File.Three", True)
+        file_three.remote_size = 300
+        file_three.local_size = 100  # Partially downloaded = STOPPED
+        file_three.state = ModelFile.State.DEFAULT
+
+        self.initial_model = [file_one, file_two, file_three]
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+        auto_queue.process()
+
+        # Only File.Two should be queued (no local_size)
+        calls = self.controller.queue_command.call_args_list
+        self.assertEqual(1, len(calls))
+        command = calls[0][0][0]
+        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
+        self.assertEqual("File.Two", command.filename)
+
+    def test_stopped_files_are_not_queued_when_patterns_only_disabled(self):
+        """
+        Test that STOPPED files are NOT auto-queued even when patterns_only is disabled.
+        When patterns_only=False, all new remote files should be queued, but not STOPPED files.
+        """
+        self.context.config.autoqueue.patterns_only = False
+
+        persist = AutoQueuePersist()
+
+        # File.One is a STOPPED file
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = 100
+        file_one.local_size = 50  # Partially downloaded = STOPPED
+        file_one.state = ModelFile.State.DEFAULT
+
+        # File.Two is a new file (not started)
+        file_two = ModelFile("File.Two", True)
+        file_two.remote_size = 200
+        file_two.local_size = None  # Not started
+
+        # File.Three is a new file with local_size = 0 (just started, no data yet)
+        file_three = ModelFile("File.Three", True)
+        file_three.remote_size = 300
+        file_three.local_size = 0  # Just started, no data
+
+        # File.Four is a STOPPED file
+        file_four = ModelFile("File.Four", True)
+        file_four.remote_size = 400
+        file_four.local_size = 200  # Partially downloaded = STOPPED
+        file_four.state = ModelFile.State.DEFAULT
+
+        self.initial_model = [file_one, file_two, file_three, file_four]
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+        auto_queue.process()
+
+        # Only File.Two and File.Three should be queued (no local content or local_size=0)
+        calls = self.controller.queue_command.call_args_list
+        self.assertEqual(2, len(calls))
+        commands = [calls[i][0][0] for i in range(2)]
+        self.assertEqual(set([Controller.Command.Action.QUEUE] * 2), {c.action for c in commands})
+        self.assertEqual({"File.Two", "File.Three"}, {c.filename for c in commands})
+
     def test_partial_file_is_auto_queued_after_remote_discovery(self):
         # Test that a partial local file is auto-queued when discovered on remote some time later
         persist = AutoQueuePersist()
