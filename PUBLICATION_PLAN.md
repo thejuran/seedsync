@@ -201,10 +201,10 @@ Changes:
 
 ---
 
-## Session 3: Re-enable ARM64 Builds
+## Session 3: ARM64 Builds & Debian Packaging Modernization
 
-**Context needed**: Makefile structure
-**Estimated scope**: 1 file, ~4 lines changed
+**Context needed**: Makefile structure, Debian packaging files
+**Estimated scope**: 5 files, ~20 lines changed, 1 file deleted
 
 ### 3.1 Update Makefile
 **File**: `Makefile`
@@ -241,7 +241,68 @@ Note: ARM64 support (Raspberry Pi 3/4/5) temporarily disabled during Angular mig
 Docker images are built for: `linux/amd64`, `linux/arm64` (Raspberry Pi 3/4/5)
 ```
 
-**Completion check**: `make docker-image` builds successfully for both platforms
+### 3.3 Modernize Debian Control File
+**File**: `src/debian/control`
+
+Current packaging uses outdated Debian standards (2016-era). Update to modern standards:
+
+```diff
+ Source: seedsync
+ Section: utils
+-Priority: extra
+-Maintainer: Inderpreet Singh <ipsingh06@gmail.com>
+-Build-Depends: debhelper (>= 10)
+-Standards-Version: 4.0.0
++Priority: optional
++Maintainer: thejuran <thejuran@users.noreply.github.com>
++Build-Depends: debhelper-compat (= 13)
++Standards-Version: 4.6.2
++Rules-Requires-Root: no
+
+ Package: seedsync
+-Architecture: amd64
++Architecture: amd64 arm64
+ Depends: ${shlibs:Depends}, ${misc:Depends}, lftp, openssh-client
+ Pre-Depends: debconf (>= 0.2.17)
+ Description: fully GUI-configurable, lftp-based file transfer and management program
+```
+
+Changes explained:
+- `Priority: extra` → `optional` (extra deprecated in Policy 4.0.1)
+- `Maintainer` → new maintainer
+- `debhelper (>= 10)` → `debhelper-compat (= 13)` (modern approach, eliminates compat file)
+- `Standards-Version` → `4.6.2` (current)
+- `Rules-Requires-Root: no` (modern best practice)
+- `Architecture` → add `arm64`
+
+### 3.4 Delete Obsolete Compat File
+**File**: `src/debian/compat`
+
+**Delete this file entirely.** The compat level is now specified via `debhelper-compat (= 13)` in Build-Depends.
+
+```bash
+rm src/debian/compat
+```
+
+### 3.5 Simplify Debian Rules
+**File**: `src/debian/rules`
+
+```diff
+ #!/usr/bin/make -f
+
+ export DESTROOT=$(CURDIR)/debian/seedsync
+
+ %:
+-	dh $@ --with=systemd
++	dh $@
+```
+
+The `--with=systemd` is automatic in debhelper compat 13+.
+
+**Completion checks**:
+- `make docker-image` builds successfully for both platforms
+- `make deb` builds successfully
+- `lintian build/*.deb` shows no errors (warnings acceptable)
 
 ---
 
@@ -446,7 +507,7 @@ git push origin v1.0.0
 | 0 | Manual GitHub setup | - | None |
 | 1 | Version & metadata | 4 | Session 0 |
 | 2 | Repository references | 3 | Session 0 |
-| 3 | ARM64 builds | 2 | None |
+| 3 | ARM64 builds & Debian modernization | 5 (1 deleted) | None |
 | 4 | CI/CD configuration | 1 | Session 0 |
 | 5 | Community files (docs) | 3 | None |
 | 6 | GitHub templates | 4 | None |
@@ -465,6 +526,8 @@ git push origin v1.0.0
 - `src/python/pyproject.toml` - version, description, authors
 - `src/angular/package.json` - version
 - `src/debian/changelog` - new version entry
+- `src/debian/control` - maintainer, standards, architecture
+- `src/debian/rules` - simplify dh call
 - `src/e2e/tests/about.page.spec.ts` - version check
 - `README.md` - URLs, badges, fork attribution
 - `src/angular/src/app/pages/about/about-page.component.html` - copyright, GitHub link
@@ -473,6 +536,9 @@ git push origin v1.0.0
 - `CLAUDE.md` - ARM64 note
 - `.github/workflows/master.yml` - GHCR configuration
 - `src/python/mkdocs.yml` - site URLs
+
+### Files to Delete
+- `src/debian/compat` - obsolete (replaced by debhelper-compat in control)
 
 ### New Files
 - `CONTRIBUTING.md`
