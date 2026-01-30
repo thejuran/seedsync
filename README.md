@@ -2,25 +2,17 @@
     <img src="https://user-images.githubusercontent.com/12875506/85908858-c637a100-b7cb-11ea-8ab3-75c0c0ddf756.png" alt="SeedSync" />
 </p>
 
+> **Note**: This is a maintained fork of [ipsingh06/seedsync](https://github.com/ipsingh06/seedsync).
 
 <p align="center">
-  <!--<a href="https://travis-ci.com/ipsingh06/seedsync">
-    <img src="https://img.shields.io/travis/com/ipsingh06/seedsync" alt="Build">
-  </a>-->
-  <a href="https://github.com/ipsingh06/seedsync">
-    <img src="https://img.shields.io/github/stars/ipsingh06/seedsync" alt="Stars">
+  <a href="https://github.com/thejuran/seedsync">
+    <img src="https://img.shields.io/github/stars/thejuran/seedsync" alt="Stars">
   </a>
-  <a href="https://hub.docker.com/r/ipsingh06/seedsync">
-    <img src="https://img.shields.io/docker/pulls/ipsingh06/seedsync" alt="Downloads">
+  <a href="https://ghcr.io/thejuran/seedsync">
+    <img src="https://img.shields.io/badge/ghcr.io-thejuran%2Fseedsync-blue" alt="GHCR">
   </a>
-  <a href="https://hub.docker.com/r/ipsingh06/seedsync">
-    <img src="https://img.shields.io/docker/v/ipsingh06/seedsync?color=blue" alt="Version">
-  </a>
-  <a href="https://hub.docker.com/r/ipsingh06/seedsync">
-    <img src="https://img.shields.io/docker/image-size/ipsingh06/seedsync/latest?style=flat" alt="Size">
-  </a>
-  <a href="https://github.com/ipsingh06/seedsync/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/ipsingh06/seedsync" alt="License">
+  <a href="https://github.com/thejuran/seedsync/blob/master/LICENSE.txt">
+    <img src="https://img.shields.io/github/license/thejuran/seedsync" alt="License">
   </a>
 </p>
 
@@ -55,7 +47,7 @@ All you need are the SSH credentials for the remote server.
 
 ## Installation and Usage
 
-Please refer to the [documentation](https://ipsingh06.github.io/seedsync/).
+Please refer to the [documentation](https://thejuran.github.io/seedsync/).
 
 
 ## Report an Issue
@@ -76,7 +68,7 @@ on environment setup and the build process.
 ## License
 
 SeedSync is distributed under Apache License Version 2.0.
-See [License.txt](https://github.com/ipsingh06/seedsync/blob/master/LICENSE.txt) for more information.
+See [License.txt](https://github.com/thejuran/seedsync/blob/master/LICENSE.txt) for more information.
 
 
 
