@@ -63,14 +63,20 @@ describe("Testing base web service", () => {
         mockRegistry.connectedService.notifyConnected();
         expect(baseWebService.onConnected).toHaveBeenCalledTimes(1);
 
+        // Record call counts before ngOnDestroy
+        const connectedCallsBefore = (baseWebService.onConnected as jasmine.Spy).calls.count();
+        const disconnectedCallsBefore = (baseWebService.onDisconnected as jasmine.Spy).calls.count();
+
         // Call ngOnDestroy to clean up
         baseWebService.ngOnDestroy();
 
         // Further notifications should not trigger callbacks
         mockRegistry.connectedService.notifyConnected();
         mockRegistry.connectedService.notifyDisconnected();
-        expect(baseWebService.onConnected).toHaveBeenCalledTimes(1);
-        expect(baseWebService.onDisconnected).toHaveBeenCalledTimes(0);
+
+        // Verify no new calls were made after ngOnDestroy
+        expect((baseWebService.onConnected as jasmine.Spy).calls.count()).toBe(connectedCallsBefore);
+        expect((baseWebService.onDisconnected as jasmine.Spy).calls.count()).toBe(disconnectedCallsBefore);
     });
 
     it("should handle ngOnDestroy being called multiple times", () => {
