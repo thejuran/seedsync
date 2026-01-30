@@ -45,7 +45,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
      * @returns {WebReaction}
      */
     public set(section: string, option: string, value: any): Observable<WebReaction> {
-        const valueStr: string = value;
+        const valueStr: string = String(value);
         const currentConfig = this._config.getValue();
         if (!currentConfig.has(section as keyof IConfig) ||
             !(currentConfig.get(section as keyof IConfig) as unknown as {has: (key: string) => boolean}).has(option)) {
