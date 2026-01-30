@@ -76,7 +76,7 @@ class TestAutoQueueHandler(BaseTestWebApp):
         resp = self.test_app.get("/server/autoqueue/add/one")
         self.assertEqual(200, resp.status_int)
         resp = self.test_app.get("/server/autoqueue/add/one", expect_errors=True)
-        self.assertEqual(400, resp.status_int)
+        self.assertEqual(409, resp.status_int)
         self.assertEqual("Auto-queue pattern 'one' already exists.", str(resp.html))
 
     def test_add_empty_value(self):
@@ -127,13 +127,13 @@ class TestAutoQueueHandler(BaseTestWebApp):
 
     def test_remove_non_existing(self):
         resp = self.test_app.get("/server/autoqueue/remove/one", expect_errors=True)
-        self.assertEqual(400, resp.status_int)
+        self.assertEqual(404, resp.status_int)
         self.assertEqual("Auto-queue pattern 'one' doesn't exist.", str(resp.html))
 
     def test_remove_empty_value(self):
         uri = quote(quote("  ", safe=""), safe="")
         resp = self.test_app.get("/server/autoqueue/remove/" + uri, expect_errors=True)
-        self.assertEqual(400, resp.status_int)
+        self.assertEqual(404, resp.status_int)
         self.assertEqual("Auto-queue pattern '  ' doesn't exist.", str(resp.html))
         self.assertEqual(0, len(self.auto_queue_persist.patterns))
 

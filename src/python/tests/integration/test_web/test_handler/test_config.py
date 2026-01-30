@@ -45,14 +45,14 @@ class TestConfigHandler(BaseTestWebApp):
     def test_set_missing_section(self):
         self.assertFalse(self.context.config.has_section("bad_section"))
         resp = self.test_app.get("/server/config/set/bad_section/option/value", expect_errors=True)
-        self.assertEqual(400, resp.status_int)
+        self.assertEqual(404, resp.status_int)
         self.assertEqual("There is no section 'bad_section' in config", str(resp.html))
         self.assertFalse(self.context.config.has_section("bad_section"))
 
     def test_set_missing_option(self):
         self.assertFalse(self.context.config.general.has_property("bad_option"))
         resp = self.test_app.get("/server/config/set/general/bad_option/value", expect_errors=True)
-        self.assertEqual(400, resp.status_int)
+        self.assertEqual(404, resp.status_int)
         self.assertEqual("Section 'general' in config has no option 'bad_option'", str(resp.html))
         self.assertFalse(self.context.config.general.has_property("bad_option"))
 
