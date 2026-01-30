@@ -76,12 +76,14 @@ describe("Testing stream dispatch service", () => {
     }));
 
     it("should register all events with the event source", fakeAsync(() => {
-        expect(mockEventSource.addEventListener).toHaveBeenCalledTimes(4);
-        expect(mockEventSource.listeners.size).toBe(4);
+        // 4 service events + 1 heartbeat "ping" event = 5 listeners
+        expect(mockEventSource.addEventListener).toHaveBeenCalledTimes(5);
+        expect(mockEventSource.listeners.size).toBe(5);
         expect(mockEventSource.listeners.has("event1a")).toBe(true);
         expect(mockEventSource.listeners.has("event1b")).toBe(true);
         expect(mockEventSource.listeners.has("event2a")).toBe(true);
         expect(mockEventSource.listeners.has("event2b")).toBe(true);
+        expect(mockEventSource.listeners.has("ping")).toBe(true);
     }));
 
     it("should set an error handler on the event source", fakeAsync(() => {
