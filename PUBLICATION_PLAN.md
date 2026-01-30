@@ -163,108 +163,28 @@ For future version bumps, update these 4 files:
 
 ---
 
-## Session 3: ARM64 Builds & Debian Packaging Modernization
+## Session 3: ARM64 Builds & Debian Packaging Modernization ✅ COMPLETED
 
-**Context needed**: Makefile structure, Debian packaging files
-**Estimated scope**: 5 files, ~20 lines changed, 1 file deleted
+**Status**: Completed 2026-01-30
+**Commit**: `9ef086b` - "Enable ARM64 builds and modernize Debian packaging (Session 3)"
 
-### 3.1 Update Makefile
-**File**: `Makefile`
+### Changes Made
 
-Line ~78 (scanfs build):
-```makefile
-# Before:
-# TODO: Add arm64 back once Angular migration is complete
-DOCKER_BUILD_PLATFORMS = linux/amd64
+| File | Change |
+|------|--------|
+| `Makefile` | `--platform linux/amd64` → `linux/amd64,linux/arm64` (2 locations) |
+| `CLAUDE.md` | Updated ARM64 support note |
+| `src/debian/control` | Modernized: Standards 4.6.2, debhelper-compat 13, arm64 arch |
+| `src/debian/compat` | Deleted (superseded by debhelper-compat) |
+| `src/debian/rules` | Removed `--with=systemd` (automatic in compat 13+) |
 
-# After:
-DOCKER_BUILD_PLATFORMS = linux/amd64,linux/arm64
-```
+### Debian Packaging Modernization Details
 
-Line ~110 (docker image build):
-```makefile
-# Before:
-# TODO: Add arm64 back once Angular migration is complete
-DOCKER_BUILD_PLATFORMS = linux/amd64
-
-# After:
-DOCKER_BUILD_PLATFORMS = linux/amd64,linux/arm64
-```
-
-### 3.2 Update CLAUDE.md
-**File**: `CLAUDE.md`
-
-Remove or update the note:
-```markdown
-# Before:
-Note: ARM64 support (Raspberry Pi 3/4/5) temporarily disabled during Angular migration.
-
-# After:
-Docker images are built for: `linux/amd64`, `linux/arm64` (Raspberry Pi 3/4/5)
-```
-
-### 3.3 Modernize Debian Control File
-**File**: `src/debian/control`
-
-Current packaging uses outdated Debian standards (2016-era). Update to modern standards:
-
-```diff
- Source: seedsync
- Section: utils
--Priority: extra
--Maintainer: Inderpreet Singh <ipsingh06@gmail.com>
--Build-Depends: debhelper (>= 10)
--Standards-Version: 4.0.0
-+Priority: optional
-+Maintainer: thejuran <thejuran@users.noreply.github.com>
-+Build-Depends: debhelper-compat (= 13)
-+Standards-Version: 4.6.2
-+Rules-Requires-Root: no
-
- Package: seedsync
--Architecture: amd64
-+Architecture: amd64 arm64
- Depends: ${shlibs:Depends}, ${misc:Depends}, lftp, openssh-client
- Pre-Depends: debconf (>= 0.2.17)
- Description: fully GUI-configurable, lftp-based file transfer and management program
-```
-
-Changes explained:
-- `Priority: extra` → `optional` (extra deprecated in Policy 4.0.1)
-- `Maintainer` → new maintainer
-- `debhelper (>= 10)` → `debhelper-compat (= 13)` (modern approach, eliminates compat file)
-- `Standards-Version` → `4.6.2` (current)
-- `Rules-Requires-Root: no` (modern best practice)
-- `Architecture` → add `arm64`
-
-### 3.4 Delete Obsolete Compat File
-**File**: `src/debian/compat`
-
-**Delete this file entirely.** The compat level is now specified via `debhelper-compat (= 13)` in Build-Depends.
-
-```bash
-rm src/debian/compat
-```
-
-### 3.5 Simplify Debian Rules
-**File**: `src/debian/rules`
-
-```diff
- #!/usr/bin/make -f
-
- export DESTROOT=$(CURDIR)/debian/seedsync
-
- %:
--	dh $@ --with=systemd
-+	dh $@
-```
-
-The `--with=systemd` is automatic in debhelper compat 13+.
-
-**Completion checks**:
-- `make docker-image` builds successfully for both platforms
-- `make deb` builds successfully
-- `lintian build/*.deb` shows no errors (warnings acceptable)
+- `Priority: extra` → `optional` (extra deprecated)
+- `debhelper (>= 10)` → `debhelper-compat (= 13)`
+- `Standards-Version: 4.0.0` → `4.6.2`
+- Added `Rules-Requires-Root: no`
+- `Architecture: amd64` → `amd64 arm64`
 
 ---
 
@@ -469,16 +389,16 @@ git push origin v1.0.0
 | 0 | Manual GitHub setup | - | None | Pending |
 | 1 | Version & metadata | 4 | Session 0 | ✅ Done |
 | 2 | Repository references | 3 | Session 0 | ✅ Done |
-| 3 | ARM64 builds & Debian modernization | 5 (1 deleted) | None | Pending |
+| 3 | ARM64 builds & Debian modernization | 5 (1 deleted) | None | ✅ Done |
 | 4 | CI/CD configuration | 1 | Session 0 | Pending |
 | 5 | Community files (docs) | 3 | None | Pending |
 | 6 | GitHub templates | 4 | None | Pending |
 | 7 | Documentation site | 2-3 | Sessions 0, 2 | Pending |
 | 8 | Final review & release | - | All sessions | Pending |
 
-**Parallelizable**: Sessions 3-6 can be done in any order. Session 7 depends on Session 2 (URLs) - now unblocked. Session 8 must be last.
+**Parallelizable**: Sessions 4-6 can be done in any order. Session 7 is unblocked. Session 8 must be last.
 
-**Recommended order**: 3 → 4 → 5 → 6 → 7 → 8
+**Recommended order**: 4 → 5 → 6 → 7 → 8
 
 ---
 
