@@ -1,7 +1,7 @@
 import {
     AfterContentChecked, AfterViewInit,
     ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener,
-    OnInit, ViewChild, ViewContainerRef
+    OnDestroy, OnInit, ViewChild, ViewContainerRef
 } from "@angular/core";
 import {NgIf, DatePipe, AsyncPipe} from "@angular/common";
 
@@ -11,7 +11,8 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
 import {ConnectedService} from "../../services/utils/connected.service";
 import {Localization} from "../../common/localization";
 import {DomService} from "../../services/utils/dom.service";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 @Component({
     selector: "app-logs-page",
@@ -22,7 +23,7 @@ import {Observable} from "rxjs";
     standalone: true,
     imports: [NgIf, DatePipe, AsyncPipe]
 })
-export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChecked {
+export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChecked, OnDestroy {
     public readonly LogRecord = LogRecord;
     public readonly Localization = Localization;
 
@@ -41,11 +42,11 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
 
     // Connection and log state
     public isConnected = false;
-    public hasReceivedLogs = false;
 
     private _logService: LogService;
     private _connectedService: ConnectedService;
     private _viewInitialized = false;
+    private _destroy$ = new Subject<void>();
 
     constructor(private _elementRef: ElementRef,
                 private _changeDetector: ChangeDetectorRef,
@@ -56,26 +57,41 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         this.headerHeight = this._domService.headerHeight;
     }
 
+    /**
+     * Check if we've received any logs (tracked in LogService to persist across navigation)
+     */
+    get hasReceivedLogs(): boolean {
+        return this._logService.hasReceivedLogs;
+    }
+
     ngOnInit() {
         // Subscribe to connection status (doesn't need ViewChild elements)
-        this._connectedService.connected.subscribe({
-            next: connected => {
-                this.isConnected = connected;
-                this._changeDetector.detectChanges();
-            }
-        });
+        this._connectedService.connected
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: connected => {
+                    this.isConnected = connected;
+                    this._changeDetector.detectChanges();
+                }
+            });
     }
 
     ngAfterViewInit() {
         this._viewInitialized = true;
 
         // Subscribe to logs after view is initialized so ViewChild elements are available
-        this._logService.logs.subscribe({
-            next: record => {
-                this.hasReceivedLogs = true;
-                this.insertRecord(record);
-            }
-        });
+        this._logService.logs
+            .pipe(takeUntil(this._destroy$))
+            .subscribe({
+                next: record => {
+                    this.insertRecord(record);
+                }
+            });
+    }
+
+    ngOnDestroy() {
+        this._destroy$.next();
+        this._destroy$.complete();
     }
 
     ngAfterContentChecked() {
