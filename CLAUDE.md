@@ -168,7 +168,8 @@ The API uses proper HTTP status codes:
 - `src/python/pyproject.toml` - Python dependencies (Poetry)
 - `src/debian/changelog` - Version changelog for deb package
 - `Makefile` - All build and test commands
-- `.github/workflows/master.yml` - CI pipeline
+- `.github/workflows/master.yml` - CI pipeline (tests, E2E, release publish)
+- `.github/workflows/docker-publish.yml` - Docker image publish (`:dev` on master, `:X.Y.Z` on tags)
 - `src/angular/eslint.config.js` - ESLint configuration (flat config)
 - `src/angular/playwright.config.ts` - Angular e2e Playwright config
 - `src/e2e/playwright.config.ts` - Main e2e Playwright config
@@ -179,6 +180,44 @@ The API uses proper HTTP status codes:
 
 Key configuration options in the `[Controller]` section:
 - `max_tracked_files` - Maximum files to track in downloaded/extracted sets (default: 10000)
+
+## Development Workflow
+
+### Feature Development Process
+
+1. **Create feature branch** from master
+2. **Develop and commit** changes to feature branch
+3. **Open PR** to master - CI runs tests
+4. **Merge PR** when tests pass - CI publishes `:dev` image
+5. **UAT testing** - pull `:dev` image and test in your environment
+6. **Iterate** if needed (repeat steps 2-5)
+7. **Release** when stable - tag version to publish production image
+
+### CI/CD Behavior
+
+| Trigger | Tests | Docker Publish |
+|---------|-------|----------------|
+| PR to master | ✓ Unit + E2E | None |
+| Push to master | ✓ Unit + E2E | `:dev` tag |
+| Tag `vX.Y.Z` | ✓ Unit + E2E | `:X.Y.Z` + `:latest` |
+
+### UAT with :dev Tag
+
+After merging to master, pull the dev image for testing:
+
+```bash
+docker pull ghcr.io/thejuran/seedsync:dev
+docker compose up -d  # If compose points to :dev
+```
+
+The `:dev` tag always reflects the latest master commit. Test new features here before tagging a release.
+
+### Planning Documents
+
+Feature plans are stored in `planning docs/` folder with a session-based structure optimized for Claude Code:
+- Each session is a self-contained unit of work
+- Sessions include "Context to read" for efficient onboarding
+- Progress, learnings, and blockers are tracked in each document
 
 ## Releases
 
@@ -244,4 +283,4 @@ The codebase underwent significant modernization:
 6. **Architecture**: Extracted ScanManager, LftpManager, FileOperationManager from Controller
 7. **API**: Standardized HTTP status codes for error responses
 
-See `MODERNIZATION_ACTION_PLAN.md` and `MODERNIZATION_REPORT.md` for details.
+See `planning docs/MODERNIZATION_ACTION_PLAN.md` and `planning docs/MODERNIZATION_REPORT.md` for details.
