@@ -203,6 +203,14 @@ class AutoQueue:
         # - Modified files (remote_size changed): queue regardless of local_size (legitimate update)
 
         # Filter new files: only queue if no local content (prevents STOPPED files from being re-queued)
+        # Log files being considered to help diagnose re-queue issues
+        if self.__model_listener.new_files:
+            self.logger.debug("Evaluating {} new files for auto-queue".format(
+                len(self.__model_listener.new_files)))
+            for f in self.__model_listener.new_files:
+                self.logger.debug("  {} - state={}, local_size={}, remote_size={}".format(
+                    f.name, f.state.name, f.local_size, f.remote_size))
+
         new_files_to_queue = self.__filter_candidates(
             candidates=self.__model_listener.new_files,
             accept=lambda f: (f.remote_size is not None and
