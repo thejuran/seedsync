@@ -11,11 +11,13 @@ import {MockModelFileService} from "../../../mocks/mock-model-file.service";
 import {ModelFile} from "../../../../services/files/model-file";
 import {ViewFile} from "../../../../services/files/view-file";
 import {ViewFileFilterCriteria} from "../../../../services/files/view-file.service";
+import {FileSelectionService} from "../../../../services/files/file-selection.service";
 
 
 describe("Testing view file service", () => {
     let viewService: ViewFileService;
     let mockModelService: MockModelFileService;
+    let fileSelectionService: FileSelectionService;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
@@ -23,11 +25,13 @@ describe("Testing view file service", () => {
                 ViewFileService,
                 LoggerService,
                 ConnectedService,
+                FileSelectionService,
                 {provide: StreamServiceRegistry, useClass: MockStreamServiceRegistry}
             ]
         });
 
         viewService = TestBed.inject(ViewFileService);
+        fileSelectionService = TestBed.inject(FileSelectionService);
         const mockRegistry: MockStreamServiceRegistry = TestBed.inject(StreamServiceRegistry) as unknown as MockStreamServiceRegistry;
         mockModelService = mockRegistry.modelFileService;
     });
@@ -917,5 +921,116 @@ describe("Testing view file service", () => {
         expect(viewFiles.get(5).name).toBe("flower");
         expect(viewFiles.get(6).name).toBe("blueman");
         expect(viewFiles.get(7).name).toBe("aaaa");
+    }));
+
+    // =========================================================================
+    // Bulk Selection Clear on Filter/Sort Change Tests
+    // =========================================================================
+
+    it("should clear bulk selection when filter criteria changes", fakeAsync(() => {
+        const model = Immutable.Map({
+            "file1": new ModelFile({name: "file1", state: ModelFile.State.DEFAULT}),
+            "file2": new ModelFile({name: "file2", state: ModelFile.State.QUEUED}),
+            "file3": new ModelFile({name: "file3", state: ModelFile.State.DOWNLOADED}),
+        });
+        mockModelService._files.next(model);
+        tick();
+
+        // Select some files
+        fileSelectionService.select("file1");
+        fileSelectionService.select("file2");
+        expect(fileSelectionService.getSelectedCount()).toBe(2);
+
+        // Change filter criteria
+        class TestCriteria implements ViewFileFilterCriteria {
+            meetsCriteria(viewFile: ViewFile): boolean {
+                return viewFile.status === ViewFile.Status.QUEUED;
+            }
+        }
+        viewService.setFilterCriteria(new TestCriteria());
+
+        // Selection should be cleared
+        expect(fileSelectionService.getSelectedCount()).toBe(0);
+    }));
+
+    it("should clear bulk selection when comparator changes", fakeAsync(() => {
+        const model = Immutable.Map({
+            "file1": new ModelFile({name: "file1", state: ModelFile.State.DEFAULT}),
+            "file2": new ModelFile({name: "file2", state: ModelFile.State.QUEUED}),
+            "file3": new ModelFile({name: "file3", state: ModelFile.State.DOWNLOADED}),
+        });
+        mockModelService._files.next(model);
+        tick();
+
+        // Select some files
+        fileSelectionService.select("file1");
+        fileSelectionService.select("file3");
+        expect(fileSelectionService.getSelectedCount()).toBe(2);
+
+        // Change sort comparator
+        const comparator: ViewFileComparator = (a: ViewFile, b: ViewFile) => {
+            return a.name.localeCompare(b.name);
+        };
+        viewService.setComparator(comparator);
+
+        // Selection should be cleared
+        expect(fileSelectionService.getSelectedCount()).toBe(0);
+    }));
+
+    it("should clear selectAllMatchingFilter mode when filter changes", fakeAsync(() => {
+        const model = Immutable.Map({
+            "file1": new ModelFile({name: "file1", state: ModelFile.State.DEFAULT}),
+            "file2": new ModelFile({name: "file2", state: ModelFile.State.QUEUED}),
+        });
+        mockModelService._files.next(model);
+        tick();
+
+        // Get view files and set "select all matching" mode
+        let viewFiles: Immutable.List<ViewFile>;
+        viewService.files.subscribe(list => viewFiles = list);
+        tick();
+
+        fileSelectionService.selectAllMatchingFilter(viewFiles.toArray());
+        expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(true);
+        expect(fileSelectionService.getSelectedCount()).toBe(2);
+
+        // Change filter criteria
+        class TestCriteria implements ViewFileFilterCriteria {
+            meetsCriteria(_viewFile: ViewFile): boolean {
+                return true;
+            }
+        }
+        viewService.setFilterCriteria(new TestCriteria());
+
+        // Both selection and selectAllMatchingFilter should be cleared
+        expect(fileSelectionService.getSelectedCount()).toBe(0);
+        expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(false);
+    }));
+
+    it("should clear selectAllMatchingFilter mode when sort changes", fakeAsync(() => {
+        const model = Immutable.Map({
+            "file1": new ModelFile({name: "file1", state: ModelFile.State.DEFAULT}),
+            "file2": new ModelFile({name: "file2", state: ModelFile.State.QUEUED}),
+        });
+        mockModelService._files.next(model);
+        tick();
+
+        // Get view files and set "select all matching" mode
+        let viewFiles: Immutable.List<ViewFile>;
+        viewService.files.subscribe(list => viewFiles = list);
+        tick();
+
+        fileSelectionService.selectAllMatchingFilter(viewFiles.toArray());
+        expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(true);
+
+        // Change sort comparator
+        const comparator: ViewFileComparator = (a: ViewFile, b: ViewFile) => {
+            return b.name.localeCompare(a.name);  // reverse alphabetical
+        };
+        viewService.setComparator(comparator);
+
+        // Both selection and selectAllMatchingFilter should be cleared
+        expect(fileSelectionService.getSelectedCount()).toBe(0);
+        expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(false);
     }));
 });

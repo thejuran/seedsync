@@ -11,6 +11,7 @@ import {ViewFile} from "./view-file";
 import {MOCK_MODEL_FILES} from "./mock-model-files";
 import {StreamServiceRegistry} from "../base/stream-service.registry";
 import {WebReaction} from "../utils/rest.service";
+import {FileSelectionService} from "./file-selection.service";
 
 
 /**
@@ -85,7 +86,8 @@ export class ViewFileService implements OnDestroy {
     private _sortComparator: ViewFileComparator = null;
 
     constructor(private _logger: LoggerService,
-                private _streamServiceRegistry: StreamServiceRegistry) {
+                private _streamServiceRegistry: StreamServiceRegistry,
+                private _fileSelectionService: FileSelectionService) {
         this.modelFileService = _streamServiceRegistry.modelFileService;
         const _viewFileService = this;
 
@@ -311,20 +313,24 @@ export class ViewFileService implements OnDestroy {
     }
 
     /**
-     * Set a new filter criteria
+     * Set a new filter criteria.
+     * Clears bulk file selection when filter changes.
      * @param {ViewFileFilterCriteria} criteria
      */
     public setFilterCriteria(criteria: ViewFileFilterCriteria) {
         this._filterCriteria = criteria;
+        this._fileSelectionService.clearSelection();
         this.pushViewFiles();
     }
 
     /**
      * Sets a new comparator.
+     * Clears bulk file selection when sort changes.
      * @param {ViewFileComparator} comparator
      */
     public setComparator(comparator: ViewFileComparator) {
         this._sortComparator = comparator;
+        this._fileSelectionService.clearSelection();
 
         // Re-sort and regenerate index cache
         this._logger.debug("Re-sorting view files");

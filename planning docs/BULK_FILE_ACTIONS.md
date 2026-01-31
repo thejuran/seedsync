@@ -6,7 +6,7 @@
 |------|-------|
 | **Feature Branch** | `claude/review-bulk-file-actions-2KjKN` |
 | **Status** | 🟢 In Progress |
-| **Current Session** | Session 2 Complete |
+| **Current Session** | Session 3 Complete |
 | **Total Sessions** | 10 estimated |
 
 > **For Claude Code sessions:** All work on this feature should be committed to the branch above. When starting a new session, checkout this branch and continue from the current session.
@@ -96,10 +96,10 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 2
 
 **Tasks:**
-- [ ] Inject `FileSelectionService` into `ViewFileService`
-- [ ] Identify where filter/sort changes occur
-- [ ] Call `clearSelection()` on filter/sort changes
-- [ ] Add unit tests
+- [x] Inject `FileSelectionService` into `ViewFileService`
+- [x] Identify where filter/sort changes occur
+- [x] Call `clearSelection()` on filter/sort changes
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts`
@@ -305,6 +305,7 @@ _Record completed sessions here with date, outcome, and learnings._
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
 | Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
 | Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService with 26 unit tests |
+| Session 3 | 2026-01-31 | ✅ Complete | Wired selection clear to filter/sort changes, 4 unit tests |
 
 ---
 
