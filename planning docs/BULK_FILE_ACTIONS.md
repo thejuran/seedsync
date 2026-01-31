@@ -6,7 +6,7 @@
 |------|-------|
 | **Feature Branch** | `claude/bulk-file-actions-dxsgE` |
 | **Status** | 🟢 In Progress |
-| **Current Session** | Session 1 Complete |
+| **Current Session** | Session 2 Complete |
 | **Total Sessions** | 10 estimated |
 
 ---
@@ -70,13 +70,13 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/services/files/file-selection.service.ts`
-- [ ] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
-- [ ] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
-- [ ] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
-- [ ] Use `BehaviorSubject<Set<string>>` for reactive state
-- [ ] Add `selectAllMatching` flag for "all matching filter" mode
-- [ ] Add unit tests
+- [x] Create `src/angular/src/app/services/files/file-selection.service.ts`
+- [x] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
+- [x] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
+- [x] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
+- [x] Use `BehaviorSubject<Set<string>>` for reactive state
+- [x] Add `selectAllMatching` flag for "all matching filter" mode
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts` (pattern reference)
@@ -302,6 +302,7 @@ _Record completed sessions here with date, outcome, and learnings._
 |---------|------|---------|-------|
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
 | Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
+| Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService with 26 unit tests |
 
 ---
 
@@ -314,6 +315,9 @@ _Document technical discoveries, gotchas, and decisions made during implementati
 - Bulk endpoint uses JSON request/response with `application/json` content type
 - Handler reuses existing `WebResponseActionCallback` pattern from single-file endpoints
 - Tests placed in `test_web/test_handler/` to match existing handler test structure
+- FileSelectionService is separate from ViewFile's `isSelected` (used for details panel single-selection)
+- Used `providedIn: 'root'` for tree-shakable singleton service
+- Prune method helps clean up stale selections when files disappear from model
 
 ### Gotchas
 - (none yet)
