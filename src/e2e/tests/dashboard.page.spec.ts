@@ -28,12 +28,16 @@ test.describe('Testing dashboard page', () => {
             { name: 'testing.gif', status: '', size: '0 B of 8.95 MB' },
             { name: 'üæÒ', status: '', size: '0 B of 70.8 KB' },
         ];
+        // Wait for all files to load (incremental loading sends files one at a time)
+        await dashboardPage.waitForFileCount(golden.length);
         const files = await dashboardPage.getFiles();
         expect(files).toEqual(golden);
     });
 
     test('should show and hide action buttons on select', async ({ page }) => {
         dashboardPage = new DashboardPage(page);
+        // Wait for at least 2 files to load (we access index 1)
+        await dashboardPage.waitForFileCount(2);
         expect(await dashboardPage.isFileActionsVisible(1)).toBe(false);
         await dashboardPage.selectFile(1);
         expect(await dashboardPage.isFileActionsVisible(1)).toBe(true);
@@ -43,6 +47,8 @@ test.describe('Testing dashboard page', () => {
 
     test('should show action buttons for most recent file selected', async ({ page }) => {
         dashboardPage = new DashboardPage(page);
+        // Wait for at least 3 files to load (we access index 1 and 2)
+        await dashboardPage.waitForFileCount(3);
         expect(await dashboardPage.isFileActionsVisible(1)).toBe(false);
         expect(await dashboardPage.isFileActionsVisible(2)).toBe(false);
         await dashboardPage.selectFile(1);
@@ -58,6 +64,8 @@ test.describe('Testing dashboard page', () => {
 
     test('should have all the action buttons', async ({ page }) => {
         dashboardPage = new DashboardPage(page);
+        // Wait for at least 2 files to load (we access index 1)
+        await dashboardPage.waitForFileCount(2);
         const states = await dashboardPage.getFileActions(1);
         expect(states.length).toBe(5);
         expect(states[0].title).toBe('Queue');
@@ -69,6 +77,8 @@ test.describe('Testing dashboard page', () => {
 
     test('should have Queue action enabled for Default state', async ({ page }) => {
         dashboardPage = new DashboardPage(page);
+        // Wait for at least 2 files to load (we access index 1)
+        await dashboardPage.waitForFileCount(2);
         const files = await dashboardPage.getFiles();
         expect(files[1].status).toBe('');
         const states = await dashboardPage.getFileActions(1);
@@ -78,6 +88,8 @@ test.describe('Testing dashboard page', () => {
 
     test('should have Stop action disabled for Default state', async ({ page }) => {
         dashboardPage = new DashboardPage(page);
+        // Wait for at least 2 files to load (we access index 1)
+        await dashboardPage.waitForFileCount(2);
         const files = await dashboardPage.getFiles();
         expect(files[1].status).toBe('');
         const states = await dashboardPage.getFileActions(1);

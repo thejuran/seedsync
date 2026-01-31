@@ -57,7 +57,7 @@ class WebApp(bottle.Bottle):
     Web app implementation
     """
     _STREAM_POLL_INTERVAL_IN_MS = 100
-    _STREAM_YIELD_INTERVAL_IN_MS = 5  # Small delay between events to avoid flooding
+    _STREAM_YIELD_INTERVAL_IN_MS = 10  # Small delay between events to avoid flooding
     _HEARTBEAT_INTERVAL_IN_MS = 15000  # Send ping every 15 seconds
 
     def __init__(self, context: Context, controller: Controller):
