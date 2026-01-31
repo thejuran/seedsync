@@ -127,44 +127,28 @@ class WebApp(bottle.Bottle):
         return static_file(file_path, root=self._html_path)
 
     def __web_stream(self):
-        self.logger.debug("SSE stream: Starting connection")
         # Initialize all the handlers
         handlers = [cls(**kwargs) for (cls, kwargs) in self._streaming_handlers]
-        self.logger.debug("SSE stream: Created {} handlers".format(len(handlers)))
 
         try:
             # Setup the response header
             bottle.response.content_type = "text/event-stream"
             bottle.response.cache_control = "no-cache"
-            self.logger.debug("SSE stream: Response headers set")
 
             # Call setup on all handlers
-            for i, handler in enumerate(handlers):
-                self.logger.debug("SSE stream: Setting up handler {} ({})".format(
-                    i, handler.__class__.__name__))
+            for handler in handlers:
                 handler.setup()
-                self.logger.debug("SSE stream: Handler {} setup complete".format(i))
-
-            self.logger.debug("SSE stream: All handlers setup complete, entering loop")
 
             # Get streaming values until the connection closes
-            first_iteration = True
             while not self._stop_flag:
                 for handler in handlers:
                     # Process all values from this handler
                     while True:
                         value = handler.get_value()
                         if value:
-                            if first_iteration:
-                                self.logger.debug("SSE stream: First value from {} (len={})".format(
-                                    handler.__class__.__name__, len(value)))
                             yield value
                         else:
                             break
-
-                if first_iteration:
-                    self.logger.debug("SSE stream: First iteration complete")
-                    first_iteration = False
 
                 time.sleep(WebApp._STREAM_POLL_INTERVAL_IN_MS / 1000)
 

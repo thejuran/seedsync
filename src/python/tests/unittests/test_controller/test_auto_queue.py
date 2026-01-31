@@ -750,6 +750,45 @@ class TestAutoQueue(unittest.TestCase):
         self.assertEqual(set([Controller.Command.Action.QUEUE] * 2), {c.action for c in commands})
         self.assertEqual({"File.Two", "File.Three"}, {c.filename for c in commands})
 
+    def test_deleted_files_are_not_queued_on_startup(self):
+        """
+        Test that DELETED files (locally deleted but still remote) are NOT auto-queued
+        on startup. These files were previously downloaded and then deleted by the user,
+        so they should remain in DELETED state until manually re-queued.
+        """
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # File.One is a DELETED file (previously downloaded, then deleted locally)
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = 100
+        file_one.local_size = None  # No local file
+        file_one.state = ModelFile.State.DELETED
+
+        # File.Two is a new file (never downloaded)
+        file_two = ModelFile("File.Two", True)
+        file_two.remote_size = 200
+        file_two.local_size = None  # Not started = should be queued
+
+        # File.Three is a DELETED file
+        file_three = ModelFile("File.Three", True)
+        file_three.remote_size = 300
+        file_three.local_size = None  # No local file
+        file_three.state = ModelFile.State.DELETED
+
+        self.initial_model = [file_one, file_two, file_three]
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+        auto_queue.process()
+
+        # Only File.Two should be queued (new file, not DELETED)
+        calls = self.controller.queue_command.call_args_list
+        self.assertEqual(1, len(calls))
+        command = calls[0][0][0]
+        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
+        self.assertEqual("File.Two", command.filename)
+
     def test_partial_file_is_auto_queued_after_remote_discovery(self):
         # Test that a partial local file is auto-queued when discovered on remote some time later
         persist = AutoQueuePersist()
