@@ -43,7 +43,6 @@ class ModelStreamHandler(IStreamHandler):
         self.serialize = SerializeModel()
         self.model_listener = WebResponseModelListener()
         self.initial_model_files: List[ModelFile] = []
-        self.initial_files_sent = False
 
     @overrides(IStreamHandler)
     def setup(self):
@@ -53,8 +52,8 @@ class ModelStreamHandler(IStreamHandler):
 
     @overrides(IStreamHandler)
     def get_value(self) -> Optional[str]:
-        # Send initial files one at a time as "added" events to avoid
-        # overwhelming the browser with a massive single JSON payload
+        # Send initial files one at a time as "added" events
+        # The streaming loop ensures fair interleaving with other handlers
         if self.initial_model_files:
             file = self.initial_model_files.pop(0)
             event = SerializeModel.UpdateEvent(
