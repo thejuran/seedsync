@@ -4,7 +4,7 @@
 
 | Item | Value |
 |------|-------|
-| **Feature Branch** | `claude/bulk-file-actions-dxsgE` |
+| **Feature Branch** | `claude/review-bulk-file-actions-2KjKN` |
 | **Status** | 🟢 In Progress |
 | **Current Session** | Session 2 Complete |
 | **Total Sessions** | 10 estimated |
