@@ -28,7 +28,7 @@ export class FileSelectionService {
     // Flag indicating "select all matching filter" mode
     // When true, the selection logically includes all files matching the current filter,
     // even if not all are explicitly in the selectedFiles set
-    private _selectAllMatchingFilter: boolean = false;
+    private _selectAllMatchingFilter = false;
     private _selectAllMatchingFilterSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
     constructor() {}

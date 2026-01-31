@@ -1,16 +1,26 @@
+<ng-container *ngIf="{files: files | async, state: headerCheckboxState$ | async} as vm">
 <div id="file-list">
     <div id="header">
+        <div class="checkbox">
+            <input type="checkbox"
+                   [checked]="vm.state === 'all'"
+                   [indeterminate]="vm.state === 'some'"
+                   (click)="onHeaderCheckboxClick(vm.files!)"
+                   aria-label="Select all files" />
+        </div>
         <div class="name">Filename</div>
         <div class="status">Status</div>
         <div class="speed">Speed</div>
         <div class="eta">ETA</div>
         <div class="size">Size</div>
     </div>
-    <div *ngFor="let file of files | async; trackBy: identify">
+    <div *ngFor="let file of vm.files; trackBy: identify">
         <app-file
             [file]="file"
             [options]="options"
+            [bulkSelected]="isBulkSelected(file)"
             (click)="onSelect(file)"
+            (checkboxToggle)="fileSelectionService.toggle($event.name)"
             (queueEvent)="onQueue($event)"
             (stopEvent)="onStop($event)"
             (extractEvent)="onExtract($event)"
@@ -19,3 +29,4 @@
         </app-file>
     </div>
 </div>
+</ng-container>

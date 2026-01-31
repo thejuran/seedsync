@@ -4,9 +4,9 @@
 
 | Item | Value |
 |------|-------|
-| **Latest Branch** | `claude/review-bulk-file-actions-UM3bn` |
+| **Latest Branch** | `claude/review-bulk-file-actions-1jrQG` |
 | **Status** | 🟢 In Progress |
-| **Current Session** | Session 3 Complete |
+| **Current Session** | Session 4 Complete |
 | **Total Sessions** | 10 estimated |
 
 > **Claude Code Branch Management:**
@@ -30,7 +30,8 @@
 >
 > **Branch History:**
 > - `claude/review-bulk-file-actions-2KjKN` - Sessions 1-2 (original)
-> - `claude/review-bulk-file-actions-UM3bn` - Sessions 1-3 (current, merged from above)
+> - `claude/review-bulk-file-actions-UM3bn` - Sessions 1-3 (merged from above)
+> - `claude/review-bulk-file-actions-1jrQG` - Sessions 1-4 (current, merged from above)
 
 ---
 
@@ -138,12 +139,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 2
 
 **Tasks:**
-- [ ] Add checkbox column to file list header in `file-list.component.html`
-- [ ] Implement header checkbox logic (checked/indeterminate states)
-- [ ] Add checkbox to each file row in `file.component.html`
-- [ ] Wire checkboxes to `FileSelectionService`
-- [ ] Add `.selected` class to selected rows
-- [ ] Add basic checkbox column styling
+- [x] Add checkbox column to file list header in `file-list.component.html`
+- [x] Implement header checkbox logic (checked/indeterminate states)
+- [x] Add checkbox to each file row in `file.component.html`
+- [x] Wire checkboxes to `FileSelectionService`
+- [x] Add `.bulk-selected` class to selected rows
+- [x] Add basic checkbox column styling
 
 **Context to read:**
 - `src/angular/src/app/pages/files/file-list.component.ts` and `.html`
@@ -327,6 +328,7 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
 | Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService with 26 unit tests |
 | Session 3 | 2026-01-31 | ✅ Complete | Wired selection clear to filter/sort changes, 4 unit tests |
+| Session 4 | 2026-01-31 | ✅ Complete | Checkbox UI for header and rows, wired to FileSelectionService |
 
 ---
 
@@ -342,6 +344,9 @@ _Document technical discoveries, gotchas, and decisions made during implementati
 - FileSelectionService is separate from ViewFile's `isSelected` (used for details panel single-selection)
 - Used `providedIn: 'root'` for tree-shakable singleton service
 - Prune method helps clean up stale selections when files disappear from model
+- Used `ng-container` with `*ngIf` to avoid async pipes in event handlers (Angular restriction)
+- Used `.bulk-selected` class (not `.selected`) to differentiate from detail panel selection
+- Header checkbox uses `indeterminate` property for partial selection state
 
 ### Gotchas
 - (none yet)

@@ -1,6 +1,7 @@
 import {Component, ChangeDetectionStrategy} from "@angular/core";
 import {NgFor, AsyncPipe} from "@angular/common";
-import {Observable} from "rxjs";
+import {Observable, combineLatest} from "rxjs";
+import {map} from "rxjs/operators";
 
 import {List} from "immutable";
 
@@ -10,6 +11,7 @@ import {ViewFile} from "../../services/files/view-file";
 import {LoggerService} from "../../services/utils/logger.service";
 import {ViewFileOptions} from "../../services/files/view-file-options";
 import {ViewFileOptionsService} from "../../services/files/view-file-options.service";
+import {FileSelectionService} from "../../services/files/file-selection.service";
 
 @Component({
     selector: "app-file-list",
@@ -25,11 +27,35 @@ export class FileListComponent {
     public identify = FileListComponent.identify;
     public options: Observable<ViewFileOptions>;
 
+    // Header checkbox state: 'none', 'some', 'all'
+    public headerCheckboxState$: Observable<"none" | "some" | "all">;
+
     constructor(private _logger: LoggerService,
                 private viewFileService: ViewFileService,
-                private viewFileOptionsService: ViewFileOptionsService) {
+                private viewFileOptionsService: ViewFileOptionsService,
+                public fileSelectionService: FileSelectionService) {
         this.files = viewFileService.filteredFiles;
         this.options = this.viewFileOptionsService.options;
+
+        // Calculate header checkbox state based on selection and visible files
+        this.headerCheckboxState$ = combineLatest([
+            this.files,
+            this.fileSelectionService.selectedFiles$
+        ]).pipe(
+            map(([files, selectedFiles]) => {
+                if (files.size === 0 || selectedFiles.size === 0) {
+                    return "none";
+                }
+                const visibleSelectedCount = files.filter(f => selectedFiles.has(f.name)).size;
+                if (visibleSelectedCount === 0) {
+                    return "none";
+                } else if (visibleSelectedCount === files.size) {
+                    return "all";
+                } else {
+                    return "some";
+                }
+            })
+        );
     }
 
     // noinspection JSUnusedLocalSymbols
@@ -79,4 +105,34 @@ export class FileListComponent {
             this._logger.info(data);
         });
     }
+
+    // =========================================================================
+    // Bulk Selection Methods
+    // =========================================================================
+
+    /**
+     * Check if a file is bulk-selected (for checkbox state).
+     */
+    isBulkSelected(file: ViewFile): boolean {
+        return this.fileSelectionService.isSelected(file.name);
+    }
+
+    /**
+     * Handle header checkbox click.
+     * If none or some selected: select all visible.
+     * If all selected: deselect all.
+     */
+    onHeaderCheckboxClick(files: List<ViewFile>): void {
+        const selectedFiles = this.fileSelectionService.getSelectedFiles();
+        const visibleSelectedCount = files.filter(f => selectedFiles.has(f.name)).size;
+
+        if (visibleSelectedCount === files.size && files.size > 0) {
+            // All visible are selected - clear selection
+            this.fileSelectionService.clearSelection();
+        } else {
+            // None or some selected - select all visible
+            this.fileSelectionService.selectAllVisible(files.toArray());
+        }
+    }
+
 }
