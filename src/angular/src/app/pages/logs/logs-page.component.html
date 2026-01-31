@@ -17,6 +17,12 @@
         </p>
     </ng-template>
 
+    <!-- Status message when not connected or waiting for logs -->
+    <div class="status-message" *ngIf="!hasReceivedLogs">
+        <span *ngIf="!isConnected">{{Localization.Notification.STATUS_CONNECTION_WAITING}}</span>
+        <span *ngIf="isConnected">Connected - waiting for logs...</span>
+    </div>
+
     <button id="btn-scroll-top"
             type="button"
             class="btn btn-primary btn-scroll"
