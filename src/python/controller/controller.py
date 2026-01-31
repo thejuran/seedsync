@@ -683,6 +683,8 @@ class Controller:
                 return False, "File '{}' does not exist locally".format(command.filename), 404
             else:
                 self.__file_op_manager.delete_local(file)
+                # Track as stopped to prevent auto-queuing on restart
+                self.__persist.stopped_file_names.add(command.filename)
                 return True, None, None
 
         elif command.action == Controller.Command.Action.DELETE_REMOTE:
