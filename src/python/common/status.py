@@ -162,16 +162,14 @@ class Status(BaseStatus):
         return copy
 
     def add_listener(self, listener: IStatusListener):
-        self._listeners_lock.acquire()
-        if listener not in self._listeners:
-            self._listeners.append(listener)
-        self._listeners_lock.release()
+        with self._listeners_lock:
+            if listener not in self._listeners:
+                self._listeners.append(listener)
 
     def remove_listener(self, listener: IStatusListener):
-        self._listeners_lock.acquire()
-        if listener in self._listeners:
-            self._listeners.remove(listener)
-        self._listeners_lock.release()
+        with self._listeners_lock:
+            if listener in self._listeners:
+                self._listeners.remove(listener)
 
     def __create_component(self, comp_cls: Type[T]) -> T:
         """Create a component and register our listener with it"""

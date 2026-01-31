@@ -28,19 +28,17 @@ class CachedQueueLogHandler(logging.Handler):
         self.__cache_lock = Lock()
 
     def get_cached_records(self) -> List[logging.LogRecord]:
-        self.__cache_lock.acquire()
-        self.__prune_history()
-        cache = copy.copy(self.__cached_records)
-        self.__cache_lock.release()
+        with self.__cache_lock:
+            self.__prune_history()
+            cache = copy.copy(self.__cached_records)
         return cache
 
     @overrides(logging.Handler)
     def emit(self, record: logging.LogRecord):
         if self.__history_size_in_ms > 0:
-            self.__cache_lock.acquire()
-            self.__cached_records.append(record)
-            self.__prune_history()
-            self.__cache_lock.release()
+            with self.__cache_lock:
+                self.__cached_records.append(record)
+                self.__prune_history()
 
     def __prune_history(self):
         current_time_in_ms = int(time.time()*1000)
