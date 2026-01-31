@@ -8,6 +8,7 @@ import {NgIf, DatePipe, AsyncPipe} from "@angular/common";
 import {LogService} from "../../services/logs/log.service";
 import {LogRecord} from "../../services/logs/log-record";
 import {StreamServiceRegistry} from "../../services/base/stream-service.registry";
+import {ConnectedService} from "../../services/utils/connected.service";
 import {Localization} from "../../common/localization";
 import {DomService} from "../../services/utils/dom.service";
 import {Observable} from "rxjs";
@@ -38,7 +39,12 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
     public showScrollToTopButton = false;
     public showScrollToBottomButton = false;
 
+    // Connection and log state
+    public isConnected = false;
+    public hasReceivedLogs = false;
+
     private _logService: LogService;
+    private _connectedService: ConnectedService;
     private _viewInitialized = false;
 
     constructor(private _elementRef: ElementRef,
@@ -46,11 +52,18 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
                 private _streamRegistry: StreamServiceRegistry,
                 private _domService: DomService) {
         this._logService = _streamRegistry.logService;
+        this._connectedService = _streamRegistry.connectedService;
         this.headerHeight = this._domService.headerHeight;
     }
 
     ngOnInit() {
-        // Subscription moved to ngAfterViewInit to ensure ViewChild elements are available
+        // Subscribe to connection status (doesn't need ViewChild elements)
+        this._connectedService.connected.subscribe({
+            next: connected => {
+                this.isConnected = connected;
+                this._changeDetector.detectChanges();
+            }
+        });
     }
 
     ngAfterViewInit() {
@@ -59,6 +72,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         // Subscribe to logs after view is initialized so ViewChild elements are available
         this._logService.logs.subscribe({
             next: record => {
+                this.hasReceivedLogs = true;
                 this.insertRecord(record);
             }
         });
