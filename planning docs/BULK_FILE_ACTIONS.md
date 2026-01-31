@@ -5,8 +5,8 @@
 | Item | Value |
 |------|-------|
 | **Feature Branch** | `claude/bulk-file-actions-dxsgE` |
-| **Status** | 🟡 Planning Complete |
-| **Current Session** | Not started |
+| **Status** | 🟢 In Progress |
+| **Current Session** | Session 1 Complete |
 | **Total Sessions** | 10 estimated |
 
 ---
@@ -45,12 +45,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Add route in `src/python/web/handler/controller.py`
-- [ ] Add `handle_bulk_command()` in `src/python/controller/controller.py`
-- [ ] Validate action enum and files array
-- [ ] Loop through files, call existing handlers, collect results
-- [ ] Return itemized results + summary
-- [ ] Add unit tests in `src/python/tests/unittests/test_controller/`
+- [x] Add route in `src/python/web/handler/controller.py`
+- [x] Add `handle_bulk_command()` in `src/python/web/handler/controller.py`
+- [x] Validate action enum and files array
+- [x] Loop through files, call existing handlers, collect results
+- [x] Return itemized results + summary
+- [x] Add unit tests in `src/python/tests/unittests/test_web/test_handler/`
 
 **Context to read:**
 - `src/python/web/handler/controller.py` (existing command routes)
@@ -301,6 +301,7 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session | Date | Outcome | Notes |
 |---------|------|---------|-------|
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
+| Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
 
 ---
 
@@ -309,13 +310,17 @@ _Record completed sessions here with date, outcome, and learnings._
 _Document technical discoveries, gotchas, and decisions made during implementation._
 
 ### Technical Notes
-- (none yet)
+- WebApp used only GET handlers; added `add_post_handler()` method to support POST routes
+- Bulk endpoint uses JSON request/response with `application/json` content type
+- Handler reuses existing `WebResponseActionCallback` pattern from single-file endpoints
+- Tests placed in `test_web/test_handler/` to match existing handler test structure
 
 ### Gotchas
 - (none yet)
 
 ### Design Decisions Made During Implementation
-- (none yet)
+- Bulk endpoint always returns 200 status (even on partial/full failure) - success/failure is in the response body
+- File results preserve input order to make frontend correlation easier
 
 ---
 

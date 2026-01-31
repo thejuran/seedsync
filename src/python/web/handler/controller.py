@@ -1,9 +1,10 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import json
 from threading import Event
 from urllib.parse import unquote
 
-from bottle import HTTPResponse
+from bottle import HTTPResponse, request
 
 from common import overrides
 from controller import Controller
@@ -51,6 +52,7 @@ class ControllerHandler(IHandler):
         web_app.add_handler("/server/command/extract/<file_name>", self.__handle_action_extract)
         web_app.add_handler("/server/command/delete_local/<file_name>", self.__handle_action_delete_local)
         web_app.add_handler("/server/command/delete_remote/<file_name>", self.__handle_action_delete_remote)
+        web_app.add_post_handler("/server/command/bulk", self.__handle_bulk_command)
 
     def __handle_action_queue(self, file_name: str):
         """
@@ -146,3 +148,128 @@ class ControllerHandler(IHandler):
             return HTTPResponse(body="Requested remote delete for file '{}'".format(file_name))
         else:
             return HTTPResponse(body=callback.error, status=callback.error_code)
+
+    # Valid action names for the bulk endpoint
+    _VALID_ACTIONS = {
+        "queue": Controller.Command.Action.QUEUE,
+        "stop": Controller.Command.Action.STOP,
+        "extract": Controller.Command.Action.EXTRACT,
+        "delete_local": Controller.Command.Action.DELETE_LOCAL,
+        "delete_remote": Controller.Command.Action.DELETE_REMOTE,
+    }
+
+    def __handle_bulk_command(self):
+        """
+        Handle bulk command requests for multiple files.
+
+        Expected JSON body:
+        {
+            "action": "queue|stop|extract|delete_local|delete_remote",
+            "files": ["file1", "file2", ...]
+        }
+
+        Returns JSON:
+        {
+            "results": [
+                {"file": "file1", "success": true},
+                {"file": "file2", "success": false, "error": "error message", "error_code": 404}
+            ],
+            "summary": {
+                "total": 2,
+                "succeeded": 1,
+                "failed": 1
+            }
+        }
+        """
+        # Parse JSON body
+        try:
+            body = request.json
+        except Exception:
+            return HTTPResponse(
+                body=json.dumps({"error": "Invalid JSON body"}),
+                status=400,
+                content_type="application/json"
+            )
+
+        if not body:
+            return HTTPResponse(
+                body=json.dumps({"error": "Request body is required"}),
+                status=400,
+                content_type="application/json"
+            )
+
+        # Validate action
+        action_name = body.get("action")
+        if not action_name or action_name not in self._VALID_ACTIONS:
+            valid_actions = ", ".join(self._VALID_ACTIONS.keys())
+            return HTTPResponse(
+                body=json.dumps({
+                    "error": "Invalid action '{}'. Valid actions: {}".format(action_name, valid_actions)
+                }),
+                status=400,
+                content_type="application/json"
+            )
+
+        # Validate files array
+        files = body.get("files")
+        if not files:
+            return HTTPResponse(
+                body=json.dumps({"error": "files array is required and must not be empty"}),
+                status=400,
+                content_type="application/json"
+            )
+        if not isinstance(files, list):
+            return HTTPResponse(
+                body=json.dumps({"error": "files must be an array"}),
+                status=400,
+                content_type="application/json"
+            )
+        if not all(isinstance(f, str) for f in files):
+            return HTTPResponse(
+                body=json.dumps({"error": "All files must be strings"}),
+                status=400,
+                content_type="application/json"
+            )
+
+        action = self._VALID_ACTIONS[action_name]
+        results = []
+        succeeded = 0
+        failed = 0
+
+        # Process each file
+        for file_name in files:
+            command = Controller.Command(action, file_name)
+            callback = WebResponseActionCallback()
+            command.add_callback(callback)
+            self.__controller.queue_command(command)
+            callback.wait()
+
+            if callback.success:
+                results.append({
+                    "file": file_name,
+                    "success": True
+                })
+                succeeded += 1
+            else:
+                results.append({
+                    "file": file_name,
+                    "success": False,
+                    "error": callback.error,
+                    "error_code": callback.error_code
+                })
+                failed += 1
+
+        response = {
+            "results": results,
+            "summary": {
+                "total": len(files),
+                "succeeded": succeeded,
+                "failed": failed
+            }
+        }
+
+        return HTTPResponse(
+            body=json.dumps(response),
+            status=200,
+            content_type="application/json"
+        )
