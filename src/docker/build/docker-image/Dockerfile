@@ -119,6 +119,7 @@ COPY src/python /app/python
 
 # Full Seedsync docker image
 FROM seedsync_run_python AS seedsync_run
+LABEL org.opencontainers.image.source="https://github.com/thejuran/seedsync"
 COPY --from=seedsync_build_angular /build/dist /app/html
 COPY --from=seedsync_build_scanfs /build/dist/scanfs /app/scanfs
 COPY src/docker/build/docker-image/setup_default_config.sh /scripts/
