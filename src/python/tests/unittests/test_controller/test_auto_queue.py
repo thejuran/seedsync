@@ -789,8 +789,11 @@ class TestAutoQueue(unittest.TestCase):
         self.assertEqual(Controller.Command.Action.QUEUE, command.action)
         self.assertEqual("File.Two", command.filename)
 
-    def test_partial_file_is_auto_queued_after_remote_discovery(self):
-        # Test that a partial local file is auto-queued when discovered on remote some time later
+    def test_partial_file_is_NOT_auto_queued_after_remote_discovery(self):
+        # Test that a partial local file is NOT auto-queued when discovered on remote
+        # This prevents STOPPED files from being re-queued on service restart
+        # when the remote scan completes after the local scan.
+        # Users who want to complete a partial download can manually queue the file.
         persist = AutoQueuePersist()
         persist.add_pattern(AutoQueuePattern(pattern="File.One"))
         # noinspection PyTypeChecker
@@ -803,16 +806,13 @@ class TestAutoQueue(unittest.TestCase):
         auto_queue.process()
         self.controller.queue_command.assert_not_called()
 
-        # Remote discovery
+        # Remote discovery - should NOT queue because local_size > 0 (partial/STOPPED file)
         file_one_new = ModelFile("File.One", True)
         file_one_new.local_size = 100
         file_one_new.remote_size = 200
         self.model_listener.file_updated(file_one, file_one_new)
         auto_queue.process()
-        self.controller.queue_command.assert_called_once_with(unittest.mock.ANY)
-        command = self.controller.queue_command.call_args[0][0]
-        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
-        self.assertEqual("File.One", command.filename)
+        self.controller.queue_command.assert_not_called()
 
     def test_new_matching_pattern_queues_existing_files(self):
         persist = AutoQueuePersist()
@@ -1500,3 +1500,119 @@ class TestAutoQueue(unittest.TestCase):
         self.model_listener.file_updated(file_one_new, file_one_newer)
         auto_queue.process()
         self.controller.queue_command.assert_not_called()
+
+    def test_stopped_file_not_queued_when_remote_discovered_via_update(self):
+        """
+        Test that STOPPED files are NOT re-queued when remote scan discovers them
+        after local scan (remote_size goes from None to a value).
+
+        This simulates a startup scenario where:
+        1. Local scan completes first, finding a partial file (STOPPED)
+        2. Remote scan completes later, updating remote_size from None to actual
+
+        The file should NOT be queued because local_size > 0 indicates it was stopped.
+        """
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+
+        # Step 1: Local scan finds a partial file (STOPPED file)
+        # remote_size is None because remote scan hasn't completed yet
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = None  # Remote scan not complete yet
+        file_one.local_size = 50  # Partially downloaded = STOPPED
+        file_one.state = ModelFile.State.DEFAULT
+        self.model_listener.file_added(file_one)
+        auto_queue.process()
+        # Should not queue because no remote_size yet
+        self.controller.queue_command.assert_not_called()
+
+        # Step 2: Remote scan completes, remote_size discovered
+        file_one_updated = ModelFile("File.One", True)
+        file_one_updated.remote_size = 100  # Now we know the remote size
+        file_one_updated.local_size = 50  # Still a STOPPED file
+        file_one_updated.state = ModelFile.State.DEFAULT
+        self.model_listener.file_updated(file_one, file_one_updated)
+        auto_queue.process()
+        # Should NOT queue because local_size > 0 indicates STOPPED file
+        self.controller.queue_command.assert_not_called()
+
+    def test_new_file_queued_when_remote_discovered_via_update(self):
+        """
+        Test that new files (no local content) ARE queued when remote scan
+        discovers them after local scan.
+
+        This simulates a startup scenario where:
+        1. Local scan completes first (file might have local_size = 0 or None)
+        2. Remote scan completes later, updating remote_size from None to actual
+
+        The file should be queued because local_size is 0 or None (not a STOPPED file).
+        """
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+
+        # Step 1: File seen with no remote_size yet
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = None
+        file_one.local_size = None  # No local file
+        file_one.state = ModelFile.State.DEFAULT
+        self.model_listener.file_added(file_one)
+        auto_queue.process()
+        self.controller.queue_command.assert_not_called()
+
+        # Step 2: Remote scan discovers the file
+        file_one_updated = ModelFile("File.One", True)
+        file_one_updated.remote_size = 100
+        file_one_updated.local_size = None  # Still no local file
+        file_one_updated.state = ModelFile.State.DEFAULT
+        self.model_listener.file_updated(file_one, file_one_updated)
+        auto_queue.process()
+        # Should queue because local_size is None (new file, not STOPPED)
+        self.controller.queue_command.assert_called_once_with(unittest.mock.ANY)
+        command = self.controller.queue_command.call_args[0][0]
+        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
+        self.assertEqual("File.One", command.filename)
+
+    def test_actual_remote_update_queues_stopped_file(self):
+        """
+        Test that when the remote file actually changes (remote_size changes
+        from one value to another), the file IS queued even if it has local content.
+
+        This is a legitimate scenario where the remote file was updated.
+        """
+        # Disable auto-extract for this test
+        self.context.config.autoqueue.auto_extract = False
+
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+
+        # File already exists with remote_size and partial local content
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = 100
+        file_one.local_size = 50  # Partial content
+        file_one.state = ModelFile.State.DEFAULT
+        self.model_listener.file_added(file_one)
+        auto_queue.process()
+        # Should NOT queue (STOPPED file during initial scan)
+        self.controller.queue_command.assert_not_called()
+
+        # Remote file is updated (size changes from 100 to 200)
+        file_one_updated = ModelFile("File.One", True)
+        file_one_updated.remote_size = 200  # Remote file grew
+        file_one_updated.local_size = 50  # Still has partial local content
+        file_one_updated.state = ModelFile.State.DEFAULT
+        self.model_listener.file_updated(file_one, file_one_updated)
+        auto_queue.process()
+        # Should queue because the remote file actually changed (100 -> 200)
+        self.controller.queue_command.assert_called_once_with(unittest.mock.ANY)
+        command = self.controller.queue_command.call_args[0][0]
+        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
+        self.assertEqual("File.One", command.filename)

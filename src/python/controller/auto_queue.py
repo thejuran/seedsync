@@ -210,18 +210,40 @@ class AutoQueue:
                               (f.local_size is None or f.local_size == 0))
         )
 
-        # Filter modified files where remote size changed: allow regardless of local_size
-        # This handles legitimate scenarios like remote file updates or discovering a remote
-        # for a partial local file
-        modified_candidates = []
+        # Filter modified files where remote size changed
+        # Two scenarios to handle differently:
+        # 1. ACTUAL UPDATE: old_remote_size was a real value that changed - queue regardless of local_size
+        # 2. REMOTE DISCOVERY: old_remote_size was None, now has a value (scan timing on startup)
+        #    - For remote discovery, apply same filter as new files to prevent STOPPED files
+        #      from being re-queued due to scan timing artifacts
+        modified_candidates_actual_update = []
+        modified_candidates_remote_discovery = []
         for old_file, new_file in self.__model_listener.modified_files:
             if old_file.remote_size != new_file.remote_size:
-                modified_candidates.append(new_file)
+                if old_file.remote_size is not None:
+                    # Actual remote file update (size changed from one value to another)
+                    modified_candidates_actual_update.append(new_file)
+                else:
+                    # Remote discovery (remote_size went from None to a value)
+                    modified_candidates_remote_discovery.append(new_file)
 
-        modified_files_to_queue = self.__filter_candidates(
-            candidates=modified_candidates,
+        # For actual updates, queue regardless of local_size (legitimate update)
+        modified_files_actual_update = self.__filter_candidates(
+            candidates=modified_candidates_actual_update,
             accept=lambda f: f.remote_size is not None and f.state == ModelFile.State.DEFAULT
         )
+
+        # For remote discovery, apply same filter as new files
+        # This prevents STOPPED files (local_size > 0) from being re-queued on startup
+        modified_files_remote_discovery = self.__filter_candidates(
+            candidates=modified_candidates_remote_discovery,
+            accept=lambda f: (f.remote_size is not None and
+                              f.state == ModelFile.State.DEFAULT and
+                              (f.local_size is None or f.local_size == 0))
+        )
+
+        # Combine modified file results
+        modified_files_to_queue = modified_files_actual_update + modified_files_remote_discovery
 
         # Combine results, avoiding duplicates by using dict keyed on filename
         files_to_queue_dict = {name: pattern for name, pattern in new_files_to_queue}
