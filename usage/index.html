@@ -6,6 +6,10 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
+        <meta name="description" content="Fast file syncing from remote servers with a web UI, powered by LFTP">
+      
+      
+        <meta name="author" content="thejuran">
       
       
         <link rel="canonical" href="https://thejuran.github.io/seedsync/usage/">
@@ -43,12 +47,6 @@
     
     
       
-        
-        
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
-      
     
     
     <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
@@ -62,10 +60,12 @@
   
     
     
+      
     
     
     
-    <body dir="ltr" data-md-color-scheme="preference" data-md-color-primary="teal" data-md-color-accent="teal">
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -117,7 +117,33 @@
     </div>
     
       
+        <form class="md-header__option" data-md-component="palette">
+  
     
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="teal"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
     
     
     
@@ -342,6 +368,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Started
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initial Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -349,6 +403,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-and-sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering and Sorting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -360,6 +453,190 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="AutoQueue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-based-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern-Based Mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern-Based Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfer-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transfer Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autoqueue-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AutoQueue Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extract Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing Logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Access
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Access">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-get-file-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Get File List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-queue-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Queue a File
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -386,6 +663,33 @@
     
   
     FAQ
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
   
 
     
@@ -425,6 +729,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Getting Started
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting Started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#initial-setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Initial Setup
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#dashboard" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -432,6 +764,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Dashboard">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#file-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filtering-and-sorting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Filtering and Sorting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -443,6 +814,190 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="AutoQueue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pattern-based-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern-Based Mode
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Pattern-Based Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pattern-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pattern Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Settings
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Settings">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connection-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#transfer-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Transfer Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#autoqueue-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AutoQueue Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extract Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logs-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logs and Debugging
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Logs and Debugging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#viewing-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Viewing Logs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#common-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Issues
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-access" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API Access
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="API Access">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-get-file-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Get File List
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-queue-a-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example: Queue a File
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -467,14 +1022,244 @@
 
 
 <h1 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">&para;</a></h1>
+<p>This guide covers the main features and workflows in SeedSync.</p>
+<hr />
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<p>After installation, access SeedSync at <a href="http://localhost:8800">http://localhost:8800</a> (or your configured port).</p>
+<h3 id="initial-setup">Initial Setup<a class="headerlink" href="#initial-setup" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Navigate to <strong>Settings</strong> from the sidebar</li>
+<li>Configure your remote server connection:<ul>
+<li><strong>Server Address</strong>: Your seedbox hostname or IP</li>
+<li><strong>Server User</strong>: SSH username</li>
+<li><strong>Server Password</strong>: SSH password (or use key-based auth)</li>
+<li><strong>Server Directory</strong>: Path to sync from (e.g., <code>/home/user/downloads</code>)</li>
+<li><strong>Local Directory</strong>: Path to sync to (e.g., <code>/downloads</code> for Docker)</li>
+</ul>
+</li>
+<li>Click <strong>Save</strong> and restart SeedSync</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Use Key-Based Authentication</p>
+<p>Password-based SSH is less secure. See the <a href="../install/#key-auth">Installation Guide</a> for setting up SSH keys.</p>
+</div>
+<hr />
 <h2 id="dashboard">Dashboard<a class="headerlink" href="#dashboard" title="Permanent link">&para;</a></h2>
-<p>The Dashboard page shows all the files and directories on the remote server and the local machine.
-Here you can manually queue files to be transferred, extract archives and delete files.</p>
+<p>The Dashboard is your main control center. It displays a unified view of files from both your remote server and local machine.</p>
+<h3 id="file-list">File List<a class="headerlink" href="#file-list" title="Permanent link">&para;</a></h3>
+<p>Files are shown with their current status:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>File exists on remote server, not yet synced</td>
+</tr>
+<tr>
+<td><strong>Queued</strong></td>
+<td>File is queued for download</td>
+</tr>
+<tr>
+<td><strong>Downloading</strong></td>
+<td>Transfer in progress (shows percentage)</td>
+</tr>
+<tr>
+<td><strong>Downloaded</strong></td>
+<td>File has been synced to local machine</td>
+</tr>
+<tr>
+<td><strong>Extracting</strong></td>
+<td>Archive is being extracted</td>
+</tr>
+<tr>
+<td><strong>Extracted</strong></td>
+<td>Archive has been extracted</td>
+</tr>
+</tbody>
+</table>
+<h3 id="file-actions">File Actions<a class="headerlink" href="#file-actions" title="Permanent link">&para;</a></h3>
+<p>Click on any file to see available actions:</p>
+<ul>
+<li><strong>Queue</strong> - Add file to download queue</li>
+<li><strong>Stop</strong> - Cancel an active download</li>
+<li><strong>Extract</strong> - Extract archive contents (zip, rar, 7z, etc.)</li>
+<li><strong>Delete Local</strong> - Remove the local copy</li>
+<li><strong>Delete Remote</strong> - Remove the remote copy</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Delete Operations</p>
+<p>Delete operations are permanent and cannot be undone.</p>
+</div>
+<h3 id="filtering-and-sorting">Filtering and Sorting<a class="headerlink" href="#filtering-and-sorting" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Use the search box to filter files by name</li>
+<li>Files are sorted by status and name by default</li>
+</ul>
+<hr />
 <h2 id="autoqueue">AutoQueue<a class="headerlink" href="#autoqueue" title="Permanent link">&para;</a></h2>
-<p>AutoQueue queues all newly discovered files on the remote server.
-You can also restrict AutoQueue to pattern-based matches (see this option in the Settings page).
-When pattern restriction is enabled, the AutoQueue page is where you can add or remove patterns.
-Any files or directories on the remote server that match a pattern will be automatically queued for transfer.</p>
+<p>AutoQueue automatically downloads new files from your remote server without manual intervention.</p>
+<h3 id="basic-mode">Basic Mode<a class="headerlink" href="#basic-mode" title="Permanent link">&para;</a></h3>
+<p>When enabled without patterns, AutoQueue downloads <strong>all</strong> new files that appear on the remote server.</p>
+<h3 id="pattern-based-mode">Pattern-Based Mode<a class="headerlink" href="#pattern-based-mode" title="Permanent link">&para;</a></h3>
+<p>For more control, enable pattern matching in Settings:</p>
+<ol>
+<li>Go to <strong>Settings</strong> &gt; Enable "Restrict AutoQueue to patterns"</li>
+<li>Go to <strong>AutoQueue</strong> page</li>
+<li>Add patterns to match files you want</li>
+</ol>
+<h4 id="pattern-examples">Pattern Examples<a class="headerlink" href="#pattern-examples" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>Matches</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ubuntu*</code></td>
+<td>Files starting with "Ubuntu"</td>
+</tr>
+<tr>
+<td><code>*.iso</code></td>
+<td>All ISO files</td>
+</tr>
+<tr>
+<td><code>*1080p*</code></td>
+<td>Files containing "1080p"</td>
+</tr>
+<tr>
+<td><code>TV.Show.S01*</code></td>
+<td>Season 1 of a TV show</td>
+</tr>
+</tbody>
+</table>
+<p>Patterns use glob-style matching (wildcards <code>*</code> and <code>?</code>).</p>
+<hr />
+<h2 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">&para;</a></h2>
+<p>Configure SeedSync behavior through the Settings page.</p>
+<p><img alt="Settings Page" src="../images/install_2.png" /></p>
+<h3 id="connection-settings">Connection Settings<a class="headerlink" href="#connection-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Server Address</td>
+<td>Hostname or IP of your remote server</td>
+</tr>
+<tr>
+<td>Server Port</td>
+<td>SSH port (default: 22)</td>
+</tr>
+<tr>
+<td>Server User</td>
+<td>SSH username</td>
+</tr>
+<tr>
+<td>Server Password</td>
+<td>SSH password</td>
+</tr>
+<tr>
+<td>Use Key-Based Auth</td>
+<td>Enable passwordless SSH (recommended)</td>
+</tr>
+<tr>
+<td>Server Directory</td>
+<td>Remote path to sync from</td>
+</tr>
+<tr>
+<td>Local Directory</td>
+<td>Local path to sync to</td>
+</tr>
+</tbody>
+</table>
+<h3 id="transfer-settings">Transfer Settings<a class="headerlink" href="#transfer-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Max Parallel Downloads</td>
+<td>Number of simultaneous file transfers</td>
+</tr>
+<tr>
+<td>LFTP Options</td>
+<td>Advanced LFTP configuration</td>
+</tr>
+</tbody>
+</table>
+<h3 id="autoqueue-settings">AutoQueue Settings<a class="headerlink" href="#autoqueue-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable AutoQueue</td>
+<td>Automatically queue new remote files</td>
+</tr>
+<tr>
+<td>Restrict to Patterns</td>
+<td>Only queue files matching patterns</td>
+</tr>
+</tbody>
+</table>
+<h3 id="extract-settings">Extract Settings<a class="headerlink" href="#extract-settings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Enable Auto-Extract</td>
+<td>Automatically extract archives after download</td>
+</tr>
+<tr>
+<td>Delete Archive After Extract</td>
+<td>Remove archive file after successful extraction</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="logs-and-debugging">Logs and Debugging<a class="headerlink" href="#logs-and-debugging" title="Permanent link">&para;</a></h2>
+<h3 id="viewing-logs">Viewing Logs<a class="headerlink" href="#viewing-logs" title="Permanent link">&para;</a></h3>
+<p><strong>Docker:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>logs<span class="w"> </span>seedsync
+</code></pre></div></p>
+<p><strong>Deb Package:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>cat<span class="w"> </span>~/.seedsync/log/seedsync.log
+</code></pre></div></p>
+<h3 id="common-issues">Common Issues<a class="headerlink" href="#common-issues" title="Permanent link">&para;</a></h3>
+<p>See the <a href="../faq/">FAQ</a> for troubleshooting common problems.</p>
+<hr />
+<h2 id="api-access">API Access<a class="headerlink" href="#api-access" title="Permanent link">&para;</a></h2>
+<p>SeedSync provides a REST API for programmatic control. The API is available at the same address as the web UI.</p>
+<h3 id="example-get-file-list">Example: Get File List<a class="headerlink" href="#example-get-file-list" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>curl<span class="w"> </span>http://localhost:8800/server/files
+</code></pre></div>
+<h3 id="example-queue-a-file">Example: Queue a File<a class="headerlink" href="#example-queue-a-file" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>curl<span class="w"> </span>-X<span class="w"> </span>POST<span class="w"> </span>http://localhost:8800/server/files/filename/queue
+</code></pre></div>
 
 
 
@@ -495,6 +1280,12 @@ Any files or directories on the remote server that match a pattern will be autom
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
         
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
       </main>
       
         <footer class="md-footer">
@@ -507,6 +1298,33 @@ Any files or directories on the remote server that match a pattern will be autom
     Made with
     <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
       Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/thejuran/seedsync" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/thejuran/seedsync/pkgs/container/seedsync" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M349.9 236.3h-66.1v-59.4h66.1zm0-204.3h-66.1v60.7h66.1zm78.2 144.8H362v59.4h66.1zm-156.3-72.1h-66.1v60.1h66.1zm78.1 0h-66.1v60.1h66.1zm276.8 100c-14.4-9.7-47.6-13.2-73.1-8.4-3.3-24-16.7-44.9-41.1-63.7l-14-9.3-9.3 14c-18.4 27.8-23.4 73.6-3.7 103.8-8.7 4.7-25.8 11.1-48.4 10.7H2.4c-8.7 50.8 5.8 116.8 44 162.1 37.1 43.9 92.7 66.2 165.4 66.2 157.4 0 273.9-72.5 328.4-204.2 21.4.4 67.6.1 91.3-45.2 1.5-2.5 6.6-13.2 8.5-17.1zm-511.1-27.9h-66v59.4h66.1v-59.4zm78.1 0h-66.1v59.4h66.1zm78.1 0h-66.1v59.4h66.1zm-78.1-72.1h-66.1v60.1h66.1z"/></svg>
     </a>
   
 </div>
@@ -524,7 +1342,7 @@ Any files or directories on the remote server that match a pattern will be autom
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.top", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
       <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
