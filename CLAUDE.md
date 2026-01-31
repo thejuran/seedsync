@@ -283,4 +283,4 @@ The codebase underwent significant modernization:
 6. **Architecture**: Extracted ScanManager, LftpManager, FileOperationManager from Controller
 7. **API**: Standardized HTTP status codes for error responses
 
-See `MODERNIZATION_ACTION_PLAN.md` and `MODERNIZATION_REPORT.md` for details.
+See `planning docs/MODERNIZATION_ACTION_PLAN.md` and `planning docs/MODERNIZATION_REPORT.md` for details.
