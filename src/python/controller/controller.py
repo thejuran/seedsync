@@ -194,11 +194,8 @@ class Controller:
         Returns a copy of all the model files
         :return:
         """
-        # Lock the model
-        self.__model_lock.acquire()
-        model_files = self.__get_model_files()
-        # Release the model
-        self.__model_lock.release()
+        with self.__model_lock:
+            model_files = self.__get_model_files()
         return model_files
 
     def add_model_listener(self, listener: IModelListener):
@@ -207,11 +204,8 @@ class Controller:
         :param listener:
         :return:
         """
-        # Lock the model
-        self.__model_lock.acquire()
-        self.__model.add_listener(listener)
-        # Release the model
-        self.__model_lock.release()
+        with self.__model_lock:
+            self.__model.add_listener(listener)
 
     def remove_model_listener(self, listener: IModelListener):
         """
@@ -219,11 +213,8 @@ class Controller:
         :param listener:
         :return:
         """
-        # Lock the model
-        self.__model_lock.acquire()
-        self.__model.remove_listener(listener)
-        # Release the model
-        self.__model_lock.release()
+        with self.__model_lock:
+            self.__model.remove_listener(listener)
 
     def get_model_files_and_add_listener(self, listener: IModelListener):
         """
@@ -238,12 +229,9 @@ class Controller:
         :param listener:
         :return:
         """
-        # Lock the model
-        self.__model_lock.acquire()
-        self.__model.add_listener(listener)
-        model_files = self.__get_model_files()
-        # Release the model
-        self.__model_lock.release()
+        with self.__model_lock:
+            self.__model.add_listener(listener)
+            model_files = self.__get_model_files()
         return model_files
 
     def queue_command(self, command: Command):
@@ -490,8 +478,7 @@ class Controller:
         new_model = self.__model_builder.build_model()
 
         # Lock the model for all modifications
-        self.__model_lock.acquire()
-        try:
+        with self.__model_lock:
             # Diff the new model with old model
             model_diff = ModelDiffUtil.diff_models(self.__model, new_model)
 
@@ -501,9 +488,6 @@ class Controller:
             # Prune stale tracking entries
             self._prune_extracted_files()
             self._prune_downloaded_files(latest_remote_scan)
-        finally:
-            # Release the model
-            self.__model_lock.release()
 
     def _update_controller_status(self,
                                   remote_scan: Optional[object],
