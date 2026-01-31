@@ -407,14 +407,17 @@ class Controller:
 
     def _prune_downloaded_files(self, latest_remote_scan: Optional[object]) -> None:
         """
-        Remove deleted or missing files from the downloaded files tracking list.
+        Remove missing files from the downloaded files tracking list.
 
         This prevents unbounded memory growth from tracking files indefinitely.
-        After removal, the file returns to DEFAULT state on next scan if still remote.
 
         A file is removed from tracking if:
-        - It exists in model but is in DELETED state, OR
         - It doesn't exist in model AND we've had a successful remote scan
+          (meaning the file is completely gone from both local and remote)
+
+        Note: DELETED files (locally deleted but still remote) are NOT pruned.
+        They must remain tracked so they stay in DELETED state and don't get
+        auto-queued. The user can manually re-queue them when desired.
 
         Must be called while holding the model lock.
 
@@ -425,12 +428,7 @@ class Controller:
         existing_file_names = self.__model.get_file_names()
 
         for downloaded_file_name in self.__persist.downloaded_file_names:
-            if downloaded_file_name in existing_file_names:
-                file = self.__model.get_file(downloaded_file_name)
-                if file.state == ModelFile.State.DELETED:
-                    # Deleted locally, remove from tracking
-                    remove_downloaded_file_names.add(downloaded_file_name)
-            else:
+            if downloaded_file_name not in existing_file_names:
                 # Not in the model at all - file is completely gone from both local and remote
                 # Only remove if we've had at least one successful remote scan
                 if latest_remote_scan is not None and not latest_remote_scan.failed:
