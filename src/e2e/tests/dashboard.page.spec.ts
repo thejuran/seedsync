@@ -28,6 +28,8 @@ test.describe('Testing dashboard page', () => {
             { name: 'testing.gif', status: '', size: '0 B of 8.95 MB' },
             { name: 'üæÒ', status: '', size: '0 B of 70.8 KB' },
         ];
+        // Wait for all files to load (incremental loading sends files one at a time)
+        await dashboardPage.waitForFileCount(golden.length);
         const files = await dashboardPage.getFiles();
         expect(files).toEqual(golden);
     });

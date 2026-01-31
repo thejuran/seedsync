@@ -24,6 +24,18 @@ export class DashboardPage extends App {
         await this.page.locator('#file-list .file').first().waitFor({ state: 'visible' });
     }
 
+    async waitForFileCount(count: number, timeout: number = 10000) {
+        // Wait for a specific number of files to be loaded (for incremental loading)
+        await this.page.waitForFunction(
+            (expectedCount) => {
+                const files = document.querySelectorAll('#file-list .file');
+                return files.length >= expectedCount;
+            },
+            count,
+            { timeout }
+        );
+    }
+
     async getFiles(): Promise<FileInfo[]> {
         const fileElements = await this.page.locator('#file-list .file').all();
         const files: FileInfo[] = [];
