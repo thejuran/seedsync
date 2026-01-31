@@ -4,10 +4,12 @@
 
 | Item | Value |
 |------|-------|
-| **Feature Branch** | `claude/bulk-file-actions-dxsgE` |
-| **Status** | 🟡 Planning Complete |
-| **Current Session** | Not started |
+| **Feature Branch** | `claude/review-bulk-file-actions-2KjKN` |
+| **Status** | 🟢 In Progress |
+| **Current Session** | Session 2 Complete |
 | **Total Sessions** | 10 estimated |
+
+> **For Claude Code sessions:** All work on this feature should be committed to the branch above. When starting a new session, checkout this branch and continue from the current session.
 
 ---
 
@@ -45,12 +47,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Add route in `src/python/web/handler/controller.py`
-- [ ] Add `handle_bulk_command()` in `src/python/controller/controller.py`
-- [ ] Validate action enum and files array
-- [ ] Loop through files, call existing handlers, collect results
-- [ ] Return itemized results + summary
-- [ ] Add unit tests in `src/python/tests/unittests/test_controller/`
+- [x] Add route in `src/python/web/handler/controller.py`
+- [x] Add `handle_bulk_command()` in `src/python/web/handler/controller.py`
+- [x] Validate action enum and files array
+- [x] Loop through files, call existing handlers, collect results
+- [x] Return itemized results + summary
+- [x] Add unit tests in `src/python/tests/unittests/test_web/test_handler/`
 
 **Context to read:**
 - `src/python/web/handler/controller.py` (existing command routes)
@@ -70,13 +72,13 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/services/files/file-selection.service.ts`
-- [ ] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
-- [ ] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
-- [ ] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
-- [ ] Use `BehaviorSubject<Set<string>>` for reactive state
-- [ ] Add `selectAllMatching` flag for "all matching filter" mode
-- [ ] Add unit tests
+- [x] Create `src/angular/src/app/services/files/file-selection.service.ts`
+- [x] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
+- [x] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
+- [x] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
+- [x] Use `BehaviorSubject<Set<string>>` for reactive state
+- [x] Add `selectAllMatching` flag for "all matching filter" mode
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts` (pattern reference)
@@ -301,6 +303,8 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session | Date | Outcome | Notes |
 |---------|------|---------|-------|
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
+| Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
+| Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService with 26 unit tests |
 
 ---
 
@@ -309,13 +313,20 @@ _Record completed sessions here with date, outcome, and learnings._
 _Document technical discoveries, gotchas, and decisions made during implementation._
 
 ### Technical Notes
-- (none yet)
+- WebApp used only GET handlers; added `add_post_handler()` method to support POST routes
+- Bulk endpoint uses JSON request/response with `application/json` content type
+- Handler reuses existing `WebResponseActionCallback` pattern from single-file endpoints
+- Tests placed in `test_web/test_handler/` to match existing handler test structure
+- FileSelectionService is separate from ViewFile's `isSelected` (used for details panel single-selection)
+- Used `providedIn: 'root'` for tree-shakable singleton service
+- Prune method helps clean up stale selections when files disappear from model
 
 ### Gotchas
 - (none yet)
 
 ### Design Decisions Made During Implementation
-- (none yet)
+- Bulk endpoint always returns 200 status (even on partial/full failure) - success/failure is in the response body
+- File results preserve input order to make frontend correlation easier
 
 ---
 
