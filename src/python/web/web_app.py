@@ -57,6 +57,7 @@ class WebApp(bottle.Bottle):
     Web app implementation
     """
     _STREAM_POLL_INTERVAL_IN_MS = 100
+    _STREAM_YIELD_INTERVAL_IN_MS = 5  # Small delay between events to avoid flooding
 
     def __init__(self, context: Context, controller: Controller):
         super().__init__()
@@ -152,9 +153,11 @@ class WebApp(bottle.Bottle):
                         yield value
                         had_value = True
 
-                # Only sleep if no handlers had values, to avoid
-                # unnecessary delays when there's data to send
-                if not had_value:
+                # Always sleep between iterations to avoid flooding the connection
+                # Use shorter sleep when data is available, longer when idle
+                if had_value:
+                    time.sleep(WebApp._STREAM_YIELD_INTERVAL_IN_MS / 1000)
+                else:
                     time.sleep(WebApp._STREAM_POLL_INTERVAL_IN_MS / 1000)
 
         finally:
