@@ -18,17 +18,19 @@
     </label>
 
     <!-- Checkbox -->
-    <label *ngIf="type == OptionType.Checkbox">
+    <div *ngIf="type == OptionType.Checkbox" class="form-check">
         <input
                type="checkbox"
-               class="form-control"
+               class="form-check-input"
                [disabled]="value == null"
                [ngModel]="value"
-           (ngModelChange)="onChange($event)" />
-        <span class="name">{{label}}</span>
-        <span *ngIf="description"
-              class="description">{{description}}</span>
-    </label>
+               (ngModelChange)="onChange($event)" />
+        <label class="form-check-label">
+            <span class="name">{{label}}</span>
+            <span *ngIf="description"
+                  class="description">{{description}}</span>
+        </label>
+    </div>
 
     <!-- Password -->
     <label *ngIf="type == OptionType.Password">
