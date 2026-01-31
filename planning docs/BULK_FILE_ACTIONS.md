@@ -568,9 +568,7 @@ REMOTE_PATH=/home/remoteuser/files
 | Browser | Version | Checkbox | Keyboard | Actions | Pass/Fail |
 |---------|---------|----------|----------|---------|-----------|
 | Chrome | Latest | | | | |
-| Firefox | Latest | | | | |
 | Safari | Latest | | | | |
-| Edge | Latest | | | | |
 
 ---
 
