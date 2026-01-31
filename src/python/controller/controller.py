@@ -368,13 +368,24 @@ class Controller:
         if not new_file.local_size or new_file.local_size <= 0:
             return
 
-        # Check if this is a new transition to downloading
+        # Check if file is already tracked
+        if new_file.name in self.__persist.downloaded_file_names:
+            return
+
+        # Check if this is a new transition to downloading with content
         should_track = False
         if diff.change == ModelDiff.Change.ADDED:
             should_track = True
         elif diff.change == ModelDiff.Change.UPDATED:
-            old_state = diff.old_file.state if diff.old_file else None
+            old_file = diff.old_file
+            old_state = old_file.state if old_file else None
+            old_local_size = old_file.local_size if old_file else None
+
+            # Track if transitioning from non-downloading state
             if old_state not in (ModelFile.State.DOWNLOADING, ModelFile.State.DOWNLOADED):
+                should_track = True
+            # Also track if was downloading but had no content before
+            elif old_state == ModelFile.State.DOWNLOADING and (old_local_size is None or old_local_size <= 0):
                 should_track = True
 
         if should_track:
