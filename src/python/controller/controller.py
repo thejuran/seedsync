@@ -356,6 +356,33 @@ class Controller:
                 self.__persist.extracted_file_names.add(result.name)
             self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
 
+    def _detect_and_track_queued(self, diff: ModelDiff) -> None:
+        """
+        Detect if a file was just queued for download and update persist state.
+
+        A file is added to tracking when it enters QUEUED or DOWNLOADING state.
+        This ensures that files which were started but never completed are still
+        tracked and won't be auto-queued again.
+
+        Args:
+            diff: A single model diff entry.
+        """
+        queued = False
+        new_state = diff.new_file.state if diff.new_file else None
+
+        if new_state in (ModelFile.State.QUEUED, ModelFile.State.DOWNLOADING):
+            if diff.change == ModelDiff.Change.ADDED:
+                queued = True
+            elif diff.change == ModelDiff.Change.UPDATED:
+                old_state = diff.old_file.state if diff.old_file else None
+                if old_state not in (ModelFile.State.QUEUED, ModelFile.State.DOWNLOADING,
+                                     ModelFile.State.DOWNLOADED):
+                    queued = True
+
+        if queued:
+            self.__persist.downloaded_file_names.add(diff.new_file.name)
+            self.__model_builder.set_downloaded_files(self.__persist.downloaded_file_names)
+
     def _detect_and_track_download(self, diff: ModelDiff) -> None:
         """
         Detect if a file was just downloaded and update persist state.
@@ -363,6 +390,9 @@ class Controller:
         A file is considered "just downloaded" if:
         - It was added in DOWNLOADED state, OR
         - It was updated and transitioned TO DOWNLOADED state from a non-DOWNLOADED state
+
+        Note: Files are also tracked when queued (see _detect_and_track_queued),
+        so this mainly handles edge cases where a file appears already downloaded.
 
         Args:
             diff: A single model diff entry.
@@ -463,7 +493,8 @@ class Controller:
             elif diff.change == ModelDiff.Change.UPDATED:
                 self.__model.update_file(diff.new_file)
 
-            # Detect if a file was just Downloaded and update persist state
+            # Detect if a file was just queued or downloaded and update persist state
+            self._detect_and_track_queued(diff)
             self._detect_and_track_download(diff)
 
     def _build_and_apply_model(self, latest_remote_scan: Optional[object]) -> None:
