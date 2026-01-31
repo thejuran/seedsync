@@ -1,5 +1,11 @@
-<div class="file" [class.selected]="file.isSelected" #fileElement>
+<div class="file" [class.selected]="file.isSelected" [class.bulk-selected]="isChecked" #fileElement>
     <div class="content">
+        <div class="checkbox" appClickStopPropagation>
+            <input type="checkbox"
+                   [checked]="isChecked"
+                   (change)="onCheckboxChange($event)"
+                   [attr.aria-label]="'Select ' + file.name">
+        </div>
         <div class="status">
             <img src="assets/icons/default-remote.svg" id="default-remote"
                  *ngIf="file.status === ViewFile.Status.DEFAULT && file.remoteSize > 0" />

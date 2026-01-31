@@ -70,21 +70,21 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/services/files/file-selection.service.ts`
-- [ ] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
-- [ ] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
-- [ ] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
-- [ ] Use `BehaviorSubject<Set<string>>` for reactive state
-- [ ] Add `selectAllMatching` flag for "all matching filter" mode
-- [ ] Add unit tests
+- [x] Create `src/angular/src/app/services/files/file-selection.service.ts`
+- [x] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
+- [x] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
+- [x] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
+- [x] Use `BehaviorSubject<Set<string>>` for reactive state
+- [x] Add `selectAllMatching` flag for "all matching filter" mode
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts` (pattern reference)
 
 **Acceptance criteria:**
-- Service tracks selected files by name
-- Observables emit on selection changes
-- "Select all matching" mode tracked separately
+- [x] Service tracks selected files by name
+- [x] Observables emit on selection changes
+- [x] "Select all matching" mode tracked separately
 
 ---
 
@@ -115,12 +115,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 2
 
 **Tasks:**
-- [ ] Add checkbox column to file list header in `file-list.component.html`
-- [ ] Implement header checkbox logic (checked/indeterminate states)
-- [ ] Add checkbox to each file row in `file.component.html`
-- [ ] Wire checkboxes to `FileSelectionService`
-- [ ] Add `.selected` class to selected rows
-- [ ] Add basic checkbox column styling
+- [x] Add checkbox column to file list header in `file-list.component.html`
+- [x] Implement header checkbox logic (checked/indeterminate states)
+- [x] Add checkbox to each file row in `file.component.html`
+- [x] Wire checkboxes to `FileSelectionService`
+- [x] Add `.bulk-selected` class to selected rows (using distinct class from single-file `.selected`)
+- [x] Add basic checkbox column styling
 
 **Context to read:**
 - `src/angular/src/app/pages/files/file-list.component.ts` and `.html`
@@ -128,10 +128,10 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 - `src/angular/src/app/services/files/file-selection.service.ts`
 
 **Acceptance criteria:**
-- Checkboxes appear on each row
-- Header checkbox selects/deselects all visible
-- Header shows indeterminate when some selected
-- Selected rows visually highlighted
+- [x] Checkboxes appear on each row
+- [x] Header checkbox selects/deselects all visible
+- [x] Header shows indeterminate when some selected
+- [x] Selected rows visually highlighted
 
 ---
 
@@ -301,6 +301,8 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session | Date | Outcome | Notes |
 |---------|------|---------|-------|
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
+| Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService created with unit tests |
+| Session 4 | 2026-01-31 | ✅ Complete | Checkbox UI added to header and rows |
 
 ---
 
@@ -309,13 +311,20 @@ _Record completed sessions here with date, outcome, and learnings._
 _Document technical discoveries, gotchas, and decisions made during implementation._
 
 ### Technical Notes
-- (none yet)
+- FileSelectionService uses a Set<string> for O(1) lookup of selected file names
+- Header checkbox has three states: unchecked, checked, indeterminate (when some files selected)
+- Used combineLatest to track both filtered files and selection state for header checkbox updates
+- OnPush change detection requires storing selectedFiles locally and calling markForCheck()
 
 ### Gotchas
-- (none yet)
+- ESLint flat config requires double quotes for strings, not single quotes
+- @Input() with default value doesn't need explicit type annotation (no-inferrable-types rule)
+- Unused function parameters should be prefixed with underscore (e.g., `_event`)
 
 ### Design Decisions Made During Implementation
-- (none yet)
+- Bulk selection (checkbox) uses `.bulk-selected` class, distinct from `.selected` (single-file detail view)
+- When both selected and bulk-selected, the selected style takes precedence (green background)
+- Checkbox column is 40px wide and appears first in the row on medium+ screens
 
 ---
 

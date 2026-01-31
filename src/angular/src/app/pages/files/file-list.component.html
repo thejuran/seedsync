@@ -1,5 +1,12 @@
 <div id="file-list">
     <div id="header">
+        <div class="checkbox">
+            <input type="checkbox"
+                   [checked]="headerCheckboxState === 'checked'"
+                   [indeterminate]="headerCheckboxState === 'indeterminate'"
+                   (change)="onHeaderCheckboxChange($event)"
+                   aria-label="Select all files">
+        </div>
         <div class="name">Filename</div>
         <div class="status">Status</div>
         <div class="speed">Speed</div>
@@ -10,7 +17,9 @@
         <app-file
             [file]="file"
             [options]="options"
+            [isChecked]="isFileChecked(file)"
             (click)="onSelect(file)"
+            (checkboxChangeEvent)="onCheckboxToggle($event)"
             (queueEvent)="onQueue($event)"
             (stopEvent)="onStop($event)"
             (extractEvent)="onExtract($event)"

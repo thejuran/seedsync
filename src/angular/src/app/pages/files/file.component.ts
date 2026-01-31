@@ -37,12 +37,14 @@ export class FileComponent implements OnChanges {
 
     @Input() file: ViewFile;
     @Input() options: ViewFileOptions;
+    @Input() isChecked = false;
 
     @Output() queueEvent = new EventEmitter<ViewFile>();
     @Output() stopEvent = new EventEmitter<ViewFile>();
     @Output() extractEvent = new EventEmitter<ViewFile>();
     @Output() deleteLocalEvent = new EventEmitter<ViewFile>();
     @Output() deleteRemoteEvent = new EventEmitter<ViewFile>();
+    @Output() checkboxChangeEvent = new EventEmitter<ViewFile>();
 
     // Indicates an active action on-going
     activeAction: FileAction = null;
@@ -139,6 +141,11 @@ export class FileComponent implements OnChanges {
                 this.deleteRemoteEvent.emit(file);
             }
         );
+    }
+
+    onCheckboxChange(_event: Event) {
+        // Emit the file when checkbox is toggled
+        this.checkboxChangeEvent.emit(this.file);
     }
 
     // Source: https://stackoverflow.com/a/7557433
