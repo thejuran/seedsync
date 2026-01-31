@@ -143,16 +143,19 @@ class WebApp(bottle.Bottle):
 
             # Get streaming values until the connection closes
             while not self._stop_flag:
+                had_value = False
                 for handler in handlers:
-                    # Process all values from this handler
-                    while True:
-                        value = handler.get_value()
-                        if value:
-                            yield value
-                        else:
-                            break
+                    # Get one value from this handler per iteration
+                    # to ensure fair interleaving between handlers
+                    value = handler.get_value()
+                    if value:
+                        yield value
+                        had_value = True
 
-                time.sleep(WebApp._STREAM_POLL_INTERVAL_IN_MS / 1000)
+                # Only sleep if no handlers had values, to avoid
+                # unnecessary delays when there's data to send
+                if not had_value:
+                    time.sleep(WebApp._STREAM_POLL_INTERVAL_IN_MS / 1000)
 
         finally:
             self.logger.debug("Stream connection stopped by {}".format(
