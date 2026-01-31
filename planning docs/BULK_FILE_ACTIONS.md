@@ -4,12 +4,22 @@
 
 | Item | Value |
 |------|-------|
-| **Feature Branch** | `claude/review-bulk-file-actions-2KjKN` |
+| **Latest Branch** | `claude/review-bulk-file-actions-UM3bn` |
 | **Status** | 🟢 In Progress |
 | **Current Session** | Session 3 Complete |
 | **Total Sessions** | 10 estimated |
 
-> **For Claude Code sessions:** All work on this feature should be committed to the branch above. When starting a new session, checkout this branch and continue from the current session.
+> **Claude Code Branch Management:**
+> Each Claude Code session can only push to branches matching its session ID. When continuing
+> this feature in a new session:
+> 1. Fetch the latest branch: `git fetch origin claude/review-bulk-file-actions-*`
+> 2. Find the most recent one: `git log --oneline origin/claude/review-bulk-file-actions-* -1`
+> 3. Create your session branch and merge: `git checkout -b claude/<your-branch> && git merge origin/<latest-branch>`
+> 4. Continue development and push to your session's branch
+>
+> **Branch History:**
+> - `claude/review-bulk-file-actions-2KjKN` - Sessions 1-2 (original)
+> - `claude/review-bulk-file-actions-UM3bn` - Sessions 1-3 (current, merged from above)
 
 ---
 
