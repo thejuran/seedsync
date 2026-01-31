@@ -9,6 +9,8 @@
 | **Current Session** | Session 2 Complete |
 | **Total Sessions** | 10 estimated |
 
+> **For Claude Code sessions:** All work on this feature should be committed to the branch above. When starting a new session, checkout this branch and continue from the current session.
+
 ---
 
 ## Design Summary
