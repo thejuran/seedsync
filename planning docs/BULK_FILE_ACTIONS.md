@@ -5,9 +5,9 @@
 | Item | Value |
 |------|-------|
 | **Latest Branch** | `claude/optimize-selection-performance-8Lt6Q` |
-| **Status** | ✅ Session 11 Complete - Performance optimization |
-| **Current Session** | Session 11 complete, Session 12 next |
-| **Total Sessions** | 13 (10 implementation + 3 performance) |
+| **Status** | ⚠️ Session 11 Complete but UI lag persists |
+| **Current Session** | Session 11b: Debug Select All UI Lag |
+| **Total Sessions** | 14 (10 implementation + 4 performance) |
 
 > **Claude Code Branch Management:**
 > Each Claude Code session can only push to branches matching its session ID.
@@ -795,6 +795,71 @@ During UAT with 60+ files, potential performance issues were noted for future op
    - `OnPush` change detection on all relevant components
    - FileSelectionService guards against unnecessary emissions
 
+**⚠️ Issue Found Post-Session:** UI still slow on "Select All" despite service-level optimizations passing tests. The bottleneck is likely in the rendering/change detection path, not the service layer.
+
+---
+
+### Session 11b: Debug Select All UI Lag
+
+**Scope:** Investigate and fix UI lag when selecting all files
+**Estimated effort:** Medium
+**Dependencies:** Session 11
+
+**Problem:** "Select All" causes UI to crawl despite:
+- Service operations completing in <50ms (verified by unit tests)
+- OnPush change detection enabled
+- trackBy function in place
+
+**Hypotheses to investigate:**
+
+1. **Full list re-render on selection change**
+   - The `selectedFiles$` async pipe emits a new Set reference on every change
+   - This may cause the entire `*ngFor` to re-evaluate even with trackBy
+   - Check: Does changing selection trigger `ngOnChanges` on every FileComponent?
+
+2. **IsSelectedPipe not memoizing correctly**
+   - Pure pipes memoize by reference, but `selectedFiles` Set is new each emission
+   - Every file row's pipe would re-evaluate on each selection change
+   - Potential fix: Pass selection as component input instead of pipe
+
+3. **headerCheckboxState$ computation**
+   - `combineLatest([files, selectedFiles$])` fires on every selection change
+   - The `.filter()` inside iterates all files on every emission
+   - This runs synchronously blocking the UI thread
+
+4. **Multiple async pipes causing cascade**
+   - Template has multiple `| async` subscriptions that all fire
+   - Each triggers change detection cycle
+
+**Debugging approach:**
+```typescript
+// Add to file-list.component.ts constructor temporarily:
+this.selectedFiles$.subscribe(s => {
+    console.time('selection-change');
+    // ... after change detection completes
+});
+
+// Add to FileComponent.ngOnChanges:
+console.log('FileComponent ngOnChanges', this.file.name, changes);
+```
+
+**Context to read:**
+- `src/angular/src/app/pages/files/file-list.component.html` (template bindings)
+- `src/angular/src/app/pages/files/file-list.component.ts` (async pipes, observables)
+- `src/angular/src/app/pages/files/file.component.ts` (check if ngOnChanges fires)
+
+**Potential fixes to try:**
+1. Move `selectedFiles` to a signal or use `shareReplay` to prevent multi-subscription
+2. Debounce selection updates for UI (not for state)
+3. Use virtual scrolling for large lists (`@angular/cdk/scrolling`)
+4. Compute `headerCheckboxState` less frequently (debounce or on-demand)
+5. Pass `isSelected` as boolean input to FileComponent instead of pipe lookup
+
+**Acceptance criteria:**
+- Select All on 100+ files completes without visible lag (<100ms UI response)
+- Individual checkbox toggle remains responsive
+- No regression in existing functionality
+
 ---
 
 ### Session 12: Backend Bulk Endpoint Performance
@@ -851,6 +916,7 @@ During UAT with 60+ files, potential performance issues were noted for future op
 
 | Session | Date | Outcome | Notes |
 |---------|------|---------|-------|
-| Session 11 | 2026-02-01 | ✅ Complete | Frontend selection performance optimized: cached BulkActionsBar computations, created IsSelectedPipe, added 15 performance tests |
+| Session 11 | 2026-02-01 | ⚠️ Partial | Service-level optimizations done, but UI lag persists on Select All |
+| Session 11b | | | Debug Select All UI lag - focus on rendering/change detection path |
 | Session 12 | | | |
 | Session 13 | | | |
