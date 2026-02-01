@@ -29,6 +29,19 @@ export class Localization {
         public static readonly DELETE_REMOTE_TITLE = "Delete Remote File";
         public static readonly DELETE_REMOTE_MESSAGE =
             (name: string) => `Are you sure you want to delete <b>${name}</b> from the remote server?`;
+
+        // Bulk action confirmations
+        public static readonly BULK_DELETE_LOCAL_TITLE = "Delete Local Files";
+        public static readonly BULK_DELETE_LOCAL_MESSAGE =
+            (count: number) => `Are you sure you want to delete <b>${count}</b> file${count === 1 ? "" : "s"} from the local server?`;
+
+        public static readonly BULK_DELETE_REMOTE_TITLE = "Delete Remote Files";
+        public static readonly BULK_DELETE_REMOTE_MESSAGE =
+            (count: number) => {
+                const plural = count === 1 ? "" : "s";
+                return `Are you sure you want to delete <b>${count}</b> file${plural} ` +
+                    `from the remote server? This cannot be undone.`;
+            };
     };
 
     static Log = class {
