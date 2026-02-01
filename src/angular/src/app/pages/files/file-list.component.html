@@ -1,16 +1,44 @@
+<ng-container *ngIf="{files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectAllMatchingFilter: selectAllMatchingFilter$ | async} as vm">
+<app-selection-banner
+    [visibleFiles]="vm.files!"
+    [totalMatchingCount]="vm.files!.size"
+    [selectedFiles]="vm.selectedFiles!"
+    [selectAllMatchingFilterActive]="vm.selectAllMatchingFilter!"
+    (clearSelection)="onClearSelection()"
+    (selectAllMatchingFilter)="onSelectAllMatchingFilter(vm.files!)">
+</app-selection-banner>
+<app-bulk-actions-bar
+    [visibleFiles]="vm.files!"
+    [selectedFiles]="vm.selectedFiles!"
+    [operationInProgress]="bulkOperationInProgress"
+    (queueAction)="onBulkQueue($event)"
+    (stopAction)="onBulkStop($event)"
+    (extractAction)="onBulkExtract($event)"
+    (deleteLocalAction)="onBulkDeleteLocal($event)"
+    (deleteRemoteAction)="onBulkDeleteRemote($event)">
+</app-bulk-actions-bar>
 <div id="file-list">
     <div id="header">
+        <div class="checkbox">
+            <input type="checkbox"
+                   [checked]="vm.state === 'all'"
+                   [indeterminate]="vm.state === 'some'"
+                   (click)="onHeaderCheckboxClick(vm.files!)"
+                   aria-label="Select all files" />
+        </div>
         <div class="name">Filename</div>
         <div class="status">Status</div>
         <div class="speed">Speed</div>
         <div class="eta">ETA</div>
         <div class="size">Size</div>
     </div>
-    <div *ngFor="let file of files | async; trackBy: identify">
+    <div *ngFor="let file of vm.files; trackBy: identify">
         <app-file
             [file]="file"
             [options]="options"
+            [bulkSelected]="isBulkSelected(file)"
             (click)="onSelect(file)"
+            (checkboxToggle)="onCheckboxToggle($event)"
             (queueEvent)="onQueue($event)"
             (stopEvent)="onStop($event)"
             (extractEvent)="onExtract($event)"
@@ -19,3 +47,4 @@
         </app-file>
     </div>
 </div>
+</ng-container>
