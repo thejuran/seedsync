@@ -4,8 +4,18 @@
     padding: 10px;
 }
 
-/* selected file */
+/* selected file (details panel selection) */
 .file.selected {
+    background-color: $secondary-color;
+}
+
+/* bulk-selected file (checkbox selection) */
+.file.bulk-selected {
+    background-color: rgba($secondary-color, 0.3);
+}
+
+/* both selected and bulk-selected */
+.file.selected.bulk-selected {
     background-color: $secondary-color;
 }
 
@@ -25,11 +35,27 @@
 }
 
 /* width */
+.content .checkbox {width: 40px; min-width: 40px;}
 .content .status   {width: 100px; min-width: 100px;}
-.content .name     {flex-grow: 1; flex-basis: calc(100% - 100px);}
+.content .name     {flex-grow: 1; flex-basis: calc(100% - 140px);}
 .content .speed    {width: 100px; min-width: 100px;}
 /* .content .eta is hidden on mobile */
 .content .size     {flex-grow: 1;}
+
+/* Checkbox */
+.content .checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 62px;
+
+    input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+        accent-color: $secondary-dark-color;
+    }
+}
 
 /* content elements */
 .content > div {
@@ -210,12 +236,13 @@
 /* Medium and large screens */
 @media only screen and (min-width: $medium-min-width) {
     /* enable row hover */
-    .file:not(.selected):hover {
+    .file:not(.selected):not(.bulk-selected):hover {
         background-color: $secondary-light-color;
     }
 
     /* width */
     /* NOTE: make sure this is in-sync with "#file-list #header" */
+    .content .checkbox  {width: 40px; min-width: 40px;}
     .content .status    {width: 100px; min-width: 100px;}
     .content .name      {flex-grow: 1;}
     .content .speed     {width: 100px; min-width: 100px;}
@@ -230,6 +257,7 @@
     }
 
     /* Re-order columns */
+    .content .checkbox {order: 0;}
     .content .status {order: 2;}
     .content .name {order: 1;}
     .content .speed {order: 3;}

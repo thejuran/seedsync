@@ -22,6 +22,7 @@
 
     /* width */
     /* NOTE: make sure this is in-sync with ".file .content" */
+    #header .checkbox   {width: 40px; min-width: 40px;}
     #header .status     {width: 100px; min-width: 100px;}
     #header .name       {flex-grow: 1;}
     #header .speed      {width: 100px; min-width: 100px;}
@@ -35,6 +36,19 @@
         vertical-align: top;
     }
     #header .name, .content .name {text-align: left;}
+
+    /* header checkbox alignment */
+    #header .checkbox {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+    }
 
     /* header color */
     #header div {
