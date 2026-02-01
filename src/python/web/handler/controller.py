@@ -1,7 +1,10 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import json
+import logging
+import time
 from threading import Event
+from typing import List, Tuple
 from urllib.parse import unquote
 
 from bottle import HTTPResponse, request
@@ -9,6 +12,9 @@ from bottle import HTTPResponse, request
 from common import overrides
 from controller import Controller
 from ..web_app import IHandler, WebApp
+
+
+logger = logging.getLogger(__name__)
 
 
 class WebResponseActionCallback(Controller.Command.ICallback):
@@ -37,8 +43,17 @@ class WebResponseActionCallback(Controller.Command.ICallback):
         self.success = True
         self.__event.set()
 
-    def wait(self):
-        self.__event.wait()
+    def wait(self, timeout: float = None) -> bool:
+        """
+        Wait for the command to complete.
+
+        Args:
+            timeout: Maximum time to wait in seconds. None means wait forever.
+
+        Returns:
+            True if the event was set (command completed), False if timed out.
+        """
+        return self.__event.wait(timeout=timeout)
 
 
 class ControllerHandler(IHandler):
@@ -158,6 +173,11 @@ class ControllerHandler(IHandler):
         "delete_remote": Controller.Command.Action.DELETE_REMOTE,
     }
 
+    # Timeout per file in seconds for bulk operations
+    _BULK_TIMEOUT_PER_FILE = 5.0
+    # Maximum total timeout for bulk operations in seconds
+    _BULK_MAX_TIMEOUT = 300.0
+
     def __handle_bulk_command(self):
         """
         Handle bulk command requests for multiple files.
@@ -232,32 +252,9 @@ class ControllerHandler(IHandler):
             )
 
         action = self._VALID_ACTIONS[action_name]
-        results = []
-        succeeded = 0
-        failed = 0
 
-        # Process each file
-        for file_name in files:
-            command = Controller.Command(action, file_name)
-            callback = WebResponseActionCallback()
-            command.add_callback(callback)
-            self.__controller.queue_command(command)
-            callback.wait()
-
-            if callback.success:
-                results.append({
-                    "file": file_name,
-                    "success": True
-                })
-                succeeded += 1
-            else:
-                results.append({
-                    "file": file_name,
-                    "success": False,
-                    "error": callback.error,
-                    "error_code": callback.error_code
-                })
-                failed += 1
+        # Process files using parallel queuing for performance
+        results, succeeded, failed = self._process_bulk_commands(action, files, action_name)
 
         response = {
             "results": results,
@@ -273,3 +270,107 @@ class ControllerHandler(IHandler):
             status=200,
             content_type="application/json"
         )
+
+    def _process_bulk_commands(
+        self,
+        action: Controller.Command.Action,
+        files: List[str],
+        action_name: str
+    ) -> Tuple[List[dict], int, int]:
+        """
+        Process bulk commands with parallel queuing for improved performance.
+
+        Instead of queuing one command and waiting for it to complete before
+        queuing the next, this method queues ALL commands first, allowing the
+        controller to process them in a single batch. This significantly reduces
+        latency for large file counts.
+
+        Args:
+            action: The action to perform on all files.
+            files: List of file names to process.
+            action_name: Human-readable action name for logging.
+
+        Returns:
+            Tuple of (results list, succeeded count, failed count).
+        """
+        start_time = time.time()
+        file_count = len(files)
+
+        logger.info("Bulk {} operation started for {} file(s)".format(action_name, file_count))
+
+        # Calculate timeout: per-file timeout with a maximum cap
+        timeout = min(
+            file_count * self._BULK_TIMEOUT_PER_FILE,
+            self._BULK_MAX_TIMEOUT
+        )
+
+        # Phase 1: Queue all commands (parallel queuing)
+        commands_with_callbacks: List[Tuple[str, WebResponseActionCallback]] = []
+        for file_name in files:
+            command = Controller.Command(action, file_name)
+            callback = WebResponseActionCallback()
+            command.add_callback(callback)
+            self.__controller.queue_command(command)
+            commands_with_callbacks.append((file_name, callback))
+
+        queue_time = time.time()
+        logger.debug("Bulk {}: queued {} commands in {:.3f}s".format(
+            action_name, file_count, queue_time - start_time
+        ))
+
+        # Phase 2: Wait for all callbacks to complete
+        # The controller will process all queued commands in its next cycle,
+        # so waiting for all at once is much faster than waiting one-by-one.
+        results = []
+        succeeded = 0
+        failed = 0
+        timed_out = 0
+
+        # Calculate remaining time for each callback
+        for file_name, callback in commands_with_callbacks:
+            remaining_timeout = max(0.1, timeout - (time.time() - start_time))
+            completed = callback.wait(timeout=remaining_timeout)
+
+            if not completed:
+                # Timed out waiting for this command
+                results.append({
+                    "file": file_name,
+                    "success": False,
+                    "error": "Operation timed out",
+                    "error_code": 504
+                })
+                failed += 1
+                timed_out += 1
+            elif callback.success:
+                results.append({
+                    "file": file_name,
+                    "success": True
+                })
+                succeeded += 1
+            else:
+                results.append({
+                    "file": file_name,
+                    "success": False,
+                    "error": callback.error,
+                    "error_code": callback.error_code
+                })
+                failed += 1
+
+        total_time = time.time() - start_time
+
+        # Log performance summary
+        if timed_out > 0:
+            logger.warning(
+                "Bulk {} completed: {}/{} succeeded, {} failed, {} timed out in {:.3f}s".format(
+                    action_name, succeeded, file_count, failed - timed_out, timed_out, total_time
+                )
+            )
+        else:
+            logger.info(
+                "Bulk {} completed: {}/{} succeeded in {:.3f}s ({:.1f} files/sec)".format(
+                    action_name, succeeded, file_count, total_time,
+                    file_count / total_time if total_time > 0 else 0
+                )
+            )
+
+        return results, succeeded, failed

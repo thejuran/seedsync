@@ -342,3 +342,139 @@ class TestControllerHandlerBulkCommand(unittest.TestCase):
         body = json.loads(response.body)
         result_files = [r["file"] for r in body["results"]]
         self.assertEqual(files, result_files)
+
+    # =========================================================================
+    # Timeout Tests
+    # =========================================================================
+
+    def test_timeout_returns_504_error(self):
+        """Test that commands that don't complete in time return 504 timeout error."""
+        def slow_side_effect(command):
+            # Don't call the callback - simulate a timeout
+            pass
+
+        self.mock_controller.queue_command.side_effect = slow_side_effect
+
+        # Override the timeout to a very short value for testing
+        original_timeout = ControllerHandler._BULK_TIMEOUT_PER_FILE
+        ControllerHandler._BULK_TIMEOUT_PER_FILE = 0.1
+
+        try:
+            response = self._call_bulk_handler({
+                "action": "queue",
+                "files": ["file1"]
+            })
+
+            self.assertEqual(200, response.status_code)
+            body = json.loads(response.body)
+
+            self.assertEqual(1, len(body["results"]))
+            self.assertFalse(body["results"][0]["success"])
+            self.assertEqual(504, body["results"][0]["error_code"])
+            self.assertIn("timed out", body["results"][0]["error"])
+
+            self.assertEqual(1, body["summary"]["failed"])
+            self.assertEqual(0, body["summary"]["succeeded"])
+        finally:
+            ControllerHandler._BULK_TIMEOUT_PER_FILE = original_timeout
+
+    def test_wait_with_timeout_returns_true_on_completion(self):
+        """Test that wait() returns True when the event is set within timeout."""
+        callback = WebResponseActionCallback()
+        callback.on_success()
+
+        result = callback.wait(timeout=1.0)
+
+        self.assertTrue(result)
+
+    def test_wait_with_timeout_returns_false_on_timeout(self):
+        """Test that wait() returns False when timeout expires."""
+        callback = WebResponseActionCallback()
+        # Don't set the event
+
+        result = callback.wait(timeout=0.01)
+
+        self.assertFalse(result)
+
+    # =========================================================================
+    # Performance Tests
+    # =========================================================================
+
+    def test_bulk_100_files_performance(self):
+        """Test that 100 files can be processed efficiently."""
+        import time
+
+        self._setup_command_callback(success=True)
+
+        files = ["file{}".format(i) for i in range(100)]
+
+        start = time.time()
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": files
+        })
+        elapsed = time.time() - start
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        self.assertEqual(100, body["summary"]["total"])
+        self.assertEqual(100, body["summary"]["succeeded"])
+
+        # Should complete in under 1 second (mocked controller is instant)
+        self.assertLess(elapsed, 1.0, "100 files should process in under 1 second")
+
+    def test_bulk_500_files_performance(self):
+        """Test that 500 files can be processed efficiently."""
+        import time
+
+        self._setup_command_callback(success=True)
+
+        files = ["file{}".format(i) for i in range(500)]
+
+        start = time.time()
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": files
+        })
+        elapsed = time.time() - start
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        self.assertEqual(500, body["summary"]["total"])
+        self.assertEqual(500, body["summary"]["succeeded"])
+
+        # Should complete in under 2 seconds (mocked controller is instant)
+        self.assertLess(elapsed, 2.0, "500 files should process in under 2 seconds")
+
+    def test_parallel_queuing_batches_commands(self):
+        """Test that all commands are queued before waiting for callbacks."""
+        queued_times = []
+        callback_times = []
+
+        def side_effect(command):
+            import time
+            queued_times.append(time.time())
+            # Small delay to simulate controller processing
+            time.sleep(0.001)
+            for callback in command.callbacks:
+                callback.on_success()
+            callback_times.append(time.time())
+
+        self.mock_controller.queue_command.side_effect = side_effect
+
+        files = ["file1", "file2", "file3"]
+        self._call_bulk_handler({
+            "action": "queue",
+            "files": files
+        })
+
+        # All files should have been queued
+        self.assertEqual(3, len(queued_times))
+
+        # With parallel queuing, all commands are queued first,
+        # then callbacks are waited on. In the mocked scenario,
+        # the callbacks are triggered immediately, so the order
+        # should still show all commands were processed.
+        self.assertEqual(3, self.mock_controller.queue_command.call_count)

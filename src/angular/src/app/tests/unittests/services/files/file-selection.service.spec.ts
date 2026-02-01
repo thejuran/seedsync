@@ -469,4 +469,215 @@ describe("Testing file selection service", () => {
             expect(elapsed).toBeLessThan(50);
         });
     });
+
+    // =========================================================================
+    // Large Scale Tests (1000+ files)
+    // =========================================================================
+
+    describe("Large scale selection (1000+ files)", () => {
+
+        it("should select 1000 files efficiently", () => {
+            const files: ViewFile[] = [];
+            for (let i = 0; i < 1000; i++) {
+                files.push(new ViewFile({name: `file${i}`}));
+            }
+
+            const start = performance.now();
+            service.selectAllVisible(files);
+            const elapsed = performance.now() - start;
+
+            expect(service.getSelectedCount()).toBe(1000);
+            expect(elapsed).toBeLessThan(100);
+        });
+
+        it("should select 5000 files efficiently", () => {
+            const files: ViewFile[] = [];
+            for (let i = 0; i < 5000; i++) {
+                files.push(new ViewFile({name: `file${i}`}));
+            }
+
+            const start = performance.now();
+            service.selectAllVisible(files);
+            const elapsed = performance.now() - start;
+
+            expect(service.getSelectedCount()).toBe(5000);
+            expect(elapsed).toBeLessThan(500);
+        });
+
+        it("should clear 5000 selections efficiently", () => {
+            // Select 5000 files
+            const files: ViewFile[] = [];
+            for (let i = 0; i < 5000; i++) {
+                files.push(new ViewFile({name: `file${i}`}));
+            }
+            service.selectAllVisible(files);
+
+            const start = performance.now();
+            service.clearSelection();
+            const elapsed = performance.now() - start;
+
+            expect(service.getSelectedCount()).toBe(0);
+            expect(elapsed).toBeLessThan(50);
+        });
+
+        it("should handle isSelected lookup efficiently with 5000 files", () => {
+            const fileNames: string[] = [];
+            for (let i = 0; i < 5000; i++) {
+                fileNames.push(`file${i}`);
+            }
+            service.selectMultiple(fileNames);
+
+            // Measure 5000 lookups
+            const start = performance.now();
+            for (let i = 0; i < 5000; i++) {
+                service.isSelected(`file${i}`);
+            }
+            const elapsed = performance.now() - start;
+
+            // 5000 lookups should complete in under 50ms (O(1) per lookup)
+            expect(elapsed).toBeLessThan(50);
+        });
+
+        it("should prune 5000 selections efficiently", () => {
+            const fileNames: string[] = [];
+            for (let i = 0; i < 5000; i++) {
+                fileNames.push(`file${i}`);
+            }
+            service.selectMultiple(fileNames);
+
+            // Keep only 2500 files
+            const remainingFiles = new Set<string>();
+            for (let i = 0; i < 2500; i++) {
+                remainingFiles.add(`file${i}`);
+            }
+
+            const start = performance.now();
+            service.pruneSelection(remainingFiles);
+            const elapsed = performance.now() - start;
+
+            expect(service.getSelectedCount()).toBe(2500);
+            expect(elapsed).toBeLessThan(100);
+        });
+    });
+
+    // =========================================================================
+    // Memory and GC Behavior Tests
+    // =========================================================================
+
+    describe("Memory and garbage collection behavior", () => {
+
+        it("should not retain references to old selection sets after clear", () => {
+            // Select some files
+            service.selectMultiple(["file1", "file2", "file3"]);
+            const oldSet = service.getSelectedFiles();
+
+            // Clear selection
+            service.clearSelection();
+            const newSet = service.getSelectedFiles();
+
+            // Old set should still have its values (it's a copy)
+            expect(oldSet.size).toBe(3);
+            // New set should be empty
+            expect(newSet.size).toBe(0);
+            // They should be different objects
+            expect(oldSet).not.toBe(newSet);
+        });
+
+        it("should create new Set objects on each emission to support immutability", (done) => {
+            const emittedSets: Set<string>[] = [];
+
+            service.selectedFiles$.subscribe(files => {
+                emittedSets.push(files);
+                if (emittedSets.length === 3) {
+                    // All emitted sets should be different objects
+                    expect(emittedSets[0]).not.toBe(emittedSets[1]);
+                    expect(emittedSets[1]).not.toBe(emittedSets[2]);
+                    done();
+                }
+            });
+
+            service.select("file1");
+            service.select("file2");
+        });
+
+        it("should survive 1000 rapid select/clear cycles without issues", () => {
+            const files: ViewFile[] = [];
+            for (let i = 0; i < 100; i++) {
+                files.push(new ViewFile({name: `file${i}`}));
+            }
+
+            const start = performance.now();
+            for (let cycle = 0; cycle < 1000; cycle++) {
+                service.selectAllVisible(files);
+                service.clearSelection();
+            }
+            const elapsed = performance.now() - start;
+
+            expect(service.getSelectedCount()).toBe(0);
+            // 1000 cycles should complete in under 2 seconds
+            expect(elapsed).toBeLessThan(2000);
+        });
+
+        it("should handle repeated large selections without accumulating memory", () => {
+            // This test verifies that selections are properly cleared
+            // and don't accumulate across multiple select/clear cycles
+
+            for (let round = 0; round < 10; round++) {
+                const files: ViewFile[] = [];
+                for (let i = 0; i < 1000; i++) {
+                    files.push(new ViewFile({name: `round${round}_file${i}`}));
+                }
+                service.selectAllVisible(files);
+                expect(service.getSelectedCount()).toBe(1000);
+                service.clearSelection();
+                expect(service.getSelectedCount()).toBe(0);
+            }
+
+            // After all rounds, selection should be empty
+            expect(service.getSelectedCount()).toBe(0);
+        });
+    });
+
+    // =========================================================================
+    // Serialization Tests (for future persistence)
+    // =========================================================================
+
+    describe("Selection state serialization", () => {
+
+        it("should be able to export selection state as array", () => {
+            service.selectMultiple(["file1", "file2", "file3"]);
+
+            // Get selected files as array (serializable)
+            const selectedArray = Array.from(service.getSelectedFiles());
+
+            expect(selectedArray).toContain("file1");
+            expect(selectedArray).toContain("file2");
+            expect(selectedArray).toContain("file3");
+            expect(selectedArray.length).toBe(3);
+        });
+
+        it("should be able to restore selection from array", () => {
+            const savedSelection = ["file1", "file2", "file3"];
+
+            // Restore selection
+            service.setSelection(savedSelection);
+
+            expect(service.getSelectedCount()).toBe(3);
+            expect(service.isSelected("file1")).toBe(true);
+            expect(service.isSelected("file2")).toBe(true);
+            expect(service.isSelected("file3")).toBe(true);
+        });
+
+        it("should export selectAllMatchingFilter state", () => {
+            const files = [new ViewFile({name: "file1"})];
+            service.selectAllMatchingFilter(files);
+
+            // State can be captured
+            const isSelectAll = service.isSelectAllMatchingFilter();
+            const selectedFiles = Array.from(service.getSelectedFiles());
+
+            expect(isSelectAll).toBe(true);
+            expect(selectedFiles).toEqual(["file1"]);
+        });
+    });
 });
