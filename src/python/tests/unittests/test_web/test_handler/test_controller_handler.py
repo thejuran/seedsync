@@ -152,6 +152,85 @@ class TestControllerHandlerBulkCommand(unittest.TestCase):
         self.assertIn("error", body)
         self.assertIn("strings", body["error"])
 
+    def test_files_with_empty_string_returns_400(self):
+        """Empty string file names should be rejected."""
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": ["file1", "", "file2"]
+        })
+
+        self.assertEqual(400, response.status_code)
+        body = json.loads(response.body)
+        self.assertIn("error", body)
+        self.assertIn("non-empty", body["error"])
+
+    def test_files_with_whitespace_only_returns_400(self):
+        """Whitespace-only file names should be rejected."""
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": ["file1", "   ", "file2"]
+        })
+
+        self.assertEqual(400, response.status_code)
+        body = json.loads(response.body)
+        self.assertIn("error", body)
+        self.assertIn("non-empty", body["error"])
+
+    def test_too_many_files_returns_400(self):
+        """Requests with more than MAX_BULK_FILES should be rejected."""
+        max_files = ControllerHandler._MAX_BULK_FILES
+        files = ["file{}".format(i) for i in range(max_files + 1)]
+
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": files
+        })
+
+        self.assertEqual(400, response.status_code)
+        body = json.loads(response.body)
+        self.assertIn("error", body)
+        self.assertIn("Too many files", body["error"])
+        self.assertIn(str(max_files), body["error"])
+
+    def test_duplicate_files_are_deduplicated(self):
+        """Duplicate file names should be processed only once."""
+        self._setup_command_callback(success=True)
+
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": ["file1", "file2", "file1", "file3", "file2"]
+        })
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        # Should only have 3 unique files
+        self.assertEqual(3, len(body["results"]))
+        self.assertEqual(3, body["summary"]["total"])
+        self.assertEqual(3, body["summary"]["succeeded"])
+
+        # Order should be preserved (first occurrence)
+        result_files = [r["file"] for r in body["results"]]
+        self.assertEqual(["file1", "file2", "file3"], result_files)
+
+        # Controller should only receive 3 commands
+        self.assertEqual(3, self.mock_controller.queue_command.call_count)
+
+    def test_max_files_exactly_at_limit_succeeds(self):
+        """Requests with exactly MAX_BULK_FILES should succeed."""
+        self._setup_command_callback(success=True)
+        max_files = ControllerHandler._MAX_BULK_FILES
+        files = ["file{}".format(i) for i in range(max_files)]
+
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": files
+        })
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+        self.assertEqual(max_files, body["summary"]["total"])
+
     # =========================================================================
     # Success Tests
     # =========================================================================

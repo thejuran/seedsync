@@ -177,6 +177,8 @@ class ControllerHandler(IHandler):
     _BULK_TIMEOUT_PER_FILE = 5.0
     # Maximum total timeout for bulk operations in seconds
     _BULK_MAX_TIMEOUT = 300.0
+    # Maximum number of files allowed in a single bulk request
+    _MAX_BULK_FILES = 1000
 
     def __handle_bulk_command(self):
         """
@@ -244,9 +246,24 @@ class ControllerHandler(IHandler):
                 status=400,
                 content_type="application/json"
             )
-        if not all(isinstance(f, str) for f in files):
+        if not all(isinstance(f, str) and f.strip() for f in files):
             return HTTPResponse(
-                body=json.dumps({"error": "All files must be strings"}),
+                body=json.dumps({"error": "All files must be non-empty strings"}),
+                status=400,
+                content_type="application/json"
+            )
+
+        # Deduplicate files while preserving order
+        files = list(dict.fromkeys(files))
+
+        # Enforce maximum file limit to prevent DoS
+        if len(files) > self._MAX_BULK_FILES:
+            return HTTPResponse(
+                body=json.dumps({
+                    "error": "Too many files. Maximum {} files allowed per request".format(
+                        self._MAX_BULK_FILES
+                    )
+                }),
                 status=400,
                 content_type="application/json"
             )
