@@ -4,10 +4,10 @@
 
 | Item | Value |
 |------|-------|
-| **Latest Branch** | `claude/review-bulk-file-actions-npgvV` |
-| **Status** | ✅ Session 13 Complete - All performance sessions done |
-| **Current Session** | Session 13 complete, feature complete |
-| **Total Sessions** | 13 (10 implementation + 3 performance) |
+| **Latest Branch** | `claude/fix-checkbox-performance-sVnWu` |
+| **Status** | 🔄 Session 14 Planned - Virtual scrolling for checkbox performance |
+| **Current Session** | Session 14 planned |
+| **Total Sessions** | 14 (10 implementation + 4 performance) |
 
 > **Claude Code Branch Management:**
 > Each Claude Code session can only push to branches matching its session ID.
@@ -39,6 +39,7 @@
 > - `claude/review-bulk-file-actions-r3k1q` - Sessions 1-9 (merged from above)
 > - `claude/review-bulk-file-actions-GcAbK` - Sessions 1-10 (complete, merged from above)
 > - `claude/uat-bulk-stop-action-Gubvs` - UAT complete + performance sessions planned
+> - `claude/fix-checkbox-performance-sVnWu` - Session 14 (virtual scrolling plan)
 
 ---
 
@@ -405,6 +406,20 @@ _Document technical discoveries, gotchas, and decisions made during implementati
 - Pure pipes (`IsSelectedPipe`) benefit from Angular's memoization - only re-evaluated when inputs change by reference
 - Performance tests verify 500 files select in <50ms, toggle in <10ms, clear in <10ms
 - Set.has() is O(1) - efficient for large selection sets
+
+### Cascading Checkbox Root Cause (Session 14)
+- **Problem**: Select-all causes visible cascading checkbox updates (checkboxes light up one-by-one)
+- **Root cause**: All 500 FileComponents exist in DOM and must update sequentially
+- **Why Session 11 optimizations weren't sufficient**:
+  - OnPush: Still runs change detection on each component when `@Input` changes
+  - trackBy: Prevents DOM recreation, but doesn't prevent input binding updates
+  - IsSelectedPipe: Re-evaluates for all 500 files when Set reference changes (even if memoized)
+  - Cached computations: Helped banner/bar, but not per-file checkbox updates
+- **Why cascade is visible**: Angular change detection is synchronous; browser paints each state change
+- **Solution**: Virtual scrolling reduces DOM nodes from 500 to ~15 (only visible items rendered)
+- Virtual scrolling is industry standard for large lists (Twitter, Slack, VS Code, Google Sheets)
+- `@angular/cdk/scrolling` is the official Angular solution, maintained by Angular team
+- Alternative `content-visibility: auto` CSS property is simpler but provides less control
 
 ### E2E Testing Notes
 - Wait for banner text updates (`toContainText`) instead of checkbox state for reliable Angular change detection sync
@@ -916,6 +931,142 @@ Analysis revealed that most Session 13 optimizations were **already implemented*
 
 ---
 
+### Session 14: Virtual Scrolling for Checkbox Performance
+
+**Scope:** Implement virtual scrolling to eliminate cascading checkbox effect on select-all
+**Estimated effort:** Medium
+**Dependencies:** None
+
+**Problem Statement:**
+
+When clicking the select-all checkbox with 500 files, users observe checkboxes updating one-by-one in a visible cascade, causing unacceptable wait times. Despite Session 11's optimizations (OnPush, trackBy, IsSelectedPipe, cached computations), the fundamental issue remains: **all 500 FileComponents must update their DOM state sequentially**.
+
+**Root Cause Analysis:**
+
+```
+Select-All Click
+    → FileSelectionService.selectAllVisible(500 files)
+    → New Set emitted via BehaviorSubject (new reference triggers change detection)
+    → vm.selectedFiles reference changes in template
+    → IsSelectedPipe re-evaluates for ALL 500 files (even with memoization, inputs changed)
+    → 500 FileComponent @Input[bulkSelected] changes detected
+    → 500 sequential DOM checkbox updates
+    → Browser paints each checkbox state change (visible cascade)
+```
+
+The cascade is visible because:
+1. Angular's change detection runs synchronously through all 500 components
+2. Browser paints checkboxes as they update, not atomically
+3. No virtual scrolling means all 500 DOM nodes exist and must update
+
+**Solution: Angular CDK Virtual Scrolling**
+
+Virtual scrolling is the **industry-standard solution** for rendering large lists. Used by Twitter, Slack, Discord, VS Code, Google Sheets.
+
+Only render ~10-20 visible file rows instead of 500. When user scrolls, recycle DOM nodes. Select-all now updates **15 components instead of 500**.
+
+**Tasks:**
+- [ ] Add `@angular/cdk` dependency to package.json
+- [ ] Import `ScrollingModule` in FileListComponent
+- [ ] Replace `*ngFor` wrapper with `<cdk-virtual-scroll-viewport>`
+- [ ] Change `*ngFor` to `*cdkVirtualFor` (same trackBy function works)
+- [ ] Set fixed viewport height in `file-list.component.scss`
+- [ ] Set `itemSize` based on file row height (measure current row height)
+- [ ] Adjust scroll-to-selected behavior for virtual scrolling API
+- [ ] Verify header checkbox, selection banner, bulk actions still work
+- [ ] Add E2E tests for scrolling behavior with selection
+- [ ] Performance test: select-all with 500 files completes in <50ms
+
+**Files to Modify:**
+```
+src/angular/package.json                           # Add @angular/cdk
+src/angular/src/app/pages/files/file-list.component.ts    # Import ScrollingModule
+src/angular/src/app/pages/files/file-list.component.html  # Virtual scroll wrapper
+src/angular/src/app/pages/files/file-list.component.scss  # Viewport height
+```
+
+**Context to read:**
+- `src/angular/src/app/pages/files/file-list.component.html` (current *ngFor structure)
+- `src/angular/src/app/pages/files/file.component.html` (row structure for itemSize)
+- Angular CDK Virtual Scrolling documentation
+
+**Implementation Details:**
+
+```html
+<!-- Before: 500 DOM nodes always rendered -->
+<div *ngFor="let file of vm.files; trackBy: identify">
+    <app-file [bulkSelected]="file.name | isSelected:vm.selectedFiles" ...>
+</div>
+
+<!-- After: Only ~15 visible DOM nodes -->
+<cdk-virtual-scroll-viewport itemSize="50" class="file-viewport">
+    <app-file *cdkVirtualFor="let file of vm.files; trackBy: identify"
+              [bulkSelected]="file.name | isSelected:vm.selectedFiles"
+              [file]="file"
+              [options]="options"
+              (click)="onSelect(file)"
+              (checkboxToggle)="onCheckboxToggle($event)"
+              (queueEvent)="onQueue($event)"
+              (stopEvent)="onStop($event)"
+              (extractEvent)="onExtract($event)"
+              (deleteLocalEvent)="onDeleteLocal($event)"
+              (deleteRemoteEvent)="onDeleteRemote($event)">
+    </app-file>
+</cdk-virtual-scroll-viewport>
+```
+
+```scss
+// file-list.component.scss
+.file-viewport {
+    height: calc(100vh - 200px);  // Adjust based on header/banner heights
+    width: 100%;
+}
+```
+
+**Scroll-to-Selected Adjustment:**
+
+The current `FileComponent` scrolls into view when selected. With virtual scrolling, use CDK's `scrollToIndex()`:
+
+```typescript
+// file-list.component.ts
+@ViewChild(CdkVirtualScrollViewport) viewport: CdkVirtualScrollViewport;
+
+scrollToFile(fileName: string): void {
+    const index = this.files.findIndex(f => f.name === fileName);
+    if (index >= 0) {
+        this.viewport.scrollToIndex(index, 'smooth');
+    }
+}
+```
+
+**Why Not Other Solutions:**
+
+| Alternative | Why Not Sufficient |
+|-------------|-------------------|
+| CSS `content-visibility: auto` | Less control, doesn't reduce change detection cycles |
+| `requestAnimationFrame` batching | Still updates 500 components, just batched visually |
+| More aggressive memoization | Can't avoid 500 input binding checks on Set change |
+| Debouncing selection emissions | Adds latency, doesn't reduce component count |
+
+Virtual scrolling is the **correct architectural solution** because it reduces the problem from 500 components to ~15.
+
+**Acceptance criteria:**
+- [ ] Select-all with 500 files shows no visible cascade (instant visual update)
+- [ ] Scrolling through file list is smooth (60fps)
+- [ ] All existing functionality preserved (selection, actions, keyboard shortcuts)
+- [ ] No visual regressions in file list appearance
+- [ ] E2E tests pass
+
+**Risks and Mitigations:**
+
+| Risk | Mitigation |
+|------|------------|
+| Variable row heights (details expanded) | Use `autosize` strategy or fixed collapsed height |
+| Keyboard navigation edge cases | Test shift+click across viewport boundaries |
+| E2E test selectors for off-screen items | Use `scrollToIndex` before assertions |
+
+---
+
 ### Session Log (Performance)
 
 | Session | Date | Outcome | Notes |
@@ -923,3 +1074,4 @@ Analysis revealed that most Session 13 optimizations were **already implemented*
 | Session 11 | 2026-02-01 | ✅ Complete | Frontend selection performance optimized: cached BulkActionsBar computations, created IsSelectedPipe, added 15 performance tests |
 | Session 12 | 2026-02-01 | ✅ Complete | Backend bulk endpoint performance: parallel command queuing, timeout handling (5s/file, 300s max), performance logging, 6 new unit tests |
 | Session 13 | 2026-02-01 | ✅ Complete | Memory/GC verification: lazy selection and pruning already implemented, added 13 tests for 5000-file scale, serialization support |
+| Session 14 | 2026-02-01 | 🔄 Planned | Virtual scrolling via @angular/cdk to eliminate cascading checkbox effect |
