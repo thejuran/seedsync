@@ -44,6 +44,36 @@ export class Localization {
             };
     };
 
+    static Bulk = class {
+        // Success messages
+        public static readonly SUCCESS_QUEUED = (count: number) =>
+            `Queued ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_STOPPED = (count: number) =>
+            `Stopped ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_EXTRACTED = (count: number) =>
+            `Extracted ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_DELETED_LOCAL = (count: number) =>
+            `Deleted ${count} local file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_DELETED_REMOTE = (count: number) =>
+            `Deleted ${count} remote file${count === 1 ? "" : "s"} successfully`;
+
+        // Partial failure messages
+        public static readonly PARTIAL_QUEUED = (succeeded: number, failed: number) =>
+            `Queued ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_STOPPED = (succeeded: number, failed: number) =>
+            `Stopped ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_EXTRACTED = (succeeded: number, failed: number) =>
+            `Extracted ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_DELETED_LOCAL = (succeeded: number, failed: number) =>
+            `Deleted ${succeeded} local file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_DELETED_REMOTE = (succeeded: number, failed: number) =>
+            `Deleted ${succeeded} remote file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+
+        // Error message
+        public static readonly ERROR = (message: string) =>
+            `Bulk action failed: ${message}`;
+    };
+
     static Log = class {
         public static readonly CONNECTED = "Connected to service";
         public static readonly DISCONNECTED = "Lost connection to service";

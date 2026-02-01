@@ -45,6 +45,11 @@ export class BulkActionsBarComponent {
     @Input() selectedFiles: Set<string> = new Set();
 
     /**
+     * Whether a bulk operation is currently in progress.
+     */
+    @Input() operationInProgress = false;
+
+    /**
      * Emitted when user clicks Queue button.
      * Passes array of file names that are queueable.
      */

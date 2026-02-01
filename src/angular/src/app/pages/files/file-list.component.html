@@ -10,6 +10,7 @@
 <app-bulk-actions-bar
     [visibleFiles]="vm.files!"
     [selectedFiles]="vm.selectedFiles!"
+    [operationInProgress]="bulkOperationInProgress"
     (queueAction)="onBulkQueue($event)"
     (stopAction)="onBulkStop($event)"
     (extractAction)="onBulkExtract($event)"

@@ -4,9 +4,9 @@
 
 | Item | Value |
 |------|-------|
-| **Latest Branch** | `claude/review-bulk-file-actions-rRra3` |
+| **Latest Branch** | `claude/review-bulk-file-actions-r3k1q` |
 | **Status** | 🟢 In Progress |
-| **Current Session** | Session 8 Complete |
+| **Current Session** | Session 9 Complete |
 | **Total Sessions** | 10 estimated |
 
 > **Claude Code Branch Management:**
@@ -35,7 +35,8 @@
 > - `claude/review-bulk-file-actions-olN0F` - Sessions 1-5 (merged from above)
 > - `claude/review-bulk-file-actions-yVpO3` - Sessions 1-6 (merged from above)
 > - `claude/review-bulk-file-actions-Fmk5U` - Sessions 1-7 (merged from above)
-> - `claude/review-bulk-file-actions-rRra3` - Sessions 1-8 (current, merged from above)
+> - `claude/review-bulk-file-actions-rRra3` - Sessions 1-8 (merged from above)
+> - `claude/review-bulk-file-actions-r3k1q` - Sessions 1-9 (current, merged from above)
 
 ---
 
@@ -270,15 +271,16 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Sessions 1, 7, 8
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/services/server/bulk-command.service.ts`
-- [ ] Implement `executeBulkAction(action, files)` calling bulk endpoint
-- [ ] Wire bulk actions bar buttons to service
-- [ ] Show confirmation dialog for delete actions
-- [ ] Add/update notification service for toast messages
-- [ ] Show success toast with counts
-- [ ] Show warning toast on partial failure
-- [ ] Clear selection after successful action
-- [ ] Add progress indicator for 50+ files
+- [x] Create `src/angular/src/app/services/server/bulk-command.service.ts`
+- [x] Implement `executeBulkAction(action, files)` calling bulk endpoint
+- [x] Wire bulk actions bar buttons to service
+- [x] Show confirmation dialog for delete actions
+- [x] Add/update notification service for toast messages
+- [x] Show success toast with counts
+- [x] Show warning toast on partial failure
+- [x] Clear selection after successful action
+- [x] Add progress indicator for 50+ files
+- [x] Add unit tests (18 tests for BulkCommandService)
 
 **Context to read:**
 - `src/angular/src/app/services/server/server-command.service.ts` (pattern reference)
@@ -338,6 +340,7 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session 6 | 2026-02-01 | ✅ Complete | Keyboard shortcuts (Ctrl+A, Escape) and Shift+click range selection |
 | Session 7 | 2026-02-01 | ✅ Complete | Bulk actions bar with Queue, Stop, Extract, Delete Local, Delete Remote buttons showing eligible counts |
 | Session 8 | 2026-02-01 | ✅ Complete | Extended ConfirmModalService with skipCount for bulk confirmations, added 18 unit tests, added bulk localization messages |
+| Session 9 | 2026-02-01 | ✅ Complete | BulkCommandService calling API, wired to actions bar, confirmation dialogs for delete, toast notifications, selection clear after action, progress indicator for 50+ files, 18 unit tests |
 
 ---
 
@@ -367,6 +370,12 @@ _Document technical discoveries, gotchas, and decisions made during implementati
 - Existing `ConfirmModalService` already provides Promise-based confirmation dialogs - extended instead of creating new component
 - `ConfirmModalOptions.skipCount` displays a muted message showing how many files will be skipped (not eligible for action)
 - Localization messages use function parameters for dynamic content (e.g., file counts with proper pluralization)
+- `BulkCommandService` uses `providedIn: 'root'` for singleton pattern, similar to other utility services
+- POST request handling required different pattern than existing `RestService` which only supports GET
+- `BulkActionResult` class provides convenience methods `allSucceeded` and `hasPartialFailure` for common checks
+- Toast notifications auto-dismiss after 5 seconds for SUCCESS and WARNING levels; DANGER level stays until manually dismissed
+- Progress indicator uses Bootstrap's `spinner-border-sm` for consistency with framework styling
+- Buttons are disabled during operation to prevent double-clicks (debounce alternative)
 
 ### Gotchas
 - Standalone components require explicit imports for all directives used in templates (e.g., `NgIf`, `NgFor`). Missing imports cause silent template failures rather than compile errors.
@@ -399,11 +408,12 @@ src/angular/src/app/pages/files/bulk-actions-bar.component.ts  # Session 7
 src/angular/src/app/pages/files/bulk-actions-bar.component.html  # Session 7
 src/angular/src/app/pages/files/bulk-actions-bar.component.scss  # Session 7
 src/angular/src/app/tests/unittests/pages/files/bulk-actions-bar.component.spec.ts  # Session 7
+src/angular/src/app/services/server/bulk-command.service.ts  # Session 9
+src/angular/src/app/tests/unittests/services/server/bulk-command.service.spec.ts  # Session 9
 ```
 
 ### New Files to Create
 ```
-src/angular/src/app/services/server/bulk-command.service.ts  # Session 9
 src/e2e/tests/bulk-actions.spec.ts  # Session 10
 ```
 
@@ -411,13 +421,16 @@ src/e2e/tests/bulk-actions.spec.ts  # Session 10
 ```
 src/python/web/handler/controller.py  # Session 1
 src/python/web/web_app.py  # Session 1
-src/angular/src/app/pages/files/file-list.component.html  # Session 4
-src/angular/src/app/pages/files/file-list.component.ts  # Session 4, 6
+src/angular/src/app/pages/files/file-list.component.html  # Session 4, 9
+src/angular/src/app/pages/files/file-list.component.ts  # Session 4, 6, 9
 src/angular/src/app/pages/files/file.component.html  # Session 4
 src/angular/src/app/pages/files/file.component.ts  # Session 4
 src/angular/src/app/services/files/view-file.service.ts  # Session 3
 src/angular/src/app/services/utils/confirm-modal.service.ts  # Session 8 (added skipCount)
-src/angular/src/app/common/localization.ts  # Session 8 (added bulk messages)
+src/angular/src/app/common/localization.ts  # Session 8, 9 (added bulk messages)
+src/angular/src/app/pages/files/bulk-actions-bar.component.ts  # Session 7, 9 (added operationInProgress)
+src/angular/src/app/pages/files/bulk-actions-bar.component.html  # Session 7, 9 (added progress indicator)
+src/angular/src/app/pages/files/bulk-actions-bar.component.scss  # Session 7, 9 (added progress styles)
 ```
 
 ---

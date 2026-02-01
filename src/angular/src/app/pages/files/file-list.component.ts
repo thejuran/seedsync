@@ -14,6 +14,11 @@ import {LoggerService} from "../../services/utils/logger.service";
 import {ViewFileOptions} from "../../services/files/view-file-options";
 import {ViewFileOptionsService} from "../../services/files/view-file-options.service";
 import {FileSelectionService} from "../../services/files/file-selection.service";
+import {BulkCommandService, BulkAction, BulkActionResult} from "../../services/server/bulk-command.service";
+import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
+import {NotificationService} from "../../services/utils/notification.service";
+import {Notification} from "../../services/utils/notification";
+import {Localization} from "../../common/localization";
 
 @Component({
     selector: "app-file-list",
@@ -40,11 +45,16 @@ export class FileListComponent {
     private _lastClickedIndex: number | null = null;
     // Cache of current files list for range selection (updated on each observable emission)
     private _currentFiles: List<ViewFile> = List();
+    // Track whether a bulk operation is in progress (for UI feedback)
+    public bulkOperationInProgress = false;
 
     constructor(private _logger: LoggerService,
                 private viewFileService: ViewFileService,
                 private viewFileOptionsService: ViewFileOptionsService,
-                public fileSelectionService: FileSelectionService) {
+                public fileSelectionService: FileSelectionService,
+                private bulkCommandService: BulkCommandService,
+                private confirmModalService: ConfirmModalService,
+                private notificationService: NotificationService) {
         this.files = viewFileService.filteredFiles;
         this.options = this.viewFileOptionsService.options;
 
@@ -256,7 +266,10 @@ export class FileListComponent {
      */
     onBulkQueue(fileNames: string[]): void {
         this._logger.info(`Bulk queue requested for ${fileNames.length} files:`, fileNames);
-        // API call will be implemented in Session 9
+        this._executeBulkAction("queue", fileNames, {
+            successMsg: Localization.Bulk.SUCCESS_QUEUED,
+            partialMsg: Localization.Bulk.PARTIAL_QUEUED
+        });
     }
 
     /**
@@ -265,7 +278,10 @@ export class FileListComponent {
      */
     onBulkStop(fileNames: string[]): void {
         this._logger.info(`Bulk stop requested for ${fileNames.length} files:`, fileNames);
-        // API call will be implemented in Session 9
+        this._executeBulkAction("stop", fileNames, {
+            successMsg: Localization.Bulk.SUCCESS_STOPPED,
+            partialMsg: Localization.Bulk.PARTIAL_STOPPED
+        });
     }
 
     /**
@@ -274,25 +290,155 @@ export class FileListComponent {
      */
     onBulkExtract(fileNames: string[]): void {
         this._logger.info(`Bulk extract requested for ${fileNames.length} files:`, fileNames);
-        // API call will be implemented in Session 9
+        this._executeBulkAction("extract", fileNames, {
+            successMsg: Localization.Bulk.SUCCESS_EXTRACTED,
+            partialMsg: Localization.Bulk.PARTIAL_EXTRACTED
+        });
     }
 
     /**
      * Handle bulk Delete Local action.
      * @param fileNames Array of file names to delete locally
      */
-    onBulkDeleteLocal(fileNames: string[]): void {
+    async onBulkDeleteLocal(fileNames: string[]): Promise<void> {
         this._logger.info(`Bulk delete local requested for ${fileNames.length} files:`, fileNames);
-        // API call will be implemented in Session 9
+
+        // Calculate skip count (selected files not eligible for this action)
+        const skipCount = this.fileSelectionService.getSelectedFiles().size - fileNames.length;
+
+        const confirmed = await this.confirmModalService.confirm({
+            title: Localization.Modal.BULK_DELETE_LOCAL_TITLE,
+            body: Localization.Modal.BULK_DELETE_LOCAL_MESSAGE(fileNames.length),
+            okBtn: "Delete",
+            okBtnClass: "btn btn-outline-danger",
+            skipCount: skipCount > 0 ? skipCount : undefined
+        });
+
+        if (confirmed) {
+            this._executeBulkAction("delete_local", fileNames, {
+                successMsg: Localization.Bulk.SUCCESS_DELETED_LOCAL,
+                partialMsg: Localization.Bulk.PARTIAL_DELETED_LOCAL
+            });
+        }
     }
 
     /**
      * Handle bulk Delete Remote action.
      * @param fileNames Array of file names to delete remotely
      */
-    onBulkDeleteRemote(fileNames: string[]): void {
+    async onBulkDeleteRemote(fileNames: string[]): Promise<void> {
         this._logger.info(`Bulk delete remote requested for ${fileNames.length} files:`, fileNames);
-        // API call will be implemented in Session 9
+
+        // Calculate skip count (selected files not eligible for this action)
+        const skipCount = this.fileSelectionService.getSelectedFiles().size - fileNames.length;
+
+        const confirmed = await this.confirmModalService.confirm({
+            title: Localization.Modal.BULK_DELETE_REMOTE_TITLE,
+            body: Localization.Modal.BULK_DELETE_REMOTE_MESSAGE(fileNames.length),
+            okBtn: "Delete",
+            okBtnClass: "btn btn-danger",
+            skipCount: skipCount > 0 ? skipCount : undefined
+        });
+
+        if (confirmed) {
+            this._executeBulkAction("delete_remote", fileNames, {
+                successMsg: Localization.Bulk.SUCCESS_DELETED_REMOTE,
+                partialMsg: Localization.Bulk.PARTIAL_DELETED_REMOTE
+            });
+        }
+    }
+
+    // =========================================================================
+    // Private Helpers
+    // =========================================================================
+
+    /**
+     * Execute a bulk action and handle the response with notifications.
+     */
+    private _executeBulkAction(
+        action: BulkAction,
+        fileNames: string[],
+        messages: {
+            successMsg: (count: number) => string;
+            partialMsg: (succeeded: number, failed: number) => string;
+        }
+    ): void {
+        // Show progress indicator for large selections
+        const showProgress = fileNames.length >= 50;
+        if (showProgress) {
+            this.bulkOperationInProgress = true;
+        }
+
+        this.bulkCommandService.executeBulkAction(action, fileNames).subscribe({
+            next: (result: BulkActionResult) => {
+                this.bulkOperationInProgress = false;
+                this._handleBulkResult(result, messages);
+                // Clear selection after action (even on partial failure)
+                this.fileSelectionService.clearSelection();
+                this._lastClickedIndex = null;
+            },
+            error: (err) => {
+                this.bulkOperationInProgress = false;
+                this._logger.error("Bulk action error:", err);
+                this._showNotification(
+                    Notification.Level.DANGER,
+                    Localization.Bulk.ERROR("Unexpected error occurred")
+                );
+            }
+        });
+    }
+
+    /**
+     * Handle the result of a bulk action and show appropriate notification.
+     */
+    private _handleBulkResult(
+        result: BulkActionResult,
+        messages: {
+            successMsg: (count: number) => string;
+            partialMsg: (succeeded: number, failed: number) => string;
+        }
+    ): void {
+        if (!result.success) {
+            // Complete failure (request error)
+            this._showNotification(
+                Notification.Level.DANGER,
+                Localization.Bulk.ERROR(result.errorMessage || "Unknown error")
+            );
+        } else if (result.allSucceeded) {
+            // All succeeded
+            this._showNotification(
+                Notification.Level.SUCCESS,
+                messages.successMsg(result.response!.summary.succeeded)
+            );
+        } else {
+            // Partial failure
+            this._showNotification(
+                Notification.Level.WARNING,
+                messages.partialMsg(
+                    result.response!.summary.succeeded,
+                    result.response!.summary.failed
+                )
+            );
+        }
+    }
+
+    /**
+     * Show a notification to the user.
+     */
+    private _showNotification(level: Notification.Level, text: string): void {
+        const notification = new Notification({
+            level,
+            text,
+            dismissible: true
+        });
+        this.notificationService.show(notification);
+
+        // Auto-dismiss success and warning notifications after a delay
+        if (level === Notification.Level.SUCCESS || level === Notification.Level.WARNING) {
+            setTimeout(() => {
+                this.notificationService.hide(notification);
+            }, 5000);
+        }
     }
 
 }
