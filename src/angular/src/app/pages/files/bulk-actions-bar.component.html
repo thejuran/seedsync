@@ -1,0 +1,35 @@
+<div *ngIf="hasSelection" class="bulk-actions-bar">
+    <span class="selection-label">{{ selectedCount }} {{ selectedCount === 1 ? 'file' : 'files' }} selected</span>
+    <div class="actions">
+        <button type="button"
+                class="btn btn-sm btn-primary action-btn"
+                [disabled]="actionCounts.queueable === 0"
+                (click)="onQueueClick()">
+            Queue ({{ actionCounts.queueable }})
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-warning action-btn"
+                [disabled]="actionCounts.stoppable === 0"
+                (click)="onStopClick()">
+            Stop ({{ actionCounts.stoppable }})
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-info action-btn"
+                [disabled]="actionCounts.extractable === 0"
+                (click)="onExtractClick()">
+            Extract ({{ actionCounts.extractable }})
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-outline-danger action-btn"
+                [disabled]="actionCounts.locallyDeletable === 0"
+                (click)="onDeleteLocalClick()">
+            Delete Local ({{ actionCounts.locallyDeletable }})
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-danger action-btn"
+                [disabled]="actionCounts.remotelyDeletable === 0"
+                (click)="onDeleteRemoteClick()">
+            Delete Remote ({{ actionCounts.remotelyDeletable }})
+        </button>
+    </div>
+</div>
