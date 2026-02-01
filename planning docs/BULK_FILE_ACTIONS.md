@@ -4,10 +4,35 @@
 
 | Item | Value |
 |------|-------|
-| **Feature Branch** | `claude/bulk-file-actions-dxsgE` |
-| **Status** | 🟡 Planning Complete |
-| **Current Session** | Not started |
+| **Latest Branch** | `claude/review-bulk-file-actions-olN0F` |
+| **Status** | 🟢 In Progress |
+| **Current Session** | Session 5 Complete |
 | **Total Sessions** | 10 estimated |
+
+> **Claude Code Branch Management:**
+> Each Claude Code session can only push to branches matching its session ID.
+>
+> **IMPORTANT:** The master branch has an outdated version of this doc. To continue this feature:
+>
+> **Prompt for new session:**
+> ```
+> Run: git fetch origin && git log --oneline $(git branch -r | grep 'claude/review-bulk-file-actions' | head -1) -1
+> Then merge that branch and read planning docs/BULK_FILE_ACTIONS.md to see current progress.
+> Continue with the next incomplete session.
+> ```
+>
+> **Manual steps (what Claude should do):**
+> 1. `git fetch origin claude/review-bulk-file-actions-*`
+> 2. Find latest: `git branch -r | grep 'claude/review-bulk-file-actions' | head -1`
+> 3. Merge into your session branch: `git merge origin/<latest-branch>`
+> 4. Read THIS file from the merged branch to see actual progress
+> 5. Continue development and push to your session's branch
+>
+> **Branch History:**
+> - `claude/review-bulk-file-actions-2KjKN` - Sessions 1-2 (original)
+> - `claude/review-bulk-file-actions-UM3bn` - Sessions 1-3 (merged from above)
+> - `claude/review-bulk-file-actions-1jrQG` - Sessions 1-4 (merged from above)
+> - `claude/review-bulk-file-actions-olN0F` - Sessions 1-5 (current, merged from above)
 
 ---
 
@@ -45,12 +70,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Add route in `src/python/web/handler/controller.py`
-- [ ] Add `handle_bulk_command()` in `src/python/controller/controller.py`
-- [ ] Validate action enum and files array
-- [ ] Loop through files, call existing handlers, collect results
-- [ ] Return itemized results + summary
-- [ ] Add unit tests in `src/python/tests/unittests/test_controller/`
+- [x] Add route in `src/python/web/handler/controller.py`
+- [x] Add `handle_bulk_command()` in `src/python/web/handler/controller.py`
+- [x] Validate action enum and files array
+- [x] Loop through files, call existing handlers, collect results
+- [x] Return itemized results + summary
+- [x] Add unit tests in `src/python/tests/unittests/test_web/test_handler/`
 
 **Context to read:**
 - `src/python/web/handler/controller.py` (existing command routes)
@@ -70,13 +95,13 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** None
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/services/files/file-selection.service.ts`
-- [ ] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
-- [ ] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
-- [ ] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
-- [ ] Use `BehaviorSubject<Set<string>>` for reactive state
-- [ ] Add `selectAllMatching` flag for "all matching filter" mode
-- [ ] Add unit tests
+- [x] Create `src/angular/src/app/services/files/file-selection.service.ts`
+- [x] Implement: `select()`, `deselect()`, `toggle()`, `selectMultiple()`
+- [x] Implement: `selectAllVisible()`, `selectAllMatchingFilter()`, `clearSelection()`
+- [x] Implement: `isSelected()`, `getSelectedCount()`, `getSelectedFiles()`
+- [x] Use `BehaviorSubject<Set<string>>` for reactive state
+- [x] Add `selectAllMatching` flag for "all matching filter" mode
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts` (pattern reference)
@@ -94,10 +119,10 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 2
 
 **Tasks:**
-- [ ] Inject `FileSelectionService` into `ViewFileService`
-- [ ] Identify where filter/sort changes occur
-- [ ] Call `clearSelection()` on filter/sort changes
-- [ ] Add unit tests
+- [x] Inject `FileSelectionService` into `ViewFileService`
+- [x] Identify where filter/sort changes occur
+- [x] Call `clearSelection()` on filter/sort changes
+- [x] Add unit tests
 
 **Context to read:**
 - `src/angular/src/app/services/files/view-file.service.ts`
@@ -115,12 +140,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 2
 
 **Tasks:**
-- [ ] Add checkbox column to file list header in `file-list.component.html`
-- [ ] Implement header checkbox logic (checked/indeterminate states)
-- [ ] Add checkbox to each file row in `file.component.html`
-- [ ] Wire checkboxes to `FileSelectionService`
-- [ ] Add `.selected` class to selected rows
-- [ ] Add basic checkbox column styling
+- [x] Add checkbox column to file list header in `file-list.component.html`
+- [x] Implement header checkbox logic (checked/indeterminate states)
+- [x] Add checkbox to each file row in `file.component.html`
+- [x] Wire checkboxes to `FileSelectionService`
+- [x] Add `.bulk-selected` class to selected rows
+- [x] Add basic checkbox column styling
 
 **Context to read:**
 - `src/angular/src/app/pages/files/file-list.component.ts` and `.html`
@@ -141,12 +166,12 @@ Response: { "results": [...], "summary": { "total": 3, "succeeded": 2, "failed":
 **Dependencies:** Session 4
 
 **Tasks:**
-- [ ] Create `src/angular/src/app/pages/files/selection-banner.component.ts`
-- [ ] Show "X files selected" when selection exists
-- [ ] Show "Select all Y matching filter" link when all visible selected
-- [ ] Add "Clear selection" button
-- [ ] Integrate into file list page
-- [ ] Style the banner
+- [x] Create `src/angular/src/app/pages/files/selection-banner.component.ts`
+- [x] Show "X files selected" when selection exists
+- [x] Show "Select all Y matching filter" link when all visible selected
+- [x] Add "Clear selection" button
+- [x] Integrate into file list page
+- [x] Style the banner
 
 **Context to read:**
 - `src/angular/src/app/pages/files/file-list.component.ts`
@@ -301,6 +326,11 @@ _Record completed sessions here with date, outcome, and learnings._
 | Session | Date | Outcome | Notes |
 |---------|------|---------|-------|
 | Planning | 2026-01-31 | ✅ Complete | Initial plan created |
+| Session 1 | 2026-01-31 | ✅ Complete | Backend bulk endpoint implemented with 21 unit tests |
+| Session 2 | 2026-01-31 | ✅ Complete | FileSelectionService with 26 unit tests |
+| Session 3 | 2026-01-31 | ✅ Complete | Wired selection clear to filter/sort changes, 4 unit tests |
+| Session 4 | 2026-01-31 | ✅ Complete | Checkbox UI for header and rows, wired to FileSelectionService |
+| Session 5 | 2026-02-01 | ✅ Complete | Selection banner with count, "select all matching", and clear button |
 
 ---
 
@@ -309,13 +339,23 @@ _Record completed sessions here with date, outcome, and learnings._
 _Document technical discoveries, gotchas, and decisions made during implementation._
 
 ### Technical Notes
-- (none yet)
+- WebApp used only GET handlers; added `add_post_handler()` method to support POST routes
+- Bulk endpoint uses JSON request/response with `application/json` content type
+- Handler reuses existing `WebResponseActionCallback` pattern from single-file endpoints
+- Tests placed in `test_web/test_handler/` to match existing handler test structure
+- FileSelectionService is separate from ViewFile's `isSelected` (used for details panel single-selection)
+- Used `providedIn: 'root'` for tree-shakable singleton service
+- Prune method helps clean up stale selections when files disappear from model
+- Used `ng-container` with `*ngIf` to avoid async pipes in event handlers (Angular restriction)
+- Used `.bulk-selected` class (not `.selected`) to differentiate from detail panel selection
+- Header checkbox uses `indeterminate` property for partial selection state
 
 ### Gotchas
-- (none yet)
+- Standalone components require explicit imports for all directives used in templates (e.g., `NgIf`, `NgFor`). Missing imports cause silent template failures rather than compile errors.
 
 ### Design Decisions Made During Implementation
-- (none yet)
+- Bulk endpoint always returns 200 status (even on partial/full failure) - success/failure is in the response body
+- File results preserve input order to make frontend correlation easier
 
 ---
 
@@ -331,10 +371,14 @@ _Track any blockers encountered._
 
 ## Files Reference
 
+### New Files Created
+```
+src/angular/src/app/services/files/file-selection.service.ts  # Session 2
+src/angular/src/app/pages/files/selection-banner.component.ts  # Session 5
+```
+
 ### New Files to Create
 ```
-src/angular/src/app/services/files/file-selection.service.ts
-src/angular/src/app/pages/files/selection-banner.component.ts
 src/angular/src/app/pages/files/bulk-actions-bar.component.ts
 src/angular/src/app/common/confirmation-dialog/confirmation-dialog.component.ts
 src/angular/src/app/services/server/bulk-command.service.ts
