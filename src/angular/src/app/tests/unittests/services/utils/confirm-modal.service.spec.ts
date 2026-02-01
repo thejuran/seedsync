@@ -1,5 +1,4 @@
 import {fakeAsync, TestBed, tick} from "@angular/core/testing";
-import {RendererFactory2} from "@angular/core";
 
 import {ConfirmModalService, ConfirmModalOptions} from "../../../../services/utils/confirm-modal.service";
 
@@ -9,8 +8,7 @@ describe("Testing confirm modal service", () => {
     beforeEach(() => {
         TestBed.configureTestingModule({
             providers: [
-                ConfirmModalService,
-                RendererFactory2
+                ConfirmModalService
             ]
         });
 
