@@ -7,6 +7,7 @@ export interface ConfirmModalOptions {
     okBtnClass?: string;
     cancelBtn?: string;
     cancelBtnClass?: string;
+    skipCount?: number;  // Number of items that will be skipped (for bulk actions)
 }
 
 @Injectable({
@@ -33,6 +34,14 @@ export class ConfirmModalService {
         const cancelBtn = options.cancelBtn || "Cancel";
         const cancelBtnClass = options.cancelBtnClass || "btn btn-secondary";
 
+        // Build skip count message if provided
+        let skipMessage = "";
+        if (options.skipCount && options.skipCount > 0) {
+            const plural = options.skipCount === 1 ? "" : "s";
+            skipMessage = `<p class="text-muted small mt-2">${options.skipCount} file${plural} ` +
+                `will be skipped (not eligible for this action)</p>`;
+        }
+
         // Create backdrop
         this.backdropElement = this.renderer.createElement("div");
         this.renderer.addClass(this.backdropElement, "modal-backdrop");
@@ -57,6 +66,7 @@ export class ConfirmModalService {
                     </div>
                     <div class="modal-body">
                         <p>${options.body}</p>
+                        ${skipMessage}
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="${cancelBtnClass}" data-action="cancel">${cancelBtn}</button>

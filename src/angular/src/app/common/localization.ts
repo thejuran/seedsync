@@ -29,6 +29,49 @@ export class Localization {
         public static readonly DELETE_REMOTE_TITLE = "Delete Remote File";
         public static readonly DELETE_REMOTE_MESSAGE =
             (name: string) => `Are you sure you want to delete <b>${name}</b> from the remote server?`;
+
+        // Bulk action confirmations
+        public static readonly BULK_DELETE_LOCAL_TITLE = "Delete Local Files";
+        public static readonly BULK_DELETE_LOCAL_MESSAGE =
+            (count: number) => `Are you sure you want to delete <b>${count}</b> file${count === 1 ? "" : "s"} from the local server?`;
+
+        public static readonly BULK_DELETE_REMOTE_TITLE = "Delete Remote Files";
+        public static readonly BULK_DELETE_REMOTE_MESSAGE =
+            (count: number) => {
+                const plural = count === 1 ? "" : "s";
+                return `Are you sure you want to delete <b>${count}</b> file${plural} ` +
+                    `from the remote server? This cannot be undone.`;
+            };
+    };
+
+    static Bulk = class {
+        // Success messages
+        public static readonly SUCCESS_QUEUED = (count: number) =>
+            `Queued ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_STOPPED = (count: number) =>
+            `Stopped ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_EXTRACTED = (count: number) =>
+            `Extracted ${count} file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_DELETED_LOCAL = (count: number) =>
+            `Deleted ${count} local file${count === 1 ? "" : "s"} successfully`;
+        public static readonly SUCCESS_DELETED_REMOTE = (count: number) =>
+            `Deleted ${count} remote file${count === 1 ? "" : "s"} successfully`;
+
+        // Partial failure messages
+        public static readonly PARTIAL_QUEUED = (succeeded: number, failed: number) =>
+            `Queued ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_STOPPED = (succeeded: number, failed: number) =>
+            `Stopped ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_EXTRACTED = (succeeded: number, failed: number) =>
+            `Extracted ${succeeded} file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_DELETED_LOCAL = (succeeded: number, failed: number) =>
+            `Deleted ${succeeded} local file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+        public static readonly PARTIAL_DELETED_REMOTE = (succeeded: number, failed: number) =>
+            `Deleted ${succeeded} remote file${succeeded === 1 ? "" : "s"}. ${failed} failed.`;
+
+        // Error message
+        public static readonly ERROR = (message: string) =>
+            `Bulk action failed: ${message}`;
     };
 
     static Log = class {

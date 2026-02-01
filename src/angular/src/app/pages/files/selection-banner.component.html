@@ -1,0 +1,14 @@
+<div *ngIf="hasSelection" class="selection-banner">
+    <div class="selection-info">
+        <span class="selection-count">{{ selectionText }}</span>
+        <a *ngIf="showSelectAllMatchingLink"
+           class="select-all-link"
+           href="javascript:void(0)"
+           (click)="onSelectAllMatchingClick()">
+            Select all {{ totalMatchingCount }} matching filter
+        </a>
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary clear-btn" (click)="onClearClick()">
+        Clear
+    </button>
+</div>
