@@ -1,4 +1,4 @@
-<ng-container *ngIf="{files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectAllMatchingFilter: selectAllMatchingFilter$ | async} as vm">
+<ng-container *ngIf="{files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectAllMatchingFilter: selectAllMatchingFilter$ | async, selectedFile: selectedFile$ | async} as vm">
 <app-selection-banner
     [visibleFiles]="vm.files!"
     [totalMatchingCount]="vm.files!.size"
@@ -17,6 +17,14 @@
     (deleteLocalAction)="onBulkDeleteLocal($event)"
     (deleteRemoteAction)="onBulkDeleteRemote($event)">
 </app-bulk-actions-bar>
+<app-file-actions-bar
+    [file]="vm.selectedFile"
+    (queueEvent)="onQueue($event)"
+    (stopEvent)="onStop($event)"
+    (extractEvent)="onExtract($event)"
+    (deleteLocalEvent)="onDeleteLocal($event)"
+    (deleteRemoteEvent)="onDeleteRemote($event)">
+</app-file-actions-bar>
 <div id="file-list">
     <div id="header">
         <div class="checkbox">
@@ -32,11 +40,13 @@
         <div class="eta">ETA</div>
         <div class="size">Size</div>
     </div>
-    <div *ngFor="let file of vm.files; trackBy: identify">
+    <div class="file-viewport">
         <app-file
+            *ngFor="let file of (vm.files?.toArray() || []); trackBy: identify; let even = even"
             [file]="file"
             [options]="options"
             [bulkSelected]="file.name | isSelected:vm.selectedFiles"
+            [class.even-row]="even"
             (click)="onSelect(file)"
             (checkboxToggle)="onCheckboxToggle($event)"
             (queueEvent)="onQueue($event)"

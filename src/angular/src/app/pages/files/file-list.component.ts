@@ -1,5 +1,7 @@
 import {Component, ChangeDetectionStrategy, HostListener} from "@angular/core";
-import {NgFor, NgIf, AsyncPipe} from "@angular/common";
+import {NgIf, NgFor, AsyncPipe} from "@angular/common";
+// CDK virtual scroll temporarily disabled for E2E debugging
+// import {CdkVirtualScrollViewport, CdkVirtualForOf} from "@angular/cdk/scrolling";
 import {Observable, combineLatest} from "rxjs";
 import {map} from "rxjs/operators";
 
@@ -8,6 +10,7 @@ import {List} from "immutable";
 import {FileComponent} from "./file.component";
 import {SelectionBannerComponent} from "./selection-banner.component";
 import {BulkActionsBarComponent} from "./bulk-actions-bar.component";
+import {FileActionsBarComponent} from "./file-actions-bar.component";
 import {ViewFileService} from "../../services/files/view-file.service";
 import {ViewFile} from "../../services/files/view-file";
 import {LoggerService} from "../../services/utils/logger.service";
@@ -28,7 +31,10 @@ import {IsSelectedPipe} from "../../common/is-selected.pipe";
     styleUrls: ["./file-list.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgFor, NgIf, AsyncPipe, FileComponent, SelectionBannerComponent, BulkActionsBarComponent, IsSelectedPipe]
+    imports: [
+        NgIf, NgFor, AsyncPipe, FileComponent,
+        SelectionBannerComponent, BulkActionsBarComponent, FileActionsBarComponent, IsSelectedPipe
+    ]
 })
 export class FileListComponent {
     public files: Observable<List<ViewFile>>;
@@ -41,6 +47,9 @@ export class FileListComponent {
     // Selection state for banner
     public selectedFiles$: Observable<Set<string>>;
     public selectAllMatchingFilter$: Observable<boolean>;
+
+    // Single selected file for actions bar (detail panel selection)
+    public selectedFile$: Observable<ViewFile | null>;
 
     // Track last clicked file index for shift+click range selection
     private _lastClickedIndex: number | null = null;
@@ -62,6 +71,11 @@ export class FileListComponent {
         // Selection state observables for banner
         this.selectedFiles$ = this.fileSelectionService.selectedFiles$;
         this.selectAllMatchingFilter$ = this.fileSelectionService.selectAllMatchingFilter$;
+
+        // Single selected file for actions bar (derived from files list)
+        this.selectedFile$ = this.files.pipe(
+            map(files => files.find(f => f.isSelected) || null)
+        );
 
         // Keep a cached copy of files for range selection
         this.files.subscribe(files => {

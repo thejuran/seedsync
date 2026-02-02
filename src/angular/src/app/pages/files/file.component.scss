@@ -1,5 +1,24 @@
 @use '../../common/common' as *;
 
+/* Host element styling for virtual scroll compatibility */
+/* IMPORTANT: height must match itemSize in file-list.component.html (83px) */
+:host {
+    display: block;
+    height: 82px; /* 83px - 1px border = 82px content height */
+    min-height: 82px;
+    max-height: 82px;
+    overflow: hidden;
+    border-bottom: 1px solid #ddd;
+}
+
+:host:last-child {
+    border-bottom: none;
+}
+
+:host.even-row {
+    background-color: $primary-lighter-color;
+}
+
 .file {
     padding: 10px;
 }
@@ -28,10 +47,8 @@
 }
 
 .content div {
-    /* break up long text */
-    overflow-wrap: normal;
-    hyphens: auto;
-    word-break: break-all;
+    /* Prevent text from causing variable row heights */
+    overflow: hidden;
 }
 
 /* width */
@@ -69,30 +86,30 @@
 .content .name {
     display: flex;
     flex-direction: row;
+    min-width: 0; /* Allow flex item to shrink below content size */
 
     img {
         height: 20px;
         margin-right: 8px;
         margin-top: 1px;
+        flex-shrink: 0;
     }
 
     .text {
         display: flex;
         flex-direction: column;
+        min-width: 0; /* Allow flex item to shrink */
+        overflow: hidden;
 
+        .title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Details section hidden in virtual scroll - causes variable row heights */
         .details {
-            display: flex;
-            flex-direction: column;
-
-            .details-text {
-                color: darkgray;
-                font-size: 80%;
-                line-height: 120%;
-
-                .tab {
-                    margin-left: 20px;
-                }
-            }
+            display: none;
         }
     }
 }
@@ -224,12 +241,9 @@
     }
 }
 
-/* action toolbar show and hide */
+/* action toolbar always hidden in virtual scroll - use external file-actions-bar instead */
 .actions {
     display: none;
-}
-.file.selected .actions {
-    display: flex;
 }
 
 

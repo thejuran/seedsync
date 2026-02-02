@@ -20,12 +20,13 @@ export class DashboardPage extends App {
 
     async navigateTo() {
         await this.page.goto(Paths.DASHBOARD);
-        // Wait for the files list to show up
-        await this.page.locator('#file-list .file').first().waitFor({ state: 'visible' });
+        // Wait for the files list to show up (files are inside virtual scroll viewport)
+        await this.page.locator('#file-list .file').first().waitFor({ state: 'visible', timeout: 30000 });
     }
 
     async waitForFileCount(count: number, timeout: number = 10000) {
         // Wait for a specific number of files to be loaded (for incremental loading)
+        // With virtual scrolling, we can only count files currently rendered in the viewport
         await this.page.waitForFunction(
             (expectedCount) => {
                 const files = document.querySelectorAll('#file-list .file');
@@ -41,7 +42,8 @@ export class DashboardPage extends App {
         const files: FileInfo[] = [];
 
         for (const elm of fileElements) {
-            const name = (await elm.locator('.name .text').textContent() || '').trim();
+            // File name is now in .name .text .title (with truncation)
+            const name = (await elm.locator('.name .text .title').textContent() || '').trim();
             const statusElm = elm.locator('.content .status span.text');
             const statusCount = await statusElm.count();
             const status = statusCount > 0 ? (await statusElm.innerHTML()).trim() : '';
@@ -56,21 +58,47 @@ export class DashboardPage extends App {
         await this.page.locator('#file-list .file').nth(index).click();
     }
 
+    /**
+     * Check if the file actions bar is visible for a selected file.
+     * Actions are now shown in the external file-actions-bar component instead of inline.
+     */
     async isFileActionsVisible(index: number): Promise<boolean> {
-        return this.page.locator('#file-list .file').nth(index).locator('.actions').isVisible();
+        // Get the file name at the given index
+        const file = this.page.locator('#file-list .file').nth(index);
+        const fileName = await file.locator('.name .text .title').textContent();
+
+        // Check if the file-actions-bar shows this file's name
+        const actionsBar = this.page.locator('app-file-actions-bar .file-actions-bar');
+        const isVisible = await actionsBar.isVisible();
+        if (!isVisible) {
+            return false;
+        }
+
+        const barFileName = await actionsBar.locator('.name-text').textContent();
+        return barFileName?.trim() === fileName?.trim();
     }
 
+    /**
+     * Get action button states from the external file-actions-bar.
+     * Note: The file must be selected first for actions to appear.
+     */
     async getFileActions(index: number): Promise<FileActionButtonState[]> {
-        const fileElement = this.page.locator('#file-list .file').nth(index);
-        const buttons = await fileElement.locator('.actions .button').all();
+        // Make sure the file is selected first
+        await this.selectFile(index);
+
+        // Wait for actions bar to be visible
+        const actionsBar = this.page.locator('app-file-actions-bar .file-actions-bar');
+        await actionsBar.waitFor({ state: 'visible', timeout: 5000 });
+
+        const buttons = await actionsBar.locator('.actions button').all();
         const actions: FileActionButtonState[] = [];
 
         for (const button of buttons) {
-            const title = await button.locator('div.text span').innerHTML();
-            const disabled = await button.getAttribute('disabled');
+            const title = (await button.textContent() || '').trim();
+            const disabled = await button.isDisabled();
             actions.push({
                 title,
-                isEnabled: disabled === null
+                isEnabled: !disabled
             });
         }
 

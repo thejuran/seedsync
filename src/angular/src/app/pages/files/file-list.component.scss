@@ -1,17 +1,26 @@
 @use '../../common/common' as *;
 
+/* Ensure the host component takes available space for virtual scroll */
+:host {
+    display: block;
+    min-height: 500px;
+}
+
+/* Virtual scroll viewport */
+.file-viewport {
+    /* Fill available height - header is ~37px, selection banner ~50px, bulk actions ~50px */
+    height: calc(100vh - 200px);
+    width: 100%;
+    /* Minimum height ensures viewport works even in small/headless browser windows */
+    min-height: 500px;
+}
+
 #file-list #header {
     display: none;
 }
 
-/* striped rows */
-#file-list > div:nth-child(even){
-    background-color: $primary-lighter-color;
-}
-
-/* list separator */
-#file-list > div {border-bottom: 1px solid #ddd;}
-#file-list > div:last-child{border-bottom: none;}
+/* Striped rows and separators are now handled in file.component.scss */
+/* using .even-row class for virtual scrolling compatibility */
 
 
 /* Medium and large screens */
