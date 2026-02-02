@@ -1,6 +1,7 @@
 import {Component, ChangeDetectionStrategy, HostListener} from "@angular/core";
-import {NgIf, AsyncPipe} from "@angular/common";
-import {CdkVirtualScrollViewport, CdkVirtualForOf} from "@angular/cdk/scrolling";
+import {NgIf, NgFor, AsyncPipe} from "@angular/common";
+// CDK virtual scroll temporarily disabled for E2E debugging
+// import {CdkVirtualScrollViewport, CdkVirtualForOf} from "@angular/cdk/scrolling";
 import {Observable, combineLatest} from "rxjs";
 import {map} from "rxjs/operators";
 
@@ -31,7 +32,7 @@ import {IsSelectedPipe} from "../../common/is-selected.pipe";
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf, AsyncPipe, CdkVirtualScrollViewport, CdkVirtualForOf, FileComponent,
+        NgIf, NgFor, AsyncPipe, FileComponent,
         SelectionBannerComponent, BulkActionsBarComponent, FileActionsBarComponent, IsSelectedPipe
     ]
 })
