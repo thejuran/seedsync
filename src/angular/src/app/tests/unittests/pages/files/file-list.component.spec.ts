@@ -1,5 +1,6 @@
 import {ComponentFixture, TestBed, fakeAsync, tick} from "@angular/core/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {ScrollingModule} from "@angular/cdk/scrolling";
 import {of} from "rxjs";
 import {List} from "immutable";
 
@@ -63,7 +64,7 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
         mockNotificationService = jasmine.createSpyObj("NotificationService", ["show", "hide"]);
 
         await TestBed.configureTestingModule({
-            imports: [FileListComponent, HttpClientTestingModule],
+            imports: [FileListComponent, HttpClientTestingModule, ScrollingModule],
             providers: [
                 FileSelectionService,
                 {provide: ViewFileService, useValue: mockViewFileService},
@@ -72,7 +73,11 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
                 {provide: ConfirmModalService, useValue: mockConfirmModalService},
                 {provide: NotificationService, useValue: mockNotificationService}
             ]
-        }).compileComponents();
+        })
+        // Override template to avoid CDK virtual scroll complexity in unit tests
+        // These tests focus on component logic, not rendering
+        .overrideTemplate(FileListComponent, "<div>Test template</div>")
+        .compileComponents();
 
         fileSelectionService = TestBed.inject(FileSelectionService);
         fixture = TestBed.createComponent(FileListComponent);
