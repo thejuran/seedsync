@@ -175,8 +175,9 @@ test.describe('Bulk File Actions', () => {
     test.beforeEach(async ({ page }) => {
         dashboardPage = new BulkActionsDashboardPage(page);
         await dashboardPage.navigateTo();
-        // Wait for all 9 files to load (based on test remote server content)
-        await dashboardPage.waitForFileCount(9);
+        // Wait for files to load - with virtual scrolling, only visible files are rendered
+        // min-height 500px / 83px row height = ~6 visible files
+        await dashboardPage.waitForFileCount(5);
     });
 
     test.describe('TS-1: Checkbox Selection Basics', () => {

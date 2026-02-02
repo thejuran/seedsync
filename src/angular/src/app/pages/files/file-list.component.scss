@@ -1,11 +1,18 @@
 @use '../../common/common' as *;
 
+/* Ensure the host component takes available space for virtual scroll */
+:host {
+    display: block;
+    min-height: 500px;
+}
+
 /* Virtual scroll viewport */
 .file-viewport {
     /* Fill available height - header is ~37px, selection banner ~50px, bulk actions ~50px */
     height: calc(100vh - 200px);
     width: 100%;
-    min-height: 300px;
+    /* Minimum height ensures viewport works even in small/headless browser windows */
+    min-height: 500px;
 }
 
 #file-list #header {
