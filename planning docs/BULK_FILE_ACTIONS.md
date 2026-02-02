@@ -434,12 +434,35 @@ _Document technical discoveries, gotchas, and decisions made during implementati
 
 ### Fixed Row Height Solution (Session 14 - Part 2)
 - **Problem**: CDK virtual scroll requires fixed row heights, but inline actions/details cause variable heights
+- **CDK Autosize is experimental and buggy**: Don't rely on auto-sizing; use fixed `itemSize`
 - **Solution**: Move variable-height content outside the virtual scroll viewport:
   1. **FileActionsBarComponent**: New component showing single-file actions outside virtual scroll
   2. **Inline actions hidden**: `.actions { display: none }` - never shown in row
   3. **Filename truncation**: CSS `text-overflow: ellipsis` prevents wrapping
   4. **Details hidden**: `.details { display: none }` in row - show in external panel if needed
 - This maintains fixed 83px row height for all files regardless of selection state
+
+### Row Height Enforcement (Session 14 - Part 2)
+- **Important**: Row height must be explicitly enforced, not just calculated
+- The 83px row height was initially calculated (10px padding + 62px content + 1px border) but not enforced
+- Different font sizes, DPI settings, or mobile viewports could cause variations
+- **Fix**: Enforce via CSS on `:host` selector:
+  ```scss
+  :host {
+      height: 82px;      /* 83px - 1px border */
+      min-height: 82px;
+      max-height: 82px;
+      overflow: hidden;
+      border-bottom: 1px solid #ddd;
+  }
+  ```
+- Comment in CSS references `itemSize` in HTML for maintainability
+- `overflow: hidden` prevents content overflow from affecting row height
+
+### scrollToFile Performance Note (Session 14)
+- Example `scrollToFile` implementation uses `Array.findIndex()` which is O(n)
+- For 500 files, this is negligible. For 5000+ files, consider building a name→index Map
+- Deferred optimization: build index Map lazily on first scroll request
 
 ### E2E Testing Notes
 - Wait for banner text updates (`toContainText`) instead of checkbox state for reliable Angular change detection sync
@@ -1091,6 +1114,48 @@ Virtual scrolling is the **correct architectural solution** because it reduces t
 | Variable row heights (details expanded) | ✅ Fixed: External FileActionsBarComponent, CSS truncation, hidden details | Resolved |
 | Keyboard navigation edge cases | Test shift+click across viewport boundaries | Pending |
 | E2E test selectors for off-screen items | Use `scrollToIndex` before assertions | Pending |
+| E2E tests become slower/flakier | Wait until tests break, then add scroll helpers | Deferred |
+
+**Known Limitation: O(n) Data Layer Operations**
+
+Virtual scrolling solves the **rendering** problem (500 DOM nodes → ~15), but does NOT fix the **data layer** operations:
+
+```
+Select-All Click
+    → FileSelectionService.selectAllVisible(500 files)
+    → Creates new Set with 500 entries: O(n)
+    → New Set emitted via BehaviorSubject
+    → [FIXED] Only ~15 FileComponents update their DOM
+```
+
+Operations that remain O(n):
+- `selectAllVisible()`: Iterates all files to add to Set
+- `setSelection()`: Creates new Set from array
+- `pruneSelection()`: Filters Set against existing files
+- `isSelected()` lookups: O(1) per lookup, but template runs for all visible items
+
+For 500 files, these O(n) operations are negligible (<10ms). For 5000+ files, lazy selection (storing intent + exclusions instead of full Set) would be needed.
+
+**Lazy Selection - Deferred**
+
+Considered implementing lazy selection pattern:
+```typescript
+// Instead of storing 5000 file names:
+selectAllMode: boolean;
+excludedFiles: Set<string>;  // Much smaller - only explicitly deselected files
+
+// isSelected becomes:
+isSelected(name: string): boolean {
+    if (this.selectAllMode) {
+        return !this.excludedFiles.has(name);
+    }
+    return this.selectedFiles.has(name);
+}
+```
+
+**Complexity assessment:** 2-3 hours implementation, medium complexity, high bug surface area (mode transitions, filter changes, edge cases).
+
+**Decision:** Deferred. Current implementation handles 500 files well. If 5000+ file performance becomes an issue, implement lazy selection as a follow-up.
 
 ---
 
