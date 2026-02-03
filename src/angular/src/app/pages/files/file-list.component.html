@@ -41,11 +41,14 @@
         <div class="size">Size</div>
     </div>
     <div class="file-viewport">
+        <!-- Session 16: [bulkSelected] binding removed - FileComponent now uses computed()
+             signal that reads directly from FileSelectionService. This eliminates
+             cascading checkbox updates by removing the pipe evaluation + @Input change
+             that previously caused ALL components to re-render on select-all. -->
         <app-file
             *ngFor="let file of (vm.files?.toArray() || []); trackBy: identify; let even = even"
             [file]="file"
             [options]="options"
-            [bulkSelected]="file.name | isSelected:vm.selectedFiles"
             [class.even-row]="even"
             (click)="onSelect(file)"
             (checkboxToggle)="onCheckboxToggle($event)"

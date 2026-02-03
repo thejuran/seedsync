@@ -990,7 +990,7 @@ describe("Testing view file service", () => {
         viewService.files.subscribe(list => viewFiles = list);
         tick();
 
-        fileSelectionService.selectAllMatchingFilter(viewFiles.toArray());
+        fileSelectionService.enableSelectAllMatchingFilter(viewFiles.toArray());
         expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(true);
         expect(fileSelectionService.getSelectedCount()).toBe(2);
 
@@ -1020,7 +1020,7 @@ describe("Testing view file service", () => {
         viewService.files.subscribe(list => viewFiles = list);
         tick();
 
-        fileSelectionService.selectAllMatchingFilter(viewFiles.toArray());
+        fileSelectionService.enableSelectAllMatchingFilter(viewFiles.toArray());
         expect(fileSelectionService.isSelectAllMatchingFilter()).toBe(true);
 
         // Change sort comparator

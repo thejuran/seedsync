@@ -1,6 +1,7 @@
 import {
     Component, Input, Output, ChangeDetectionStrategy,
-    EventEmitter, OnChanges, SimpleChanges, ViewChild
+    EventEmitter, OnChanges, SimpleChanges, ViewChild,
+    inject, computed
 } from "@angular/core";
 import {NgIf, DatePipe} from "@angular/common";
 
@@ -12,7 +13,19 @@ import {ViewFile} from "../../services/files/view-file";
 import {Localization} from "../../common/localization";
 import {ViewFileOptions} from "../../services/files/view-file-options";
 import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
+import {FileSelectionService} from "../../services/files/file-selection.service";
 
+/**
+ * FileComponent displays a single file row in the file list.
+ *
+ * Session 16: Signal-Based Selection Architecture
+ * - Injects FileSelectionService directly instead of receiving selection via @Input
+ * - Uses computed() signal to derive selection state from the service
+ * - This eliminates cascading checkbox updates on select-all:
+ *   - Old: Parent emits new Set → ALL components re-render via @Input change
+ *   - New: Service signal updates → Only THIS component's computed() re-evaluates
+ * - Angular's signal change detection only marks components whose computed values changed
+ */
 @Component({
     selector: "app-file",
     providers: [],
@@ -23,6 +36,9 @@ import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
     imports: [NgIf, DatePipe, CapitalizePipe, EtaPipe, FileSizePipe, ClickStopPropagationDirective]
 })
 export class FileComponent implements OnChanges {
+    // Inject FileSelectionService for signal-based selection
+    private selectionService = inject(FileSelectionService);
+
     // Make ViewFile optionType accessible from template
     ViewFile = ViewFile;
 
@@ -37,7 +53,7 @@ export class FileComponent implements OnChanges {
 
     @Input() file: ViewFile;
     @Input() options: ViewFileOptions;
-    @Input() bulkSelected = false;
+    // Note: @Input() bulkSelected removed - now computed from FileSelectionService signal
 
     @Output() queueEvent = new EventEmitter<ViewFile>();
     @Output() stopEvent = new EventEmitter<ViewFile>();
@@ -49,12 +65,32 @@ export class FileComponent implements OnChanges {
     // Indicates an active action on-going
     activeAction: FileAction = null;
 
+    /**
+     * Computed signal for selection state - fine-grained reactivity.
+     * Only re-evaluates when THIS file's selection state changes.
+     *
+     * Why this fixes cascading checkboxes:
+     * - Old: @Input bound to pipe output → every checkbox re-renders when Set changes
+     * - New: computed() reads signal → Angular only marks dirty if computed value changed
+     *
+     * The key insight: when select-all runs, the selectedFiles signal updates once,
+     * and each FileComponent's computed() independently checks "am I selected?".
+     * Angular's signal-based change detection batches all DOM updates together.
+     */
+    readonly isSelected = computed(() => {
+        // Access the selection signal - this creates a dependency
+        const selected = this.selectionService.selectedFiles();
+        // Check if this file is in the selection
+        // Note: this.file may be undefined during initial render
+        return this.file ? selected.has(this.file.name) : false;
+    });
+
     constructor(private confirmModal: ConfirmModalService) {}
 
     ngOnChanges(changes: SimpleChanges): void {
         // Check for status changes
-        const oldFile: ViewFile = changes.file.previousValue;
-        const newFile: ViewFile = changes.file.currentValue;
+        const oldFile: ViewFile = changes.file?.previousValue;
+        const newFile: ViewFile = changes.file?.currentValue;
         if (oldFile != null && newFile != null && oldFile.status !== newFile.status) {
             // Reset any active action
             this.activeAction = null;

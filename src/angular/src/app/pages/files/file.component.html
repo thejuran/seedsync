@@ -1,8 +1,8 @@
-<div class="file" [class.selected]="file.isSelected" [class.bulk-selected]="bulkSelected" #fileElement>
+<div class="file" [class.selected]="file.isSelected" [class.bulk-selected]="isSelected()" #fileElement>
     <div class="content">
         <div class="checkbox" appClickStopPropagation>
             <input type="checkbox"
-                   [checked]="bulkSelected"
+                   [checked]="isSelected()"
                    (click)="onCheckboxClick($event)"
                    aria-label="Select file" />
         </div>

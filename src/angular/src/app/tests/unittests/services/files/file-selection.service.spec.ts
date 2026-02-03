@@ -1,4 +1,4 @@
-import {TestBed} from "@angular/core/testing";
+import {TestBed, fakeAsync, tick, flush} from "@angular/core/testing";
 
 import {FileSelectionService} from "../../../../services/files/file-selection.service";
 import {ViewFile} from "../../../../services/files/view-file";
@@ -116,7 +116,7 @@ describe("Testing file selection service", () => {
             new ViewFile({name: "file2"})
         ];
 
-        service.selectAllMatchingFilter(files);
+        service.enableSelectAllMatchingFilter(files);
 
         expect(service.getSelectedCount()).toBe(2);
         expect(service.isSelectAllMatchingFilter()).toBe(true);
@@ -137,7 +137,7 @@ describe("Testing file selection service", () => {
 
     it("should clear selectAllMatchingFilter mode on clear", () => {
         const files = [new ViewFile({name: "file1"})];
-        service.selectAllMatchingFilter(files);
+        service.enableSelectAllMatchingFilter(files);
 
         service.clearSelection();
 
@@ -149,7 +149,7 @@ describe("Testing file selection service", () => {
             new ViewFile({name: "file1"}),
             new ViewFile({name: "file2"})
         ];
-        service.selectAllMatchingFilter(files);
+        service.enableSelectAllMatchingFilter(files);
 
         service.deselect("file1");
 
@@ -175,7 +175,7 @@ describe("Testing file selection service", () => {
 
     it("should clear selectAllMatchingFilter mode on setSelection", () => {
         const files = [new ViewFile({name: "file1"})];
-        service.selectAllMatchingFilter(files);
+        service.enableSelectAllMatchingFilter(files);
 
         service.setSelection(["file2"]);
 
@@ -211,7 +211,7 @@ describe("Testing file selection service", () => {
 
     it("should clear selectAllMatchingFilter when all selections pruned", () => {
         const files = [new ViewFile({name: "file1"})];
-        service.selectAllMatchingFilter(files);
+        service.enableSelectAllMatchingFilter(files);
 
         service.pruneSelection(new Set<string>());
 
@@ -220,77 +220,162 @@ describe("Testing file selection service", () => {
     });
 
     // =========================================================================
-    // Observable Tests
+    // Signal Tests (Session 16)
     // =========================================================================
 
-    it("should emit on selectedFiles$ when selection changes", (done) => {
+    describe("Signal-based state", () => {
+        it("should expose selectedFiles as a signal", () => {
+            expect(service.selectedFiles).toBeDefined();
+            // Read signal value
+            expect(service.selectedFiles().size).toBe(0);
+        });
+
+        it("should expose selectAllMatchingFilterMode as a signal", () => {
+            expect(service.selectAllMatchingFilterMode).toBeDefined();
+            // Read signal value
+            expect(service.selectAllMatchingFilterMode()).toBe(false);
+        });
+
+        it("should expose computed selectedCount signal", () => {
+            expect(service.selectedCount).toBeDefined();
+            expect(service.selectedCount()).toBe(0);
+
+            service.selectMultiple(["file1", "file2", "file3"]);
+            expect(service.selectedCount()).toBe(3);
+        });
+
+        it("should expose computed hasSelection signal", () => {
+            expect(service.hasSelection).toBeDefined();
+            expect(service.hasSelection()).toBe(false);
+
+            service.select("file1");
+            expect(service.hasSelection()).toBe(true);
+
+            service.clearSelection();
+            expect(service.hasSelection()).toBe(false);
+        });
+
+        it("should update signal value when selecting", () => {
+            service.select("file1");
+            expect(service.selectedFiles().has("file1")).toBe(true);
+
+            service.select("file2");
+            expect(service.selectedFiles().has("file2")).toBe(true);
+        });
+
+        it("should update signal value when deselecting", () => {
+            service.selectMultiple(["file1", "file2"]);
+            service.deselect("file1");
+
+            expect(service.selectedFiles().has("file1")).toBe(false);
+            expect(service.selectedFiles().has("file2")).toBe(true);
+        });
+
+        it("should update signal value when clearing", () => {
+            service.selectMultiple(["file1", "file2", "file3"]);
+            service.clearSelection();
+
+            expect(service.selectedFiles().size).toBe(0);
+        });
+    });
+
+    // =========================================================================
+    // Observable Tests (backwards compatibility)
+    // Note: toObservable() uses Angular's effect system internally, which requires
+    // TestBed.flushEffects() to trigger emissions in tests.
+    // =========================================================================
+
+    it("should emit on selectedFiles$ when selection changes", () => {
         const emissions: Set<string>[] = [];
 
         service.selectedFiles$.subscribe(files => {
             emissions.push(files);
-            if (emissions.length === 3) {
-                // Initial empty, after select, after deselect
-                expect(emissions[0].size).toBe(0);
-                expect(emissions[1].size).toBe(1);
-                expect(emissions[1].has("file1")).toBe(true);
-                expect(emissions[2].size).toBe(0);
-                done();
-            }
         });
 
+        // Flush effects to get initial emission
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(1);
+        expect(emissions[0].size).toBe(0);
+
         service.select("file1");
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(2);
+        expect(emissions[1].size).toBe(1);
+        expect(emissions[1].has("file1")).toBe(true);
+
         service.deselect("file1");
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(3);
+        expect(emissions[2].size).toBe(0);
     });
 
-    it("should emit on selectedCount$ when selection changes", (done) => {
+    it("should emit on selectedCount$ when selection changes", () => {
         const emissions: number[] = [];
 
         service.selectedCount$.subscribe(count => {
             emissions.push(count);
-            if (emissions.length === 3) {
-                expect(emissions[0]).toBe(0);
-                expect(emissions[1]).toBe(2);
-                expect(emissions[2]).toBe(0);
-                done();
-            }
         });
 
+        // Flush effects to get initial emission
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(1);
+        expect(emissions[0]).toBe(0);
+
         service.selectMultiple(["file1", "file2"]);
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(2);
+        expect(emissions[1]).toBe(2);
+
         service.clearSelection();
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(3);
+        expect(emissions[2]).toBe(0);
     });
 
-    it("should emit on hasSelection$ when selection changes", (done) => {
+    it("should emit on hasSelection$ when selection changes", () => {
         const emissions: boolean[] = [];
 
         service.hasSelection$.subscribe(has => {
             emissions.push(has);
-            if (emissions.length === 3) {
-                expect(emissions[0]).toBe(false);
-                expect(emissions[1]).toBe(true);
-                expect(emissions[2]).toBe(false);
-                done();
-            }
         });
 
+        // Flush effects to get initial emission
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(1);
+        expect(emissions[0]).toBe(false);
+
         service.select("file1");
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(2);
+        expect(emissions[1]).toBe(true);
+
         service.clearSelection();
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(3);
+        expect(emissions[2]).toBe(false);
     });
 
-    it("should emit on selectAllMatchingFilter$ when mode changes", (done) => {
+    it("should emit on selectAllMatchingFilter$ when mode changes", () => {
         const emissions: boolean[] = [];
 
         service.selectAllMatchingFilter$.subscribe(mode => {
             emissions.push(mode);
-            if (emissions.length === 3) {
-                expect(emissions[0]).toBe(false);
-                expect(emissions[1]).toBe(true);
-                expect(emissions[2]).toBe(false);
-                done();
-            }
         });
 
-        service.selectAllMatchingFilter([new ViewFile({name: "file1"})]);
+        // Flush effects to get initial emission
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(1);
+        expect(emissions[0]).toBe(false);
+
+        service.enableSelectAllMatchingFilter([new ViewFile({name: "file1"})]);
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(2);
+        expect(emissions[1]).toBe(true);
+
         service.clearSelection();
+        TestBed.flushEffects();
+        expect(emissions.length).toBe(3);
+        expect(emissions[2]).toBe(false);
     });
 
     // =========================================================================
@@ -321,25 +406,22 @@ describe("Testing file selection service", () => {
         expect(service.getSelectedCount()).toBe(1);
     });
 
-    it("should not emit when no actual change occurs", (done) => {
+    it("should not emit when no actual change occurs", () => {
         let emissionCount = 0;
 
         service.selectedFiles$.subscribe(() => {
             emissionCount++;
         });
 
-        // Initial emission
-        setTimeout(() => {
-            expect(emissionCount).toBe(1);
+        // Flush effects to get initial emission
+        TestBed.flushEffects();
+        expect(emissionCount).toBe(1);
 
-            // Try to deselect non-existent file - should not emit
-            service.deselect("nonexistent");
+        // Try to deselect non-existent file - should not emit
+        service.deselect("nonexistent");
+        TestBed.flushEffects();
 
-            setTimeout(() => {
-                expect(emissionCount).toBe(1);  // Still 1
-                done();
-            }, 0);
-        }, 0);
+        expect(emissionCount).toBe(1);  // Still 1
     });
 
     // =========================================================================
@@ -583,21 +665,18 @@ describe("Testing file selection service", () => {
             expect(oldSet).not.toBe(newSet);
         });
 
-        it("should create new Set objects on each emission to support immutability", (done) => {
-            const emittedSets: Set<string>[] = [];
-
-            service.selectedFiles$.subscribe(files => {
-                emittedSets.push(files);
-                if (emittedSets.length === 3) {
-                    // All emitted sets should be different objects
-                    expect(emittedSets[0]).not.toBe(emittedSets[1]);
-                    expect(emittedSets[1]).not.toBe(emittedSets[2]);
-                    done();
-                }
-            });
+        it("should create new Set objects on each signal update to support immutability", () => {
+            const set1 = service.selectedFiles();
 
             service.select("file1");
+            const set2 = service.selectedFiles();
+
             service.select("file2");
+            const set3 = service.selectedFiles();
+
+            // All sets should be different objects
+            expect(set1).not.toBe(set2);
+            expect(set2).not.toBe(set3);
         });
 
         it("should survive 1000 rapid select/clear cycles without issues", () => {
@@ -670,7 +749,7 @@ describe("Testing file selection service", () => {
 
         it("should export selectAllMatchingFilter state", () => {
             const files = [new ViewFile({name: "file1"})];
-            service.selectAllMatchingFilter(files);
+            service.enableSelectAllMatchingFilter(files);
 
             // State can be captured
             const isSelectAll = service.isSelectAllMatchingFilter();

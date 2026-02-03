@@ -1,11 +1,12 @@
-import {Injectable} from "@angular/core";
-import {BehaviorSubject, Observable} from "rxjs";
+import {Injectable, signal, computed} from "@angular/core";
+import {toObservable} from "@angular/core/rxjs-interop";
+import {Observable} from "rxjs";
 import {map} from "rxjs/operators";
 
 import {ViewFile} from "./view-file";
 
 /**
- * FileSelectionService manages bulk file selection state.
+ * FileSelectionService manages bulk file selection state using Angular signals.
  *
  * This service is separate from the single-file selection in ViewFileService
  * (which controls the details panel). This service manages checkbox-based
@@ -15,40 +16,47 @@ import {ViewFile} from "./view-file";
  * - Selected files are tracked by name in a Set<string>
  * - "Select all matching filter" mode tracks intent to select all matching files,
  *   even those not currently visible (e.g., due to pagination)
+ *
+ * Angular Signals Architecture (Session 16):
+ * - Uses signals for fine-grained reactivity
+ * - FileComponent uses computed() to derive its own selection state
+ * - Only components whose selection actually changed will re-render
+ * - Eliminates cascading checkbox effect on select-all
  */
 @Injectable({
     providedIn: "root"
 })
 export class FileSelectionService {
 
-    // Set of selected file names
-    private _selectedFiles: Set<string> = new Set();
-    private _selectedFilesSubject: BehaviorSubject<Set<string>> = new BehaviorSubject(new Set());
+    // Signal-based selection state (replaces BehaviorSubject)
+    // Each mutation creates a new Set for immutability
+    readonly selectedFiles = signal<Set<string>>(new Set());
 
     // Flag indicating "select all matching filter" mode
     // When true, the selection logically includes all files matching the current filter,
     // even if not all are explicitly in the selectedFiles set
-    private _selectAllMatchingFilter = false;
-    private _selectAllMatchingFilterSubject: BehaviorSubject<boolean> = new BehaviorSubject(false);
+    readonly selectAllMatchingFilterMode = signal<boolean>(false);
+
+    // Computed signals for derived state
+    readonly selectedCount = computed(() => this.selectedFiles().size);
+    readonly hasSelection = computed(() => this.selectedFiles().size > 0);
+
+    // Observable for backwards compatibility with existing subscribers
+    // Uses toObservable() to convert signal to RxJS observable
+    readonly selectedFiles$ = toObservable(this.selectedFiles);
+    readonly selectAllMatchingFilter$ = toObservable(this.selectAllMatchingFilterMode);
 
     constructor() {}
 
     // =========================================================================
-    // Selection State Observables
+    // Selection State Observables (for backwards compatibility)
     // =========================================================================
-
-    /**
-     * Observable of the currently selected file names.
-     */
-    get selectedFiles$(): Observable<Set<string>> {
-        return this._selectedFilesSubject.asObservable();
-    }
 
     /**
      * Observable of the selected file count.
      */
     get selectedCount$(): Observable<number> {
-        return this._selectedFilesSubject.pipe(
+        return this.selectedFiles$.pipe(
             map(files => files.size)
         );
     }
@@ -57,16 +65,9 @@ export class FileSelectionService {
      * Observable indicating if any files are selected.
      */
     get hasSelection$(): Observable<boolean> {
-        return this._selectedFilesSubject.pipe(
+        return this.selectedFiles$.pipe(
             map(files => files.size > 0)
         );
-    }
-
-    /**
-     * Observable indicating if "select all matching filter" mode is active.
-     */
-    get selectAllMatchingFilter$(): Observable<boolean> {
-        return this._selectAllMatchingFilterSubject.asObservable();
     }
 
     // =========================================================================
@@ -77,14 +78,14 @@ export class FileSelectionService {
      * Get the current set of selected file names.
      */
     getSelectedFiles(): Set<string> {
-        return new Set(this._selectedFiles);
+        return new Set(this.selectedFiles());
     }
 
     /**
      * Get the current number of selected files.
      */
     getSelectedCount(): number {
-        return this._selectedFiles.size;
+        return this.selectedFiles().size;
     }
 
     /**
@@ -92,14 +93,14 @@ export class FileSelectionService {
      * @param fileName The name of the file to check
      */
     isSelected(fileName: string): boolean {
-        return this._selectedFiles.has(fileName);
+        return this.selectedFiles().has(fileName);
     }
 
     /**
      * Check if "select all matching filter" mode is active.
      */
     isSelectAllMatchingFilter(): boolean {
-        return this._selectAllMatchingFilter;
+        return this.selectAllMatchingFilterMode();
     }
 
     // =========================================================================
@@ -111,9 +112,12 @@ export class FileSelectionService {
      * @param fileName The name of the file to select
      */
     select(fileName: string): void {
-        if (!this._selectedFiles.has(fileName)) {
-            this._selectedFiles.add(fileName);
-            this._pushSelection();
+        if (!this.selectedFiles().has(fileName)) {
+            this.selectedFiles.update(set => {
+                const newSet = new Set(set);
+                newSet.add(fileName);
+                return newSet;
+            });
         }
     }
 
@@ -122,11 +126,14 @@ export class FileSelectionService {
      * @param fileName The name of the file to deselect
      */
     deselect(fileName: string): void {
-        if (this._selectedFiles.has(fileName)) {
-            this._selectedFiles.delete(fileName);
+        if (this.selectedFiles().has(fileName)) {
+            this.selectedFiles.update(set => {
+                const newSet = new Set(set);
+                newSet.delete(fileName);
+                return newSet;
+            });
             // Deselecting any file clears "select all matching" mode
             this._clearSelectAllMatchingMode();
-            this._pushSelection();
         }
     }
 
@@ -135,7 +142,7 @@ export class FileSelectionService {
      * @param fileName The name of the file to toggle
      */
     toggle(fileName: string): void {
-        if (this._selectedFiles.has(fileName)) {
+        if (this.selectedFiles().has(fileName)) {
             this.deselect(fileName);
         } else {
             this.select(fileName);
@@ -147,15 +154,14 @@ export class FileSelectionService {
      * @param fileNames Array of file names to select
      */
     selectMultiple(fileNames: string[]): void {
-        let changed = false;
-        for (const fileName of fileNames) {
-            if (!this._selectedFiles.has(fileName)) {
-                this._selectedFiles.add(fileName);
-                changed = true;
-            }
-        }
-        if (changed) {
-            this._pushSelection();
+        const currentSet = this.selectedFiles();
+        const filesToAdd = fileNames.filter(f => !currentSet.has(f));
+        if (filesToAdd.length > 0) {
+            this.selectedFiles.update(set => {
+                const newSet = new Set(set);
+                filesToAdd.forEach(f => newSet.add(f));
+                return newSet;
+            });
         }
     }
 
@@ -175,22 +181,20 @@ export class FileSelectionService {
      * including those not currently visible (e.g., due to pagination).
      * @param visibleFiles List of currently visible ViewFiles to add to selection
      */
-    selectAllMatchingFilter(visibleFiles: ViewFile[]): void {
+    enableSelectAllMatchingFilter(visibleFiles: ViewFile[]): void {
         // First select all visible files
         this.selectAllVisible(visibleFiles);
         // Then set the flag
-        this._selectAllMatchingFilter = true;
-        this._selectAllMatchingFilterSubject.next(true);
+        this.selectAllMatchingFilterMode.set(true);
     }
 
     /**
      * Clear all selections and reset to initial state.
      */
     clearSelection(): void {
-        if (this._selectedFiles.size > 0 || this._selectAllMatchingFilter) {
-            this._selectedFiles.clear();
+        if (this.selectedFiles().size > 0 || this.selectAllMatchingFilterMode()) {
+            this.selectedFiles.set(new Set());
             this._clearSelectAllMatchingMode();
-            this._pushSelection();
         }
     }
 
@@ -200,12 +204,8 @@ export class FileSelectionService {
      * @param fileNames Array of file names that should be selected
      */
     setSelection(fileNames: string[]): void {
-        this._selectedFiles.clear();
-        for (const fileName of fileNames) {
-            this._selectedFiles.add(fileName);
-        }
+        this.selectedFiles.set(new Set(fileNames));
         this._clearSelectAllMatchingMode();
-        this._pushSelection();
     }
 
     /**
@@ -223,18 +223,17 @@ export class FileSelectionService {
      * @param existingFileNames Set of file names that currently exist
      */
     pruneSelection(existingFileNames: Set<string>): void {
-        let changed = false;
-        for (const fileName of this._selectedFiles) {
-            if (!existingFileNames.has(fileName)) {
-                this._selectedFiles.delete(fileName);
-                changed = true;
-            }
-        }
-        if (changed) {
-            if (this._selectedFiles.size === 0) {
+        const currentSet = this.selectedFiles();
+        const toRemove = Array.from(currentSet).filter(f => !existingFileNames.has(f));
+        if (toRemove.length > 0) {
+            this.selectedFiles.update(set => {
+                const newSet = new Set(set);
+                toRemove.forEach(f => newSet.delete(f));
+                return newSet;
+            });
+            if (this.selectedFiles().size === 0) {
                 this._clearSelectAllMatchingMode();
             }
-            this._pushSelection();
         }
     }
 
@@ -243,20 +242,11 @@ export class FileSelectionService {
     // =========================================================================
 
     /**
-     * Push the current selection state to subscribers.
-     */
-    private _pushSelection(): void {
-        // Create a new Set to ensure change detection works
-        this._selectedFilesSubject.next(new Set(this._selectedFiles));
-    }
-
-    /**
      * Clear the "select all matching filter" mode flag.
      */
     private _clearSelectAllMatchingMode(): void {
-        if (this._selectAllMatchingFilter) {
-            this._selectAllMatchingFilter = false;
-            this._selectAllMatchingFilterSubject.next(false);
+        if (this.selectAllMatchingFilterMode()) {
+            this.selectAllMatchingFilterMode.set(false);
         }
     }
 }

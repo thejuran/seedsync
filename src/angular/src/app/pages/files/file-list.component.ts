@@ -22,7 +22,7 @@ import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
 import {NotificationService} from "../../services/utils/notification.service";
 import {Notification} from "../../services/utils/notification";
 import {Localization} from "../../common/localization";
-import {IsSelectedPipe} from "../../common/is-selected.pipe";
+// Note: IsSelectedPipe removed in Session 16 - FileComponent now uses computed() signal
 
 @Component({
     selector: "app-file-list",
@@ -33,7 +33,7 @@ import {IsSelectedPipe} from "../../common/is-selected.pipe";
     standalone: true,
     imports: [
         NgIf, NgFor, AsyncPipe, FileComponent,
-        SelectionBannerComponent, BulkActionsBarComponent, FileActionsBarComponent, IsSelectedPipe
+        SelectionBannerComponent, BulkActionsBarComponent, FileActionsBarComponent
     ]
 })
 export class FileListComponent {
@@ -220,7 +220,7 @@ export class FileListComponent {
      * Handle "Select all matching filter" from banner.
      */
     onSelectAllMatchingFilter(files: List<ViewFile>): void {
-        this.fileSelectionService.selectAllMatchingFilter(files.toArray());
+        this.fileSelectionService.enableSelectAllMatchingFilter(files.toArray());
     }
 
     /**
