@@ -85,31 +85,31 @@ Deferred to future work (Sessions 5-7 from original plan).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
-| COLOR-01 | Phase 2 | Pending |
-| COLOR-02 | Phase 2 | Pending |
-| COLOR-03 | Phase 2 | Pending |
-| COLOR-04 | Phase 2 | Pending |
-| COLOR-05 | Phase 2 | Pending |
-| SELECT-01 | Phase 3 | Pending |
-| SELECT-02 | Phase 3 | Pending |
-| SELECT-03 | Phase 3 | Pending |
-| SELECT-04 | Phase 3 | Pending |
-| SELECT-05 | Phase 3 | Pending |
-| BTN-01 | Phase 4 | Pending |
-| BTN-02 | Phase 4 | Pending |
-| BTN-03 | Phase 4 | Pending |
-| BTN-04 | Phase 4 | Pending |
-| BTN-05 | Phase 4 | Pending |
-| BTN-06 | Phase 5 | Pending |
-| BTN-07 | Phase 5 | Pending |
-| BTN-08 | Phase 5 | Pending |
-| BTN-09 | Phase 5 | Pending |
-| BTN-10 | Phase 5 | Pending |
-| BTN-11 | Phase 5 | Pending |
+| FOUND-01 | Phase 1 | Not started |
+| FOUND-02 | Phase 1 | Not started |
+| FOUND-03 | Phase 1 | Not started |
+| FOUND-04 | Phase 1 | Not started |
+| COLOR-01 | Phase 2 | Not started |
+| COLOR-02 | Phase 2 | Not started |
+| COLOR-03 | Phase 2 | Not started |
+| COLOR-04 | Phase 2 | Not started |
+| COLOR-05 | Phase 2 | Not started |
+| SELECT-01 | Phase 3 | Not started |
+| SELECT-02 | Phase 3 | Not started |
+| SELECT-03 | Phase 3 | Not started |
+| SELECT-04 | Phase 3 | Not started |
+| SELECT-05 | Phase 3 | Not started |
+| BTN-01 | Phase 4 | Not started |
+| BTN-02 | Phase 4 | Not started |
+| BTN-03 | Phase 4 | Not started |
+| BTN-04 | Phase 4 | Not started |
+| BTN-05 | Phase 4 | Not started |
+| BTN-06 | Phase 5 | Not started |
+| BTN-07 | Phase 5 | Not started |
+| BTN-08 | Phase 5 | Not started |
+| BTN-09 | Phase 5 | Not started |
+| BTN-10 | Phase 5 | Not started |
+| BTN-11 | Phase 5 | Not started |
 
 **Coverage:**
 - v1 requirements: 21 total
@@ -118,4 +118,4 @@ Deferred to future work (Sessions 5-7 from original plan).
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after initial definition*
+*Last updated: 2026-02-03 after roadmap creation*
