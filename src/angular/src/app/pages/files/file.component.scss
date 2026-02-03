@@ -9,6 +9,11 @@
     max-height: 82px;
     overflow: hidden;
     border-bottom: 1px solid #ddd;
+
+    /* content-visibility: auto skips rendering of off-screen elements */
+    /* This improves performance for long lists without requiring CDK virtual scrolling */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 82px;
 }
 
 :host:last-child {
@@ -71,6 +76,8 @@
         height: 18px;
         cursor: pointer;
         accent-color: $secondary-dark-color;
+        /* Disable default browser transition to make checkbox state changes appear instant */
+        transition: none;
     }
 }
 
