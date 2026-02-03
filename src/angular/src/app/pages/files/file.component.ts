@@ -96,7 +96,9 @@ export class FileComponent implements OnChanges {
             this.activeAction = null;
 
             // Scroll into view if this file is selected and not already in viewport
-            if (newFile.isSelected && !FileComponent.isElementInViewport(this.fileElement.nativeElement)) {
+            // Note: fileElement may not be available on first ngOnChanges call (before ngAfterViewInit)
+            if (newFile.isSelected && this.fileElement?.nativeElement &&
+                !FileComponent.isElementInViewport(this.fileElement.nativeElement)) {
                 this.fileElement.nativeElement.scrollIntoView();
             }
         }
