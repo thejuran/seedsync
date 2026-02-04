@@ -128,23 +128,23 @@ export class FileComponent implements OnChanges, AfterViewInit {
     }
 
     isQueueable() {
-        return this.activeAction == null && this.file.isQueueable;
+        return this.activeAction == null && this.file?.isQueueable;
     }
 
     isStoppable() {
-        return this.activeAction == null && this.file.isStoppable;
+        return this.activeAction == null && this.file?.isStoppable;
     }
 
     isExtractable() {
-        return this.activeAction == null && this.file.isExtractable && this.file.isArchive;
+        return this.activeAction == null && this.file?.isExtractable && this.file?.isArchive;
     }
 
     isLocallyDeletable() {
-        return this.activeAction == null && this.file.isLocallyDeletable;
+        return this.activeAction == null && this.file?.isLocallyDeletable;
     }
 
     isRemotelyDeletable() {
-        return this.activeAction == null && this.file.isRemotelyDeletable;
+        return this.activeAction == null && this.file?.isRemotelyDeletable;
     }
 
     onCheckboxClick(event: MouseEvent): void {
@@ -153,24 +153,36 @@ export class FileComponent implements OnChanges, AfterViewInit {
     }
 
     onQueue(file: ViewFile) {
+        if (!this.isQueueable()) {
+            return;
+        }
         this.activeAction = FileAction.QUEUE;
         // Pass to parent component
         this.queueEvent.emit(file);
     }
 
     onStop(file: ViewFile) {
+        if (!this.isStoppable()) {
+            return;
+        }
         this.activeAction = FileAction.STOP;
         // Pass to parent component
         this.stopEvent.emit(file);
     }
 
     onExtract(file: ViewFile) {
+        if (!this.isExtractable()) {
+            return;
+        }
         this.activeAction = FileAction.EXTRACT;
         // Pass to parent component
         this.extractEvent.emit(file);
     }
 
     onDeleteLocal(file: ViewFile) {
+        if (!this.isLocallyDeletable()) {
+            return;
+        }
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_LOCAL_TITLE,
             Localization.Modal.DELETE_LOCAL_MESSAGE(file.name),
@@ -183,6 +195,9 @@ export class FileComponent implements OnChanges, AfterViewInit {
     }
 
     onDeleteRemote(file: ViewFile) {
+        if (!this.isRemotelyDeletable()) {
+            return;
+        }
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_REMOTE_TITLE,
             Localization.Modal.DELETE_REMOTE_MESSAGE(file.name),

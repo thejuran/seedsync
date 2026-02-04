@@ -52,10 +52,10 @@
         justify-content: flex-end;
         flex-wrap: wrap;
 
-        .button {
-            @extend %button;
-
+        .btn {
+            display: flex;
             flex-direction: row;
+            align-items: center;
             padding: 10px;
             margin-right: 8px;
             height: 40px;
@@ -64,7 +64,7 @@
             img {
                 width: 20px;
                 height: 20px;
-                filter: invert(1.0);
+                filter: invert(1);
             }
 
             .text {

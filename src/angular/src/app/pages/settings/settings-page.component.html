@@ -64,10 +64,11 @@
     </div>
 
     <div id="commands">
-        <div class="button" appClickStopPropagation [attr.disabled]="commandsEnabled ? null : true"
-             (click)="!commandsEnabled || onCommandRestart()">
-            <img src="assets/icons/refresh.svg" />
+        <button class="btn btn-primary" type="button"
+                [disabled]="!commandsEnabled"
+                (click)="onCommandRestart()">
+            <img src="assets/icons/refresh.svg" alt="" />
             <span class="text">Restart</span>
-        </div>
+        </button>
     </div>
 </div>

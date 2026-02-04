@@ -32,7 +32,7 @@ export class AutoQueuePage extends App {
 
     async addPattern(pattern: string) {
         await this.page.locator('#add-pattern input').fill(pattern);
-        await this.page.locator('#add-pattern .button').click();
+        await this.page.locator('#add-pattern button.btn-success').click();
         // Wait for the pattern to appear in the list
         await this.page.locator(`#autoqueue .pattern span.text:has-text("${pattern}")`).waitFor({ state: 'visible' });
     }
@@ -40,7 +40,7 @@ export class AutoQueuePage extends App {
     async removePattern(index: number) {
         // Get current count before removal
         const countBefore = await this.page.locator('#autoqueue .pattern').count();
-        await this.page.locator('#autoqueue .pattern').nth(index).locator('.button').click();
+        await this.page.locator('#autoqueue .pattern').nth(index).locator('button.btn-danger').click();
         // Wait for pattern count to decrease
         await this.page.waitForFunction(
             (expected) => document.querySelectorAll('#autoqueue .pattern').length === expected,

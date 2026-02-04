@@ -78,6 +78,9 @@ export class AutoQueuePageComponent implements OnInit {
     }
 
     onAddPattern() {
+        if (!this.newPattern || !this.enabled || !this.patternsOnly) {
+            return;
+        }
         this._autoqueueService.add(this.newPattern).subscribe({
             next: reaction => {
                 if (reaction.success) {
@@ -97,6 +100,9 @@ export class AutoQueuePageComponent implements OnInit {
     }
 
     onRemovePattern(pattern: AutoQueuePattern) {
+        if (!this.enabled || !this.patternsOnly) {
+            return;
+        }
         this._autoqueueService.remove(pattern.pattern).subscribe({
             next: reaction => {
                 if (reaction.success) {

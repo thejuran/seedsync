@@ -14,7 +14,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(white, 0.8);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -24,7 +24,7 @@
     .progress-text {
         margin-top: 1rem;
         font-weight: 500;
-        color: #333;
+        color: $gray-800;
     }
 }
 
@@ -84,7 +84,7 @@
     /* header color */
     #header div {
         font-weight: bold;
-        color: #fff;
-        background-color: #000;
+        color: white;
+        background-color: black;
     }
 }

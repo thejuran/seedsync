@@ -17,26 +17,26 @@
             Enable AutoQueue in Settings to queue files automatically.
         </ng-container>
     </span>
-    <div id="controls" [attr.disabled]="enabled && patternsOnly ? null : true">
+    <div id="controls" [class.controls-disabled]="!(enabled && patternsOnly)">
         <div *ngFor="let pattern of patterns | async"
              class="pattern">
-            <div class="button" appClickStopPropagation
-                 [attr.disabled]="enabled && patternsOnly ? null : true"
-                 (click)="!(enabled && patternsOnly) || onRemovePattern(pattern)">
+            <button class="btn btn-danger" type="button"
+                    [disabled]="!(enabled && patternsOnly)"
+                    (click)="onRemovePattern(pattern)">
                 <span>&#8722;</span>
-            </div>
+            </button>
             <span class="text">{{pattern.pattern}}</span>
         </div>
         <div id="add-pattern">
-            <div class="button" appClickStopPropagation
-                 (click)="!(newPattern && enabled && patternsOnly) || onAddPattern()"
-                 [attr.disabled]="newPattern && enabled && patternsOnly ? null : true">
+            <button class="btn btn-success" type="button"
+                    [disabled]="!(newPattern && enabled && patternsOnly)"
+                    (click)="onAddPattern()">
                 <span>&#43;</span>
-            </div>
+            </button>
             <label>
                 <input type="search"
                        class="form-control"
-                       (keyup.enter)="!(newPattern && enabled && patternsOnly) || onAddPattern()"
+                       (keyup.enter)="(newPattern && enabled && patternsOnly) && onAddPattern()"
                        [(ngModel)]="newPattern"
                        [disabled]="!connected || !enabled || !patternsOnly"/>
             </label>

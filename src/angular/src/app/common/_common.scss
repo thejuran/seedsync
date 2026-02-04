@@ -1,19 +1,33 @@
-$primary-color: #337BB7;
-$primary-dark-color: #2e6da4;
-$primary-light-color: #D7E7F4;
-$primary-lighter-color: #F6F6F6;
+// Import Bootstrap variables (makes them available to this file and components that import this file)
+@import 'bootstrap-variables';
 
-$secondary-color: #79DFB6;
-$secondary-light-color: #C5F0DE;
-$secondary-dark-color: #32AD7B;
-$secondary-darker-color: #077F4F;
+// ============================================================================
+// Bootstrap Semantic Color Variables (for component use)
+// ============================================================================
+// These Bootstrap variables are defined in node_modules/bootstrap/scss/_variables.scss
+// but are not accessible to component files using @use '../../common/common'.
+// We re-export them here so component SCSS files can use them.
 
-$header-color: #DDDDDD;
-$header-dark-color: #D3D3D3;
+// Theme colors (already defined in _bootstrap-variables.scss, but re-exported for clarity)
+// These are available, but listing them here for documentation
+// $primary, $secondary, $success, $danger, $warning, $info
 
-$logo-color: #118247;
-$logo-font: 'Arial Black', Gadget, sans-serif;
+// Bootstrap 5.3 subtle alert color variables (generated from theme colors)
+$warning-text-emphasis: shade-color($warning, 60%);
+$danger-text-emphasis: shade-color($danger, 60%);
+$warning-bg-subtle: tint-color($warning, 80%);
+$danger-bg-subtle: tint-color($danger, 80%);
+$warning-border-subtle: tint-color($warning, 60%);
+$danger-border-subtle: tint-color($danger, 60%);
 
+// Bootstrap gray scale (commonly used for borders, backgrounds)
+$gray-100: #f8f9fa;
+$gray-300: #dee2e6;
+$gray-800: #343a40;
+
+// ============================================================================
+// Layout Variables
+// ============================================================================
 $small-max-width: 600px;
 $medium-min-width: 601px;
 $medium-max-width: 992px;
@@ -21,34 +35,11 @@ $large-min-width: 993px;
 
 $sidebar-width: 170px;
 
+// ============================================================================
+// Z-index Variables
+// ============================================================================
 $zindex-sidebar: 300;
 $zindex-top-header: 200;
 $zindex-file-options: 201;
 $zindex-file-search: 100;
 
-%button {
-    background-color: $primary-color;
-    color: white;
-    border: 1px solid $primary-dark-color;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-    user-select: none;
-
-    &:active {
-        background-color: #286090;
-    }
-
-    &[disabled] {
-        opacity: .65;
-        background-color: $primary-color;
-    }
-
-    &.selected {
-        background-color: $secondary-color;
-        border-color: $secondary-darker-color;
-    }
-}

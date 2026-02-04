@@ -5,8 +5,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 8px 16px;
-    background-color: $primary-light-color;
-    border: 1px solid $primary-color;
+    background-color: $secondary-color;
+    border: 1px solid $secondary-dark-color;
     border-radius: 4px;
     margin-bottom: 8px;
 }
@@ -20,7 +20,17 @@
 
 .selection-count {
     font-weight: 500;
-    color: $primary-dark-color;
+    color: $secondary-darker-color;
+}
+
+.select-all-link {
+    color: $secondary-dark-color;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+        color: $secondary-darker-color;
+    }
 }
 
 .clear-btn {

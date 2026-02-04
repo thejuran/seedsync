@@ -268,12 +268,15 @@ describe("FileComponent", () => {
         });
 
         it("should set activeAction and emit stopEvent on onStop", () => {
+            // Set up stoppable file for this test
+            const stoppableFile = new ViewFile({name: "stoppable-file.mkv", isStoppable: true});
+            component.file = stoppableFile;
             spyOn(component.stopEvent, "emit");
 
-            component.onStop(testFile);
+            component.onStop(stoppableFile);
 
             expect(component.activeAction).toBe(FileAction.STOP);
-            expect(component.stopEvent.emit).toHaveBeenCalledWith(testFile);
+            expect(component.stopEvent.emit).toHaveBeenCalledWith(stoppableFile);
         });
 
         it("should set activeAction and emit extractEvent on onExtract", () => {
