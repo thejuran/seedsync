@@ -7,35 +7,35 @@
         <span class="name-text">{{file.name}}</span>
     </div>
     <div class="actions">
-        <button class="btn btn-sm btn-primary"
+        <button class="btn btn-primary"
                 [disabled]="!isQueueable()"
                 [class.loading]="activeAction === 'queue'"
                 (click)="onQueue()">
             <img src="assets/icons/queue.svg" alt="Queue" />
             Queue
         </button>
-        <button class="btn btn-sm btn-warning"
+        <button class="btn btn-danger"
                 [disabled]="!isStoppable()"
                 [class.loading]="activeAction === 'stop'"
                 (click)="onStop()">
             <img src="assets/icons/stop.svg" alt="Stop" />
             Stop
         </button>
-        <button class="btn btn-sm btn-info"
+        <button class="btn btn-secondary"
                 [disabled]="!isExtractable()"
                 [class.loading]="activeAction === 'extract'"
                 (click)="onExtract()">
             <img src="assets/icons/extract.svg" alt="Extract" />
             Extract
         </button>
-        <button class="btn btn-sm btn-outline-danger"
+        <button class="btn btn-danger"
                 [disabled]="!isLocallyDeletable()"
                 [class.loading]="activeAction === 'delete_local'"
                 (click)="onDeleteLocal()">
             <img src="assets/icons/delete-local.svg" alt="Delete Local" />
             Delete Local
         </button>
-        <button class="btn btn-sm btn-danger"
+        <button class="btn btn-danger"
                 [disabled]="!isRemotelyDeletable()"
                 [class.loading]="activeAction === 'delete_remote'"
                 (click)="onDeleteRemote()">
