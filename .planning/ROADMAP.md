@@ -70,15 +70,16 @@ Plans:
 **Depends on**: Phase 3
 **Requirements**: BTN-01, BTN-02, BTN-03, BTN-04, BTN-05
 **Success Criteria** (what must be TRUE):
-  1. File action buttons display with consistent 40px height
+  1. File action buttons display with Bootstrap default sizing (~38px height)
   2. All button states work correctly (default, hover, active, disabled)
   3. Icon buttons maintain proper sizing and alignment
   4. Button clicks trigger correct actions (no functional regressions)
   5. Dashboard page file selection and action buttons work correctly
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- TBD
+- [ ] 04-01-PLAN.md — Migrate file-actions-bar and bulk-actions-bar button variants
+- [ ] 04-02-PLAN.md — Migrate file.component hidden actions and visual verification
 
 ### Phase 5: Button Standardization - Other Pages
 **Goal**: Complete button migration across all pages with custom placeholder removed
@@ -88,7 +89,7 @@ Plans:
   1. Settings page buttons use Bootstrap classes with consistent styling
   2. AutoQueue page buttons use Bootstrap classes with consistent styling
   3. Logs page buttons use Bootstrap classes (if applicable)
-  4. All buttons across the application have consistent 40px height
+  4. All buttons across the application have consistent sizing
   5. Custom `%button` placeholder no longer exists in `_common.scss`
   6. Angular unit tests pass after complete button migration
 **Plans**: TBD
@@ -106,5 +107,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Bootstrap SCSS Setup | 1/1 | Complete | 2026-02-03 |
 | 2. Color Variable Consolidation | 2/2 | Complete | 2026-02-03 |
 | 3. Selection Color Unification | 1/1 | Complete | 2026-02-03 |
-| 4. Button Standardization - File Actions | 0/TBD | Not started | - |
+| 4. Button Standardization - File Actions | 0/2 | Planned | - |
 | 5. Button Standardization - Other Pages | 0/TBD | Not started | - |
