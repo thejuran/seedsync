@@ -31,10 +31,6 @@ class BulkActionsDashboardPage extends DashboardPage {
         return this.page.locator('.selection-banner .selection-count');
     }
 
-    get selectAllMatchingLink() {
-        return this.page.locator('.selection-banner .select-all-link');
-    }
-
     get clearSelectionButton() {
         return this.page.locator('.selection-banner .clear-btn');
     }
@@ -309,28 +305,10 @@ test.describe('Bulk File Actions', () => {
             expect(await dashboardPage.getFileCheckbox(1).isChecked()).toBe(false);
         });
 
-        test('3.4 - selecting all visible shows Select all matching link', async () => {
-            await dashboardPage.clickHeaderCheckbox();
-
-            await expect(dashboardPage.selectAllMatchingLink).toBeVisible();
-        });
-
-        test('3.5 - clicking Select all matching updates banner', async () => {
-            await dashboardPage.clickHeaderCheckbox();
-            await dashboardPage.selectAllMatchingLink.click();
-
-            // Banner should update (may show different text or styling)
-            await expect(dashboardPage.selectionBanner).toBeVisible();
-        });
-
-        test('3.6 - clear selection after select all matching', async () => {
-            await dashboardPage.clickHeaderCheckbox();
-            await dashboardPage.selectAllMatchingLink.click();
-
-            await dashboardPage.clearSelectionButton.click();
-
-            await expect(dashboardPage.selectionBanner).not.toBeVisible();
-        });
+        // Note: Tests 3.4-3.6 for "Select all matching" feature were removed.
+        // The feature was intentionally removed as it was misleading - it claimed
+        // to select "all files matching filter" but only operated on visible files.
+        // See planning docs/BULK_ACTIONS_FIXES.md for details.
     });
 
     test.describe('TS-4: Keyboard Shortcuts', () => {
