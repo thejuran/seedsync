@@ -30,12 +30,12 @@ Requirements for v1.1 Dropdown & Form Migration milestone.
 
 Shipped 2026-02-03:
 
-- ✓ **SCSS-01**: Bootstrap SCSS infrastructure with customizable variables — v1.0
-- ✓ **COLOR-01**: All colors consolidated to Bootstrap theme variables — v1.0
-- ✓ **SELECT-01**: Selection highlighting unified with teal (secondary) palette — v1.0
-- ✓ **BTN-01**: All buttons standardized to Bootstrap semantic variants — v1.0
-- ✓ **BTN-02**: Custom %button SCSS placeholder removed — v1.0
-- ✓ **BTN-03**: 40px consistent button sizing across all pages — v1.0
+- [x] **SCSS-01**: Bootstrap SCSS infrastructure with customizable variables — v1.0
+- [x] **COLOR-01**: All colors consolidated to Bootstrap theme variables — v1.0
+- [x] **SELECT-01**: Selection highlighting unified with teal (secondary) palette — v1.0
+- [x] **BTN-01**: All buttons standardized to Bootstrap semantic variants — v1.0
+- [x] **BTN-02**: Custom %button SCSS placeholder removed — v1.0
+- [x] **BTN-03**: 40px consistent button sizing across all pages — v1.0
 
 ## Out of Scope
 
@@ -51,22 +51,22 @@ Shipped 2026-02-03:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DROP-01 | — | Pending |
-| DROP-02 | — | Pending |
-| DROP-03 | — | Pending |
-| FORM-01 | — | Pending |
-| FORM-02 | — | Pending |
-| FORM-03 | — | Pending |
-| POLISH-01 | — | Pending |
-| POLISH-02 | — | Pending |
-| POLISH-03 | — | Pending |
-| POLISH-04 | — | Pending |
+| DROP-01 | Phase 6 | Pending |
+| DROP-02 | Phase 6 | Pending |
+| DROP-03 | Phase 6 | Pending |
+| FORM-01 | Phase 7 | Pending |
+| FORM-02 | Phase 7 | Pending |
+| FORM-03 | Phase 7 | Pending |
+| POLISH-01 | Phase 8 | Pending |
+| POLISH-02 | Phase 8 | Pending |
+| POLISH-03 | Phase 8 | Pending |
+| POLISH-04 | Phase 8 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 10 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 10 ⚠️
+- Mapped to phases: 10
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after v1.1 milestone start*
+*Last updated: 2026-02-04 after v1.1 roadmap creation*
