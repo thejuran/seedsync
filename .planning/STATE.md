@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-03)
 
 **Core value:** Consistent visual appearance across all pages while maintaining all existing functionality
-**Current focus:** Phase 4: Button Standardization - File Actions
+**Current focus:** Phase 5: Button Standardization - Other Pages
 
 ## Current Position
 
-Phase: 4 of 5 (Button Standardization - File Actions)
-Plan: 2 of 2 in current phase
+Phase: 5 of 5 (Button Standardization - Other Pages)
+Plan: 1 of 1 in current phase
 Status: Phase complete
-Last activity: 2026-02-04 — Completed 04-02-PLAN.md
+Last activity: 2026-02-04 — Completed 05-01-PLAN.md
 
-Progress: [████████░░] 80%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5
-- Average duration: 4.2 min
-- Total execution time: 0.35 hours
+- Total plans completed: 6
+- Average duration: 3.7 min
+- Total execution time: 0.37 hours
 
 **By Phase:**
 
@@ -31,10 +31,11 @@ Progress: [████████░░] 80%
 | 02-color-variable-consolidation | 2 | 9min | 4.5min |
 | 03-selection-color-unification | 1 | 1min | 1min |
 | 04-button-standardization-file-actions | 2 | 5min | 2.5min |
+| 05-button-standardization-other-pages | 1 | 2min | 2min |
 
 **Recent Trend:**
-- Last 5 plans: 02-01 (1min), 02-02 (8min), 03-01 (1min), 04-01 (3min), 04-02 (2min)
-- Trend: Accelerating (recent plans faster due to focused scope)
+- Last 5 plans: 02-02 (8min), 03-01 (1min), 04-01 (3min), 04-02 (2min), 05-01 (2min)
+- Trend: Accelerating (recent plans consistently under 3min)
 
 *Updated after each plan completion*
 
@@ -44,6 +45,13 @@ Progress: [████████░░] 80%
 
 Decisions are logged in PROJECT.md Key Decisions table.
 Recent decisions affecting current work:
+
+**From 05-01 (Settings and AutoQueue Button Standardization):**
+- Settings Restart button uses btn-primary (positive/primary action)
+- AutoQueue remove button uses btn-danger (destructive action)
+- AutoQueue add button uses btn-success (additive action)
+- Changed button dimensions from 35px to 40px for consistency with Phase 4
+- Removed all @extend %button usage from Settings and AutoQueue pages
 
 **From 04-02 (Hidden Actions Bootstrap Migration):**
 - Hidden .actions uses same Bootstrap patterns as visible action bars for consistency
@@ -91,9 +99,9 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-04 (plan execution)
-Stopped at: Completed 04-02-PLAN.md (Hidden Actions Bootstrap Migration)
+Stopped at: Completed 05-01-PLAN.md (Settings and AutoQueue Button Standardization)
 Resume file: None
 
-**Next step:** Phase 4 complete. Ready for Phase 5: Settings Page Styling
+**Next step:** ALL PHASES COMPLETE! UI unification project finished. All buttons now use consistent Bootstrap semantic variants across all pages.
 
 **Note:** Third-party deprecation warnings (Bootstrap, Font-Awesome) accepted as noise. Build succeeds.
