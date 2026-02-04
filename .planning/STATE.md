@@ -45,8 +45,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table with outcomes marked
 
 ### Pending Todos
 
-1 pending todo:
-- Fix AutoQueue re-queueing already-downloaded files (backend)
+None - all todos complete.
 
 ### Blockers/Concerns
 
