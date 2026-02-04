@@ -302,6 +302,8 @@ class TestAutoQueue(unittest.TestCase):
         self.initial_model = []
         # Track which files are "stopped" for testing
         self.stopped_files = set()
+        # Track which files are "downloaded" for testing
+        self.downloaded_files = set()
 
         def get_model():
             return self.initial_model
@@ -313,9 +315,13 @@ class TestAutoQueue(unittest.TestCase):
         def is_file_stopped(filename: str) -> bool:
             return filename in self.stopped_files
 
+        def is_file_downloaded(filename: str) -> bool:
+            return filename in self.downloaded_files
+
         self.controller.get_model_files.side_effect = get_model
         self.controller.get_model_files_and_add_listener.side_effect = get_model_and_capture_listener
         self.controller.is_file_stopped.side_effect = is_file_stopped
+        self.controller.is_file_downloaded.side_effect = is_file_downloaded
 
     def test_matching_new_files_are_queued(self):
         persist = AutoQueuePersist()
@@ -1706,3 +1712,45 @@ class TestAutoQueue(unittest.TestCase):
         command = self.controller.queue_command.call_args[0][0]
         self.assertEqual(Controller.Command.Action.QUEUE, command.action)
         self.assertEqual("File.One", command.filename)
+
+    def test_already_downloaded_files_are_not_re_queued(self):
+        """
+        Test that files tracked as 'downloaded' by the controller are NOT auto-queued,
+        even if the local file no longer exists.
+
+        This tests the fix for the Sonarr workflow where:
+        1. SeedSync downloads a file
+        2. Sonarr moves/deletes the local file
+        3. AutoQueue should NOT re-queue because file is in downloaded_file_names
+        """
+        persist = AutoQueuePersist()
+        persist.add_pattern(AutoQueuePattern(pattern="File"))
+
+        # Mark "File.One" as already downloaded (simulates file that was downloaded
+        # but then moved/deleted by Sonarr)
+        self.downloaded_files.add("File.One")
+
+        # noinspection PyTypeChecker
+        auto_queue = AutoQueue(self.context, persist, self.controller)
+
+        # File exists on remote but no local file (Sonarr moved it)
+        file_one = ModelFile("File.One", True)
+        file_one.remote_size = 100
+        file_one.local_size = None  # No local file - Sonarr moved it
+        file_one.state = ModelFile.State.DEFAULT
+        self.model_listener.file_added(file_one)
+
+        # Also add a file that was NOT previously downloaded
+        file_two = ModelFile("File.Two", True)
+        file_two.remote_size = 100
+        file_two.local_size = None
+        file_two.state = ModelFile.State.DEFAULT
+        self.model_listener.file_added(file_two)
+
+        auto_queue.process()
+
+        # Only File.Two should be queued (File.One is in downloaded_files)
+        self.controller.queue_command.assert_called_once_with(unittest.mock.ANY)
+        command = self.controller.queue_command.call_args[0][0]
+        self.assertEqual(Controller.Command.Action.QUEUE, command.action)
+        self.assertEqual("File.Two", command.filename)

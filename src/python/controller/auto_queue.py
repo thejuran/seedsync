@@ -252,10 +252,12 @@ class AutoQueue:
                 files_to_queue_dict[name] = pattern
 
         # Filter out files that were explicitly stopped by user
-        # These files should not be auto-queued even if they match other criteria
+        # OR were already downloaded previously (prevents re-queueing files
+        # that were moved/deleted by external tools like Sonarr)
         files_to_queue = [
             (name, pattern) for name, pattern in files_to_queue_dict.items()
             if not self.__controller.is_file_stopped(name)
+            and not self.__controller.is_file_downloaded(name)
         ]
 
         ###

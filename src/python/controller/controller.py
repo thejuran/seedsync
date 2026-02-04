@@ -216,6 +216,17 @@ class Controller:
         """
         return filename in self.__persist.stopped_file_names
 
+    def is_file_downloaded(self, filename: str) -> bool:
+        """
+        Check if a file was previously downloaded successfully.
+        Used by AutoQueue to avoid re-queuing files that were already
+        downloaded but may have been moved/deleted by external tools (e.g., Sonarr).
+
+        :param filename: Name of the file to check
+        :return: True if the file is in the downloaded files set
+        """
+        return filename in self.__persist.downloaded_file_names
+
     def add_model_listener(self, listener: IModelListener):
         """
         Adds a listener to the controller's model
