@@ -9,15 +9,15 @@ Requirements for v1.1 Dropdown & Form Migration milestone.
 
 ### Dropdowns
 
-- [ ] **DROP-01**: File options dropdowns use Bootstrap dropdown component
-- [ ] **DROP-02**: Custom `%dropdown` and `%toggle` placeholders removed
-- [ ] **DROP-03**: Dropdown positioning works correctly (z-index, overflow, flip behavior)
+- [x] **DROP-01**: File options dropdowns use Bootstrap dropdown component
+- [x] **DROP-02**: Custom `%dropdown` and `%toggle` placeholders removed
+- [x] **DROP-03**: Dropdown positioning works correctly (z-index, overflow, flip behavior)
 
 ### Form Inputs
 
-- [ ] **FORM-01**: All text inputs use consistent Bootstrap form styling
-- [ ] **FORM-02**: Checkboxes and toggles styled consistently
-- [ ] **FORM-03**: Form focus states use app color scheme
+- [x] **FORM-01**: All text inputs use consistent Bootstrap form styling
+- [x] **FORM-02**: Checkboxes and toggles styled consistently
+- [x] **FORM-03**: Form focus states use app color scheme
 
 ### Polish
 
@@ -51,12 +51,12 @@ Shipped 2026-02-03:
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DROP-01 | Phase 6 | Pending |
-| DROP-02 | Phase 6 | Pending |
-| DROP-03 | Phase 6 | Pending |
-| FORM-01 | Phase 7 | Pending |
-| FORM-02 | Phase 7 | Pending |
-| FORM-03 | Phase 7 | Pending |
+| DROP-01 | Phase 6 | Complete |
+| DROP-02 | Phase 6 | Complete |
+| DROP-03 | Phase 6 | Complete |
+| FORM-01 | Phase 7 | Complete |
+| FORM-02 | Phase 7 | Complete |
+| FORM-03 | Phase 7 | Complete |
 | POLISH-01 | Phase 8 | Pending |
 | POLISH-02 | Phase 8 | Pending |
 | POLISH-03 | Phase 8 | Pending |

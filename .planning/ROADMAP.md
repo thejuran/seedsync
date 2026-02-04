@@ -60,7 +60,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md — Add Bootstrap form variable overrides and dark theme styling
+- [x] 07-01-PLAN.md — Add Bootstrap form variable overrides and dark theme styling
 
 **Success Criteria:**
 1. User sees consistent input styling across Settings, AutoQueue, and any modal forms
@@ -101,7 +101,7 @@ Plans:
 | 4. Button Standardization - File Actions | v1.0 | 2/2 | Complete | 2026-02-03 |
 | 5. Button Standardization - Other Pages | v1.0 | 2/2 | Complete | 2026-02-03 |
 | 6. Dropdown Migration | v1.1 | 1/1 | Complete | 2026-02-04 |
-| 7. Form Input Standardization | v1.1 | 0/1 | Planned | — |
+| 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 8. Final Polish | v1.1 | 0/? | Not Started | — |
 
 ---
