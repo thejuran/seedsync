@@ -91,47 +91,62 @@
         </div>
     </div>
 
-    <!-- actions div, visible on selection -->
+    <!-- actions div, hidden for virtual scroll but migrated to Bootstrap for consistency -->
     <div class="actions">
-        <div class="button" appClickStopPropagation
-             [attr.disabled]="isQueueable() ? null : true"
-             (click)="!isQueueable() || onQueue(file)"
-             [class.loading]="activeAction == FileAction.QUEUE">
-            <div class="loader"></div>
-            <img src="assets/icons/queue.svg" />
-            <div class="text"><span>Queue</span></div>
-        </div>
-        <div class="button" appClickStopPropagation
-             [attr.disabled]="isStoppable() ? null : true"
-             (click)="!isStoppable() || onStop(file)"
-             [class.loading]="activeAction == FileAction.STOP">
-            <div class="loader"></div>
-            <img src="assets/icons/stop.svg" />
-            <div class="text"><span>Stop</span></div>
-        </div>
-        <div class="button" appClickStopPropagation
-             [attr.disabled]="isExtractable() ? null : true"
-             (click)="!isExtractable() || onExtract(file)"
-             [class.loading]="activeAction == FileAction.EXTRACT">
-            <div class="loader"></div>
-            <img src="assets/icons/extract.svg" />
-            <div class="text"><span>Extract</span></div>
-        </div>
-        <div class="button" appClickStopPropagation
-             [attr.disabled]="isLocallyDeletable() ? null : true"
-             (click)="!isLocallyDeletable() || onDeleteLocal(file)"
-             [class.loading]="activeAction == FileAction.DELETE_LOCAL">
-            <div class="loader"></div>
-            <img src="assets/icons/delete-local.svg" />
-            <div class="text"><span>Delete Local</span></div>
-        </div>
-        <div class="button" appClickStopPropagation
-             [attr.disabled]="isRemotelyDeletable() ? null : true"
-             (click)="!isRemotelyDeletable() || onDeleteRemote(file)"
-             [class.loading]="activeAction == FileAction.DELETE_REMOTE">
-            <div class="loader"></div>
-            <img src="assets/icons/delete-remote.svg" />
-            <div class="text"><span>Delete Remote</span></div>
-        </div>
+        <button class="btn btn-primary action-button" appClickStopPropagation
+                [disabled]="!isQueueable()"
+                (click)="onQueue(file)"
+                [class.loading]="activeAction === FileAction.QUEUE">
+            <span *ngIf="activeAction === FileAction.QUEUE"
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"></span>
+            <img *ngIf="activeAction !== FileAction.QUEUE"
+                 src="assets/icons/queue.svg" alt="" />
+            <span class="text">Queue</span>
+        </button>
+        <button class="btn btn-danger action-button" appClickStopPropagation
+                [disabled]="!isStoppable()"
+                (click)="onStop(file)"
+                [class.loading]="activeAction === FileAction.STOP">
+            <span *ngIf="activeAction === FileAction.STOP"
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"></span>
+            <img *ngIf="activeAction !== FileAction.STOP"
+                 src="assets/icons/stop.svg" alt="" />
+            <span class="text">Stop</span>
+        </button>
+        <button class="btn btn-secondary action-button" appClickStopPropagation
+                [disabled]="!isExtractable()"
+                (click)="onExtract(file)"
+                [class.loading]="activeAction === FileAction.EXTRACT">
+            <span *ngIf="activeAction === FileAction.EXTRACT"
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"></span>
+            <img *ngIf="activeAction !== FileAction.EXTRACT"
+                 src="assets/icons/extract.svg" alt="" />
+            <span class="text">Extract</span>
+        </button>
+        <button class="btn btn-danger action-button" appClickStopPropagation
+                [disabled]="!isLocallyDeletable()"
+                (click)="onDeleteLocal(file)"
+                [class.loading]="activeAction === FileAction.DELETE_LOCAL">
+            <span *ngIf="activeAction === FileAction.DELETE_LOCAL"
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"></span>
+            <img *ngIf="activeAction !== FileAction.DELETE_LOCAL"
+                 src="assets/icons/delete-local.svg" alt="" />
+            <span class="text">Delete Local</span>
+        </button>
+        <button class="btn btn-danger action-button" appClickStopPropagation
+                [disabled]="!isRemotelyDeletable()"
+                (click)="onDeleteRemote(file)"
+                [class.loading]="activeAction === FileAction.DELETE_REMOTE">
+            <span *ngIf="activeAction === FileAction.DELETE_REMOTE"
+                  class="spinner-border spinner-border-sm"
+                  aria-hidden="true"></span>
+            <img *ngIf="activeAction !== FileAction.DELETE_REMOTE"
+                 src="assets/icons/delete-remote.svg" alt="" />
+            <span class="text">Delete Remote</span>
+        </button>
     </div>
 </div>
