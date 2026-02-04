@@ -34,3 +34,36 @@ $header-dark-color: #D3D3D3;
 
 $logo-color: #118247;
 $logo-font: 'Arial Black', Gadget, sans-serif;
+
+// ============================================================================
+// Component Active States (forms, checkboxes, buttons)
+// ============================================================================
+// Override to use teal for active/focused/checked states
+$component-active-bg: $secondary;          // Teal for active/focused/checked
+$component-active-color: #fff;             // White text/icons on teal
+
+// ============================================================================
+// Form Input Styling
+// ============================================================================
+// Border styling (visible but not prominent)
+$input-border-color: #495057;              // Medium gray for dark theme visibility
+
+// Focus states (uses component-active via cascade)
+// These inherit from $component-active-bg automatically:
+// - $input-focus-border-color: tint-color($component-active-bg, 50%)
+// - $input-btn-focus-color: rgba($component-active-bg, 0.25)
+
+// Focus ring settings (outer glow effect per user decision)
+$focus-ring-width: 0.25rem;                // 4px standard prominence
+$focus-ring-opacity: 0.25;                 // 25% alpha for subtle glow
+$input-btn-focus-width: $focus-ring-width;
+
+// ============================================================================
+// Checkbox Styling
+// ============================================================================
+// Checked state (inherits from component-active automatically)
+// - $form-check-input-checked-bg-color: $component-active-bg
+// - $form-check-input-checked-border-color: $component-active-bg
+
+// Disabled state
+$form-check-input-disabled-opacity: 0.5;   // 50% opacity for disabled checkboxes
