@@ -50,32 +50,32 @@
             }
 
             .button {
-                background-color: red;
-                border-color: darkred;
+                background-color: $danger;
+                border-color: shade-color($danger, 20%);
 
                 &:active {
-                    background-color: darkred;
+                    background-color: shade-color($danger, 20%);
                 }
 
                 &[disabled] {
                     opacity: .65;
-                    background-color: red;
+                    background-color: $danger;
                 }
             }
         }
 
         #add-pattern {
             .button {
-                background-color: green;
-                border-color: darkgreen;
+                background-color: $success;
+                border-color: shade-color($success, 20%);
 
                 &:active {
-                    background-color: darkgreen;
+                    background-color: shade-color($success, 20%);
                 }
 
                 &[disabled] {
                     opacity: .65;
-                    background-color: green;
+                    background-color: $success;
                 }
             }
 
