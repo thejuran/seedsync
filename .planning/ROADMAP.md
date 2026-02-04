@@ -33,6 +33,11 @@ See `.planning/milestones/v1.0-ROADMAP.md` for full details.
 - DROP-02: Custom `%dropdown` and `%toggle` placeholders removed
 - DROP-03: Dropdown positioning works correctly (z-index, overflow, flip behavior)
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — Migrate dropdowns to Bootstrap native component with dark theme and close-on-scroll
+
 **Success Criteria:**
 1. User clicks file options button and dropdown appears below/above button (flip behavior when near viewport edge)
 2. User can see dropdown content without horizontal scrollbars or clipping
@@ -90,7 +95,7 @@ See `.planning/milestones/v1.0-ROADMAP.md` for full details.
 | 3. Selection Color Unification | v1.0 | 1/1 | Complete | 2026-02-03 |
 | 4. Button Standardization - File Actions | v1.0 | 2/2 | Complete | 2026-02-03 |
 | 5. Button Standardization - Other Pages | v1.0 | 2/2 | Complete | 2026-02-03 |
-| 6. Dropdown Migration | v1.1 | 0/? | Not Started | — |
+| 6. Dropdown Migration | v1.1 | 0/1 | Planned | — |
 | 7. Form Input Standardization | v1.1 | 0/? | Not Started | — |
 | 8. Final Polish | v1.1 | 0/? | Not Started | — |
 
