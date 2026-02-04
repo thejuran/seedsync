@@ -1,0 +1,11 @@
+// Bootstrap post-compilation overrides
+// These are imported AFTER Bootstrap components are compiled
+// Use for overriding specific Bootstrap component styles
+
+// Bootstrap modal customization (migrated from styles.scss)
+.modal-body {
+    /* break up long text */
+    overflow-wrap: normal;
+    hyphens: auto;
+    word-break: break-word;
+}
