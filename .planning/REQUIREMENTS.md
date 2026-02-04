@@ -32,11 +32,11 @@ Requirements for styling unification. Phases map to original Sessions 1-4 plus f
 
 ### Button Standardization - File Actions (Session 3)
 
-- [ ] **BTN-01**: Bootstrap button override styles defined in `_common.scss` for consistent sizing
-- [ ] **BTN-02**: File action buttons in `file.component.html` use Bootstrap `btn` classes
-- [ ] **BTN-03**: Icon buttons maintain proper sizing and alignment
-- [ ] **BTN-04**: Button hover, active, and disabled states work correctly
-- [ ] **BTN-05**: Dashboard page file selection and action buttons tested
+- [x] **BTN-01**: Bootstrap button override styles defined in `_common.scss` for consistent sizing
+- [x] **BTN-02**: File action buttons in `file.component.html` use Bootstrap `btn` classes
+- [x] **BTN-03**: Icon buttons maintain proper sizing and alignment
+- [x] **BTN-04**: Button hover, active, and disabled states work correctly
+- [x] **BTN-05**: Dashboard page file selection and action buttons tested
 
 ### Button Standardization - Other Pages (Session 4)
 
@@ -99,11 +99,11 @@ Deferred to future work (Sessions 5-7 from original plan).
 | SELECT-03 | Phase 3 | Complete |
 | SELECT-04 | Phase 3 | Complete |
 | SELECT-05 | Phase 3 | Complete |
-| BTN-01 | Phase 4 | Not started |
-| BTN-02 | Phase 4 | Not started |
-| BTN-03 | Phase 4 | Not started |
-| BTN-04 | Phase 4 | Not started |
-| BTN-05 | Phase 4 | Not started |
+| BTN-01 | Phase 4 | Complete |
+| BTN-02 | Phase 4 | Complete |
+| BTN-03 | Phase 4 | Complete |
+| BTN-04 | Phase 4 | Complete |
+| BTN-05 | Phase 4 | Complete |
 | BTN-06 | Phase 5 | Not started |
 | BTN-07 | Phase 5 | Not started |
 | BTN-08 | Phase 5 | Not started |
@@ -118,4 +118,4 @@ Deferred to future work (Sessions 5-7 from original plan).
 
 ---
 *Requirements defined: 2026-02-03*
-*Last updated: 2026-02-03 after Phase 3 completion*
+*Last updated: 2026-02-03 after Phase 4 completion*

@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Bootstrap SCSS Setup** - Establish customizable SCSS compilation infrastructure
 - [x] **Phase 2: Color Variable Consolidation** - Replace hardcoded colors with Bootstrap theme variables
 - [x] **Phase 3: Selection Color Unification** - Standardize teal selection highlighting across components
-- [ ] **Phase 4: Button Standardization - File Actions** - Migrate file action buttons to Bootstrap classes
+- [x] **Phase 4: Button Standardization - File Actions** - Migrate file action buttons to Bootstrap classes
 - [ ] **Phase 5: Button Standardization - Other Pages** - Complete button migration for all remaining pages
 
 ## Phase Details
@@ -78,8 +78,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md — Migrate file-actions-bar and bulk-actions-bar button variants
-- [ ] 04-02-PLAN.md — Migrate file.component hidden actions and visual verification
+- [x] 04-01-PLAN.md — Migrate file-actions-bar and bulk-actions-bar button variants
+- [x] 04-02-PLAN.md — Migrate file.component hidden actions and visual verification
 
 ### Phase 5: Button Standardization - Other Pages
 **Goal**: Complete button migration across all pages with custom placeholder removed
@@ -107,5 +107,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Bootstrap SCSS Setup | 1/1 | Complete | 2026-02-03 |
 | 2. Color Variable Consolidation | 2/2 | Complete | 2026-02-03 |
 | 3. Selection Color Unification | 1/1 | Complete | 2026-02-03 |
-| 4. Button Standardization - File Actions | 0/2 | Planned | - |
+| 4. Button Standardization - File Actions | 2/2 | Complete | 2026-02-03 |
 | 5. Button Standardization - Other Pages | 0/TBD | Not started | - |
