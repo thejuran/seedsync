@@ -2,6 +2,30 @@
 @import 'bootstrap-variables';
 
 // ============================================================================
+// Bootstrap Semantic Color Variables (for component use)
+// ============================================================================
+// These Bootstrap variables are defined in node_modules/bootstrap/scss/_variables.scss
+// but are not accessible to component files using @use '../../common/common'.
+// We re-export them here so component SCSS files can use them.
+
+// Theme colors (already defined in _bootstrap-variables.scss, but re-exported for clarity)
+// These are available, but listing them here for documentation
+// $primary, $secondary, $success, $danger, $warning, $info
+
+// Bootstrap 5.3 subtle alert color variables (generated from theme colors)
+$warning-text-emphasis: shade-color($warning, 60%);
+$danger-text-emphasis: shade-color($danger, 60%);
+$warning-bg-subtle: tint-color($warning, 80%);
+$danger-bg-subtle: tint-color($danger, 80%);
+$warning-border-subtle: tint-color($warning, 60%);
+$danger-border-subtle: tint-color($danger, 60%);
+
+// Bootstrap gray scale (commonly used for borders, backgrounds)
+$gray-100: #f8f9fa;
+$gray-300: #dee2e6;
+$gray-800: #343a40;
+
+// ============================================================================
 // Layout Variables
 // ============================================================================
 $small-max-width: 600px;
