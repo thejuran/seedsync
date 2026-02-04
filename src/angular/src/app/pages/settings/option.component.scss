@@ -7,9 +7,9 @@
 }
 
 .error {
-    background-color: #f2dede;
-    color: #a94442;
-    border: 1px solid #a94442;
+    background-color: $danger-bg-subtle;
+    color: $danger-text-emphasis;
+    border: 1px solid $danger-border-subtle;
 }
 
 label {
