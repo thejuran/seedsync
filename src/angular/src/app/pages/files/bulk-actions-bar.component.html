@@ -6,31 +6,31 @@
             Processing...
         </span>
         <button type="button"
-                class="btn btn-sm btn-primary action-btn"
+                class="btn btn-primary action-btn"
                 [disabled]="actionCounts.queueable === 0 || operationInProgress"
                 (click)="onQueueClick()">
             Queue ({{ actionCounts.queueable }})
         </button>
         <button type="button"
-                class="btn btn-sm btn-warning action-btn"
+                class="btn btn-danger action-btn"
                 [disabled]="actionCounts.stoppable === 0 || operationInProgress"
                 (click)="onStopClick()">
             Stop ({{ actionCounts.stoppable }})
         </button>
         <button type="button"
-                class="btn btn-sm btn-info action-btn"
+                class="btn btn-secondary action-btn"
                 [disabled]="actionCounts.extractable === 0 || operationInProgress"
                 (click)="onExtractClick()">
             Extract ({{ actionCounts.extractable }})
         </button>
         <button type="button"
-                class="btn btn-sm btn-outline-danger action-btn"
+                class="btn btn-danger action-btn"
                 [disabled]="actionCounts.locallyDeletable === 0 || operationInProgress"
                 (click)="onDeleteLocalClick()">
             Delete Local ({{ actionCounts.locallyDeletable }})
         </button>
         <button type="button"
-                class="btn btn-sm btn-danger action-btn"
+                class="btn btn-danger action-btn"
                 [disabled]="actionCounts.remotelyDeletable === 0 || operationInProgress"
                 (click)="onDeleteRemoteClick()">
             Delete Remote ({{ actionCounts.remotelyDeletable }})
