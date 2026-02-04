@@ -44,10 +44,11 @@ Plans:
   3. File list header displays correct colors from variables
   4. AutoQueue page status buttons use variable-based colors
   5. Angular unit tests pass after color migration
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- TBD
+- [ ] 02-01-PLAN.md — Define Bootstrap theme colors and update _common.scss
+- [ ] 02-02-PLAN.md — Migrate component SCSS files to Bootstrap variables
 
 ### Phase 3: Selection Color Unification
 **Goal**: Consistent teal selection highlighting across all components
@@ -103,7 +104,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Bootstrap SCSS Setup | 1/1 | Complete | 2026-02-03 |
-| 2. Color Variable Consolidation | 0/TBD | Not started | - |
+| 2. Color Variable Consolidation | 0/2 | Not started | - |
 | 3. Selection Color Unification | 0/TBD | Not started | - |
 | 4. Button Standardization - File Actions | 0/TBD | Not started | - |
 | 5. Button Standardization - Other Pages | 0/TBD | Not started | - |
