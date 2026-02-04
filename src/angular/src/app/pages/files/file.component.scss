@@ -260,6 +260,7 @@
     /* enable row hover */
     .file:not(.selected):not(.bulk-selected):hover {
         background-color: $secondary-light-color;
+        transition: background-color 0.1s ease;
     }
 
     /* width */
