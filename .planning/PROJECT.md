@@ -2,7 +2,7 @@
 
 ## What This Is
 
-CSS/SCSS refactoring work to unify visual styling across SeedSync's Angular frontend. The UI had inconsistencies from the Angular 4->19 and Bootstrap 4->5 migration - hardcoded colors, mixed button patterns, inconsistent selection highlighting, and custom dropdown/form implementations. v1.0 standardized buttons and colors; v1.1 completed the unification with Bootstrap-native dropdowns and consistent form styling.
+UI refinement work for SeedSync's Angular frontend. v1.0-v1.1 unified CSS/SCSS styling (Bootstrap migration, color consolidation, button standardization). v1.2 removes obsolete UI elements made redundant by virtual scrolling and sticky action bar changes.
 
 ## Core Value
 
@@ -45,7 +45,10 @@ Consistent visual appearance across all pages while maintaining all existing fun
 
 ### Active
 
-None - UI styling unification complete.
+**v1.2 (In Progress):**
+
+- Remove Details button — obsolete with fixed-height rows for virtual scroll
+- Remove Pin button — obsolete since actions bar stays visible by default
 
 ### Out of Scope
 
@@ -77,10 +80,10 @@ None - UI styling unification complete.
 
 ## Constraints
 
-- **CSS only**: No JavaScript/TypeScript changes - styling refactoring only
-- **No functional changes**: All button clicks, form submissions must work identically
-- **Bootstrap 5 patterns**: Leverage Bootstrap classes where possible, override for customization
-- **Preserve design**: Keep existing colors and spacing, just consolidate implementation
+- **Removal only**: v1.2 removes obsolete elements, doesn't add new features
+- **No functional regressions**: Remaining buttons must continue working
+- **Bootstrap 5 patterns**: Leverage Bootstrap classes where possible
+- **Clean removal**: Remove all associated code (template, component logic, styles)
 
 ## Key Decisions
 
@@ -101,9 +104,9 @@ None - UI styling unification complete.
 
 ## Project Status
 
-**Status:** COMPLETE
+**Status:** IN PROGRESS — v1.2 UI Cleanup
 
-UI styling unification work is finished. Both v1.0 and v1.1 milestones shipped successfully.
+Removing obsolete UI elements that are no longer functional after recent changes.
 
 **Future work (if desired):**
 - Dark mode toggle feature
@@ -111,4 +114,4 @@ UI styling unification work is finished. Both v1.0 and v1.1 milestones shipped s
 - Pre-existing lint error cleanup (62 TypeScript strictness issues)
 
 ---
-*Last updated: 2026-02-04 after v1.1 milestone complete*
+*Last updated: 2026-02-04 after v1.2 milestone started*

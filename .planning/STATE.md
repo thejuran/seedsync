@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Consistent visual appearance across all pages while maintaining all existing functionality
-**Current focus:** Project complete (v1.0 + v1.1 shipped)
+**Current focus:** v1.2 UI Cleanup — remove obsolete buttons
 
 ## Current Position
 
-Phase: Complete
-Plan: N/A
-Status: Project finished
-Last activity: 2026-02-04 — v1.1 milestone complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-04 — Milestone v1.2 started
 
-Progress: [██████████] 100% (8/8 phases complete across 2 milestones)
+Progress: [░░░░░░░░░░] 0% (v1.2 starting)
 
 ## Milestones Shipped
 
