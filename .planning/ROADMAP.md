@@ -3,7 +3,7 @@
 ## Milestones
 
 - **v1.0 Unify UI Styling** - Phases 1-5 (shipped 2026-02-03)
-- **v1.1 Dropdown & Form Migration** - Phases 6-8 (in progress)
+- **v1.1 Dropdown & Form Migration** - Phases 6-8 (shipped 2026-02-04)
 
 ## Phases
 
@@ -85,8 +85,8 @@ Plans:
 **Plans:** 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Run tests, remove unused SCSS, verify build integrity
-- [ ] 08-02-PLAN.md — Visual QA walkthrough at desktop and tablet widths
+- [x] 08-01-PLAN.md — Run tests, remove unused SCSS, verify build integrity
+- [x] 08-02-PLAN.md — Visual QA walkthrough at desktop and tablet widths
 
 **Success Criteria:**
 1. All E2E tests pass in CI environment
@@ -107,7 +107,7 @@ Plans:
 | 5. Button Standardization - Other Pages | v1.0 | 2/2 | Complete | 2026-02-03 |
 | 6. Dropdown Migration | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
-| 8. Final Polish | v1.1 | 0/2 | Planned | — |
+| 8. Final Polish | v1.1 | 2/2 | Complete | 2026-02-04 |
 
 ---
 

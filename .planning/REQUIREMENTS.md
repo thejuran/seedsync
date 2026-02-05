@@ -21,10 +21,10 @@ Requirements for v1.1 Dropdown & Form Migration milestone.
 
 ### Polish
 
-- [ ] **POLISH-01**: Full E2E test suite passes
-- [ ] **POLISH-02**: Visual QA walkthrough complete
-- [ ] **POLISH-03**: Responsive breakpoints tested
-- [ ] **POLISH-04**: Unused CSS/SCSS removed
+- [x] **POLISH-01**: Full E2E test suite passes
+- [x] **POLISH-02**: Visual QA walkthrough complete
+- [x] **POLISH-03**: Responsive breakpoints tested
+- [x] **POLISH-04**: Unused CSS/SCSS removed
 
 ## Validated (v1.0)
 
@@ -57,10 +57,10 @@ Shipped 2026-02-03:
 | FORM-01 | Phase 7 | Complete |
 | FORM-02 | Phase 7 | Complete |
 | FORM-03 | Phase 7 | Complete |
-| POLISH-01 | Phase 8 | Pending |
-| POLISH-02 | Phase 8 | Pending |
-| POLISH-03 | Phase 8 | Pending |
-| POLISH-04 | Phase 8 | Pending |
+| POLISH-01 | Phase 8 | Complete |
+| POLISH-02 | Phase 8 | Complete |
+| POLISH-03 | Phase 8 | Complete |
+| POLISH-04 | Phase 8 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 10 total
@@ -69,4 +69,4 @@ Shipped 2026-02-03:
 
 ---
 *Requirements defined: 2026-02-04*
-*Last updated: 2026-02-04 after v1.1 roadmap creation*
+*Last updated: 2026-02-04 after v1.1 milestone complete*
