@@ -44,7 +44,6 @@ describe("Testing view file options service", () => {
 
         viewOptionsService.options.subscribe({
             next: options => {
-                expect(options.showDetails).toBe(false);
                 expect(options.sortMethod).toBe(ViewFileOptions.SortMethod.STATUS);
                 expect(options.selectedStatusFilter).toBeNull();
                 expect(options.nameFilter).toBeNull();
@@ -55,72 +54,6 @@ describe("Testing view file options service", () => {
 
         tick();
         expect(count).toBe(1);
-    }));
-
-    it("should forward updates to showDetails", fakeAsync(() => {
-        let count = 0;
-        let showDetails = null;
-        viewOptionsService.options.subscribe({
-            next: options => {
-                showDetails = options.showDetails;
-                count++;
-            }
-        });
-        tick();
-        expect(count).toBe(1);
-
-        viewOptionsService.setShowDetails(true);
-        tick();
-        expect(showDetails).toBe(true);
-        expect(count).toBe(2);
-
-        viewOptionsService.setShowDetails(false);
-        tick();
-        expect(showDetails).toBe(false);
-        expect(count).toBe(3);
-
-        // Setting same value shouldn't trigger an update
-        viewOptionsService.setShowDetails(false);
-        tick();
-        expect(showDetails).toBe(false);
-        expect(count).toBe(3);
-    }));
-
-    it("should load showDetails from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
-            if (key === StorageKeys.VIEW_OPTION_SHOW_DETAILS) {
-                return true;
-            }
-        });
-        // Recreate the service
-        viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
-
-        let count = 0;
-        let showDetails = null;
-        viewOptionsService.options.subscribe({
-            next: options => {
-                showDetails = options.showDetails;
-                count++;
-            }
-        });
-        tick();
-        expect(count).toBe(1);
-        expect(showDetails).toBe(true);
-    }));
-
-    it("should save showDetails to storage", fakeAsync(() => {
-        spyOn(storageService, "set");
-        viewOptionsService.setShowDetails(true);
-        expect(storageService.set).toHaveBeenCalledWith(
-            StorageKeys.VIEW_OPTION_SHOW_DETAILS,
-            true
-        );
-        viewOptionsService.setShowDetails(false);
-        expect(storageService.set).toHaveBeenCalledWith(
-            StorageKeys.VIEW_OPTION_SHOW_DETAILS,
-            false
-        );
     }));
 
     it("should forward updates to sortMethod", fakeAsync(() => {
@@ -160,7 +93,6 @@ describe("Testing view file options service", () => {
         });
         // Recreate the service
         viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_SHOW_DETAILS);
 
         let count = 0;
         let sortMethod = null;

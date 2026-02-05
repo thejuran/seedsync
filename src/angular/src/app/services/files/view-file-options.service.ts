@@ -23,8 +23,6 @@ export class ViewFileOptionsService {
     constructor(private _logger: LoggerService,
                 @Inject(LOCAL_STORAGE) private _storage: StorageService) {
         // Load some options from storage
-        const showDetails: boolean =
-            this._storage.get(StorageKeys.VIEW_OPTION_SHOW_DETAILS) || false;
         const sortMethod: ViewFileOptions.SortMethod =
             this._storage.get(StorageKeys.VIEW_OPTION_SORT_METHOD) ||
                 ViewFileOptions.SortMethod.STATUS;
@@ -35,7 +33,6 @@ export class ViewFileOptionsService {
 
         this._options = new BehaviorSubject(
             new ViewFileOptions({
-                showDetails: showDetails,
                 sortMethod: sortMethod,
                 selectedStatusFilter: defaultStatusFilter,
                 nameFilter: null,
@@ -46,16 +43,6 @@ export class ViewFileOptionsService {
 
     get options(): Observable<ViewFileOptions> {
         return this._options.asObservable();
-    }
-
-    public setShowDetails(show: boolean) {
-        const options = this._options.getValue();
-        if (options.showDetails !== show) {
-            const newOptions = new ViewFileOptions(options.set("showDetails", show));
-            this._options.next(newOptions);
-            this._storage.set(StorageKeys.VIEW_OPTION_SHOW_DETAILS, show);
-            this._logger.debug("ViewOption showDetails set to: " + newOptions.showDetails);
-        }
     }
 
     public setSortMethod(sortMethod: ViewFileOptions.SortMethod) {

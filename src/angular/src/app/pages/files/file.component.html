@@ -36,24 +36,6 @@
                 <div class="title">
                     {{file.name}}
                 </div>
-                <div class="details" *ngIf="options?.showDetails">
-                    <div class="details-text">
-                        Remote File<br />
-                        <span class="tab"></span>Created:
-                            {{(file.remoteCreatedTimestamp | date: 'EEE, MMM d yyyy, h:mm:ss a') ||
-                               "Not Available"}}<br />
-                        <span class="tab"></span>Modified:
-                            {{(file.remoteModifiedTimestamp | date: 'EEE, MMM d yyyy, h:mm:ss a') ||
-                               "Not Available"}}<br />
-                        Local File <br />
-                        <span class="tab"></span>Created:
-                            {{(file.localCreatedTimestamp | date: 'EEE, MMM d yyyy, h:mm:ss a') ||
-                               "Not Available"}}<br />
-                        <span class="tab"></span>Modified:
-                            {{(file.localModifiedTimestamp | date: 'EEE, MMM d yyyy, h:mm:ss a') ||
-                               "Not Available"}}
-                    </div>
-                </div>
             </div>
         </div>
         <div class="speed">

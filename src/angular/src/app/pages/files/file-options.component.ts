@@ -111,10 +111,6 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
         this.viewFileOptionsService.setSortMethod(sortMethod);
     }
 
-    onToggleShowDetails(){
-        this.viewFileOptionsService.setShowDetails(!this._latestOptions.showDetails);
-    }
-
     onTogglePinFilter() {
         this.viewFileOptionsService.setPinFilter(!this._latestOptions.pinFilter);
     }

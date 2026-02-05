@@ -156,27 +156,6 @@
         </div>
     </div>
 
-    <button id="toggle-details"
-            type="button"
-            class="btn btn-primary"
-            [class.active]="(options | async)?.showDetails"
-            (click)="onToggleShowDetails()">
-        <div class="title">
-            Details:
-        </div>
-        <div class="selection">
-            <!-- these divs only show the selected option -->
-            <div class="sel-item" *ngIf="(options | async)?.showDetails">
-                <div class="icon"></div>
-                <span class="text">Show</span>
-            </div>
-            <div class="sel-item" *ngIf="!(options | async)?.showDetails">
-                <div class="icon"></div>
-                <span class="text">Hide</span>
-            </div>
-        </div>
-    </button>
-
     <div id="small-buttons">
         <button id="pin-filter"
                 type="button"

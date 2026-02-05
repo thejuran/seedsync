@@ -153,40 +153,6 @@
         }
     }
 
-    // Toggle button styling (#toggle-details and #pin-filter)
-    #toggle-details {
-        height: 34px;
-        cursor: default;
-        user-select: none;
-
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: nowrap;
-
-        .title {
-            white-space: nowrap;
-        }
-
-        .selection {
-            margin-left: 5px;
-
-            .sel-item {
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                flex-wrap: nowrap;
-
-                .icon {
-                    display: none;
-                }
-                .text {
-                    margin-left: 0;
-                }
-            }
-        }
-    }
-
     #small-buttons {
         flex-grow: 1;
         padding-top: 5px;
@@ -209,14 +175,12 @@
 
     // Margins for all the buttons
     #filter-status,
-    #sort-status,
-    #toggle-details {
+    #sort-status {
         margin-top: 10px;
     }
 
     // Margins for the non-first buttons
-    #sort-status,
-    #toggle-details {
+    #sort-status {
         margin-left: 5px;
     }
 }
@@ -235,8 +199,7 @@
     }
 
     // Margins for the non-first buttons
-    #sort-status,
-    #toggle-details {
+    #sort-status {
         margin-left: 10px;
     }
 }

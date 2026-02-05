@@ -25,7 +25,7 @@ describe("FileComponent", () => {
         isRemotelyDeletable: true
     });
 
-    const testOptions = new ViewFileOptions({showDetails: false});
+    const testOptions = new ViewFileOptions({});
 
     beforeEach(async () => {
         mockConfirmModalService = jasmine.createSpyObj("ConfirmModalService", ["confirm"]);

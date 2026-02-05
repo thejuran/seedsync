@@ -58,7 +58,7 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
         });
 
         mockViewFileOptionsService = jasmine.createSpyObj("ViewFileOptionsService", [], {
-            options: of({showDetails: false})
+            options: of({})
         });
 
         mockLoggerService = jasmine.createSpyObj("LoggerService", ["info", "debug", "error"]);
@@ -414,7 +414,7 @@ describe("FileListComponent - Bulk Action Handlers", () => {
         });
 
         mockViewFileOptionsService = jasmine.createSpyObj("ViewFileOptionsService", [], {
-            options: of({showDetails: false})
+            options: of({})
         });
 
         mockBulkCommandService = jasmine.createSpyObj("BulkCommandService", ["executeBulkAction"]);

@@ -113,11 +113,6 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
-        /* Details section hidden in virtual scroll - causes variable row heights */
-        .details {
-            display: none;
-        }
     }
 }
 
