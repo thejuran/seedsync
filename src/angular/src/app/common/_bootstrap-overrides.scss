@@ -51,3 +51,52 @@
 .dropdown-item {
   transition: background-color 0.1s ease-in-out;
 }
+
+// ============================================================================
+// Dark Theme Form Styling
+// ============================================================================
+// Ensures form inputs are visible and styled appropriately for dark backgrounds
+
+.form-control {
+  // Dark theme appearance
+  background-color: #212529;               // Slightly lighter than page background
+  color: #dee2e6;                          // Light text for readability
+  border-color: #495057;                   // Visible border definition
+
+  // Placeholder text (appropriate contrast for dark theme)
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.5);       // 50% white for sufficient contrast
+  }
+
+  // Focus state (teal ring from variable cascade)
+  &:focus {
+    background-color: #212529;             // Maintain dark background on focus
+    color: #dee2e6;                        // Maintain light text
+    // border-color and box-shadow are set by Bootstrap via $component-active-bg
+  }
+
+  // Disabled state
+  &:disabled {
+    background-color: #1a1a1a;             // Darker than normal
+    opacity: 0.65;                         // Reduced opacity
+  }
+}
+
+// Checkbox dark theme styling
+.form-check-input {
+  background-color: #212529;               // Dark background for unchecked
+  border-color: #495057;                   // Visible border
+
+  // Checked state uses teal from $component-active-bg automatically
+
+  // Focus state (teal ring)
+  &:focus {
+    border-color: tint-color($secondary, 50%);  // Light teal border
+    // box-shadow is set by Bootstrap via focus ring variables
+  }
+
+  // Disabled state
+  &:disabled {
+    opacity: 0.5;                          // Matches $form-check-input-disabled-opacity
+  }
+}
