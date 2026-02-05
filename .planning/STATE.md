@@ -10,21 +10,23 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 ## Current Position
 
 Phase: 6 - Dropdown Migration
-Plan: Not started
-Status: Ready for planning
-Last activity: 2026-02-04 — Roadmap created for v1.1
+Plan: 1 of 1 (Dropdown Migration)
+Status: Plan complete
+Last activity: 2026-02-04 — Completed 06-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0% (v1.1: 0/3 phases)
+Progress: [███░░░░░░░] 33% (v1.1: 1/3 phases)
 
 ## Phase Goals
 
 **Phase 6 Goal:** File options dropdowns use Bootstrap's native dropdown component with correct positioning behavior
 
 **Success Criteria:**
-1. User clicks file options button and dropdown appears below/above button (flip behavior when near viewport edge)
-2. User can see dropdown content without horizontal scrollbars or clipping
-3. Dropdown closes when user clicks outside or selects an option
-4. No `%dropdown` or `%toggle` SCSS placeholders exist in codebase
+1. ✓ User clicks file options button and dropdown appears below/above button (flip behavior when near viewport edge)
+2. ✓ User can see dropdown content without horizontal scrollbars or clipping
+3. ✓ Dropdown closes when user clicks outside or selects an option
+4. ✓ No `%dropdown` or `%toggle` SCSS placeholders exist in codebase
+
+**Phase 6 Status:** Complete - all success criteria met
 
 ## Accumulated Context
 
@@ -33,7 +35,13 @@ Progress: [░░░░░░░░░░] 0% (v1.1: 0/3 phases)
 All v1.0 decisions logged in PROJECT.md Key Decisions table with outcomes marked.
 
 **v1.1 Decisions:**
-- (none yet)
+
+| Decision | Phase | Rationale | Outcome |
+|----------|-------|-----------|---------|
+| CSS variables for Bootstrap theming | 06-01 | Easier maintenance, runtime flexibility vs SCSS overrides | ✓ Implemented in _bootstrap-overrides.scss |
+| 150ms dropdown fade animation | 06-01 | Smooth but not sluggish transition | ✓ Implemented via CSS transition |
+| 100ms dropdown hover transition | 06-01 | Subtle feedback without delay | ✓ Implemented via CSS transition |
+| Passive scroll listener outside Angular zone | 06-01 | Performance optimization for high-frequency events | ✓ Implemented with NgZone.runOutsideAngular |
 
 ### Pending Todos
 
@@ -45,11 +53,12 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-04 (roadmap creation)
-Stopped at: Roadmap complete, ready for Phase 6 planning
+Last session: 2026-02-04 17:58:59 UTC
+Stopped at: Completed 06-01-PLAN.md (Dropdown Migration)
 Resume file: None
-Next action: `/gsd:plan-phase 6`
+Next action: Phase 7 planning (Form Control Migration)
 
 ---
 *v1.1 started: 2026-02-04*
 *Roadmap created: 2026-02-04*
+*Phase 6 completed: 2026-02-04*
