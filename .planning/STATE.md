@@ -45,8 +45,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table with outcomes marked
 
 ### Pending Todos
 
-1 pending todo:
+2 pending todos:
 - Fix Safari URL bar color bleed (ui)
+- Fix AutoQueue re-queueing already-downloaded files (backend)
 
 ### Blockers/Concerns
 
