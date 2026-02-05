@@ -26,19 +26,19 @@ export abstract class BaseStreamService implements IStreamService {
         return this._eventNames;
     }
 
-    notifyConnected() {
+    notifyConnected(): void {
         this.onConnected();
     }
 
-    notifyDisconnected() {
+    notifyDisconnected(): void {
         this.onDisconnected();
     }
 
-    notifyEvent(eventName: string, data: string) {
+    notifyEvent(eventName: string, data: string): void {
         this.onEvent(eventName, data);
     }
 
-    protected registerEventName(eventName: string) {
+    protected registerEventName(eventName: string): void {
         this._eventNames.push(eventName);
     }
 
@@ -47,15 +47,15 @@ export abstract class BaseStreamService implements IStreamService {
      * @param {string} eventName
      * @param {string} data
      */
-    protected abstract onEvent(eventName: string, data: string);
+    protected abstract onEvent(eventName: string, data: string): void;
 
     /**
      * Callback for connected
      */
-    protected abstract onConnected();
+    protected abstract onConnected(): void;
 
     /**
      * Callback for disconnected
      */
-    protected abstract onDisconnected();
+    protected abstract onDisconnected(): void;
 }

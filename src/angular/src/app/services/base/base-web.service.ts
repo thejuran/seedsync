@@ -22,7 +22,7 @@ export abstract class BaseWebService implements OnDestroy {
     /**
      * Call this method to finish initialization
      */
-    public onInit() {
+    public onInit(): void {
         this._connectedService.connected.pipe(
             takeUntil(this.destroy$)
         ).subscribe({

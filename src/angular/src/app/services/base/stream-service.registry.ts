@@ -9,7 +9,7 @@ import {LogService} from "../logs/log.service";
 
 
 export class EventSourceFactory {
-    static createEventSource(url: string) {
+    static createEventSource(url: string): EventSource {
         return new EventSource(url);
     }
 }
@@ -25,19 +25,19 @@ export interface IStreamService {
     /**
      * Notifies the stream service that it is now connected
      */
-    notifyConnected();
+    notifyConnected(): void;
 
     /**
      * Notifies the stream service that it is now disconnected
      */
-    notifyDisconnected();
+    notifyDisconnected(): void;
 
     /**
      * Notifies the stream service of an event
      * @param {string} eventName
      * @param {string} data
      */
-    notifyEvent(eventName: string, data: string);
+    notifyEvent(eventName: string, data: string): void;
 }
 
 
@@ -83,7 +83,7 @@ export class StreamDispatchService {
     /**
      * Call this method to finish initialization
      */
-    public onInit() {
+    public onInit(): void {
         this.createSseObserver();
         this.startTimeoutChecker();
     }
@@ -91,7 +91,7 @@ export class StreamDispatchService {
     /**
      * Start periodic timeout checking
      */
-    private startTimeoutChecker() {
+    private startTimeoutChecker(): void {
         if (this._timeoutCheckInterval) {
             clearInterval(this._timeoutCheckInterval);
         }
@@ -104,7 +104,7 @@ export class StreamDispatchService {
     /**
      * Check if the connection has timed out due to inactivity
      */
-    private checkConnectionTimeout() {
+    private checkConnectionTimeout(): void {
         if (this._lastEventTime === 0) {
             // No events received yet, connection is still initializing
             return;
@@ -122,7 +122,7 @@ export class StreamDispatchService {
     /**
      * Proactively close and reconnect when idle timeout is detected
      */
-    private reconnectDueToTimeout() {
+    private reconnectDueToTimeout(): void {
         // Close the current EventSource if it exists
         if (this._currentEventSource) {
             this._currentEventSource.close();
@@ -148,7 +148,7 @@ export class StreamDispatchService {
      * @param {IStreamService} service
      * @returns {IStreamService}
      */
-    public registerService(service: IStreamService) {
+    public registerService(service: IStreamService): IStreamService {
         for(const eventName of service.getEventNames()) {
             this._eventNameToServiceMap.set(eventName, service);
         }
@@ -156,7 +156,7 @@ export class StreamDispatchService {
         return service;
     }
 
-    private createSseObserver() {
+    private createSseObserver(): void {
         const observable = new Observable(observer => {
             const eventSource = EventSourceFactory.createEventSource(this.STREAM_URL);
 
@@ -184,7 +184,7 @@ export class StreamDispatchService {
 
             // noinspection SpellCheckingInspection
             // noinspection JSUnusedLocalSymbols
-            eventSource.onopen = _event => {
+            eventSource.onopen = (_event): void => {
                 this._logger.info("Connected to server stream");
 
                 // Initialize last event time on connection
@@ -198,9 +198,9 @@ export class StreamDispatchService {
                 }
             };
 
-            eventSource.onerror = x => observer.error(x);
+            eventSource.onerror = (x): void => observer.error(x);
 
-            return () => {
+            return (): void => {
                 eventSource.close();
                 this._currentEventSource = null;
             };
@@ -257,7 +257,7 @@ export class StreamServiceRegistry {
     /**
      * Call this method to finish initialization
      */
-    public onInit() {
+    public onInit(): void {
         this._dispatch.onInit();
     }
 
@@ -276,7 +276,7 @@ export const streamServiceRegistryFactory = (
         _serverStatusService: ServerStatusService,
         _connectedService: ConnectedService,
         _logService: LogService
-) => {
+): StreamServiceRegistry => {
     const streamServiceRegistry = new StreamServiceRegistry(
         _dispatch,
         _modelFileService,
