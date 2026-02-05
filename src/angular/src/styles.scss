@@ -67,6 +67,8 @@ html, body {
     font-size: 15px;
     line-height: 1.5;
     margin: 0;
+    // Safari 26+ toolbar color fix - ensures consistent color in the 8px top strip
+    background-color: #f5f5f5;
 }
 
 /* show the input search cancel button */

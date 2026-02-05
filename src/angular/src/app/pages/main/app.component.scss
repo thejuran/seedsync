@@ -10,6 +10,9 @@
     position: sticky;
     top: 0;
     z-index: $zindex-top-header;
+    // Safari 26+ samples background-color from sticky/fixed elements for toolbar tinting
+    background-color: #f5f5f5;
+    padding-top: 8px;
 }
 
 #outside-sidebar {
@@ -43,8 +46,9 @@
 #top-sidebar {
     background-color: $primary-light-color;
     width: $sidebar-width;
-    height: 100%;
+    height: calc(100% - 8px);
     position: fixed;
+    top: 8px;
     z-index: $zindex-sidebar;
     overflow: auto;
     box-shadow:0 2px 5px 0 rgba(0,0,0,0.16), 0 2px 10px 0 rgba(0,0,0,0.12);
