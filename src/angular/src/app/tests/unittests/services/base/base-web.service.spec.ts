@@ -10,9 +10,13 @@ import {ConnectedService} from "../../../../services/utils/connected.service";
 
 @Injectable()
 class TestBaseWebService extends BaseWebService implements OnDestroy {
-    public onConnected(): void {}
+    public onConnected(): void {
+        // Test stub - intentionally empty
+    }
 
-    public onDisconnected(): void {}
+    public onDisconnected(): void {
+        // Test stub - intentionally empty
+    }
 
     override ngOnDestroy(): void {
         super.ngOnDestroy();

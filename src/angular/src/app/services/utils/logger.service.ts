@@ -13,7 +13,8 @@ export class LoggerService {
         if (this.level >= LoggerService.Level.DEBUG) {
             return console.debug.bind(console);
         } else {
-            return () => {};
+            // No-op when debug logging is disabled
+            return () => { /* Logging disabled at this level */ };
         }
     }
 
@@ -21,7 +22,8 @@ export class LoggerService {
         if (this.level >= LoggerService.Level.INFO) {
             return console.log.bind(console);
         } else {
-            return () => {};
+            // No-op when info logging is disabled
+            return () => { /* Logging disabled at this level */ };
         }
     }
 
@@ -30,7 +32,8 @@ export class LoggerService {
         if (this.level >= LoggerService.Level.WARN) {
             return console.warn.bind(console);
         } else {
-            return () => {};
+            // No-op when warn logging is disabled
+            return () => { /* Logging disabled at this level */ };
         }
     }
 
@@ -38,7 +41,8 @@ export class LoggerService {
         if (this.level >= LoggerService.Level.ERROR) {
             return console.error.bind(console);
         } else {
-            return () => {};
+            // No-op when error logging is disabled
+            return () => { /* Logging disabled at this level */ };
         }
     }
 }

@@ -5,8 +5,12 @@ export class MockStorageService implements StorageService {
     public get(_key: string): unknown { return undefined; }
 
     // noinspection JSUnusedLocalSymbols
-    set(_key: string, _value: unknown): void {}
+    set(_key: string, _value: unknown): void {
+        // Mock implementation - intentionally empty
+    }
 
     // noinspection JSUnusedLocalSymbols
-    remove(_key: string): void {}
+    remove(_key: string): void {
+        // Mock implementation - intentionally empty
+    }
 }

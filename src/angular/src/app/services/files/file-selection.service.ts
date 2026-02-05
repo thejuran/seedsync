@@ -48,7 +48,9 @@ export class FileSelectionService {
     // Uses toObservable() to convert signal to RxJS observable
     readonly selectedFiles$ = toObservable(this.selectedFiles);
 
-    constructor() {}
+    constructor() {
+        // Intentionally empty - signals initialized inline
+    }
 
     // =========================================================================
     // Selection State Observables (for backwards compatibility)

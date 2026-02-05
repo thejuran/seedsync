@@ -18,7 +18,9 @@ export abstract class BaseStreamService implements IStreamService {
     private _eventNames: string[] = [];
 
 
-    constructor() {}
+    constructor() {
+        // Intentionally empty - no initialization needed for base class
+    }
 
     getEventNames(): string[] {
         return this._eventNames;

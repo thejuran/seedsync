@@ -17,9 +17,13 @@ class TestBaseStreamService extends BaseStreamService {
         this.eventList.push([eventName, data]);
     }
 
-    public onConnected() {}
+    public onConnected() {
+        // Test stub - intentionally empty
+    }
 
-    public onDisconnected() {}
+    public onDisconnected() {
+        // Test stub - intentionally empty
+    }
 }
 
 

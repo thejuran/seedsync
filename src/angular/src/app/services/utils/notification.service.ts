@@ -35,7 +35,9 @@ export class NotificationService implements OnDestroy {
         return b.timestamp - a.timestamp;
     };
 
-    constructor() {}
+    constructor() {
+        // Intentionally empty - BehaviorSubject initialized inline
+    }
 
     get notifications(): Observable<Immutable.List<Notification>> {
         return this._notificationsSubject.asObservable();

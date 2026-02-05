@@ -44,7 +44,9 @@ export class MockEventSource {
         return true;
     }
 
-    close(): void {}
+    close(): void {
+        // Mock implementation - intentionally empty
+    }
 }
 
 export function createMockEventSource(url: string): MockEventSource {

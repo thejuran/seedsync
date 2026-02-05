@@ -10,7 +10,9 @@ import {RestService} from "../../../../services/utils/rest.service";
 
 
 // noinspection JSUnusedLocalSymbols
-const DoNothing = {next: (_reaction: unknown): void => {}};
+const DoNothing = {next: (_reaction: unknown): void => {
+    // Stub callback - intentionally discards reaction
+}};
 
 
 describe("Testing model file service", () => {

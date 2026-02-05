@@ -13,7 +13,9 @@ import {StreamServiceRegistry} from "../../../../services/base/stream-service.re
 
 
 // noinspection JSUnusedLocalSymbols
-const DoNothing = {next: (_reaction: unknown): void => {}};
+const DoNothing = {next: (_reaction: unknown): void => {
+    // Stub callback - intentionally discards reaction
+}};
 
 
 describe("Testing config service", () => {
