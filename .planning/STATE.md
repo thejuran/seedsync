@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-04)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-04 — Milestone v1.2 started
+Phase: 09-remove-obsolete-buttons (1 of 1 in v1.2)
+Plan: 01 of 01 (complete)
+Status: Phase complete
+Last activity: 2026-02-04 — Completed 09-01-PLAN.md
 
-Progress: [░░░░░░░░░░] 0% (v1.2 starting)
+Progress: [██████████] 100% (phase complete)
 
 ## Milestones Shipped
 
@@ -22,12 +22,19 @@ Progress: [░░░░░░░░░░] 0% (v1.2 starting)
 |-----------|--------|------|
 | v1.0 Unify UI Styling | 1-5 | 2026-02-03 |
 | v1.1 Dropdown & Form Migration | 6-8 | 2026-02-04 |
+| v1.2 UI Cleanup | 9 | 2026-02-04 |
 
 ## Accumulated Context
 
 ### Decisions
 
-All decisions logged in PROJECT.md Key Decisions table with outcomes marked.
+| Phase | Decision | Rationale | Outcome |
+|-------|----------|-----------|---------|
+| 09-01 | Remove Details button | Incompatible with fixed-height virtual scroll rows | ✓ Details button and showDetails state removed |
+| 09-01 | Remove Pin button | Unnecessary since actions bar is always visible | ✓ Pin button and pinFilter state removed |
+| 09-01 | File options bar always static | With Pin button removed, no need for sticky positioning | ✓ Sticky positioning removed |
+
+All prior decisions logged in PROJECT.md Key Decisions table with outcomes marked.
 
 ### Tech Debt
 
@@ -36,16 +43,16 @@ All decisions logged in PROJECT.md Key Decisions table with outcomes marked.
 
 ### Open Items
 
-None - project complete.
+None - v1.2 milestone complete.
 
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: v1.1 milestone complete
+Stopped at: Completed 09-01-PLAN.md (v1.2 milestone complete)
 Resume file: None
 Next action: `/gsd:new-milestone` if starting new work
 
 ---
 *v1.0 shipped: 2026-02-03*
 *v1.1 shipped: 2026-02-04*
-*Project complete: 2026-02-04*
+*v1.2 shipped: 2026-02-04*
