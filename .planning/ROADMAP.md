@@ -46,7 +46,7 @@ See `.planning/milestones/v1.2-ROADMAP.md` for full details.
 
 **Milestone Goal:** Fix TypeScript lint errors and improve status dropdown usability
 
-- [ ] **Phase 10: Lint Cleanup** - Fix all TypeScript lint errors for clean codebase
+- [x] **Phase 10: Lint Cleanup** - Fix all TypeScript lint errors for clean codebase - completed 2026-02-04
 - [ ] **Phase 11: Status Dropdown Counts** - Add file counts to status dropdown options
 
 #### Phase 10: Lint Cleanup
@@ -62,10 +62,10 @@ See `.planning/milestones/v1.2-ROADMAP.md` for full details.
 **Plans**: 4 plans in 2 waves
 
 Plans:
-- [ ] 10-01-PLAN.md - Quick wins: auto-fix style issues + empty function comments
-- [ ] 10-02-PLAN.md - Return types: services layer (~80 functions)
-- [ ] 10-03-PLAN.md - Return types: pages/common/tests layer (~72 functions)
-- [ ] 10-04-PLAN.md - Type safety: replace `any` types + non-null assertions
+- [x] 10-01-PLAN.md - Quick wins: auto-fix style issues + empty function comments
+- [x] 10-02-PLAN.md - Return types: services layer (~80 functions)
+- [x] 10-03-PLAN.md - Return types: pages/common/tests layer (~72 functions)
+- [x] 10-04-PLAN.md - Type safety: replace `any` types + non-null assertions
 
 #### Phase 11: Status Dropdown Counts
 **Goal**: Users can see at a glance how many files are in each status category
@@ -94,10 +94,10 @@ Plans:
 | 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 8. Final Polish | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 9. Remove Obsolete Buttons | v1.2 | 1/1 | Complete | 2026-02-04 |
-| 10. Lint Cleanup | v1.3 | 0/4 | Planned | - |
+| 10. Lint Cleanup | v1.3 | 4/4 | Complete | 2026-02-04 |
 | 11. Status Dropdown Counts | v1.3 | 0/TBD | Not started | - |
 
 ---
 
 *Last updated: 2026-02-04*
-*v1.3 roadmap created: 2026-02-04*
+*Phase 10 completed: 2026-02-04*
