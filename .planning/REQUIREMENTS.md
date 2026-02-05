@@ -9,8 +9,8 @@ Remove obsolete UI elements made redundant by recent changes.
 
 ### Obsolete Elements
 
-- [ ] **CLEAN-01**: Remove Details button — no longer functional with fixed-height rows for virtual scroll
-- [ ] **CLEAN-02**: Remove Pin button — no longer functional since actions bar stays visible by default
+- [x] **CLEAN-01**: Remove Details button — no longer functional with fixed-height rows for virtual scroll
+- [x] **CLEAN-02**: Remove Pin button — no longer functional since actions bar stays visible by default
 
 ## Out of Scope
 
@@ -24,8 +24,8 @@ Remove obsolete UI elements made redundant by recent changes.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CLEAN-01 | Phase 9 | Pending |
-| CLEAN-02 | Phase 9 | Pending |
+| CLEAN-01 | Phase 9 | Complete |
+| CLEAN-02 | Phase 9 | Complete |
 
 **Coverage:**
 - v1.2 requirements: 2 total

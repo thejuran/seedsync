@@ -4,7 +4,7 @@
 
 - **v1.0 Unify UI Styling** - Phases 1-5 (shipped 2026-02-03)
 - **v1.1 Dropdown & Form Migration** - Phases 6-8 (shipped 2026-02-04)
-- **v1.2 UI Cleanup** - Phase 9 (in progress)
+- **v1.2 UI Cleanup** - Phase 9 (shipped 2026-02-04)
 
 ## Phases
 
@@ -32,25 +32,14 @@ See `.planning/milestones/v1.1-ROADMAP.md` for full details.
 
 </details>
 
-### v1.2 UI Cleanup (Phase 9)
+<details>
+<summary>v1.2 UI Cleanup (Phase 9) - SHIPPED 2026-02-04</summary>
 
-- [ ] Phase 9: Remove Obsolete Buttons (1 plan)
+- [x] Phase 9: Remove Obsolete Buttons (1/1 plans) - completed 2026-02-04
 
-**Phase 9: Remove Obsolete Buttons**
+See `.planning/phases/09-remove-obsolete-buttons/09-01-SUMMARY.md` for full details.
 
-Goal: Remove Details and Pin buttons that no longer serve a purpose after recent UI changes.
-
-Requirements: CLEAN-01, CLEAN-02
-
-Plans:
-- [ ] 09-01-PLAN.md - Remove Details button, Pin button, and all associated state/styles/tests
-
-Success criteria:
-1. Details button removed from file row UI
-2. Pin button removed from file actions bar
-3. All associated component logic removed
-4. All associated styles removed
-5. No visual regressions in file list
+</details>
 
 ## Progress
 
@@ -64,7 +53,7 @@ Success criteria:
 | 6. Dropdown Migration | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 8. Final Polish | v1.1 | 2/2 | Complete | 2026-02-04 |
-| 9. Remove Obsolete Buttons | v1.2 | 0/1 | Planned | — |
+| 9. Remove Obsolete Buttons | v1.2 | 1/1 | Complete | 2026-02-04 |
 
 ---
 
