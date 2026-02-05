@@ -42,7 +42,7 @@ export class OptionComponent implements OnInit {
             .subscribe({next: val => this.changeEvent.emit(val)});
     }
 
-    onChange(value: any) {
+    onChange(value: any): void {
         this.newValue.next(value);
     }
 }

@@ -60,7 +60,7 @@ export class SettingsPageComponent implements OnInit {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    ngOnInit() {
+    ngOnInit(): void {
         this._connectedService.connected.subscribe({
             next: (connected: boolean) => {
                 if (!connected) {
@@ -74,7 +74,7 @@ export class SettingsPageComponent implements OnInit {
         });
     }
 
-    onSetConfig(section: string, option: string, value: any) {
+    onSetConfig(section: string, option: string, value: any): void {
         this._configService.set(section, option, value).subscribe({
             next: reaction => {
                 const notifKey = section + "." + option;
@@ -108,7 +108,7 @@ export class SettingsPageComponent implements OnInit {
         });
     }
 
-    onCommandRestart() {
+    onCommandRestart(): void {
         this._commandService.restart().subscribe({
             next: reaction => {
                 if (reaction.success) {

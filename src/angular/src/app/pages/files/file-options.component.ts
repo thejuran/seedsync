@@ -41,7 +41,7 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
     private _latestOptions: ViewFileOptions;
     private destroy$ = new Subject<void>();
 
-    private scrollHandler = () => {
+    private scrollHandler = (): void => {
         const openToggles = document.querySelectorAll(".dropdown-toggle.show");
         openToggles.forEach(toggle => {
             const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
@@ -60,7 +60,7 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
         this.headerHeight = this._domService.headerHeight;
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         // Use the unfiltered files to enable/disable the filter status buttons
         this._viewFileService.files.pipe(takeUntil(this.destroy$)).subscribe(files => {
             this.isExtractedStatusEnabled = FileOptionsComponent.isStatusEnabled(
@@ -99,19 +99,19 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
         this.destroy$.complete();
     }
 
-    onFilterByName(name: string) {
+    onFilterByName(name: string): void {
         this.viewFileOptionsService.setNameFilter(name);
     }
 
-    onFilterByStatus(status: ViewFile.Status) {
+    onFilterByStatus(status: ViewFile.Status): void {
         this.viewFileOptionsService.setSelectedStatusFilter(status);
     }
 
-    onSort(sortMethod: ViewFileOptions.SortMethod) {
+    onSort(sortMethod: ViewFileOptions.SortMethod): void {
         this.viewFileOptionsService.setSortMethod(sortMethod);
     }
 
-    private static isStatusEnabled(files: Immutable.List<ViewFile>, status: ViewFile.Status) {
+    private static isStatusEnabled(files: Immutable.List<ViewFile>, status: ViewFile.Status): boolean {
         return files.findIndex(f => f.status === status) >= 0;
     }
 }

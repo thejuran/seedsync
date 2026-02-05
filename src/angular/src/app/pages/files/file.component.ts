@@ -112,7 +112,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         }
     }
 
-    showDeleteConfirmation(title: string, message: string, callback: () => void) {
+    showDeleteConfirmation(title: string, message: string, callback: () => void): void {
         this.confirmModal.confirm({
             title: title,
             body: message,
@@ -127,23 +127,23 @@ export class FileComponent implements OnChanges, AfterViewInit {
         });
     }
 
-    isQueueable() {
+    isQueueable(): boolean {
         return this.activeAction == null && this.file?.isQueueable;
     }
 
-    isStoppable() {
+    isStoppable(): boolean {
         return this.activeAction == null && this.file?.isStoppable;
     }
 
-    isExtractable() {
+    isExtractable(): boolean {
         return this.activeAction == null && this.file?.isExtractable && this.file?.isArchive;
     }
 
-    isLocallyDeletable() {
+    isLocallyDeletable(): boolean {
         return this.activeAction == null && this.file?.isLocallyDeletable;
     }
 
-    isRemotelyDeletable() {
+    isRemotelyDeletable(): boolean {
         return this.activeAction == null && this.file?.isRemotelyDeletable;
     }
 
@@ -152,7 +152,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         this.checkboxToggle.emit({file: this.file, shiftKey: event.shiftKey});
     }
 
-    onQueue(file: ViewFile) {
+    onQueue(file: ViewFile): void {
         if (!this.isQueueable()) {
             return;
         }
@@ -161,7 +161,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         this.queueEvent.emit(file);
     }
 
-    onStop(file: ViewFile) {
+    onStop(file: ViewFile): void {
         if (!this.isStoppable()) {
             return;
         }
@@ -170,7 +170,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         this.stopEvent.emit(file);
     }
 
-    onExtract(file: ViewFile) {
+    onExtract(file: ViewFile): void {
         if (!this.isExtractable()) {
             return;
         }
@@ -179,7 +179,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         this.extractEvent.emit(file);
     }
 
-    onDeleteLocal(file: ViewFile) {
+    onDeleteLocal(file: ViewFile): void {
         if (!this.isLocallyDeletable()) {
             return;
         }
@@ -194,7 +194,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         );
     }
 
-    onDeleteRemote(file: ViewFile) {
+    onDeleteRemote(file: ViewFile): void {
         if (!this.isRemotelyDeletable()) {
             return;
         }

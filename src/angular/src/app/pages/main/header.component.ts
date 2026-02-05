@@ -40,11 +40,11 @@ export class HeaderComponent implements OnInit {
         this._prevWaitingForRemoteScanNotification = null;
     }
 
-    public dismiss(notif: Notification) {
+    public dismiss(notif: Notification): void {
         this._notificationService.hide(notif);
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         // Set up a subscriber to show server status notifications
         this._serverStatusService.status.subscribe({
             next: status => {

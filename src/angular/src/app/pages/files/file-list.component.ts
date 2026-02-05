@@ -168,31 +168,31 @@ export class FileListComponent {
         }
     }
 
-    onQueue(file: ViewFile) {
+    onQueue(file: ViewFile): void {
         this.viewFileService.queue(file).subscribe(data => {
             this._logger.info(data);
         });
     }
 
-    onStop(file: ViewFile) {
+    onStop(file: ViewFile): void {
         this.viewFileService.stop(file).subscribe(data => {
             this._logger.info(data);
         });
     }
 
-    onExtract(file: ViewFile) {
+    onExtract(file: ViewFile): void {
         this.viewFileService.extract(file).subscribe(data => {
             this._logger.info(data);
         });
     }
 
-    onDeleteLocal(file: ViewFile) {
+    onDeleteLocal(file: ViewFile): void {
         this.viewFileService.deleteLocal(file).subscribe(data => {
             this._logger.info(data);
         });
     }
 
-    onDeleteRemote(file: ViewFile) {
+    onDeleteRemote(file: ViewFile): void {
         this.viewFileService.deleteRemote(file).subscribe(data => {
             this._logger.info(data);
         });

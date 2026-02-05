@@ -52,7 +52,7 @@ export class AutoQueuePageComponent implements OnInit {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    ngOnInit() {
+    ngOnInit(): void {
         this._connectedService.connected.subscribe({
             next: (connected: boolean) => {
                 this.connected = connected;
@@ -77,7 +77,7 @@ export class AutoQueuePageComponent implements OnInit {
         });
     }
 
-    onAddPattern() {
+    onAddPattern(): void {
         if (!this.newPattern || !this.enabled || !this.patternsOnly) {
             return;
         }
@@ -99,7 +99,7 @@ export class AutoQueuePageComponent implements OnInit {
         });
     }
 
-    onRemovePattern(pattern: AutoQueuePattern) {
+    onRemovePattern(pattern: AutoQueuePattern): void {
         if (!this.enabled || !this.patternsOnly) {
             return;
         }

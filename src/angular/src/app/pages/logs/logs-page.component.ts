@@ -64,7 +64,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         return this._logService.hasReceivedLogs;
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         // Subscribe to connection status (doesn't need ViewChild elements)
         this._connectedService.connected
             .pipe(takeUntil(this._destroy$))
@@ -76,7 +76,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
             });
     }
 
-    ngAfterViewInit() {
+    ngAfterViewInit(): void {
         this._viewInitialized = true;
 
         // Subscribe to logs after view is initialized so ViewChild elements are available
@@ -89,12 +89,12 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
             });
     }
 
-    ngOnDestroy() {
+    ngOnDestroy(): void {
         this._destroy$.next();
         this._destroy$.complete();
     }
 
-    ngAfterContentChecked() {
+    ngAfterContentChecked(): void {
         // Refresh button state when tabs is switched away and back
         // Only run after view is initialized (ViewChild elements are available)
         if (this._viewInitialized) {
@@ -102,21 +102,21 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         }
     }
 
-    scrollToTop() {
+    scrollToTop(): void {
         // this.logHead.nativeElement.scrollIntoView(true);
         window.scrollTo(0, 0);
     }
 
-    scrollToBottom() {
+    scrollToBottom(): void {
         window.scrollTo(0, document.body.scrollHeight);
     }
 
     @HostListener("window:scroll", ["$event"])
-    checkScroll() {
+    checkScroll(): void {
         this.refreshScrollButtonVisibility();
     }
 
-    private insertRecord(record: LogRecord) {
+    private insertRecord(record: LogRecord): void {
         // Guard against ViewChild elements not being available
         if (!this.container || !this.templateRecord || !this.logTail) {
             return;
@@ -134,7 +134,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         this.refreshScrollButtonVisibility();
     }
 
-    private refreshScrollButtonVisibility() {
+    private refreshScrollButtonVisibility(): void {
         // Guard against ViewChild elements not being available
         if (!this.logHead || !this.logTail) {
             return;

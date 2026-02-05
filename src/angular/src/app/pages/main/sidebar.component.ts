@@ -30,7 +30,7 @@ export class SidebarComponent implements OnInit {
     }
 
     // noinspection JSUnusedGlobalSymbols
-    ngOnInit() {
+    ngOnInit(): void {
         this._connectedService.connected.subscribe({
             next: (connected: boolean) => {
                 this.commandsEnabled = connected;
@@ -38,7 +38,7 @@ export class SidebarComponent implements OnInit {
         });
     }
 
-    onCommandRestart() {
+    onCommandRestart(): void {
         this._commandService.restart().subscribe({
             next: reaction => {
                 if (reaction.success) {

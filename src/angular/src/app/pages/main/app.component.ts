@@ -31,7 +31,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         });
     }
 
-    ngOnInit() {
+    ngOnInit(): void {
         // Scroll to top on route changes
         this.router.events.subscribe((evt) => {
             if (!(evt instanceof NavigationEnd)) {
@@ -41,7 +41,7 @@ export class AppComponent implements OnInit, AfterViewInit {
         });
     }
 
-    ngAfterViewInit() {
+    ngAfterViewInit(): void {
         ElementQueries.listen();
         ElementQueries.init();
         // noinspection TsLint
