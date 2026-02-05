@@ -89,5 +89,14 @@ Consistent visual appearance across all pages while maintaining all existing fun
 | 40px button sizing | Consistent touch-friendly targets across all pages | Good |
 | Button semantic mapping | danger=destructive, success=additive, primary=positive | Good |
 
+## Current Milestone: v1.1 Dropdown & Form Migration
+
+**Goal:** Complete UI styling unification by migrating dropdowns to Bootstrap components and standardizing form inputs.
+
+**Target features:**
+- Dropdown migration to Bootstrap dropdown component
+- Form input standardization (text inputs, checkboxes, toggles)
+- Final polish (E2E tests, visual QA, responsive testing)
+
 ---
-*Last updated: 2026-02-03 after v1.0 milestone*
+*Last updated: 2026-02-04 after v1.1 milestone start*
