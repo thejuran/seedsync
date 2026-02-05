@@ -21,37 +21,37 @@
                 <div class="sel-item" id="sel-item-all"
                      *ngIf="(options | async)?.selectedStatusFilter == null">
                     <div class="icon"></div>
-                    <span class="text">All</span>
+                    <span class="text">All ({{ formatCount(null) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.EXTRACTED">
                     <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
-                    <span class="text">Extracted</span>
+                    <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.EXTRACTING">
                     <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
-                    <span class="text">Extracting</span>
+                    <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.DOWNLOADED">
                     <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
-                    <span class="text">Downloaded</span>
+                    <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.DOWNLOADING">
                     <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
-                    <span class="text">Downloading</span>
+                    <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.QUEUED">
                     <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
-                    <span class="text">Queued</span>
+                    <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
                 </div>
                 <div class="sel-item"
                      *ngIf="(options | async)?.selectedStatusFilter == ViewFile.Status.STOPPED">
                     <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
-                    <span class="text">Stopped</span>
+                    <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
                 </div>
             </div>
         </button>
@@ -60,49 +60,55 @@
                  [class.active]="(options | async)?.selectedStatusFilter == null"
                  (click)="onFilterByStatus(null)">
                 <div class="icon"></div>
-                <span class="text">All</span>
+                <span class="text">All ({{ formatCount(null) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.EXTRACTED"
                  [class.disabled]="isExtractedStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.EXTRACTED)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTED) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.EXTRACTED) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTED) : null">
                 <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
-                <span class="text">Extracted</span>
+                <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.EXTRACTING"
                  [class.disabled]="isExtractingStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.EXTRACTING)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTING) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.EXTRACTING) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTING) : null">
                 <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
-                <span class="text">Extracting</span>
+                <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.DOWNLOADED"
                  [class.disabled]="isDownloadedStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.DOWNLOADED)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADED) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.DOWNLOADED) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADED) : null">
                 <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
-                <span class="text">Downloaded</span>
+                <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.DOWNLOADING"
                  [class.disabled]="isDownloadingStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.DOWNLOADING)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADING) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.DOWNLOADING) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADING) : null">
                 <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
-                <span class="text">Downloading</span>
+                <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.QUEUED"
                  [class.disabled]="isQueuedStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.QUEUED)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.QUEUED) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.QUEUED) > 0 ? onFilterByStatus(ViewFile.Status.QUEUED) : null">
                 <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
-                <span class="text">Queued</span>
+                <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
             </div>
             <div class="dropdown-item"
                  [class.active]="(options | async)?.selectedStatusFilter == ViewFile.Status.STOPPED"
                  [class.disabled]="isStoppedStatusEnabled ? null : true"
-                 (click)="onFilterByStatus(ViewFile.Status.STOPPED)">
+                 [attr.aria-disabled]="getCount(ViewFile.Status.STOPPED) === 0 ? true : null"
+                 (click)="getCount(ViewFile.Status.STOPPED) > 0 ? onFilterByStatus(ViewFile.Status.STOPPED) : null">
                 <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
-                <span class="text">Stopped</span>
+                <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
             </div>
         </div>
     </div>
