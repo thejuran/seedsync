@@ -59,10 +59,13 @@ See `.planning/milestones/v1.2-ROADMAP.md` for full details.
   3. No `any` types remain in application code (type-safe throughout)
   4. No non-null assertions (`!`) without proper guards or justification
   5. No empty functions without explicit `// intentionally empty` comments
-**Plans**: TBD
+**Plans**: 4 plans in 2 waves
 
 Plans:
-- [ ] 10-01: TBD
+- [ ] 10-01-PLAN.md - Quick wins: auto-fix style issues + empty function comments
+- [ ] 10-02-PLAN.md - Return types: services layer (~80 functions)
+- [ ] 10-03-PLAN.md - Return types: pages/common/tests layer (~72 functions)
+- [ ] 10-04-PLAN.md - Type safety: replace `any` types + non-null assertions
 
 #### Phase 11: Status Dropdown Counts
 **Goal**: Users can see at a glance how many files are in each status category
@@ -91,7 +94,7 @@ Plans:
 | 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 8. Final Polish | v1.1 | 2/2 | Complete | 2026-02-04 |
 | 9. Remove Obsolete Buttons | v1.2 | 1/1 | Complete | 2026-02-04 |
-| 10. Lint Cleanup | v1.3 | 0/TBD | Not started | - |
+| 10. Lint Cleanup | v1.3 | 0/4 | Planned | - |
 | 11. Status Dropdown Counts | v1.3 | 0/TBD | Not started | - |
 
 ---
