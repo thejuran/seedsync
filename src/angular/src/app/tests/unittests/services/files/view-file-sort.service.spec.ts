@@ -86,13 +86,13 @@ describe("Testing view file sort service", () => {
         expect(viewFileService.setComparator).toHaveBeenCalledTimes(0);
         viewFileOptionsService._options.next(new ViewFileOptions({
             sortMethod: ViewFileOptions.SortMethod.STATUS,
-            pinFilter: false,
+            nameFilter: "foo",
         }));
         tick();
         expect(viewFileService.setComparator).toHaveBeenCalledTimes(1);
         viewFileOptionsService._options.next(new ViewFileOptions({
             sortMethod: ViewFileOptions.SortMethod.STATUS,
-            pinFilter: true,
+            nameFilter: "bar",
         }));
         tick();
         expect(viewFileService.setComparator).toHaveBeenCalledTimes(1);

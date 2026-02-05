@@ -74,13 +74,13 @@ describe("Testing view file filter service", () => {
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(0);
         viewFileOptionsService._options.next(new ViewFileOptions({
             nameFilter: "something",
-            pinFilter: true,
+            sortMethod: ViewFileOptions.SortMethod.STATUS,
         }));
         tick();
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(1);
         viewFileOptionsService._options.next(new ViewFileOptions({
             nameFilter: "something",
-            pinFilter: false,
+            sortMethod: ViewFileOptions.SortMethod.NAME_ASC,
         }));
         tick();
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(1);
@@ -180,13 +180,13 @@ describe("Testing view file filter service", () => {
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(0);
         viewFileOptionsService._options.next(new ViewFileOptions({
             selectedStatusFilter: ViewFile.Status.QUEUED,
-            pinFilter: true,
+            sortMethod: ViewFileOptions.SortMethod.STATUS,
         }));
         tick();
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(1);
         viewFileOptionsService._options.next(new ViewFileOptions({
             selectedStatusFilter: ViewFile.Status.QUEUED,
-            pinFilter: false,
+            sortMethod: ViewFileOptions.SortMethod.NAME_ASC,
         }));
         tick();
         expect(viewFileService.setFilterCriteria).toHaveBeenCalledTimes(1);

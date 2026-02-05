@@ -1,6 +1,5 @@
 <div id="file-options"
-     [style.top.px]="headerHeight | async"
-     [class.sticky]="(options | async)?.pinFilter">
+     [style.top.px]="headerHeight | async">
     <div id="filter-search">
         <img src="assets/icons/search.svg" />
         <div class="input-group">
@@ -154,15 +153,5 @@
                 <span class="text">Name Z&#8594;A</span>
             </div>
         </div>
-    </div>
-
-    <div id="small-buttons">
-        <button id="pin-filter"
-                type="button"
-                class="btn btn-primary"
-                [class.active]="(options | async)?.pinFilter"
-                (click)="onTogglePinFilter()">
-            <i class="fa fa-thumb-tack"></i>
-        </button>
     </div>
 </div>

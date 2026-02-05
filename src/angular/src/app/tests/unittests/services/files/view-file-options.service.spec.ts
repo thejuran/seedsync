@@ -47,7 +47,6 @@ describe("Testing view file options service", () => {
                 expect(options.sortMethod).toBe(ViewFileOptions.SortMethod.STATUS);
                 expect(options.selectedStatusFilter).toBeNull();
                 expect(options.nameFilter).toBeNull();
-                expect(options.pinFilter).toBe(false);
                 count++;
             }
         });
@@ -189,71 +188,5 @@ describe("Testing view file options service", () => {
         tick();
         expect(nameFilter).toBeNull();
         expect(count).toBe(4);
-    }));
-
-    it("should forward updates to pinFilter", fakeAsync(() => {
-        let count = 0;
-        let pinFilter = null;
-        viewOptionsService.options.subscribe({
-            next: options => {
-                pinFilter = options.pinFilter;
-                count++;
-            }
-        });
-        tick();
-        expect(count).toBe(1);
-
-        viewOptionsService.setPinFilter(true);
-        tick();
-        expect(pinFilter).toBe(true);
-        expect(count).toBe(2);
-
-        viewOptionsService.setPinFilter(false);
-        tick();
-        expect(pinFilter).toBe(false);
-        expect(count).toBe(3);
-
-        // Setting same value shouldn't trigger an update
-        viewOptionsService.setPinFilter(false);
-        tick();
-        expect(pinFilter).toBe(false);
-        expect(count).toBe(3);
-    }));
-
-    it("should load pinFilter from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
-            if (key === StorageKeys.VIEW_OPTION_PIN) {
-                return true;
-            }
-        });
-        // Recreate the service
-        viewOptionsService = createViewOptionsService();
-        expect(storageService.get).toHaveBeenCalledWith(StorageKeys.VIEW_OPTION_PIN);
-
-        let count = 0;
-        let pinFilter = null;
-        viewOptionsService.options.subscribe({
-            next: options => {
-                pinFilter = options.pinFilter;
-                count++;
-            }
-        });
-        tick();
-        expect(count).toBe(1);
-        expect(pinFilter).toBe(true);
-    }));
-
-    it("should save pinFilter to storage", fakeAsync(() => {
-        spyOn(storageService, "set");
-        viewOptionsService.setPinFilter(true);
-        expect(storageService.set).toHaveBeenCalledWith(
-            StorageKeys.VIEW_OPTION_PIN,
-            true
-        );
-        viewOptionsService.setPinFilter(false);
-        expect(storageService.set).toHaveBeenCalledWith(
-            StorageKeys.VIEW_OPTION_PIN,
-            false
-        );
     }));
 });

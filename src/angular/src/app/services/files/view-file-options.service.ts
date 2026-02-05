@@ -26,8 +26,6 @@ export class ViewFileOptionsService {
         const sortMethod: ViewFileOptions.SortMethod =
             this._storage.get(StorageKeys.VIEW_OPTION_SORT_METHOD) ||
                 ViewFileOptions.SortMethod.STATUS;
-        const pinFilter: boolean =
-            this._storage.get(StorageKeys.VIEW_OPTION_PIN) || false;
         const defaultStatusFilter: ViewFile.Status =
             this._storage.get(StorageKeys.VIEW_OPTION_DEFAULT_STATUS_FILTER) || null;
 
@@ -36,7 +34,6 @@ export class ViewFileOptionsService {
                 sortMethod: sortMethod,
                 selectedStatusFilter: defaultStatusFilter,
                 nameFilter: null,
-                pinFilter: pinFilter,
             })
         );
     }
@@ -71,16 +68,6 @@ export class ViewFileOptionsService {
             const newOptions = new ViewFileOptions(options.set("nameFilter", name));
             this._options.next(newOptions);
             this._logger.debug("ViewOption nameFilter set to: " + newOptions.nameFilter);
-        }
-    }
-
-    public setPinFilter(pinned: boolean) {
-        const options = this._options.getValue();
-        if (options.pinFilter !== pinned) {
-            const newOptions = new ViewFileOptions(options.set("pinFilter", pinned));
-            this._options.next(newOptions);
-            this._storage.set(StorageKeys.VIEW_OPTION_PIN, pinned);
-            this._logger.debug("ViewOption pinFilter set to: " + newOptions.pinFilter);
         }
     }
 }

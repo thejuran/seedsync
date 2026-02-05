@@ -111,10 +111,6 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
         this.viewFileOptionsService.setSortMethod(sortMethod);
     }
 
-    onTogglePinFilter() {
-        this.viewFileOptionsService.setPinFilter(!this._latestOptions.pinFilter);
-    }
-
     private static isStatusEnabled(files: Immutable.List<ViewFile>, status: ViewFile.Status) {
         return files.findIndex(f => f.status === status) >= 0;
     }
