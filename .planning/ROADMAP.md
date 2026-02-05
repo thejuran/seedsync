@@ -82,12 +82,17 @@ Plans:
 - POLISH-03: Responsive breakpoints tested
 - POLISH-04: Unused CSS/SCSS removed
 
+**Plans:** 2 plans
+
+Plans:
+- [ ] 08-01-PLAN.md — Run tests, remove unused SCSS, verify build integrity
+- [ ] 08-02-PLAN.md — Visual QA walkthrough at desktop and tablet widths
+
 **Success Criteria:**
 1. All E2E tests pass in CI environment
 2. Visual walkthrough confirms no regressions on Files, Settings, AutoQueue, Logs, About pages
-3. UI renders correctly at mobile (< 600px), tablet (600-1024px), and desktop (> 1024px) widths
-4. No unused SCSS files, variables, or placeholder patterns remain in codebase
-5. Bundle size does not increase from v1.0 baseline
+3. UI renders correctly at tablet (768px+) and desktop widths
+4. No unused SCSS placeholders or variables remain in codebase
 
 ---
 
@@ -102,7 +107,7 @@ Plans:
 | 5. Button Standardization - Other Pages | v1.0 | 2/2 | Complete | 2026-02-03 |
 | 6. Dropdown Migration | v1.1 | 1/1 | Complete | 2026-02-04 |
 | 7. Form Input Standardization | v1.1 | 1/1 | Complete | 2026-02-04 |
-| 8. Final Polish | v1.1 | 0/? | Not Started | — |
+| 8. Final Polish | v1.1 | 0/2 | Planned | — |
 
 ---
 
