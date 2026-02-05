@@ -12,6 +12,11 @@ Consistent visual appearance across all pages while maintaining all existing fun
 
 ### Validated
 
+**v1.2 (Shipped 2026-02-04):**
+
+- Details button removed (incompatible with fixed-height virtual scroll rows) - v1.2
+- Pin button removed (unnecessary since actions bar always visible) - v1.2
+
 **v1.1 (Shipped 2026-02-04):**
 
 - File options dropdowns use Bootstrap dropdown component - v1.1
@@ -45,10 +50,7 @@ Consistent visual appearance across all pages while maintaining all existing fun
 
 ### Active
 
-**v1.2 (In Progress):**
-
-- Remove Details button — obsolete with fixed-height rows for virtual scroll
-- Remove Pin button — obsolete since actions bar stays visible by default
+(None — start next milestone with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -104,9 +106,9 @@ Consistent visual appearance across all pages while maintaining all existing fun
 
 ## Project Status
 
-**Status:** IN PROGRESS — v1.2 UI Cleanup
+**Status:** COMPLETE — v1.2 UI Cleanup shipped
 
-Removing obsolete UI elements that are no longer functional after recent changes.
+All UI refinement work complete. Dropdowns, forms, buttons, and cleanup all done.
 
 **Future work (if desired):**
 - Dark mode toggle feature
@@ -114,4 +116,4 @@ Removing obsolete UI elements that are no longer functional after recent changes
 - Pre-existing lint error cleanup (62 TypeScript strictness issues)
 
 ---
-*Last updated: 2026-02-04 after v1.2 milestone started*
+*Last updated: 2026-02-04 after v1.2 milestone completed*

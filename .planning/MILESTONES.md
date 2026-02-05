@@ -1,5 +1,31 @@
 # Project Milestones: Unify UI Styling
 
+## v1.2 UI Cleanup (Shipped: 2026-02-04)
+
+**Delivered:** Removed obsolete Details and Pin buttons from file options bar, simplifying UI to only functional controls.
+
+**Phases completed:** 9 (1 plan total)
+
+**Key accomplishments:**
+
+- Removed Details button and all associated showDetails state
+- Removed Pin button and all associated pinFilter state
+- Simplified file options bar to only functional controls (search, status filter, sort)
+- File options bar now always static positioning
+
+**Stats:**
+
+- 18 files modified
+- 329 insertions, 344 deletions (net -15 LOC cleanup)
+- 1 phase, 1 plan, 2 tasks
+- Same-day completion
+
+**Git range:** `a07b2e7` → `9426e66`
+
+**What's next:** UI refinement complete. Run `/gsd:new-milestone` to start next milestone.
+
+---
+
 ## v1.1 Dropdown & Form Migration (Shipped: 2026-02-04)
 
 **Delivered:** Complete UI styling unification with Bootstrap-native dropdowns, consistent form inputs with teal focus states, and dark theme across all components.

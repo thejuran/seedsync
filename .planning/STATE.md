@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-04)
 
 **Core value:** Consistent visual appearance across all pages while maintaining all existing functionality
-**Current focus:** v1.2 UI Cleanup — remove obsolete buttons
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 09-remove-obsolete-buttons (1 of 1 in v1.2)
-Plan: 01 of 01 (complete)
-Status: Phase complete
-Last activity: 2026-02-04 — Completed 09-01-PLAN.md
+Phase: None active
+Plan: None active
+Status: Ready for next milestone
+Last activity: 2026-02-04 — v1.2 milestone complete
 
-Progress: [██████████] 100% (phase complete)
+Progress: [██████████] 100% (all milestones shipped)
 
 ## Milestones Shipped
 
@@ -28,13 +28,7 @@ Progress: [██████████] 100% (phase complete)
 
 ### Decisions
 
-| Phase | Decision | Rationale | Outcome |
-|-------|----------|-----------|---------|
-| 09-01 | Remove Details button | Incompatible with fixed-height virtual scroll rows | ✓ Details button and showDetails state removed |
-| 09-01 | Remove Pin button | Unnecessary since actions bar is always visible | ✓ Pin button and pinFilter state removed |
-| 09-01 | File options bar always static | With Pin button removed, no need for sticky positioning | ✓ Sticky positioning removed |
-
-All prior decisions logged in PROJECT.md Key Decisions table with outcomes marked.
+All decisions logged in PROJECT.md Key Decisions table with outcomes marked.
 
 ### Tech Debt
 
@@ -43,14 +37,14 @@ All prior decisions logged in PROJECT.md Key Decisions table with outcomes marke
 
 ### Open Items
 
-None - v1.2 milestone complete.
+None - all milestones complete.
 
 ## Session Continuity
 
 Last session: 2026-02-04
-Stopped at: Completed 09-01-PLAN.md (v1.2 milestone complete)
+Stopped at: v1.2 milestone archived
 Resume file: None
-Next action: `/gsd:new-milestone` if starting new work
+Next action: `/gsd:new-milestone` to start new work
 
 ---
 *v1.0 shipped: 2026-02-03*

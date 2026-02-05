@@ -37,7 +37,7 @@ See `.planning/milestones/v1.1-ROADMAP.md` for full details.
 
 - [x] Phase 9: Remove Obsolete Buttons (1/1 plans) - completed 2026-02-04
 
-See `.planning/phases/09-remove-obsolete-buttons/09-01-SUMMARY.md` for full details.
+See `.planning/milestones/v1.2-ROADMAP.md` for full details.
 
 </details>
 
