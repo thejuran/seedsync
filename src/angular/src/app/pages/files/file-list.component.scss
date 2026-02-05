@@ -35,6 +35,8 @@
     width: 100%;
     /* Minimum height ensures viewport works even in small/headless browser windows */
     min-height: 500px;
+    /* Enable internal scrolling so file-actions-bar stays visible above */
+    overflow-y: auto;
 }
 
 #file-list #header {
