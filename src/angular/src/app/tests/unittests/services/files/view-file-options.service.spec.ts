@@ -85,10 +85,11 @@ describe("Testing view file options service", () => {
     }));
 
     it("should load sortMethod from storage", fakeAsync(() => {
-        spyOn(storageService, "get").and.callFake(key => {
+        spyOn(storageService, "get").and.callFake(<T = unknown>(key: string): T | null => {
             if (key === StorageKeys.VIEW_OPTION_SORT_METHOD) {
-                return ViewFileOptions.SortMethod.NAME_ASC;
+                return ViewFileOptions.SortMethod.NAME_ASC as T;
             }
+            return null;
         });
         // Recreate the service
         viewOptionsService = createViewOptionsService();

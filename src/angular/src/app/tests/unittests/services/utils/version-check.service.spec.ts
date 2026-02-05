@@ -82,7 +82,7 @@ describe("Testing version check service", () => {
         sendRequestSpy.and.returnValue(subject);
 
         // Note: can't spy on compareVersions, so just replace the private method instead
-        spyOn<any>(VersionCheckService, "isVersionNewer").and.returnValue(true);
+        spyOn(VersionCheckService as unknown as {isVersionNewer: (v: string) => boolean}, "isVersionNewer").and.returnValue(true);
 
         // Recreate the service
         versionCheckService = createVersionCheckService();
@@ -97,7 +97,7 @@ describe("Testing version check service", () => {
         sendRequestSpy.and.returnValue(subject);
 
         // Note: can't spy on compareVersions, so just replace the private method instead
-        spyOn<any>(VersionCheckService, "isVersionNewer").and.returnValue(false);
+        spyOn(VersionCheckService as unknown as {isVersionNewer: (v: string) => boolean}, "isVersionNewer").and.returnValue(false);
 
         // Recreate the service
         versionCheckService = createVersionCheckService();

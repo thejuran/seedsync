@@ -80,7 +80,7 @@ describe("FileComponent", () => {
         });
 
         it("should return false when file is undefined", () => {
-            component.file = undefined as any;
+            component.file = undefined as unknown as ViewFile;
             expect(component.isSelected()).toBe(false);
         });
 
@@ -155,13 +155,13 @@ describe("FileComponent", () => {
             newComponent.options = testOptions;
 
             // Before ngAfterViewInit, viewInitialized should be false
-            expect((newComponent as any).viewInitialized).toBe(false);
+            expect((newComponent as unknown as {viewInitialized: boolean}).viewInitialized).toBe(false);
 
             // Trigger lifecycle
             newFixture.detectChanges();
 
             // After ngAfterViewInit, viewInitialized should be true
-            expect((newComponent as any).viewInitialized).toBe(true);
+            expect((newComponent as unknown as {viewInitialized: boolean}).viewInitialized).toBe(true);
         });
 
         it("should reset activeAction on status change in ngOnChanges", () => {

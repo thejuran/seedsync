@@ -32,20 +32,20 @@ describe("IsSelectedPipe", () => {
 
     it("should return false for null fileName", () => {
         const selectedFiles = new Set(["file1"]);
-        expect(pipe.transform(null as any, selectedFiles)).toBe(false);
+        expect(pipe.transform(null as unknown as string, selectedFiles)).toBe(false);
     });
 
     it("should return false for undefined fileName", () => {
         const selectedFiles = new Set(["file1"]);
-        expect(pipe.transform(undefined as any, selectedFiles)).toBe(false);
+        expect(pipe.transform(undefined as unknown as string, selectedFiles)).toBe(false);
     });
 
     it("should return false for null selectedFiles", () => {
-        expect(pipe.transform("file1", null as any)).toBe(false);
+        expect(pipe.transform("file1", null as unknown as Set<string>)).toBe(false);
     });
 
     it("should return false for undefined selectedFiles", () => {
-        expect(pipe.transform("file1", undefined as any)).toBe(false);
+        expect(pipe.transform("file1", undefined as unknown as Set<string>)).toBe(false);
     });
 
     // =========================================================================

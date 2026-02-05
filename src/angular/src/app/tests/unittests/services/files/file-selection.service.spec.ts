@@ -1,4 +1,4 @@
-import {TestBed, fakeAsync, tick, flush} from "@angular/core/testing";
+import {TestBed} from "@angular/core/testing";
 
 import {FileSelectionService} from "../../../../services/files/file-selection.service";
 import {ViewFile} from "../../../../services/files/view-file";

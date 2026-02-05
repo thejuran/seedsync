@@ -13,6 +13,9 @@ import {ViewFile} from "../../../../services/files/view-file";
 import {ViewFileFilterCriteria} from "../../../../services/files/view-file.service";
 import {FileSelectionService} from "../../../../services/files/file-selection.service";
 
+// Type for test vectors: [[ModelFile.State, localSize, remoteSize], [expectedResult, ViewFile.Status]]
+type TestVector = [[ModelFile.State, number | null, number | null], [boolean, ViewFile.Status]];
+
 
 describe("Testing view file service", () => {
     let viewService: ViewFileService;
@@ -269,7 +272,7 @@ describe("Testing view file service", () => {
         // Test and expected result vectors
         // test - [ModelFile.State, local size, remote size]
         // result - [isQueueable, ViewFile.Status]
-        const testVectors: any[][][] = [
+        const testVectors: TestVector[] = [
             // Default remote file is queueable
             [[ModelFile.State.DEFAULT, null, 100], [true, ViewFile.Status.DEFAULT]],
             // Default local file is NOT queueable
@@ -329,7 +332,7 @@ describe("Testing view file service", () => {
         // Test and expected result vectors
         // test - [ModelFile.State, local size, remote size]
         // result - [isStoppable, ViewFile.Status]
-        const testVectors: any[][][] = [
+        const testVectors: TestVector[] = [
             // Default remote file is NOT stoppable
             [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is NOT stoppable
@@ -387,7 +390,7 @@ describe("Testing view file service", () => {
         // Test and expected result vectors
         // test - [ModelFile.State, local size, remote size]
         // result - [isExtractable, ViewFile.Status]
-        const testVectors: any[][][] = [
+        const testVectors: TestVector[] = [
             // Default remote file is NOT extractable
             [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is extractable
@@ -573,7 +576,7 @@ describe("Testing view file service", () => {
         // Test and expected result vectors
         // test - [ModelFile.State, local size, remote size]
         // result - [isLocallyDeletable, ViewFile.Status]
-        const testVectors: any[][][] = [
+        const testVectors: TestVector[] = [
             // Default remote file is NOT locally deletable
             [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is locally deletable
@@ -631,7 +634,7 @@ describe("Testing view file service", () => {
         // Test and expected result vectors
         // test - [ModelFile.State, local size, remote size]
         // result - [isRemotelyDeletable, ViewFile.Status]
-        const testVectors: any[][][] = [
+        const testVectors: TestVector[] = [
             // Default remote file is remotely deletable
             [[ModelFile.State.DEFAULT, null, 100], [true, ViewFile.Status.DEFAULT]],
             // Default local file is NOT remotely deletable

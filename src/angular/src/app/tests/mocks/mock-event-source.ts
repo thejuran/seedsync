@@ -1,4 +1,6 @@
-declare let spyOn: any;
+declare function spyOn<T, K extends keyof T>(
+    object: T, method: K
+): jasmine.Spy<T[K] extends (...args: infer A) => infer R ? (...args: A) => R : never>;
 
 // Mock EventSource for testing - uses partial implementation to avoid strict type conflicts
 export class MockEventSource {

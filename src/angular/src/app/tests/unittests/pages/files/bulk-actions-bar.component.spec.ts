@@ -1,5 +1,5 @@
 import {ComponentFixture, TestBed} from "@angular/core/testing";
-import {SimpleChange} from "@angular/core";
+import {SimpleChange, SimpleChanges} from "@angular/core";
 import {List} from "immutable";
 
 import {BulkActionsBarComponent, BulkActionCounts} from "../../../../pages/files/bulk-actions-bar.component";
@@ -61,7 +61,7 @@ describe("BulkActionsBarComponent", () => {
      * Helper to set inputs and trigger ngOnChanges for proper cache update.
      */
     function setInputsAndDetectChanges(visibleFiles: List<ViewFile>, selectedFiles: Set<string>): void {
-        const changes: any = {};
+        const changes: SimpleChanges = {};
         if (component.visibleFiles !== visibleFiles) {
             changes["visibleFiles"] = new SimpleChange(component.visibleFiles, visibleFiles, false);
             component.visibleFiles = visibleFiles;
@@ -410,14 +410,14 @@ describe("BulkActionsBarComponent", () => {
             // Access all getters multiple times
             const start = performance.now();
             for (let i = 0; i < 100; i++) {
-                // These should all return cached values
-                component.actionCounts;
-                component.queueableFiles;
-                component.stoppableFiles;
-                component.extractableFiles;
-                component.locallyDeletableFiles;
-                component.remotelyDeletableFiles;
-                component.selectedViewFiles;
+                // These should all return cached values - void used to suppress unused expression lint
+                void component.actionCounts;
+                void component.queueableFiles;
+                void component.stoppableFiles;
+                void component.extractableFiles;
+                void component.locallyDeletableFiles;
+                void component.remotelyDeletableFiles;
+                void component.selectedViewFiles;
             }
             const elapsed = performance.now() - start;
 
