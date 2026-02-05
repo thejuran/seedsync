@@ -12,7 +12,12 @@ import {ViewFile} from "../../services/files/view-file";
 import {ViewFileService} from "../../services/files/view-file.service";
 import {DomService} from "../../services/utils/dom.service";
 
-declare let bootstrap: any;
+interface BootstrapDropdown {
+    getInstance(element: Element): { hide: () => void } | null;
+}
+declare const bootstrap: {
+    Dropdown: BootstrapDropdown;
+};
 
 @Component({
     selector: "app-file-options",

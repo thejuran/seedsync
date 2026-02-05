@@ -31,9 +31,9 @@ export class Notification extends NotificationRecord implements INotification {
 
 export namespace Notification {
     export enum Level {
-        SUCCESS         = <any> "success",
-        INFO            = <any> "info",
-        WARNING         = <any> "warning",
-        DANGER          = <any> "danger",
+        SUCCESS         = "success",
+        INFO            = "info",
+        WARNING         = "warning",
+        DANGER          = "danger",
     }
 }

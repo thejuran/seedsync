@@ -16,17 +16,17 @@ import {debounceTime, distinctUntilChanged} from "rxjs/operators";
 export class OptionComponent implements OnInit {
     @Input() type: OptionType;
     @Input() label: string;
-    @Input() value: any;
+    @Input() value: string | number | boolean;
     @Input() description: string;
 
-    @Output() changeEvent = new EventEmitter<any>();
+    @Output() changeEvent = new EventEmitter<string | number | boolean>();
 
     // expose to template
     public OptionType = OptionType;
 
     private readonly DEBOUNCE_TIME_MS: number = 1000;
 
-    private newValue = new Subject<any>();
+    private newValue = new Subject<string | number | boolean>();
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
@@ -42,7 +42,7 @@ export class OptionComponent implements OnInit {
             .subscribe({next: val => this.changeEvent.emit(val)});
     }
 
-    onChange(value: any): void {
+    onChange(value: string | number | boolean): void {
         this.newValue.next(value);
     }
 }

@@ -1,8 +1,8 @@
 import {Injectable, InjectionToken} from "@angular/core";
 
 export interface StorageService {
-    get(key: string): any;
-    set(key: string, value: any): void;
+    get<T = unknown>(key: string): T | null;
+    set<T>(key: string, value: T): void;
     remove(key: string): void;
 }
 
@@ -13,19 +13,19 @@ export const LOCAL_STORAGE = new InjectionToken<StorageService>("LOCAL_STORAGE")
 })
 export class LocalStorageService implements StorageService {
 
-    get(key: string): any {
+    get<T = unknown>(key: string): T | null {
         const item = localStorage.getItem(key);
         if (item === null) {
             return null;
         }
         try {
-            return JSON.parse(item);
+            return JSON.parse(item) as T;
         } catch {
-            return item;
+            return item as T;
         }
     }
 
-    set(key: string, value: any): void {
+    set<T>(key: string, value: T): void {
         localStorage.setItem(key, JSON.stringify(value));
     }
 

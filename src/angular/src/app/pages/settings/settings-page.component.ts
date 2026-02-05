@@ -74,7 +74,7 @@ export class SettingsPageComponent implements OnInit {
         });
     }
 
-    onSetConfig(section: string, option: string, value: any): void {
+    onSetConfig(section: string, option: string, value: string | number | boolean): void {
         this._configService.set(section, option, value).subscribe({
             next: reaction => {
                 const notifKey = section + "." + option;

@@ -19,7 +19,8 @@ export class ConfigService extends BaseWebService implements OnDestroy {
 
     // noinspection UnterminatedStatementJS
     private readonly CONFIG_SET_URL =
-        (section, option, value) => `/server/config/set/${section}/${option}/${value}`;
+        (section: string, option: string, value: string): string =>
+            `/server/config/set/${section}/${option}/${value}`;
 
     private _config: BehaviorSubject<Config> = new BehaviorSubject(null);
 
@@ -44,8 +45,8 @@ export class ConfigService extends BaseWebService implements OnDestroy {
      * @param value
      * @returns {WebReaction}
      */
-    public set(section: string, option: string, value: any): Observable<WebReaction> {
-        const valueStr: string = String(value);
+    public set(section: string, option: string, value: string | number | boolean): Observable<WebReaction> {
+        const valueStr = String(value);
         const currentConfig = this._config.getValue();
         if (!currentConfig.has(section as keyof IConfig) ||
             !(currentConfig.get(section as keyof IConfig) as unknown as {has: (key: string) => boolean}).has(option)) {

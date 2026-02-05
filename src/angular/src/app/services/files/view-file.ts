@@ -87,13 +87,13 @@ export class ViewFile extends ViewFileRecord implements IViewFile {
 
 export namespace ViewFile {
     export enum Status {
-        DEFAULT         = <any> "default",
-        QUEUED          = <any> "queued",
-        DOWNLOADING     = <any> "downloading",
-        DOWNLOADED      = <any> "downloaded",
-        STOPPED         = <any> "stopped",
-        DELETED         = <any> "deleted",
-        EXTRACTING      = <any> "extracting",
-        EXTRACTED       = <any> "extracted"
+        DEFAULT         = "default",
+        QUEUED          = "queued",
+        DOWNLOADING     = "downloading",
+        DOWNLOADED      = "downloaded",
+        STOPPED         = "stopped",
+        DELETED         = "deleted",
+        EXTRACTING      = "extracting",
+        EXTRACTED       = "extracted"
     }
 }

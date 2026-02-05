@@ -18,8 +18,8 @@ import {RestService, WebReaction} from "../utils/rest.service";
 @Injectable()
 export class AutoQueueService extends BaseWebService implements OnDestroy {
     private readonly AUTOQUEUE_GET_URL = "/server/autoqueue/get";
-    private readonly AUTOQUEUE_ADD_URL = (pattern) => `/server/autoqueue/add/${pattern}`;
-    private readonly AUTOQUEUE_REMOVE_URL = (pattern) => `/server/autoqueue/remove/${pattern}`;
+    private readonly AUTOQUEUE_ADD_URL = (pattern: string): string => `/server/autoqueue/add/${pattern}`;
+    private readonly AUTOQUEUE_REMOVE_URL = (pattern: string): string => `/server/autoqueue/remove/${pattern}`;
 
     private _patterns: BehaviorSubject<Immutable.List<AutoQueuePattern>> =
             new BehaviorSubject(Immutable.List([]));

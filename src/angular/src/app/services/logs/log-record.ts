@@ -45,11 +45,11 @@ export namespace LogRecord {
     }
 
     export enum Level {
-        DEBUG       = <any> "DEBUG",
-        INFO        = <any> "INFO",
-        WARNING     = <any> "WARNING",
-        ERROR       = <any> "ERROR",
-        CRITICAL    = <any> "CRITICAL",
+        DEBUG       = "DEBUG",
+        INFO        = "INFO",
+        WARNING     = "WARNING",
+        ERROR       = "ERROR",
+        CRITICAL    = "CRITICAL",
     }
 }
 

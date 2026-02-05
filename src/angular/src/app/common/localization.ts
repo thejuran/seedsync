@@ -33,7 +33,10 @@ export class Localization {
         // Bulk action confirmations
         public static readonly BULK_DELETE_LOCAL_TITLE = "Delete Local Files";
         public static readonly BULK_DELETE_LOCAL_MESSAGE =
-            (count: number): string => `Are you sure you want to delete <b>${count}</b> file${count === 1 ? "" : "s"} from the local server?`;
+            (count: number): string => {
+                const plural = count === 1 ? "" : "s";
+                return `Are you sure you want to delete <b>${count}</b> file${plural} from the local server?`;
+            };
 
         public static readonly BULK_DELETE_REMOTE_TITLE = "Delete Remote Files";
         public static readonly BULK_DELETE_REMOTE_MESSAGE =

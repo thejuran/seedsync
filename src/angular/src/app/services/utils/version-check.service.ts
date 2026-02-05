@@ -10,7 +10,7 @@ import {NotificationService} from "./notification.service";
 import {Notification} from "./notification";
 import {Localization} from "../../common/localization";
 
-declare function require(moduleName: string): any;
+declare function require(moduleName: string): { version: string };
 const { version: appVersion } = require("../../../../package.json");
 
 

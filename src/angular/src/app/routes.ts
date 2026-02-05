@@ -1,4 +1,5 @@
 import {Routes} from "@angular/router";
+import {Type} from "@angular/core";
 
 import * as Immutable from "immutable";
 
@@ -12,7 +13,7 @@ export interface RouteInfo {
     path: string;
     name: string;
     icon: string;
-    component: any;
+    component: Type<unknown>;
 }
 
 export const ROUTE_INFOS: Immutable.List<RouteInfo> = Immutable.List([
