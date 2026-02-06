@@ -60,8 +60,9 @@ For detailed installation instructions, see the [Installation Guide](install.md)
 
 | Platform | Installation Method |
 |----------|---------------------|
-| Linux/Ubuntu (64-bit) | Docker or Deb Package |
-| Raspberry Pi (v2, v3, v4, v5) | Docker |
+| Linux/Ubuntu (amd64) | Docker or Deb Package |
+| Linux/Ubuntu (arm64) | Docker or Deb Package |
+| Raspberry Pi (v3, v4, v5) | Docker or Deb Package |
 | Windows | Docker |
 | macOS | Docker |
 
