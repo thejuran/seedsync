@@ -91,6 +91,22 @@ class BoundedOrderedSet(Generic[T]):
         self._data[item] = None
         return evicted
 
+    def touch(self, item: T) -> bool:
+        """
+        Move an item to the end (most recent position) if it exists.
+
+        This refreshes the item's position in the LRU order, preventing
+        it from being evicted soon. If the item doesn't exist, does nothing.
+
+        :param item: Item to refresh
+        :return: True if item was found and touched, False otherwise
+        """
+        if item not in self._data:
+            return False
+        # Move to end (most recent position)
+        self._data.move_to_end(item)
+        return True
+
     def discard(self, item: T) -> None:
         """
         Remove an item from the set if present.

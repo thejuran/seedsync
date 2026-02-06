@@ -515,6 +515,7 @@ class ModelBuilder:
         Check if a DEFAULT file should be marked as DELETED.
 
         A file is DELETED if it doesn't exist locally but was downloaded before.
+        Also refreshes the file's position in the LRU tracker to prevent premature eviction.
         """
         if model_file.state != ModelFile.State.DEFAULT:
             return
@@ -523,6 +524,8 @@ class ModelBuilder:
         if model_file.name not in self.__downloaded_files:
             return
 
+        # Refresh position in LRU tracker to prevent eviction of actively monitored files
+        self.__downloaded_files.touch(model_file.name)
         model_file.state = ModelFile.State.DELETED
 
     def _check_extracting_state(self, model_file: ModelFile) -> None:

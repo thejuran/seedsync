@@ -195,6 +195,16 @@ class AutoQueue:
         if not self.__enabled:
             return
 
+        # DEBUG: Log new/modified file counts entering process
+        new_count = len(self.__model_listener.new_files)
+        modified_count = len(self.__model_listener.modified_files)
+        if new_count > 0 or modified_count > 0:
+            self.logger.info(
+                "Process cycle: {} new files, {} modified files".format(
+                    new_count, modified_count
+                )
+            )
+
         ###
         # Queue
         ###
@@ -254,6 +264,15 @@ class AutoQueue:
         # Filter out files that were explicitly stopped by user
         # OR were already downloaded previously (prevents re-queueing files
         # that were moved/deleted by external tools like Sonarr)
+        # DEBUG: Log filter decisions for each candidate
+        for name, pattern in files_to_queue_dict.items():
+            is_stopped = self.__controller.is_file_stopped(name)
+            is_downloaded = self.__controller.is_file_downloaded(name)
+            self.logger.info(
+                "Filter check '{}': stopped={}, downloaded={}".format(
+                    name, is_stopped, is_downloaded
+                )
+            )
         files_to_queue = [
             (name, pattern) for name, pattern in files_to_queue_dict.items()
             if not self.__controller.is_file_stopped(name)

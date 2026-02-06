@@ -225,7 +225,16 @@ class Controller:
         :param filename: Name of the file to check
         :return: True if the file is in the downloaded files set
         """
-        return filename in self.__persist.downloaded_file_names
+        result = filename in self.__persist.downloaded_file_names
+        if not result:
+            self.logger.info(
+                "File '{}' not in downloaded list (size={}, evictions={})".format(
+                    filename,
+                    len(self.__persist.downloaded_file_names),
+                    self.__persist.downloaded_file_names.total_evictions
+                )
+            )
+        return result
 
     def add_model_listener(self, listener: IModelListener):
         """
