@@ -248,19 +248,30 @@ ghcr.io/thejuran/seedsync:1.0          # Minor version track (gets patch updates
 ### Version Files
 
 When releasing, update version in these files:
-1. `src/angular/package.json`
+1. `src/angular/package.json` (also drives the About page version display)
 2. `src/debian/changelog`
 3. `src/e2e/tests/about.page.spec.ts`
-4. `src/angular/src/app/pages/main/about-page.component.html` (copyright year)
 
 ### Release Checklist
 
-1. Update version in all 4 locations listed above
+1. Update version in all 3 locations listed above
 2. Update `src/debian/changelog` with release notes
 3. Ensure all tests pass
-4. Create and push git tag: `git tag -a vX.Y.Z -m "Release X.Y.Z"`
-5. CI automatically builds and publishes
-6. Verify artifacts are available (GHCR image, GitHub Release .deb)
+4. Commit version bump, push to master
+5. Create and push git tag: `git tag -a vX.Y.Z -m "vX.Y.Z"`
+6. Create GitHub Release with release notes: `gh release create vX.Y.Z --title "vX.Y.Z" --notes "..."`
+7. CI automatically builds and publishes Docker images and deb packages
+8. Verify artifacts are available (GHCR image, GitHub Release .deb)
+
+### Documentation Updates (after each release)
+
+After tagging a release, update the documentation site:
+
+1. Update `src/python/docs/changelog.md` with the new version entry
+2. Update `src/python/docs/index.md` if features or platform support changed
+3. Update `src/python/docs/install.md` if installation steps changed (e.g., new pinned version in tag table)
+4. Deploy docs: `cd src/python && mkdocs gh-deploy --force`
+5. Commit docs source changes to master and push
 
 ## Supported Platforms
 
