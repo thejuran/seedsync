@@ -11,6 +11,7 @@ from lftp import LftpJobStatus
 from model import ModelError, ModelFile, Model
 from controller import ModelBuilder
 from controller.extract import ExtractStatus
+from common.bounded_ordered_set import BoundedOrderedSet
 
 
 class TestModelBuilder(unittest.TestCase):
@@ -227,14 +228,14 @@ class TestModelBuilder(unittest.TestCase):
         # Deleted
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         model = self.model_builder.build_model()
         self.assertEqual(ModelFile.State.DELETED, model.get_file("a").state)
 
         # Deleted but Queued
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         self.model_builder.set_lftp_statuses([
             LftpJobStatus(0, LftpJobStatus.Type.PGET, LftpJobStatus.State.QUEUED, "a", "")
         ])
@@ -244,7 +245,7 @@ class TestModelBuilder(unittest.TestCase):
         # Deleted but Downloading
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         self.model_builder.set_lftp_statuses([
             LftpJobStatus(0, LftpJobStatus.Type.PGET, LftpJobStatus.State.RUNNING, "a", "")
         ])
@@ -255,7 +256,7 @@ class TestModelBuilder(unittest.TestCase):
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
         self.model_builder.set_local_files([SystemFile("a", 50, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         model = self.model_builder.build_model()
         self.assertEqual(ModelFile.State.DEFAULT, model.get_file("a").state)
 
@@ -295,7 +296,7 @@ class TestModelBuilder(unittest.TestCase):
         # Extracting and Deleted (unexpected: should ignore Extracting)
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         self.model_builder.set_extract_statuses([ExtractStatus("a", False, ExtractStatus.State.EXTRACTING)])
         model = self.model_builder.build_model()
         self.assertEqual(ModelFile.State.DELETED, model.get_file("a").state)
@@ -304,7 +305,7 @@ class TestModelBuilder(unittest.TestCase):
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
         self.model_builder.set_local_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         self.model_builder.set_extracted_files({"a"})
         self.model_builder.set_extract_statuses([ExtractStatus("a", False, ExtractStatus.State.EXTRACTING)])
         model = self.model_builder.build_model()
@@ -346,7 +347,7 @@ class TestModelBuilder(unittest.TestCase):
         # Extracted and Deleted
         self.model_builder.clear()
         self.model_builder.set_remote_files([SystemFile("a", 100, False)])
-        self.model_builder.set_downloaded_files({"a"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a"]))
         self.model_builder.set_extracted_files({"a"})
         model = self.model_builder.build_model()
         self.assertEqual(ModelFile.State.DELETED, model.get_file("a").state)
@@ -1401,16 +1402,16 @@ class TestModelBuilder(unittest.TestCase):
         self.assertTrue(self.model_builder.has_changes())
 
         # Initial set
-        self.model_builder.set_downloaded_files({"a", "b"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a", "b"]))
         self.model_builder.build_model()
         self.assertFalse(self.model_builder.has_changes())
 
         # Does not invalidate on same
-        self.model_builder.set_downloaded_files({"a", "b"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a", "b"]))
         self.assertFalse(self.model_builder.has_changes())
 
         # Invalidate on different
-        self.model_builder.set_downloaded_files({"a", "c"})
+        self.model_builder.set_downloaded_files(BoundedOrderedSet(iterable=["a", "c"]))
         self.assertTrue(self.model_builder.has_changes())
 
     def test_rebuild_on_extract_statuses(self):
