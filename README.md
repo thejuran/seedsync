@@ -39,10 +39,10 @@ All you need are the SSH credentials for the remote server.
 
 ## Supported Platforms
 
-* Linux
-* Raspberry Pi (v2, v3 and v4)
+* Linux (amd64 and arm64)
+* Raspberry Pi (v3, v4, v5)
 * Windows (via Docker)
-* MacOS (via Docker)
+* macOS (via Docker)
 
 
 ## Installation and Usage

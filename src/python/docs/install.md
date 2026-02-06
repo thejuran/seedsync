@@ -18,19 +18,32 @@ The following table describes the installation method supported for each platfor
 
 |  | Docker Image | Deb Package |
 | ------------ | :-------------: | :------------: |
-| Linux/Ubuntu 64-bit | &#9989;️  | &#9989; |
-| Raspberry Pi (v2, v3, v4) | &#9989;  | |
+| Linux/Ubuntu (amd64) | &#9989;️  | &#9989; |
+| Linux/Ubuntu (arm64) | &#9989;️  | &#9989; |
+| Raspberry Pi (v3, v4, v5) | &#9989;  | &#9989; |
 | Windows | &#9989;  | |
-| MacOS | &#9989;  | |
+| macOS | &#9989;  | |
 
 Select the section for your platform:
 
-* [Docker Image (Linux/Ubuntu, Raspberry Pi) ](#install-docker)
+* [Docker Image (Linux/Ubuntu, Raspberry Pi, macOS)](#install-docker)
 * [Docker Image (Windows)](#install-windows)
-* [Deb Package (Linux/Ubuntu)](#install-ubuntu)
+* [Deb Package (Linux/Ubuntu, Raspberry Pi)](#install-ubuntu)
 
 
-## <a name="install-docker"></a> Docker Image (Linux/Ubuntu, Raspberry Pi)
+## <a name="install-docker"></a> Docker Image (Linux/Ubuntu, Raspberry Pi, macOS)
+
+Docker images are published to GitHub Container Registry and support both `amd64` and `arm64` architectures. Docker will automatically pull the correct image for your platform.
+
+### Choosing a tag
+
+| Tag | Description |
+|-----|-------------|
+| `ghcr.io/thejuran/seedsync:latest` | Latest stable release (recommended) |
+| `ghcr.io/thejuran/seedsync:1.2.0` | Pinned to a specific version |
+| `ghcr.io/thejuran/seedsync:dev` | Latest master build (may be unstable) |
+
+### Running the container
 
 1. Run the docker image with the following command:
 
@@ -66,20 +79,34 @@ Select the section for your platform:
 4. **While password-based login is supported, key-based authentication is highly recommended!**
    See the [Key-Based Authentication Setup](#key-auth) section for details.
 
+### Docker Compose
+
+You can also use Docker Compose for easier management:
+
+```yaml
+services:
+  seedsync:
+    image: ghcr.io/thejuran/seedsync:latest
+    container_name: seedsync
+    ports:
+      - "8800:8800"
+    volumes:
+      - /path/to/downloads:/downloads
+      - /path/to/config:/config
+      - ~/.ssh:/home/seedsync/.ssh:ro
+    restart: unless-stopped
+```
+
 
 ## <a name="install-windows"></a> Docker Image (Windows)
 
-SeedSync supports Windows via the Docker container.
+SeedSync supports Windows via Docker.
 
-1. Install Docker on Windows.
+1. Install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/).
 
-   1. [Docker for Windows](https://www.docker.com/docker-windows) if you have Windows 10 Pro or above
+2. Make sure Docker Desktop is running and you can successfully run the [Hello World](https://docs.docker.com/get-started/) container.
 
-   2. [Docker Toolbox](https://docs.docker.com/toolbox/toolbox_install_windows/) if you have Windows 10 Home or below
-
-2. Make sure you can successfully run the [Hello World](https://docs.docker.com/get-started/#test-docker-installation) app in Docker.
-
-3. Open the Docker terminal and run the SeedSync image with the following command:
+3. Open a terminal (PowerShell or Command Prompt) and run the SeedSync image:
 
         :::bash
         docker run \
@@ -95,21 +122,9 @@ SeedSync supports Windows via the Docker container.
     * both these directories must already exist
 
     !!! note
-        The Windows host machine path is specified as `/c/Users/...`
+        Windows paths should use forward slashes, e.g. `/c/Users/yourname/Downloads`
 
-4. Access application GUI to verify SeedSync is running.
-   Docker on Windows may not forward port to the local host. We need to find the IP address of the container.
-
-   1. Open a new Docker terminal and run the command:
-
-        :::bash
-        docker-machine ip
-        192.168.100.17
-
-   2. Open &lt;ip address&gt;:8800 in your browser.
-      In this example that would be [http://192.168.100.17:8800](http://192.168.100.17:8800)
-
-   3. Verify that SeedSync dashboard loads.
+4. Access application GUI by going to [http://localhost:8800](http://localhost:8800) in your browser.
 
 5. Go to the Settings page and fill out the required information.
    Under the Local Directory setting, enter `/downloads`.
@@ -179,9 +194,11 @@ It is strongly recommended that you set up key-based authentication.
     then you must make sure that your `.ssh` directory is also readable by that user.
 
 
-## <a name="install-ubuntu"></a> Deb Package (Linux/Ubuntu)
+## <a name="install-ubuntu"></a> Deb Package (Linux/Ubuntu, Raspberry Pi)
 
-1. Download the deb package from the [latest](https://github.com/thejuran/seedsync/releases/latest) release
+Deb packages are available for both `amd64` and `arm64` architectures.
+
+1. Download the deb package for your architecture from the [latest release](https://github.com/thejuran/seedsync/releases/latest)
 
 2. Install the deb package:
 
