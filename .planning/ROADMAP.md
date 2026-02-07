@@ -6,6 +6,7 @@
 - **v1.1 Dropdown & Form Migration** - Phases 6-8 (shipped 2026-02-04)
 - **v1.2 UI Cleanup** - Phase 9 (shipped 2026-02-04)
 - **v1.3 Polish & Clarity** - Phases 10-11 (shipped 2026-02-04)
+- **v1.4 Sass @use Migration** - Phases 12-14 (in progress)
 
 ## Phases
 
@@ -53,6 +54,18 @@ See `.planning/milestones/v1.3-ROADMAP.md` for full details.
 </details>
 
 
+<details>
+<summary>v1.4 Sass @use Migration (Phases 12-14) - IN PROGRESS</summary>
+
+- [ ] Phase 12: Shared Module Migration - not started
+- [ ] Phase 13: Styles Entry Point - not started
+- [ ] Phase 14: Validation - not started
+
+See `.planning/milestones/v1.4-ROADMAP.md` for full details.
+
+</details>
+
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -69,7 +82,11 @@ See `.planning/milestones/v1.3-ROADMAP.md` for full details.
 | 10. Lint Cleanup | v1.3 | 4/4 | Complete | 2026-02-04 |
 | 11. Status Dropdown Counts | v1.3 | 1/1 | Complete | 2026-02-04 |
 
+| 12. Shared Module Migration | v1.4 | 0/1 | Not Started | — |
+| 13. Styles Entry Point | v1.4 | 0/1 | Not Started | — |
+| 14. Validation | v1.4 | 0/1 | Not Started | — |
+
 ---
 
-*Last updated: 2026-02-04*
-*v1.3 milestone completed: 2026-02-04*
+*Last updated: 2026-02-07*
+*v1.4 milestone started: 2026-02-07*
