@@ -26,32 +26,23 @@ export class FileActionsBarComponent {
     @Output() deleteRemoteEvent = new EventEmitter<ViewFile>();
 
     isQueueable(): boolean {
-        return this.file != null &&
-            this.file.status === ViewFile.Status.DEFAULT;
+        return this.file != null && this.file.isQueueable;
     }
 
     isStoppable(): boolean {
-        return this.file != null && (
-            this.file.status === ViewFile.Status.QUEUED ||
-            this.file.status === ViewFile.Status.DOWNLOADING
-        );
+        return this.file != null && this.file.isStoppable;
     }
 
     isExtractable(): boolean {
-        return this.file != null &&
-            this.file.isArchive &&
-            this.file.localSize > 0 &&
-            this.file.status !== ViewFile.Status.EXTRACTING;
+        return this.file != null && this.file.isExtractable && this.file.isArchive;
     }
 
     isLocallyDeletable(): boolean {
-        return this.file != null &&
-            this.file.localSize > 0;
+        return this.file != null && this.file.isLocallyDeletable;
     }
 
     isRemotelyDeletable(): boolean {
-        return this.file != null &&
-            this.file.remoteSize > 0;
+        return this.file != null && this.file.isRemotelyDeletable;
     }
 
     onQueue(): void {
