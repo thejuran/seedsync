@@ -2,11 +2,21 @@
 
 ## What This Is
 
-UI refinement and code quality work for SeedSync's Angular frontend. v1.0-v1.2 unified CSS/SCSS styling (Bootstrap migration, colors, buttons, dropdowns, forms, cleanup). v1.3 added code quality (lint fixes) and UX clarity (status dropdown counts).
+UI refinement and code quality work for SeedSync's Angular frontend. v1.0-v1.2 unified CSS/SCSS styling (Bootstrap migration, colors, buttons, dropdowns, forms, cleanup). v1.3 added code quality (lint fixes) and UX clarity (status dropdown counts). v1.4 modernizes the Sass module system from deprecated @import to @use/@forward.
 
 ## Core Value
 
 Clean, maintainable codebase with intuitive user interface.
+
+## Current Milestone: v1.4 Sass @use Migration
+
+**Goal:** Migrate all SCSS files from deprecated @import to modern @use/@forward module system, proactively preparing for Dart Sass 3.0.
+
+**Target features:**
+- Migrate all @import statements to @use/@forward across the Angular project
+- Eliminate Sass @import deprecation warnings from build output
+- Maintain identical visual output (zero visual regressions)
+- All unit tests continue passing
 
 ## Current State (v1.3 Shipped)
 
@@ -69,7 +79,12 @@ Clean, maintainable codebase with intuitive user interface.
 
 ### Active
 
-(None - milestone complete. Run `/gsd:new-milestone` to define next work.)
+**v1.4 (In Progress):**
+
+- Migrate all @import to @use/@forward across Angular SCSS files
+- Eliminate Sass @import deprecation warnings from build output
+- Maintain identical visual output (zero regressions)
+- All unit tests continue passing
 
 ### Out of Scope
 
@@ -78,15 +93,15 @@ Clean, maintainable codebase with intuitive user interface.
 - Major layout restructuring - preserve existing layouts
 - Adding new dependencies - use existing Bootstrap 5
 - Dark mode toggle - not part of current unification work
-- Full @use migration - Bootstrap Sass @import approach maintained
+- ~~Full @use migration~~ - Now in scope for v1.4
 
 ## Context
 
 **Technical notes:**
-- Using @import for Bootstrap (not migrated to @use)
+- Currently using @import for Bootstrap (migrating to @use in v1.4)
 - Bootstrap subtle variables re-exported in _common.scss for component module access
 - Third-party deprecation warnings (Bootstrap, Font-Awesome) accepted as noise
-- Sass @import deprecation will need addressing before Dart Sass 3.0
+- Sass @import deprecation being addressed in v1.4
 
 ## Constraints
 
@@ -119,17 +134,17 @@ Clean, maintainable codebase with intuitive user interface.
 
 ## Project Status
 
-**Status:** COMPLETE — v1.3.0 Polish & Clarity shipped
+**Status:** IN PROGRESS — v1.4 Sass @use Migration
 
-UI Polish project complete with 4 milestones shipped:
+UI Polish project with 4 milestones shipped, 1 in progress:
 - v1.0: Bootstrap SCSS infrastructure, colors, buttons
 - v1.1: Dropdowns, forms, final polish
 - v1.2: UI cleanup (removed obsolete buttons)
 - v1.3: Lint fixes, status dropdown counts
+- v1.4: Sass @use migration (in progress)
 
 **Future work (if desired):**
 - Dark mode toggle feature
-- Full @use migration when Dart Sass 3.0 becomes urgent
 
 ---
-*Last updated: 2026-02-04 after v1.3 milestone complete*
+*Last updated: 2026-02-07 after v1.4 milestone started*
