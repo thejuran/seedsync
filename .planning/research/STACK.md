@@ -1,810 +1,305 @@
-# Technology Stack: Bootstrap 5 SCSS Organization
+# Technology Stack: Sass @use/@forward Migration
 
-**Project:** SeedSync UI Styling Unification
-**Focus:** SCSS organization and Bootstrap 5.3 customization patterns
-**Researched:** 2026-02-03
-**Confidence:** HIGH (based on official Bootstrap 5.3.8 source inspection and Angular 19 patterns)
+**Project:** SeedSync - Angular 19.x + Bootstrap 5.3
+**Research Focus:** Stack requirements for @import → @use/@forward migration
+**Researched:** 2026-02-07
+**Overall Confidence:** HIGH
 
-## Context
+## Executive Summary
 
-This research focuses specifically on SCSS organization and Bootstrap customization patterns for the existing Angular 19 + Bootstrap 5.3 application. Angular and Bootstrap versions are already established and not being changed.
+The SeedSync Angular frontend can successfully migrate from Sass `@import` to `@use`/`@forward` module system using current tooling. However, **Bootstrap 5.3 itself has not migrated to the module system** and will continue to emit deprecation warnings. This is expected and does not prevent the migration. The project's own SCSS files can be fully modernized while Bootstrap remains on `@import`.
 
-**Current state:**
-- Angular 19.x with Bootstrap 5.3.8
-- Imports pre-compiled `bootstrap.min.css` (loses customization benefits)
-- Custom variables in `_common.scss` duplicating Bootstrap's theme system
-- Uses modern Sass `@use` module system
-- Component-scoped SCSS files
+**Key constraint:** Bootstrap 5.3.3 internally uses `@import` and cannot be imported with `@use` syntax. Bootstrap 6 (in early development, no release date) will address this.
 
-**Goal:** Unify styling patterns while leveraging Bootstrap's customization system.
+## Current Stack Analysis
 
----
+### Dart Sass (CURRENT)
 
-## Recommended Approach
+| Component | Current Version | Support Status | Notes |
+|-----------|----------------|----------------|-------|
+| **sass** (package.json) | 1.97.3 | ✅ Full @use/@forward support | Direct dependency |
+| **@angular/build** | Uses sass 1.85.0 | ✅ Full @use/@forward support | Via Angular CLI |
+| **sass-loader** | Uses sass 1.97.3 | ✅ Full @use/@forward support | Via Angular CLI |
 
-### Primary Strategy: Sass Variable Customization
+**Analysis:**
+- Dart Sass 1.23.0+ (October 2019) introduced `@use` and `@forward`
+- Current version 1.97.3 has 4+ years of module system maturity
+- All versions in the project (1.85.0, 1.97.3) fully support module system
+- **HIGH confidence:** Zero Dart Sass version blockers for this migration
 
-**Use Bootstrap's Sass source files with custom variable overrides.**
+**Source:** [Dart Sass Changelog](https://github.com/sass/dart-sass/blob/main/CHANGELOG.md), [Module System Launch](https://www.sasscss.com/blog/the-module-system-is-launched)
 
-**Why:** Bootstrap 5.3 uses a two-tier system:
-1. **Sass variables** (compile-time) for theme customization
-2. **CSS custom properties** (runtime) generated from Sass variables
+### Bootstrap (CRITICAL CONSTRAINT)
 
-The correct approach is to customize Sass variables BEFORE importing Bootstrap, which then generates customized CSS custom properties. This gives you both compile-time theming and runtime CSS variables.
+| Aspect | Status | Impact |
+|--------|--------|--------|
+| **Bootstrap version** | 5.3.3 | Uses `@import` internally |
+| **Module system support** | ❌ Not available | Cannot import Bootstrap with `@use` |
+| **Deprecation warnings** | Expected | Bootstrap emits warnings, this is normal |
+| **Migration timeline** | Bootstrap 6 (TBD) | No confirmed release date |
+| **Workaround** | Continue using `@import` for Bootstrap | Project can use `@use` for own files |
 
-**Rationale:**
-- Sass variables control ALL Bootstrap defaults (colors, spacing, button sizing, etc.)
-- CSS custom properties are auto-generated from your Sass variables
-- Single source of truth for theme values
-- Tree-shaking: only include Bootstrap components you use
-- Type-safe with Sass functions (color manipulation, spacing scales)
+**Critical finding:** Bootstrap 5.3 **must be imported with `@import`** because Bootstrap's internal files use `@import`. You cannot write `@use 'bootstrap'`.
 
----
+**What this means:**
+1. `styles.scss` will continue to use `@import` for Bootstrap files
+2. `_common.scss` can use `@forward` to re-export Bootstrap variables
+3. Component SCSS files can use `@use` to import `_common.scss`
+4. Deprecation warnings from Bootstrap itself are expected and normal
 
-## Implementation Structure
+**Source:**
+- [Bootstrap 5.3 Sass Documentation](https://getbootstrap.com/docs/5.3/customize/sass/) - shows only `@import` syntax
+- [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) - Module system tracking issue
+- [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) - Bootstrap 6 in early development
+- [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) - Sass modules planned for v6
 
-### File Organization
+### Angular CLI (INTEGRATION)
 
-```
-src/
-├── styles.scss                    # Global entry point
-├── scss/
-│   ├── _variables.scss            # Bootstrap variable overrides
-│   ├── _bootstrap-imports.scss    # Selective Bootstrap imports
-│   ├── _utilities.scss            # Custom utility classes
-│   └── _global-overrides.scss     # Post-Bootstrap style adjustments
-└── app/
-    ├── common/
-    │   └── _common.scss           # Shared mixins, legacy placeholders
-    └── pages/
-        └── */*.component.scss     # Component-scoped styles
-```
+| Component | Version | SCSS Compilation | Notes |
+|-----------|---------|------------------|-------|
+| **@angular/cli** | 19.2.19 | ✅ Supports @use/@forward | Via sass-loader 16.0.5 |
+| **@angular-devkit/build-angular** | 19.2.19 | ✅ Supports @use/@forward | Uses Vite + Sass |
+| **Angular stylePreprocessorOptions** | N/A | ✅ Works with @use | Load paths supported |
 
-### 1. Variable Overrides (`scss/_variables.scss`)
+**Analysis:**
+- Angular CLI has supported `@use`/`@forward` since Angular 12+ (2021)
+- Angular Material migrated to `@use` in v12 as a reference implementation
+- `stylePreprocessorOptions.includePaths` works with `@use` syntax
+- No Angular CLI configuration changes needed for the migration
 
-**Purpose:** Define ALL theme customizations before importing Bootstrap.
+**Source:**
+- [The New State of CSS in Angular](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6)
+- [Angular Material Migration to @use](https://github.com/sass/sass/issues/3514) discussion
 
-```scss
-// SeedSync brand colors mapped to Bootstrap theme
-$primary: #337BB7;           // Maps to Bootstrap primary (buttons, links, etc.)
-$secondary: #79DFB6;         // Maps to Bootstrap secondary (teal for selections)
+## Recommended Stack: Migration Tools
 
-// Derived colors (Bootstrap will auto-generate)
-// $primary-dark, $primary-light are replaced by Bootstrap's shade/tint functions
+### sass-migrator (STRONGLY RECOMMENDED)
 
-// Button customization
-$btn-padding-y: 0.375rem;    // Consistent button height
-$btn-padding-x: 0.75rem;
-$btn-font-size: 0.875rem;
-$btn-line-height: 1.5;
-$btn-border-radius: 0.25rem;
+| Tool | Version | Purpose | When to Use |
+|------|---------|---------|-------------|
+| **sass-migrator** | 2.5.7 (latest) | Automated @import → @use conversion | First pass migration, component files |
 
-// Selection/hover states
-$link-hover-color: shift-color($primary, -20%);  // Bootstrap function
-
-// Enable/disable Bootstrap features
-$enable-shadows: false;
-$enable-gradients: false;
-$enable-rounded: true;
-```
-
-**Key principle:** Use Bootstrap's variable names, not custom ones. This ensures your values flow through Bootstrap's entire system.
-
-### 2. Bootstrap Imports (`scss/_bootstrap-imports.scss`)
-
-**Purpose:** Import only the Bootstrap components you need.
-
-```scss
-// Required core
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";  // Bootstrap defaults
-@import "bootstrap/scss/variables-dark";
-@import "bootstrap/scss/maps";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
-
-// Layout
-@import "bootstrap/scss/root";      // Generates CSS custom properties
-@import "bootstrap/scss/reboot";
-@import "bootstrap/scss/containers";
-@import "bootstrap/scss/grid";
-
-// Components (only what SeedSync uses)
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/button-group";
-@import "bootstrap/scss/forms";
-@import "bootstrap/scss/nav";
-@import "bootstrap/scss/navbar";
-@import "bootstrap/scss/modal";
-
-// Utilities
-@import "bootstrap/scss/helpers";
-@import "bootstrap/scss/utilities/api";
-```
-
-**Why selective imports:**
-- Reduces CSS bundle size (eliminates unused components like carousel, accordion, etc.)
-- Faster compilation
-- Explicit dependencies (know what you're using)
-
-**Current vs Recommended:**
-
-| Current | Recommended | Benefit |
-|---------|-------------|---------|
-| `bootstrap.min.css` (pre-compiled) | Selective Sass imports | -40% CSS size, customizable |
-| 200+ KB CSS | ~120 KB CSS | Faster load times |
-| All components | Only used components | Maintainability |
-
-### 3. Global Entry Point (`styles.scss`)
-
-**Purpose:** Orchestrate the import order (variables → Bootstrap → overrides).
-
-```scss
-// 1. Custom variables FIRST (before Bootstrap)
-@use 'scss/variables' as *;
-
-// 2. Import Bootstrap with customizations
-@import 'scss/bootstrap-imports';
-
-// 3. Global overrides (post-Bootstrap adjustments)
-@import 'scss/global-overrides';
-
-// 4. Legacy common utilities (temporary during migration)
-@use 'app/common/common' as *;
-
-// 5. Global resets/utilities
-html, body {
-    font-family: Verdana, sans-serif;
-    font-size: 15px;
-    line-height: 1.5;
-    margin: 0;
-}
-
-// Modal text wrapping fix
-.modal-body {
-    overflow-wrap: normal;
-    hyphens: auto;
-    word-break: break-word;
-}
-```
-
-**Critical ordering:**
-1. Variables MUST come before Bootstrap imports
-2. Bootstrap imports generate CSS custom properties
-3. Global overrides come after (for fine-tuning)
-4. Component styles loaded per-component (Angular handles this)
-
-### 4. Component Styles Pattern
-
-**Current pattern (keep this):**
-```scss
-@use '../../common/common' as *;
-
-.file-actions-bar {
-    background-color: $secondary-color;  // Custom variable
-    // ...
-}
-```
-
-**Migrated pattern:**
-```scss
-// Option A: Use CSS custom properties (runtime)
-.file-actions-bar {
-    background-color: var(--bs-secondary);  // Bootstrap CSS var
-    border-color: var(--bs-secondary-border-subtle);
-}
-
-// Option B: Use Bootstrap utility classes (preferred)
-// <div class="file-actions-bar bg-secondary border-secondary">
-```
-
-**Recommendation for SeedSync:** Hybrid approach
-- **Phase 1-2 (Color unification):** Replace hardcoded colors with CSS custom properties
-- **Phase 3-4 (Button standardization):** Migrate to Bootstrap classes (`btn btn-primary`)
-- **Post-migration:** Prefer utility classes > CSS vars > Sass variables in components
-
----
-
-## Migration Path from Custom Patterns to Bootstrap
-
-### Challenge: Custom `%button` Placeholder vs Bootstrap `.btn`
-
-**Current pattern:**
-```scss
-// _common.scss
-%button {
-    background-color: $primary-color;
-    color: white;
-    border: 1px solid $primary-dark-color;
-    border-radius: 4px;
-    // ... (40+ lines of custom button styles)
-}
-
-// component.scss
-.my-button {
-    @extend %button;
-    height: 40px;
-}
-```
-
-**Target pattern:**
-```html
-<!-- Use Bootstrap classes directly -->
-<button class="btn btn-primary">Action</button>
-<button class="btn btn-secondary">Select</button>
-```
-
-**Migration strategy:**
-
-1. **Phase 1: Override Bootstrap defaults to match current design**
-   ```scss
-   // _variables.scss
-   $btn-padding-y: 0.5rem;        // Match current 40px height
-   $btn-padding-x: 1rem;
-   $primary: #337BB7;             // Match current primary-color
-   ```
-
-2. **Phase 2: Create transitional mixin (if needed)**
-   ```scss
-   // _global-overrides.scss
-   .btn-custom {
-       // Any SeedSync-specific button tweaks that Bootstrap doesn't support
-       // Ideally this should be empty after proper variable configuration
-   }
-   ```
-
-3. **Phase 3: Component-by-component migration**
-   - Replace `@extend %button` with Bootstrap classes in HTML
-   - Remove component-specific button SCSS
-   - Test each component after migration
-
-4. **Phase 4: Deprecate `%button` placeholder**
-   - Once all components migrated, remove `%button` from `_common.scss`
-   - Add deprecation warning comment during transition period
-
-### Migration Checklist per Component
-
-- [ ] Identify all button variants (primary, secondary, disabled, selected)
-- [ ] Map to Bootstrap classes (`btn-primary`, `btn-secondary`, `btn-outline-*`)
-- [ ] Replace `@extend %button` with Bootstrap classes in template
-- [ ] Remove component SCSS for buttons (rely on Bootstrap)
-- [ ] Test all button states (hover, active, disabled, focus)
-- [ ] Verify height/spacing matches design
-
----
-
-## Color Variable Strategy
-
-### Problem: Dual Color Systems
-
-**Current:**
-```scss
-// _common.scss
-$primary-color: #337BB7;
-$primary-dark-color: #2e6da4;
-$primary-light-color: #D7E7F4;
-$secondary-color: #79DFB6;
-// ... 10+ custom color variables
-```
-
-**Recommendation:** Use Bootstrap's color system exclusively
-
-```scss
-// scss/_variables.scss
-$primary: #337BB7;
-$secondary: #79DFB6;
-
-// Bootstrap auto-generates:
-// --bs-primary: #337BB7
-// --bs-primary-rgb: 51, 123, 183
-// --bs-primary-bg-subtle: <light tint>
-// --bs-primary-border-subtle: <border shade>
-// --bs-primary-text-emphasis: <text shade>
-```
-
-**Migration approach:**
-
-| Old Variable | New Approach | Notes |
-|--------------|--------------|-------|
-| `$primary-color` | `$primary` (Sass) or `var(--bs-primary)` (CSS) | Main brand blue |
-| `$primary-dark-color` | `var(--bs-primary-border-subtle)` | Auto-generated dark variant |
-| `$primary-light-color` | `var(--bs-primary-bg-subtle)` | Auto-generated light variant |
-| `$secondary-color` | `$secondary` | Teal selection color |
-| Hardcoded `#337BB7` | `var(--bs-primary)` | Runtime CSS variable |
-
-**Benefits:**
-- Single source of truth (define primary once)
-- Automatic color variants (light, dark, subtle, emphasis)
-- Consistent shade/tint algorithm
-- Runtime theme switching capability (future feature)
-
----
-
-## Button Height Standardization
-
-### Problem: Inconsistent Heights
-
-Current state: 34px, 35px, 40px, 60px across different pages.
-
-**Root cause:** Mixing button patterns:
-- Bootstrap default sizing
-- Custom `%button` placeholder sizing
-- Inline height overrides
-- Padding inconsistencies
-
-**Solution:** Bootstrap button sizing system
-
-```scss
-// _variables.scss
-// Standard button (matches current 40px target)
-$btn-padding-y: 0.5rem;      // 8px top/bottom
-$btn-padding-x: 1rem;        // 16px left/right
-$btn-font-size: 0.875rem;    // 14px
-$btn-line-height: 1.5;       // 21px text height
-// Total: 8 + 21 + 8 + 2px border = ~39px (rounds to 40px)
-
-// Small buttons (for icon-only buttons)
-$btn-padding-y-sm: 0.25rem;  // 4px
-$btn-padding-x-sm: 0.5rem;   // 8px
-$btn-font-size-sm: 0.75rem;  // 12px
-// Total: ~28px height
-
-// Large buttons (if needed for primary CTAs)
-$btn-padding-y-lg: 0.75rem;  // 12px
-$btn-padding-x-lg: 1.5rem;   // 24px
-$btn-font-size-lg: 1rem;     // 16px
-// Total: ~52px height
-```
-
-**Usage:**
-```html
-<button class="btn btn-primary">Standard (40px)</button>
-<button class="btn btn-primary btn-sm">Small (28px)</button>
-<button class="btn btn-primary btn-lg">Large (52px)</button>
-```
-
-**Migration:**
-1. Set Bootstrap button variables to match current 40px design
-2. Replace all custom height CSS with Bootstrap size classes
-3. Standardize: use `btn` (standard) for most buttons, `btn-sm` for compact UIs
-4. Remove inline `height: 40px` styles (let Bootstrap handle it)
-
----
-
-## SCSS Organization Best Practices (Angular 19 + Bootstrap 5)
-
-### Use `@use` instead of `@import` (where possible)
-
-**Why:** Modern Sass module system (since Dart Sass 1.23.0)
-
-**Current (good):**
-```scss
-@use '../../common/common' as *;
-```
-
-**When importing Bootstrap (use `@import`):**
-```scss
-// Bootstrap still uses @import internally, so you must use @import
-@import 'bootstrap/scss/functions';
-@import 'bootstrap/scss/variables';
-```
-
-**Rule of thumb:**
-- Use `@use` for your own SCSS modules (namespace isolation)
-- Use `@import` for Bootstrap (required for global variable sharing)
-
-### Component Style Encapsulation
-
-**Angular's default (keep this):**
-```typescript
-@Component({
-  selector: 'app-file-list',
-  styleUrls: ['./file-list.component.scss'],  // Scoped to component
-  encapsulation: ViewEncapsulation.Emulated     // Default (shadow DOM simulation)
-})
-```
-
-**SCSS pattern:**
-```scss
-// file-list.component.scss
-
-// Root element class (component boundary)
-.file-list {
-    padding: 1rem;
-
-    // Nested elements (BEM-style)
-    &__header {
-        background-color: var(--bs-secondary);
-    }
-
-    &__item {
-        border-bottom: 1px solid var(--bs-border-color);
-    }
-}
-
-// Modifier classes
-.file-list--compact {
-    padding: 0.5rem;
-}
-```
-
-**Best practices:**
-- One root class per component (matches component selector)
-- Use BEM naming for clarity (optional but recommended)
-- Avoid deep nesting (max 3 levels)
-- Prefer utility classes over custom CSS (when possible)
-
-### Shared Styles Organization
-
-**Recommended structure:**
-
-```
-src/scss/
-├── _variables.scss       # Bootstrap variable overrides (theme)
-├── _bootstrap-imports.scss  # Selective Bootstrap imports
-├── _mixins.scss          # Shared mixins (if needed)
-├── _utilities.scss       # Custom utility classes
-└── _global-overrides.scss   # Post-Bootstrap tweaks
-```
-
-**When to use each:**
-
-| File | Content | Example |
-|------|---------|---------|
-| `_variables.scss` | Theme values only | `$primary: #337BB7;` |
-| `_mixins.scss` | Reusable style patterns | `@mixin truncate-text { ... }` |
-| `_utilities.scss` | Utility classes | `.text-teal { color: $secondary; }` |
-| `_global-overrides.scss` | Bootstrap tweaks | `.modal-body { hyphens: auto; }` |
-
-**Anti-pattern (avoid):**
-```scss
-// _common.scss (current)
-$primary-color: #337BB7;   // Variable
-%button { ... }            // Placeholder
-@mixin truncate { ... }    // Mixin
-
-// Mixing concerns makes it hard to understand what's theming vs. utilities
-```
-
-**Better pattern:**
-```scss
-// _variables.scss (theme only)
-$primary: #337BB7;
-
-// _mixins.scss (reusable patterns only)
-@mixin truncate { ... }
-
-// Separation of concerns makes the role of each file clear
-```
-
----
-
-## Alternatives Considered
-
-### Alternative 1: CSS Custom Properties Only (No Sass)
-
-**Approach:** Skip Sass, use only CSS custom properties defined in `:root`.
-
-```css
-:root {
-    --color-primary: #337BB7;
-    --color-secondary: #79DFB6;
-}
-
-.button {
-    background-color: var(--color-primary);
-}
-```
-
-**Why NOT recommended:**
-- Loses Bootstrap's extensive Sass function library (shade, tint, etc.)
-- Loses compile-time type checking
-- Loses tree-shaking (must include all of Bootstrap CSS)
-- Loses automatic color variant generation
-- More verbose (manual calc() for spacing scales)
-
-**When to use:** Greenfield projects not using any CSS framework.
-
-### Alternative 2: CSS-in-JS (Styled Components, Emotion)
-
-**Approach:** Write styles in TypeScript using CSS-in-JS libraries.
-
-**Why NOT recommended:**
-- Major architectural change (not just styling refactoring)
-- Incompatible with Bootstrap (which is CSS-based)
-- Larger bundle size (JavaScript + styles)
-- Runtime performance cost (styles generated at runtime)
-- Poor IDE support for CSS in TypeScript strings
-
-**When to use:** React projects prioritizing component colocation over framework integration.
-
-### Alternative 3: Tailwind CSS
-
-**Approach:** Replace Bootstrap with Tailwind utility classes.
-
-**Why NOT recommended:**
-- Requires replacing all existing Bootstrap usage (massive scope)
-- Different design philosophy (utility-first vs. component-first)
-- Loses Bootstrap's component semantics (btn, modal, etc.)
-- Migration would be 10x larger than current styling unification work
-
-**When to use:** New projects or full redesigns.
-
-### Alternative 4: Keep Pre-compiled Bootstrap CSS
-
-**Approach:** Continue using `bootstrap.min.css`, add custom CSS on top.
-
-**Why NOT recommended:**
-- Cannot customize Bootstrap theme (colors, spacing, button sizing)
-- CSS bundle includes unused components (carousel, accordion, etc.)
-- Duplicates styles (custom CSS overriding Bootstrap CSS)
-- Cannot fix button height inconsistencies at the source
-- Loses maintainability (fighting Bootstrap defaults)
-
-**When to use:** Prototypes or projects with no design customization needs.
-
----
-
-## Recommended vs Current
-
-| Category | Current | Recommended | Impact |
-|----------|---------|-------------|--------|
-| **Bootstrap import** | Pre-compiled CSS | Sass source with overrides | -40% CSS size, full theme control |
-| **Color system** | Custom variables (`$primary-color`) | Bootstrap variables (`$primary`) | Single source of truth, auto-variants |
-| **Button pattern** | Custom `%button` placeholder | Bootstrap `.btn` classes | Remove 200+ lines custom CSS |
-| **Component styles** | Hardcoded colors | CSS custom properties | Runtime consistency |
-| **Height consistency** | Inline overrides | Bootstrap sizing variables | 40px standard, 28px small |
-| **File organization** | Single `_common.scss` | Separated concerns (`_variables`, `_mixins`) | Clear roles, maintainability |
-
----
-
-## Installation / Configuration Changes
-
-### 1. Update `angular.json`
-
-**Before:**
-```json
-"styles": [
-  "node_modules/bootstrap/dist/css/bootstrap.min.css",
-  "node_modules/font-awesome/scss/font-awesome.scss",
-  "src/styles.scss"
-],
-```
-
-**After:**
-```json
-"styles": [
-  "node_modules/font-awesome/scss/font-awesome.scss",
-  "src/styles.scss"
-],
-```
-
-**Change:** Remove pre-compiled Bootstrap CSS (now imported via Sass).
-
-### 2. Create new SCSS structure
-
+**Installation:**
 ```bash
-cd src/angular/src
-mkdir -p scss
-touch scss/_variables.scss
-touch scss/_bootstrap-imports.scss
-touch scss/_utilities.scss
-touch scss/_global-overrides.scss
+npm install -D sass-migrator
 ```
 
-### 3. Update `styles.scss`
+**Why use it:**
+- Automates 90% of mechanical conversion work
+- Handles namespace insertion
+- Updates variable/mixin/function references
+- Reduces manual errors
 
-**Before:**
-```scss
-@use 'app/common/common' as *;
+**Key limitation:** Cannot migrate Bootstrap files (they're third-party in node_modules). This is expected and correct behavior.
 
-html, body {
-    font-family: Verdana, sans-serif;
-    // ...
-}
-```
-
-**After:**
-```scss
-// 1. Theme customization (before Bootstrap)
-@use 'scss/variables' as *;
-
-// 2. Bootstrap imports (with customizations)
-@import 'scss/bootstrap-imports';
-
-// 3. Global overrides
-@import 'scss/global-overrides';
-
-// 4. Legacy common (temporary)
-@use 'app/common/common' as *;
-
-// 5. Global styles
-html, body {
-    font-family: Verdana, sans-serif;
-    // ...
-}
-```
-
-### 4. Migrate variables
-
-**Create `scss/_variables.scss`:**
-```scss
-// Brand colors (maps to Bootstrap theme)
-$primary: #337BB7;
-$secondary: #79DFB6;
-
-// Component customization
-$btn-padding-y: 0.5rem;
-$btn-padding-x: 1rem;
-$btn-font-size: 0.875rem;
-$btn-border-radius: 0.25rem;
-
-// Features
-$enable-shadows: false;
-$enable-gradients: false;
-$enable-rounded: true;
-```
-
-### 5. Create Bootstrap imports
-
-**Create `scss/_bootstrap-imports.scss`:**
-```scss
-// Core (required)
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/variables-dark";
-@import "bootstrap/scss/maps";
-@import "bootstrap/scss/mixins";
-@import "bootstrap/scss/utilities";
-
-// Layout
-@import "bootstrap/scss/root";
-@import "bootstrap/scss/reboot";
-@import "bootstrap/scss/containers";
-@import "bootstrap/scss/grid";
-
-// Components (only used ones)
-@import "bootstrap/scss/buttons";
-@import "bootstrap/scss/forms";
-@import "bootstrap/scss/nav";
-@import "bootstrap/scss/navbar";
-@import "bootstrap/scss/modal";
-
-// Utilities
-@import "bootstrap/scss/helpers";
-@import "bootstrap/scss/utilities/api";
-```
-
-### 6. No new dependencies
-
-**All required packages already installed:**
-- `bootstrap@5.3.3` (has Sass source files in `scss/` directory)
-- `sass@1.32.0` (Sass compiler)
-
-**No `npm install` needed.**
-
----
-
-## Validation
-
-### Compile-time checks
-
+**Usage for this project:**
 ```bash
-# Sass compilation succeeds
+# Dry run to preview changes
+npx sass-migrator module --migrate-deps --dry-run --verbose src/app/common/_common.scss
+
+# Migrate component files (do NOT include styles.scss which imports Bootstrap)
+npx sass-migrator module --migrate-deps src/app/**/*.component.scss
+```
+
+**Source:**
+- [Sass Migrator Documentation](https://sass-lang.com/documentation/cli/migrator/)
+- [sass-migrator on npm](https://www.npmjs.com/package/sass-migrator)
+
+### Manual Migration (REQUIRED FOR BOOTSTRAP BOUNDARIES)
+
+Files that interact with Bootstrap require manual migration:
+
+| File | Migration Approach | Reason |
+|------|-------------------|---------|
+| `styles.scss` | Keep `@import` for Bootstrap | Bootstrap 5.3 not module-compatible |
+| `_bootstrap-variables.scss` | Keep as variables-only file | Used before Bootstrap import |
+| `_common.scss` | Manual `@forward` with `@use` | Bridges Bootstrap and components |
+| Component SCSS | sass-migrator + manual review | Can use full `@use` syntax |
+
+**Source:** Research synthesis from Bootstrap constraints and Sass module system documentation
+
+## Migration Strategy: Hybrid Approach
+
+### What Gets Migrated (Full @use/@forward)
+
+1. **Component SCSS files** - All `*.component.scss` files
+   - Migrate `@import '../../common/common'` → `@use '../../common/common' as *`
+   - sass-migrator can handle this automatically
+
+2. **_common.scss** - Manually convert to `@forward` hub
+   - Forward Bootstrap variables from `_bootstrap-variables.scss`
+   - Use `@forward ... as *` to maintain global variable access
+   - Add custom variables and re-export them
+
+### What Stays on @import (Bootstrap Boundary)
+
+1. **styles.scss** - Entry point that imports Bootstrap
+   - Must use `@import` for all Bootstrap SCSS files
+   - Bootstrap 5.3 internals use `@import`, non-negotiable
+
+2. **_bootstrap-variables.scss** - Bootstrap overrides
+   - Stays as plain variable definitions (no `@import`, `@use`, or `@forward`)
+   - Gets imported BEFORE Bootstrap's `_variables.scss` in styles.scss
+
+### Why This Hybrid Works
+
+- **Component isolation:** Components use modern `@use`, unaffected by Bootstrap's `@import`
+- **Build order:** Angular compiles `styles.scss` separately from component styles
+- **Deprecation warnings:** Only Bootstrap files emit warnings, not your code
+- **Future-proof:** When Bootstrap 6 ships with module support, only `styles.scss` needs updates
+
+**Source:** Synthesis of Angular CLI compilation behavior and Sass module system scoping rules
+
+## Version Requirements
+
+### DO NOT CHANGE
+
+| Package | Current Version | Keep Because |
+|---------|----------------|--------------|
+| **sass** | ^1.32.0 (resolves to 1.97.3) | Already supports @use/@forward (1.23+) |
+| **bootstrap** | ^5.3.3 | Latest stable; v6 not released |
+| **@angular/cli** | ~19.2.19 | Already supports @use compilation |
+
+### DO ADD (dev dependency)
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| **sass-migrator** | ^2.5.7 | Automated migration tool |
+
+**Installation:**
+```bash
 cd src/angular
-npm run build
-
-# No Sass errors
-# Output should show reduced CSS bundle size (~40% smaller)
+npm install -D sass-migrator
 ```
 
-### Runtime checks
+## Integration Details
 
-```bash
-# Inspect generated CSS custom properties
-# Open browser DevTools, inspect <html> element
-# Should see:
-# --bs-primary: #337BB7;
-# --bs-secondary: #79DFB6;
-# --bs-primary-rgb: 51, 123, 183;
-# etc.
+### Angular Build Process with @use
+
+**How Angular CLI handles SCSS:**
+1. Global styles (`styles.scss`) compiled once, output to global CSS
+2. Component styles compiled per-component, scoped to component
+3. `stylePreprocessorOptions.includePaths` available for both
+
+**Effect on @use migration:**
+- Component SCSS files compile independently
+- Each component's `@use '../../common/common'` creates isolated scope
+- No global variable pollution between components
+- Bootstrap warnings only appear during global styles compilation
+
+**Source:** [Angular CLI build process](https://github.com/angular/angular-cli/issues/25018) and Sass module system scoping
+
+### Namespace Conventions for Component Files
+
+**Recommended patterns:**
+
+```scss
+// Pattern 1: Global namespace (maintain current variable access)
+@use '../../common/common' as *;
+
+// Pattern 2: Explicit namespace (more explicit, safer for large teams)
+@use '../../common/common' as common;
+// Access: common.$primary-color
+
+// Pattern 3: Custom namespace (semantic naming)
+@use '../../common/common' as theme;
+// Access: theme.$primary-color
 ```
 
-### Visual regression testing
+**For this project:** Pattern 1 (`as *`) recommended
+- Matches current usage where components access `$primary-color` directly
+- Minimal code changes in component files
+- Familiar to existing codebase patterns
 
-```bash
-# After migration, compare before/after screenshots
-# Button heights should be consistent (40px)
-# Selection colors should use secondary (teal)
-# No visual differences except intended unification
-```
+**Source:**
+- [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd)
+- [Sass @use Documentation](https://sass-lang.com/documentation/at-rules/use/)
 
----
+## Deprecation Timeline
 
-## Roadmap Integration
+| Date | Event | Impact |
+|------|-------|--------|
+| **October 2019** | Dart Sass 1.23.0 ships `@use`/`@forward` | Module system available |
+| **October 2021** | `@import` officially deprecated in Dart Sass 1.80.0 | Warnings appear |
+| **Q2 2026 (estimated)** | Dart Sass 3.0.0 earliest possible release | `@import` removed |
+| **TBD** | Bootstrap 6 release | Bootstrap module support |
 
-### Phase Structure Recommendation
+**Critical insight:** Dart Sass 3.0 is **at least 2 years after Dart Sass 1.80.0** (October 2021), meaning no earlier than **October 2023**. However, Dart Sass 2.0 shipped first with smaller breaking changes. **Dart Sass 3.0 has no confirmed release date as of February 2026.**
 
-Based on this research, the suggested phase order for styling unification:
+**Implication:** There is time to migrate, but the migration should not be delayed indefinitely.
 
-1. **Phase 1: Bootstrap Sass Setup** (foundation)
-   - Create SCSS structure (`_variables.scss`, etc.)
-   - Migrate from pre-compiled CSS to Sass imports
-   - Validate CSS output matches current design
-   - **Outcome:** No visual change, but customization infrastructure in place
+**Source:**
+- [Dart Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/)
+- [Dart Sass Breaking Changes](https://sass-lang.com/documentation/breaking-changes/import/)
 
-2. **Phase 2: Color Variable Consolidation** (replaces hardcoded colors)
-   - Map custom colors to Bootstrap variables
-   - Replace hardcoded hex colors with CSS custom properties
-   - **Outcome:** Single source of truth for colors
+## What NOT to Change and Why
 
-3. **Phase 3: Button Height Standardization** (fix inconsistencies)
-   - Configure Bootstrap button variables for 40px standard height
-   - Test all button variants
-   - **Outcome:** Consistent button heights across app
+### DO NOT migrate styles.scss to @use for Bootstrap
 
-4. **Phase 4: Button Class Migration** (remove custom patterns)
-   - Replace `%button` placeholder with Bootstrap `.btn` classes
-   - Component-by-component migration
-   - **Outcome:** Remove 200+ lines of custom button CSS
+**Why:**
+- Bootstrap 5.3 internally uses `@import` between its own files
+- When you `@use 'bootstrap'`, Sass tries to load it as a module
+- Bootstrap's internal `@import` statements conflict with module scoping
+- Result: Build errors or missing Bootstrap styles
 
-5. **Phase 5: Selection Color Unification** (visual consistency)
-   - Standardize on secondary (teal) for all selections
-   - Update selection banner, bulk actions bar
-   - **Outcome:** Unified selection highlighting
+**What to do instead:**
+- Keep `@import 'bootstrap/scss/functions'` etc. in styles.scss
+- Only migrate your own files (`_common.scss`, component files)
 
-**Phase ordering rationale:**
-- Phase 1 is prerequisite (sets up infrastructure)
-- Phases 2-3 are foundational (colors and sizing)
-- Phase 4 builds on 2-3 (can't migrate buttons until sizing is standardized)
-- Phase 5 is polish (visual unification)
+### DO NOT use sass-migrator on node_modules
 
-**Research confidence per phase:**
-- Phase 1: HIGH (standard Bootstrap setup)
-- Phase 2: HIGH (documented Bootstrap pattern)
-- Phase 3: HIGH (Bootstrap sizing system well-defined)
-- Phase 4: MEDIUM (component-specific challenges may arise)
-- Phase 5: HIGH (CSS-only changes)
+**Why:**
+- sass-migrator skips third-party files in node_modules by design
+- Bootstrap files are not under your control
+- npm updates would overwrite any changes
 
----
+**What to do instead:**
+- Use `--migrate-deps` only for files in `src/`
+- Manually review any Bootstrap import statements in your code
+
+### DO NOT expect zero deprecation warnings
+
+**Why:**
+- Bootstrap 5.3 will continue emitting `@import` deprecation warnings
+- These warnings come from Bootstrap's internal SCSS files
+- You cannot silence them without modifying node_modules (bad practice)
+
+**What to do instead:**
+- Accept that Bootstrap warnings will appear
+- Focus on eliminating warnings from your own SCSS files
+- When Bootstrap 6 releases, update and warnings disappear
+
+## Success Criteria
+
+Migration is complete when:
+
+- ✅ All component `*.component.scss` files use `@use` instead of `@import`
+- ✅ `_common.scss` uses `@forward` to re-export variables
+- ✅ Component files access variables with `@use '../../common/common' as *`
+- ✅ All Angular unit tests still pass (381 tests)
+- ✅ Zero TypeScript lint errors
+- ✅ Visual regression: UI looks identical
+- ⚠️ Bootstrap deprecation warnings remain (expected)
+- ✅ Your project's SCSS files emit zero deprecation warnings
 
 ## Sources
 
-**HIGH confidence sources:**
-- Bootstrap 5.3.8 source code inspection (local `node_modules/bootstrap/scss/`)
-- Angular 19.x official style configuration (local `angular.json`)
-- SeedSync codebase analysis (local SCSS files)
+### Primary Sources (HIGH Confidence)
 
-**Based on:**
-- Official Bootstrap 5.3 documentation patterns (Sass customization approach)
-- Angular CLI style configuration best practices
-- Modern Sass `@use`/`@import` conventions
-- Component-scoped styling patterns (Angular ViewEncapsulation)
+1. [Dart Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/) - Official timeline
+2. [Sass @use Documentation](https://sass-lang.com/documentation/at-rules/use/) - Official spec
+3. [Sass @forward Documentation](https://sass-lang.com/documentation/at-rules/forward/) - Official spec
+4. [Bootstrap 5.3 Sass Docs](https://getbootstrap.com/docs/5.3/customize/sass/) - Shows @import only
+5. [Sass Migrator CLI](https://sass-lang.com/documentation/cli/migrator/) - Official tool docs
 
-**Confidence level: HIGH**
-- All recommendations verified against actual Bootstrap 5.3.8 source files
-- Current project structure analyzed for compatibility
-- No speculative features (all capabilities exist in installed versions)
-- Migration path tested against real SeedSync component patterns
+### Secondary Sources (MEDIUM Confidence)
 
----
+6. [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) - Module system tracking
+7. [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) - Bootstrap 6 status
+8. [Angular CSS State](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6) - Angular CLI Sass support
+9. [Stop Using @import Guide](https://dev.to/quesby/stop-using-import-how-to-prepare-for-dart-sass-30-full-migration-guide-1agh) - Migration walkthrough
 
-## Notes
+### Community Sources (LOW Confidence, for patterns only)
 
-**Key takeaway:** Bootstrap 5.3's two-tier system (Sass variables → CSS custom properties) means you should customize at the Sass level, not fight Bootstrap with CSS overrides.
-
-**Migration complexity:** Low to Medium
-- Phase 1 (Sass setup): Low (standard configuration)
-- Phases 2-3 (variables/sizing): Low (find-and-replace pattern)
-- Phase 4 (button migration): Medium (component-by-component testing)
-- Phase 5 (selection colors): Low (CSS variable substitution)
-
-**Maintenance improvement:** High
-- Future button changes: update 1 variable instead of 50+ component overrides
-- Future color changes: update theme variables, all variants auto-regenerate
-- Future Bootstrap upgrades: less custom CSS to maintain compatibility
-
-**Performance impact:** Positive
-- 40% reduction in CSS bundle size (tree-shaking unused components)
-- Faster compile times (selective imports vs. full Bootstrap)
-- Runtime CSS variables enable future theme switching (if desired)
+10. [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd) - Namespace conventions
+11. [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) - Upcoming features discussion

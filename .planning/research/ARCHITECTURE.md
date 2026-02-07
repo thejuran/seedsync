@@ -1,572 +1,524 @@
-# Architecture Patterns: Bootstrap 5 SCSS in Angular
+# Architecture Patterns: Sass @use/@forward Migration in Angular
 
-**Domain:** Bootstrap 5 SCSS Customization in Angular 19
-**Researched:** 2026-02-03
-**Confidence:** MEDIUM (based on Bootstrap 5 official patterns and Angular SCSS integration)
+**Domain:** Angular 19.x SCSS with Bootstrap 5.3 variable sharing
+**Researched:** 2026-02-07
+**Overall Confidence:** HIGH
 
-## Recommended Architecture
+## Executive Summary
 
-### File Structure Overview
+Migrating from `@import` to `@use/@forward` in Angular's component-scoped SCSS architecture requires understanding how Sass's module system interacts with Angular CLI's build process and ViewEncapsulation. The current SeedSync architecture has **already adopted `@use` for all component files**, with only the shared module files (`_common.scss` and `_bootstrap-overrides.scss`) still using `@import`. This positions the project well for completing the migration, which primarily involves transforming the shared module layer.
+
+**Key architectural insight:** `@use` introduces module scoping that fundamentally changes variable access patterns. Instead of global variables available everywhere, variables are namespaced and must be explicitly accessed via `module.$variable` or imported with `as *` for wildcard namespace access.
+
+## Current Architecture Analysis
+
+### File Dependency Graph
 
 ```
-src/angular/src/
-├── styles/
-│   ├── _variables.scss          # Bootstrap variable overrides (before import)
-│   ├── _bootstrap.scss          # Bootstrap imports (required + optional)
-│   ├── _custom-utilities.scss   # Custom utility classes
-│   └── _overrides.scss          # Post-import style overrides
-├── styles.scss                  # Global styles entry point
-├── app/
-│   ├── common/
-│   │   └── _common.scss         # Shared app variables and mixins
-│   └── pages/
-│       └── **/*.component.scss  # Component styles
+styles.scss (global entry point)
+├── Bootstrap functions (@import)
+├── _bootstrap-variables.scss (@import) — CUSTOM OVERRIDES
+├── Bootstrap core (@import)
+│   ├── variables
+│   ├── variables-dark
+│   ├── maps
+│   ├── mixins
+│   └── root
+├── Bootstrap components (@import) — ALL COMPONENTS
+├── _bootstrap-overrides.scss (@import) — POST-COMPILATION OVERRIDES
+│   └── @import 'bootstrap-variables'
+└── _common.scss (@import) — VARIABLE RE-EXPORT MODULE
+    └── @import 'bootstrap-variables'
+
+Component .scss files (16 files):
+├── file.component.scss (@use '../../common/common' as *)
+├── sidebar.component.scss (@use '../../common/common' as *)
+├── settings-page.component.scss (@use '../../common/common' as *)
+└── ... (all other components use @use)
 ```
 
-### Component Boundaries
+**Key observation:** Components already use `@use` with wildcard namespace (`as *`), which provides direct access to all variables, functions, and mixins exported by `_common.scss`. The migration challenge is in transforming the shared module layer.
 
-| Component | Responsibility | Imports |
-|-----------|---------------|---------|
-| `styles/_variables.scss` | Override Bootstrap variables BEFORE import | None (pure variables) |
-| `styles/_bootstrap.scss` | Import Bootstrap with customizations | `_variables.scss` first |
-| `styles/_overrides.scss` | Override compiled Bootstrap classes | `_bootstrap.scss` (indirectly) |
-| `app/common/_common.scss` | App-specific shared variables, mixins | Can use Bootstrap variables via `styles.scss` |
-| Component `.scss` files | Component-specific styles | `@use 'common'` for app variables |
+### Current Variable Access Patterns
 
-### Critical Import Order
-
-Bootstrap SCSS customization requires **strict import order** for variable overrides to work:
-
+**In _common.scss (current with @import):**
 ```scss
-// styles.scss - CORRECT ORDER
-@use 'styles/variables' as bootstrap-vars;  // 1. Override variables FIRST
-@use 'styles/bootstrap';                     // 2. Import Bootstrap (uses overrides)
-@use 'styles/overrides';                     // 3. Override compiled classes
-@use 'app/common/common' as *;              // 4. App-specific styles
+@import 'bootstrap-variables';
+
+// Re-export Bootstrap variables for component access
+$warning-text-emphasis: shade-color($warning, 60%);
+$danger-text-emphasis: shade-color($danger, 60%);
+$gray-100: #f8f9fa;
 ```
 
-**Why this order matters:**
-1. Bootstrap variables must be set BEFORE Bootstrap is imported
-2. Bootstrap compilation happens during `@use 'bootstrap'`
-3. Overrides must come AFTER Bootstrap to have higher specificity
-4. App variables can use Bootstrap variables (via transitive imports)
-
-### Current State Analysis
-
-**Existing structure:**
-- `src/angular/src/styles.scss` - Global styles entry (minimal)
-- `src/angular/src/app/common/_common.scss` - App variables + custom `%button` placeholder
-- Component `.scss` files - Import common via `@use '../../common/common'`
-
-**Current issues identified:**
-- Bootstrap imported as precompiled CSS (`node_modules/bootstrap/dist/css/bootstrap.min.css`)
-- No variable customization possible (CSS is already compiled)
-- Custom `%button` placeholder duplicates Bootstrap functionality
-- Hardcoded colors in components instead of using Bootstrap theme variables
-
-## Data Flow
-
-### Variable Cascading Pattern
-
-```
-Bootstrap Default Variables
-    ↓ (overridden by)
-styles/_variables.scss
-    ↓ (compiled into)
-Bootstrap Components & Utilities
-    ↓ (referenced by)
-app/common/_common.scss
-    ↓ (used by)
-Component .scss files
-```
-
-### Build-Time Resolution
-
-Angular's SCSS compilation happens per-file with module resolution:
-
-1. **Global styles** (`styles.scss`): Compiled once, injected into `<head>`
-2. **Component styles**: Compiled separately, scoped via ViewEncapsulation
-3. **Shared partials**: Resolved via `@use` statements at build time
-
-**Key insight:** Each component's SCSS is isolated by default. Variables must be explicitly imported via `@use`.
-
-## Patterns to Follow
-
-### Pattern 1: Variable Overrides
-**What:** Override Bootstrap variables BEFORE importing Bootstrap
-**When:** Customizing colors, spacing, breakpoints, etc.
-**Example:**
+**In component files (current with @use):**
 ```scss
-// styles/_variables.scss
-@use 'sass:map';
-
-// Override primary color
-$primary: #337BB7;
-$secondary: #79DFB6;
-
-// Override spacing scale
-$spacer: 1rem;
-$spacers: (
-  0: 0,
-  1: $spacer * .25,
-  2: $spacer * .5,
-  3: $spacer,
-  4: $spacer * 1.5,
-  5: $spacer * 3,
-);
-
-// Add custom color to theme
-$custom-colors: (
-  "seed-green": #32AD7B
-);
-```
-
-### Pattern 2: Selective Component Import
-**What:** Import only needed Bootstrap components to reduce bundle size
-**When:** Production builds where bundle size matters
-**Example:**
-```scss
-// styles/_bootstrap.scss
-
-// Required Bootstrap core
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-@import '~bootstrap/scss/variables-dark';
-@import '~bootstrap/scss/maps';
-@import '~bootstrap/scss/mixins';
-@import '~bootstrap/scss/utilities';
-@import '~bootstrap/scss/root';
-@import '~bootstrap/scss/reboot';
-
-// Optional components (import only what you use)
-@import '~bootstrap/scss/type';
-@import '~bootstrap/scss/containers';
-@import '~bootstrap/scss/grid';
-@import '~bootstrap/scss/forms';
-@import '~bootstrap/scss/buttons';
-@import '~bootstrap/scss/transitions';
-@import '~bootstrap/scss/dropdown';
-@import '~bootstrap/scss/nav';
-@import '~bootstrap/scss/navbar';
-@import '~bootstrap/scss/card';
-@import '~bootstrap/scss/modal';
-@import '~bootstrap/scss/close';
-
-// Utilities API (generates utility classes)
-@import '~bootstrap/scss/utilities/api';
-```
-
-### Pattern 3: Custom Utilities
-**What:** Extend Bootstrap's utility API with domain-specific utilities
-**When:** Repeated patterns that should be utility classes
-**Example:**
-```scss
-// styles/_custom-utilities.scss
-@use 'sass:map';
-@use '~bootstrap/scss/functions' as *;
-@use '~bootstrap/scss/variables' as *;
-@use '~bootstrap/scss/maps' as *;
-@use '~bootstrap/scss/mixins' as *;
-
-// Add custom utilities to Bootstrap's API
-$utilities: map-merge(
-  $utilities,
-  (
-    "cursor": (
-      property: cursor,
-      class: cursor,
-      responsive: true,
-      values: auto default pointer not-allowed
-    ),
-    "user-select": (
-      property: user-select,
-      class: user-select,
-      values: auto none all
-    )
-  )
-);
-```
-
-### Pattern 4: Angular ViewEncapsulation Integration
-**What:** Understand how Angular's component scoping interacts with global Bootstrap styles
-**When:** All component development
-**Example:**
-```typescript
-// Component with ViewEncapsulation.Emulated (default)
-@Component({
-  selector: 'app-file',
-  templateUrl: './file.component.html',
-  styleUrls: ['./file.component.scss'],
-  encapsulation: ViewEncapsulation.Emulated  // Default
-})
-```
-
-**Behavior:**
-- Bootstrap classes from `styles.scss` are global (no scope)
-- Component styles get `_ngcontent-*` attributes for scoping
-- `:host` selector targets component's host element
-- Global Bootstrap styles can be overridden in component SCSS
-
-**Gotcha:** Component SCSS specificity must be higher than global styles to override.
-
-### Pattern 5: Shared Variables via @use
-**What:** Share variables between files using Sass modules (`@use`)
-**When:** Components need access to theme variables or mixins
-**Example:**
-```scss
-// app/common/_common.scss
-@use 'sass:color';
-
-// Re-export Bootstrap variables for components
-@forward '../../styles/variables';
-
-// App-specific variables
-$sidebar-width: 170px;
-$zindex-sidebar: 300;
-
-// App-specific mixins using Bootstrap variables
-@mixin button-variant($color) {
-  background-color: $color;
-  border-color: color.adjust($color, $lightness: -10%);
-
-  &:hover {
-    background-color: color.adjust($color, $lightness: -5%);
-  }
-}
-```
-
-```scss
-// Component using shared variables
 @use '../../common/common' as *;
 
-.sidebar {
-  width: $sidebar-width;
-  z-index: $zindex-sidebar;
+.file.selected {
+    background-color: $secondary-color;  // Direct access via wildcard namespace
 }
 
-.custom-button {
-  @include button-variant($primary);
+.bulk-progress-overlay .progress-text {
+    color: $gray-800;  // Bootstrap variable re-exported by _common.scss
 }
 ```
 
-## Anti-Patterns to Avoid
+**Critical insight:** Components already use `@use` with wildcard (`as *`), which means they expect direct variable access without namespace prefixes. The migration must preserve this access pattern by using `@forward` in `_common.scss`.
 
-### Anti-Pattern 1: Using Precompiled Bootstrap CSS
-**What:** Importing `bootstrap/dist/css/bootstrap.min.css` instead of SCSS source
-**Why bad:**
-- Cannot customize variables
-- Cannot tree-shake unused components
-- Larger bundle size
-- Defeats the purpose of SCSS customization
-**Instead:** Import Bootstrap SCSS source and compile with your variables
+## Sass Module System Architecture
 
-**Current state:** Project currently does this (line 36 of `angular.json`)
-```json
-"styles": [
-  "node_modules/bootstrap/dist/css/bootstrap.min.css",  // ❌ Precompiled
-  "src/styles.scss"
-]
-```
+### @use vs @forward: When to Use Each
 
-**Should be:**
-```json
-"styles": [
-  "src/styles.scss"  // ✓ Compiles Bootstrap from source with overrides
-]
-```
+| Directive | Purpose | Use Case | Members Available |
+|-----------|---------|----------|-------------------|
+| **@use** | Load module for local use | Consume variables/mixins in current file | Only in current file (namespaced) |
+| **@forward** | Re-export module members | Create aggregation modules for downstream consumers | Available to files that `@use` this file |
 
-### Anti-Pattern 2: Hardcoding Theme Colors
-**What:** Using hardcoded hex values instead of Bootstrap theme variables
-**Why bad:**
-- Theming requires finding/replacing all hardcoded values
-- Inconsistent colors across the app
-- Cannot leverage Bootstrap's color utilities
-**Instead:** Use Bootstrap's semantic color variables
+**Key distinction:**
+- `@use` is for **consumption** (using variables/mixins in the current file)
+- `@forward` is for **aggregation** (making variables/mixins available to downstream files)
 
-**Current state:** `_common.scss` has hardcoded colors
+### The @forward Rule for Variable Re-export
+
+**Current pattern (with @import):**
 ```scss
-// ❌ Hardcoded - should use Bootstrap variables
-$primary-color: #337BB7;
-$secondary-color: #79DFB6;
+// _common.scss (current)
+@import 'bootstrap-variables';
+
+// Re-declare variables to make them available
+$warning-text-emphasis: shade-color($warning, 60%);
 ```
 
-**Should be:**
+**New pattern (with @forward):**
 ```scss
-// ✓ Override Bootstrap's theme variables
+// _common.scss (migrated)
+@forward 'bootstrap-variables';
+
+// Re-declare variables that use forwarded module's functions
+@use 'bootstrap-variables' as bv;
+$warning-text-emphasis: shade-color(bv.$warning, 60%);
+```
+
+**Why both @forward and @use?**
+- `@forward 'bootstrap-variables'` makes all Bootstrap variable overrides available to downstream consumers
+- `@use 'bootstrap-variables' as bv` allows _common.scss itself to access those variables to compute derived values
+- Derived variables are automatically available to downstream consumers as module members
+
+### Module Namespace Access Patterns
+
+When component files use `@use '../../common/common' as *`, they get wildcard namespace access:
+
+```scss
+// Component file
+@use '../../common/common' as *;
+
+// Direct access (no prefix needed)
+background-color: $secondary-color;
+color: $gray-800;
+
+// Functions also available without prefix
+$subtle-bg: tint-color($warning, 80%);
+```
+
+**Alternative namespace patterns:**
+
+```scss
+// Explicit namespace
+@use '../../common/common' as common;
+background-color: common.$secondary-color;
+
+// Default namespace (uses filename)
+@use '../../common/common';
+background-color: common.$secondary-color;
+```
+
+**Decision for SeedSync:** Keep wildcard namespace (`as *`) to maintain existing component code compatibility.
+
+## Integration with Angular Architecture
+
+### Angular CLI Build Process with @use
+
+Angular CLI's SCSS preprocessor (sass-embedded) resolves `@use` rules using:
+
+1. **Relative paths first:** `@use '../../common/common'` resolves relative to current file
+2. **Load paths second:** Can be configured in `angular.json` via `stylePreprocessorOptions.includePaths`
+3. **node_modules fallback:** Automatically checks `node_modules/` for packages
+
+**Current configuration analysis:**
+- No `stylePreprocessorOptions.includePaths` in angular.json (default behavior)
+- Bootstrap loaded via full path: `@import '../node_modules/bootstrap/scss/functions'`
+- Component files use relative paths: `@use '../../common/common'`
+
+**No configuration changes needed** for @use/@forward migration. Path resolution works identically for both directives.
+
+### ViewEncapsulation and Module Scoping
+
+Angular's component scoping (ViewEncapsulation.Emulated) is **orthogonal** to Sass module scoping:
+
+| Scoping Layer | Mechanism | Scope |
+|---------------|-----------|-------|
+| **Angular ViewEncapsulation** | Attribute selectors (`[_ngcontent-xxx]`) | CSS selectors are scoped to component template |
+| **Sass Module System** | Namespace prefixes | Variables/functions/mixins are scoped to modules |
+
+**Key insight:** Angular's ViewEncapsulation scopes **compiled CSS selectors** to components. Sass's module system scopes **variables/functions/mixins** during SCSS compilation. These are separate concerns that don't interfere with each other.
+
+**Example of both working together:**
+
+```scss
+// file.component.scss (SCSS source)
+@use '../../common/common' as *;
+
+.file.selected {  // Selector
+    background-color: $secondary-color;  // Variable (Sass module scope)
+}
+```
+
+**Compiled output (CSS):**
+```css
+/* Angular adds ViewEncapsulation attributes */
+.file.selected[_ngcontent-abc-123] {
+    background-color: #79DFB6;  /* Variable resolved during Sass compilation */
+}
+```
+
+**No conflicts:** Module scoping resolves variables at compile-time, ViewEncapsulation scopes selectors at runtime.
+
+### Bootstrap 5.3 and the Module System
+
+**Critical finding:** Bootstrap 5.3 itself **does not use** the Sass module system internally. Bootstrap still uses `@import` for its internal structure. This has implications for how we integrate with it.
+
+**Bootstrap's current architecture:**
+```scss
+// bootstrap/scss/_functions.scss
+// Uses @import internally
+
+// bootstrap/scss/_variables.scss
+// Defines variables with !default flag
+// Uses @import for dependencies
+```
+
+**What this means for migration:**
+- We can use `@use` to load Bootstrap modules **from the outside**
+- Bootstrap functions like `shade-color()` and `tint-color()` are globally available within the Bootstrap compilation context
+- Variable overrides must happen **before** Bootstrap's variables are loaded (same as @import)
+
+**The Bootstrap import sequence must be preserved:**
+
+```scss
+// 1. Functions first (required for variable calculations)
+@use '../node_modules/bootstrap/scss/functions' as bootstrap-fn;
+
+// 2. Variable overrides BEFORE Bootstrap variables
+@use 'app/common/bootstrap-variables' as bv;
+
+// 3. Bootstrap core (uses overrides)
+@use '../node_modules/bootstrap/scss/variables' with (
+    $primary: bv.$primary,
+    $secondary: bv.$secondary,
+    // ... other overrides
+);
+```
+
+**WAIT — configuration constraint discovered:** Bootstrap 5.3 uses `@import` internally, which means:
+- Bootstrap's `_variables.scss` doesn't properly expose configurable variables via `@use ... with ()`
+- We cannot use `@use` with configuration for Bootstrap until Bootstrap itself migrates to the module system
+
+**Current recommendation:** Keep Bootstrap imports using `@use` for loading, but variable overrides must still happen via separate import ordering (load functions, define overrides, load variables). This is a **hybrid pattern** that works with Bootstrap's current architecture.
+
+## Migration Strategy
+
+### Phase 1: Transform _bootstrap-variables.scss
+
+**Goal:** Convert from global `@import` consumer to module that can be `@forward`ed.
+
+**Current structure:**
+```scss
+// _bootstrap-variables.scss
+// Variable definitions (no imports needed)
 $primary: #337BB7;
 $secondary: #79DFB6;
 ```
 
-### Anti-Pattern 3: Duplicating Bootstrap Components
-**What:** Creating custom components/placeholders that Bootstrap already provides
-**Why bad:**
-- Reinvents the wheel
-- Inconsistent with Bootstrap's API
-- Harder to maintain
-**Instead:** Use Bootstrap's button variants, utilities, and mixins
-
-**Current state:** Custom `%button` placeholder in `_common.scss`
+**After migration:**
 ```scss
-// ❌ Duplicates Bootstrap's button styling
-%button {
-    background-color: $primary-color;
-    color: white;
-    border: 1px solid $primary-dark-color;
-    // ... more styles
-}
+// _bootstrap-variables.scss
+// No changes needed - this file only defines variables
+// It becomes a pure variable definition module
+$primary: #337BB7;
+$secondary: #79DFB6;
 ```
 
-**Should be:**
+**Confidence:** HIGH — this file is already structured as a pure variable module with no dependencies.
+
+### Phase 2: Transform _common.scss (The Aggregation Module)
+
+**Goal:** Convert from `@import` re-export to `@forward` aggregation pattern.
+
+**Current structure:**
 ```scss
-// ✓ Use Bootstrap's button-variant mixin
-@use '~bootstrap/scss/mixins/buttons' as *;
+// _common.scss
+@import 'bootstrap-variables';
 
-.custom-button {
-  @include button-variant($primary);
-}
+// Re-export Bootstrap variables
+$warning-text-emphasis: shade-color($warning, 60%);
+$gray-100: #f8f9fa;
 
-// Or use Bootstrap classes directly in HTML:
-// <button class="btn btn-primary">...</button>
+// Custom variables
+$small-max-width: 600px;
+$sidebar-width: 170px;
 ```
 
-### Anti-Pattern 4: @import Instead of @use/@forward
-**What:** Using deprecated `@import` instead of modern Sass module system
-**Why bad:**
-- `@import` is deprecated in Dart Sass
-- Creates global namespace pollution
-- Doesn't support namespacing or selective imports
-**Instead:** Use `@use` for imports, `@forward` for re-exports
-
+**After migration:**
 ```scss
-// ❌ Old way (deprecated)
-@import '~bootstrap/scss/bootstrap';
+// _common.scss
+@forward 'bootstrap-variables';
 
-// ✓ New way (Sass modules)
-@use '~bootstrap/scss/bootstrap' as *;
+// Load Bootstrap functions for color calculations
+@use '../../../node_modules/bootstrap/scss/functions' as bs;
+@use 'bootstrap-variables' as bv;
+
+// Re-export computed Bootstrap semantic variables
+$warning-text-emphasis: bs.shade-color(bv.$warning, 60%);
+$danger-text-emphasis: bs.shade-color(bv.$danger, 60%);
+$warning-bg-subtle: bs.tint-color(bv.$warning, 80%);
+$danger-bg-subtle: bs.tint-color(bv.$danger, 80%);
+$warning-border-subtle: bs.tint-color(bv.$warning, 60%);
+$danger-border-subtle: bs.tint-color(bv.$danger, 60%);
+
+// Re-export Bootstrap gray scale
+$gray-100: #f8f9fa;
+$gray-300: #dee2e6;
+$gray-800: #343a40;
+
+// Custom variables (automatically available to consumers)
+$small-max-width: 600px;
+$medium-min-width: 601px;
+$medium-max-width: 992px;
+$large-min-width: 993px;
+$sidebar-width: 170px;
+
+// Z-index variables
+$zindex-sidebar: 300;
+$zindex-top-header: 200;
+$zindex-file-options: 201;
+$zindex-file-search: 100;
 ```
 
-### Anti-Pattern 5: Mixing Global and Component Variables
-**What:** Defining app-wide variables in component SCSS files
-**Why bad:**
-- Variables not reusable across components
-- Duplicated definitions
-- Harder to maintain consistency
-**Instead:** Define shared variables in `app/common/_common.scss`
+**Key changes:**
+1. `@forward 'bootstrap-variables'` makes all Bootstrap overrides available to consumers
+2. `@use` Bootstrap functions with `bs` namespace for color calculations
+3. `@use 'bootstrap-variables' as bv` for accessing variables in calculations
+4. Computed variables are defined at module level (automatically available to consumers)
 
-## Build Order Implications
+**Critical consideration:** Bootstrap functions (`shade-color`, `tint-color`) are defined in `bootstrap/scss/functions`, not in a module system format. We need to test whether `@use 'bootstrap/scss/functions'` makes these functions available, or if we need to keep using `@import` for Bootstrap dependencies.
 
-### Angular SCSS Compilation Pipeline
-
-```
-angular.json "styles" array
-    ↓
-styles.scss (entry point)
-    ↓ resolve @use statements
-├── styles/_variables.scss
-├── styles/_bootstrap.scss (imports Bootstrap SCSS)
-│       ↓ resolve Bootstrap @imports
-│       ├── ~bootstrap/scss/functions
-│       ├── ~bootstrap/scss/variables (uses overrides)
-│       └── ... other Bootstrap files
-└── styles/_overrides.scss
-    ↓
-Compiled CSS → injected into index.html <head>
-```
-
-**Component SCSS compilation (parallel):**
-```
-file.component.scss
-    ↓ resolve @use statements
-app/common/_common.scss
-    ↓ resolve @forward
-styles/_variables.scss (Bootstrap variables available)
-    ↓
-Compiled CSS → scoped with _ngcontent-* attributes
-```
-
-### Critical Timing Issues
-
-**Issue 1: Bootstrap Variables Not Available in Components**
-- **Problem:** Components import `app/common/_common.scss`, but Bootstrap variables aren't available
-- **Cause:** `_common.scss` doesn't forward Bootstrap variables
-- **Solution:** Use `@forward` in `_common.scss`:
-  ```scss
-  // app/common/_common.scss
-  @forward '../../styles/variables';  // Make Bootstrap variables available
-  ```
-
-**Issue 2: Circular Dependencies**
-- **Problem:** File A imports B, B imports A → build error
-- **Cause:** Poor separation of variables vs. styles
-- **Solution:** Separate concerns - variables in one file, styles in another
-
-**Issue 3: Duplicate CSS Output**
-- **Problem:** Each component that `@use`s Bootstrap generates duplicate Bootstrap CSS
-- **Cause:** Using `@use` incorrectly - imports everything
-- **Solution:** Only `@use` variables/mixins in components, import full Bootstrap once in `styles.scss`
-
-### Migration Order
-
-When migrating from precompiled CSS to SCSS source, follow this order to avoid breaking changes:
-
-**Phase 1: Setup Bootstrap SCSS Import**
-1. Create `styles/_variables.scss` with Bootstrap variable overrides
-2. Create `styles/_bootstrap.scss` with selective Bootstrap imports
-3. Update `styles.scss` to import the new structure
-4. Update `angular.json` to remove precompiled CSS reference
-5. Verify build completes without errors
-
-**Phase 2: Migrate Custom Variables**
-1. Map custom colors in `_common.scss` to Bootstrap theme variables
-2. Update `_variables.scss` to override Bootstrap with these values
-3. Update component SCSS to use Bootstrap variable names
-4. Remove duplicate variable definitions from `_common.scss`
-
-**Phase 3: Replace Custom Components**
-1. Identify custom placeholders/mixins that Bootstrap provides
-2. Replace custom implementations with Bootstrap equivalents
-3. Update component HTML/SCSS to use Bootstrap classes
-4. Remove unused custom code from `_common.scss`
-
-**Phase 4: Optimize Bundle**
-1. Audit which Bootstrap components are actually used
-2. Remove unused component imports from `_bootstrap.scss`
-3. Measure bundle size reduction
-4. Consider splitting vendor CSS if needed
-
-## Integration with Angular ViewEncapsulation
-
-### How Angular Scopes Styles
-
-Angular uses three ViewEncapsulation modes:
-
-| Mode | Behavior | Bootstrap Integration |
-|------|----------|----------------------|
-| **Emulated** (default) | Adds `_ngcontent-*` attributes to scope styles | Bootstrap classes work globally, component styles scoped |
-| **None** | No encapsulation, styles are global | Same as global `styles.scss` - use with caution |
-| **ShadowDom** | Uses native Shadow DOM | Bootstrap classes DON'T penetrate Shadow DOM boundary |
-
-**Recommendation:** Stick with **Emulated** (default) for Bootstrap integration. ShadowDom would require including Bootstrap inside each component.
-
-### Specificity Rules
-
-When component SCSS needs to override Bootstrap:
-
+**Fallback pattern if Bootstrap functions aren't module-compatible:**
 ```scss
-// styles.scss (global)
-.btn-primary {
-  background-color: $primary;  // Specificity: 0-1-0
-}
+// _common.scss
+@forward 'bootstrap-variables';
 
-// Component SCSS
-:host .btn-primary {
-  background-color: $custom-color;  // Specificity: 0-2-0 (wins)
-}
+// Bootstrap functions still need @import
+@import '../../../node_modules/bootstrap/scss/functions';
+@use 'bootstrap-variables' as bv;
+
+// Rest of file unchanged
 ```
 
-**Key insight:** `:host` selector adds specificity, allowing component overrides without `!important`.
+### Phase 3: Transform _bootstrap-overrides.scss
 
-### Common Patterns
+**Goal:** Convert post-compilation overrides from `@import` to `@use`.
 
-**Pattern: Override Bootstrap component in specific component**
+**Current structure:**
 ```scss
-// file.component.scss
-.btn-primary {
-  // This will be scoped to this component only
-  background-color: $secondary-dark-color;
+// _bootstrap-overrides.scss
+@import 'bootstrap-variables';
+
+.modal-body {
+    overflow-wrap: normal;
+    hyphens: auto;
+}
+
+[data-bs-theme="dark"] {
+    .dropdown-menu {
+        --bs-dropdown-bg: #{$primary-color};
+    }
 }
 ```
 
-**Pattern: Use Bootstrap utilities with component styles**
-```html
-<!-- file.component.html -->
-<div class="d-flex align-items-center custom-container">
-  <!-- Bootstrap utilities (d-flex, align-items-center) + custom class -->
-</div>
-```
-
+**After migration:**
 ```scss
-// file.component.scss
-.custom-container {
-  // Component-specific styles that work WITH Bootstrap utilities
-  padding: 10px;
+// _bootstrap-overrides.scss
+@use 'bootstrap-variables' as bv;
+
+.modal-body {
+    overflow-wrap: normal;
+    hyphens: auto;
+}
+
+[data-bs-theme="dark"] {
+    .dropdown-menu {
+        --bs-dropdown-bg: #{bv.$primary-color};
+    }
+}
+
+.form-control {
+    &:focus {
+        border-color: tint-color(bv.$secondary, 50%);
+    }
 }
 ```
 
-## Testing Considerations
+**Key changes:**
+1. `@use 'bootstrap-variables' as bv` loads variables with namespace
+2. All variable references use `bv.$` prefix
+3. Functions need namespace if available, or may still need `@import` for Bootstrap functions
 
-### SCSS Compilation in Tests
+### Phase 4: Transform styles.scss (Global Entry Point)
 
-Karma test configuration must include `styles.scss`:
+**Goal:** Convert Bootstrap imports from `@import` to `@use`.
 
-```json
-// angular.json - test configuration
-"test": {
-  "styles": [
-    "src/styles.scss"  // Compiles Bootstrap for tests
-  ]
-}
+**Current structure (excerpt):**
+```scss
+// styles.scss
+@import '../node_modules/bootstrap/scss/functions';
+@import 'app/common/bootstrap-variables';
+@import '../node_modules/bootstrap/scss/variables';
+@import '../node_modules/bootstrap/scss/variables-dark';
+// ... all Bootstrap components
+@import 'app/common/bootstrap-overrides';
+@import 'app/common/common';
 ```
 
-**Current state:** Tests use precompiled CSS (same as build)
-**After migration:** Tests will compile SCSS (matches build)
+**After migration (target structure):**
+```scss
+// styles.scss
 
-### Component Test Isolation
+// 1. Load Bootstrap functions (for variable calculations)
+@use '../node_modules/bootstrap/scss/functions' as bs-fn;
 
-**Issue:** Component tests run with compiled CSS but without full DOM context
-**Solution:** Use `TestBed` with style compilation:
+// 2. Load our variable overrides
+@use 'app/common/bootstrap-variables' as bv;
 
-```typescript
-TestBed.configureTestingModule({
-  declarations: [FileComponent],
-  // Styles automatically compiled from component metadata
-});
+// 3. Load Bootstrap core with configuration
+// NOTE: This may not work with Bootstrap 5.3 - needs testing
+@use '../node_modules/bootstrap/scss/variables' as bs-vars with (
+    $primary: bv.$primary,
+    $secondary: bv.$secondary,
+    // ... other overrides
+);
+
+// Alternative if configuration doesn't work:
+@import '../node_modules/bootstrap/scss/functions';
+@forward 'app/common/bootstrap-variables';
+@import '../node_modules/bootstrap/scss/variables';
+
+// 4. Bootstrap core systems
+@use '../node_modules/bootstrap/scss/variables-dark' as *;
+@use '../node_modules/bootstrap/scss/maps' as *;
+@use '../node_modules/bootstrap/scss/mixins' as *;
+@use '../node_modules/bootstrap/scss/root' as *;
+
+// 5. Bootstrap components
+@use '../node_modules/bootstrap/scss/utilities' as *;
+@use '../node_modules/bootstrap/scss/reboot' as *;
+// ... all other Bootstrap components
+
+// 6. Post-compilation overrides
+@use 'app/common/bootstrap-overrides' as *;
+
+// 7. Custom application styles
+@use 'app/common/common' as *;
 ```
 
-**Gotcha:** Global `styles.scss` is available in tests, but component styles are isolated.
+**Critical challenge:** Bootstrap 5.3 uses `@import` internally, which makes the `@use ... with ()` configuration pattern unreliable. May need to keep hybrid `@import` approach for Bootstrap core while using `@use` for custom modules.
 
-## Performance Considerations
+**Hybrid pattern (more realistic):**
+```scss
+// styles.scss
 
-### Build Time Impact
+// Bootstrap must stay with @import (it uses @import internally)
+@import '../node_modules/bootstrap/scss/functions';
+@import 'app/common/bootstrap-variables';  // Overrides
+@import '../node_modules/bootstrap/scss/variables';
+@import '../node_modules/bootstrap/scss/variables-dark';
+@import '../node_modules/bootstrap/scss/maps';
+@import '../node_modules/bootstrap/scss/mixins';
+@import '../node_modules/bootstrap/scss/root';
 
-| Approach | Build Time | Bundle Size | Customizable |
-|----------|------------|-------------|--------------|
-| Precompiled CSS | Fast (no compilation) | Large (includes all Bootstrap) | No |
-| Full Bootstrap SCSS | Medium (compiles all) | Large (includes all Bootstrap) | Yes |
-| Selective Bootstrap SCSS | Medium-Slow (compiles subset) | Small (only used components) | Yes |
+// Bootstrap components
+@import '../node_modules/bootstrap/scss/utilities';
+@import '../node_modules/bootstrap/scss/reboot';
+// ... (all other components)
 
-**Recommendation for SeedSync:** Start with full Bootstrap SCSS for simplicity, optimize later if needed.
+// Post-compilation overrides (can use @use)
+@use 'app/common/bootstrap-overrides' as *;
 
-### Runtime Performance
+// Custom application styles (can use @use)
+@use 'app/common/common' as *;
+```
 
-- **No runtime impact:** SCSS compiles to CSS at build time
-- **Bundle size matters:** Smaller CSS = faster initial load
-- **Critical CSS:** Consider inlining critical styles for above-the-fold content
+**Confidence:** MEDIUM — Bootstrap's lack of module system support may force a hybrid approach where only custom modules use `@use/@forward`.
 
-### Development Experience
+### Phase 5: Component Files (No Changes Required)
 
-**Hot reload:** Angular dev server recompiles SCSS on change
-- Full Bootstrap SCSS: ~2-3 seconds to recompile
-- Component SCSS: <1 second (only that component)
+**Component files already use `@use` correctly:**
+```scss
+@use '../../common/common' as *;
+```
 
-**Recommendation:** Use selective imports for faster incremental builds during development.
+**No changes needed.** Component files already follow the module system pattern and will automatically benefit from the transformed `_common.scss` aggregation module.
+
+**Confidence:** HIGH — 16 component files already using correct pattern.
+
+## Migration Order (Dependency-First)
+
+Based on the dependency graph, migrate in this order:
+
+```
+1. _bootstrap-variables.scss (leaf node - no dependencies)
+   Status: Already compatible (pure variable definitions)
+   Changes: None needed
+
+2. _common.scss (depends on _bootstrap-variables.scss)
+   Status: Needs transformation
+   Changes: Add @forward, convert @import to @use with namespace
+
+3. _bootstrap-overrides.scss (depends on _bootstrap-variables.scss)
+   Status: Needs transformation
+   Changes: Convert @import to @use with namespace
+
+4. styles.scss (depends on all modules)
+   Status: Needs transformation (if Bootstrap allows)
+   Changes: Convert custom module @imports to @use, may need hybrid approach for Bootstrap
+
+5. Component files (depend on _common.scss)
+   Status: Already migrated
+   Changes: None needed
+```
+
+**Total files to modify:** 3 files (excluding component files which are already done)
+- _common.scss (transform)
+- _bootstrap-overrides.scss (transform)
+- styles.scss (hybrid approach due to Bootstrap constraints)
 
 ## Sources
 
-**Confidence Level: MEDIUM**
+### Official Documentation (HIGH Confidence)
+- [Sass @use Rule](https://sass-lang.com/documentation/at-rules/use/)
+- [Sass @forward Rule](https://sass-lang.com/documentation/at-rules/forward/)
+- [Sass Module System Launch](https://sass-lang.com/blog/the-module-system-is-launched/)
+- [Bootstrap 5.3 Sass Documentation](https://getbootstrap.com/docs/5.3/customize/sass/)
+- [Angular Component Styling](https://angular.dev/guide/components/styling)
 
-Based on:
-- Bootstrap 5 official documentation patterns (SCSS customization, theming API)
-- Angular CLI SCSS integration (build pipeline, ViewEncapsulation)
-- Sass module system (`@use`/`@forward`) - official Dart Sass documentation
-- Current SeedSync codebase analysis
+### Community Resources (MEDIUM Confidence)
+- [Understanding @use & @forward](https://aslamdoctor.com/understanding-the-difference-between-import-use-forward-in-sass/)
+- [Migrating from @import to @use](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221)
+- [Angular SCSS Structure Best Practices](https://dev.to/stefaniefluin/how-to-structure-scss-in-an-angular-app-3376)
+- [Sass @use vs @forward](https://kjmonahan.dev/sass-use-vs-forward/)
+- [Angular ViewEncapsulation Guide](https://dev.to/manthanank/angular-view-encapsulation-a-practical-guide-to-component-styling-5df2)
 
-**Not verified:**
-- Specific Bootstrap 5.3.3 SCSS file structure (would need to inspect `node_modules/bootstrap/scss/`)
-- Angular 19.2 SCSS compilation behavior changes (assuming consistent with Angular 12+)
-- Bundle size impact of selective imports (would need to measure)
-
-**Gaps:**
-- Exact Bootstrap component dependencies (which components require which others)
-- Performance benchmarks for this specific project
-- Migration effort estimation (would need to audit all component SCSS files)
+### Technical Discussions (MEDIUM Confidence)
+- [Bootstrap Sass Module System Issue](https://github.com/sass/migrator/issues/235)
+- [Angular CLI SCSS Path Resolution](https://github.com/angular/angular-cli/issues/12981)
+- [Bootstrap 5 @use Migration Discussion](https://github.com/orgs/twbs/discussions/41260)

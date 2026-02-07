@@ -1,236 +1,288 @@
 # Project Research Summary
 
-**Project:** SeedSync UI Styling Unification
-**Domain:** Bootstrap 5 SCSS Refactoring in Angular
-**Researched:** 2026-02-03
+**Project:** SeedSync v1.4 Sass @use Migration
+**Domain:** Sass module system migration (Angular + Bootstrap application)
+**Researched:** 2026-02-07
 **Confidence:** HIGH
 
 ## Executive Summary
 
-This project modernizes SeedSync's Angular 19 frontend by migrating from pre-compiled Bootstrap CSS to customizable Bootstrap SCSS source files. The research reveals that the current setup imports `bootstrap.min.css` which prevents theme customization and includes unused components, while custom SCSS patterns like `%button` placeholders duplicate Bootstrap functionality. The recommended approach is to replace pre-compiled CSS with selective Bootstrap SCSS imports, customize via Sass variables before Bootstrap compilation, and migrate custom patterns to Bootstrap's built-in classes and mixins.
+The SeedSync Angular frontend can successfully migrate from deprecated Sass `@import` to the modern `@use/@forward` module system using current tooling (Dart Sass 1.97.3, Angular CLI 19.2.19). However, a critical constraint shapes the entire migration strategy: Bootstrap 5.3 has not migrated to the module system and continues to use `@import` internally. This means a hybrid approach is required where Bootstrap loading remains on `@import` while application-specific SCSS files migrate to `@use/@forward`.
 
-The architecture is straightforward: establish proper SCSS import order (functions → variable overrides → variables → maps → mixins → components), consolidate hardcoded hex colors into Bootstrap theme variables, and migrate button styling from custom placeholders to Bootstrap classes. This provides a single source of truth for colors, removes 200+ lines of duplicate button CSS, and reduces CSS bundle size by ~40% through tree-shaking unused components.
+The recommended strategy is pragmatic and achievable: keep Bootstrap imports in `styles.scss` using the legacy `@import` pattern, transform `_common.scss` into a `@forward` aggregation hub using the module system, and migrate all component files (already using `@use`) to consume the modernized common module. This hybrid approach eliminates deprecation warnings from application code while accepting that Bootstrap itself will continue emitting warnings until Bootstrap 6 ships with module support.
 
-The primary risk is breaking visual consistency during migration. Prevention requires phased rollout starting with infrastructure setup (Phase 1), followed by color consolidation (Phase 2), button standardization (Phase 3), and final visual polish (Phase 4-5). Each phase builds on the previous one, with critical testing after button migration to verify all states (hover, active, disabled) work correctly. The research confidence is HIGH—all recommendations verified against official Bootstrap 5.3.8 source files and SeedSync's existing codebase.
+Key risks are manageable: namespace conflicts from mixing `@use` and `@import` are avoided by isolating Bootstrap to the global stylesheet, variable override timing issues are sidestepped by keeping Bootstrap's pre-import configuration pattern, and the `sass-migrator` tool's inability to handle third-party dependencies is mitigated by manual migration of the small number of files that interact with Bootstrap. Visual regression is the highest risk and requires careful before/after comparison, but the architecture analysis confirms that Angular's ViewEncapsulation and Sass's module scoping are orthogonal concerns that won't interfere.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Bootstrap 5 SCSS customization follows a two-tier system: Sass variables compile into CSS custom properties at build time. The correct approach is to override Sass variables BEFORE importing Bootstrap, which then generates customized CSS variables. This gives both compile-time theming and runtime CSS variables for future extensibility.
+The current stack (Dart Sass 1.97.3 via Angular CLI 19.2.19) fully supports the Sass module system with no version upgrades required. The module system has been available since Dart Sass 1.23.0 (October 2019) and is mature with 4+ years of stability. The only addition needed is `sass-migrator` 2.5.7 as a dev dependency for automated migration of component files.
 
 **Core technologies:**
-- **Bootstrap 5.3.8 SCSS source**: Replace pre-compiled CSS — enables theme customization via variable overrides
-- **Dart Sass 1.32.0**: Already installed — compiles SCSS with modern `@use` module system
-- **Angular CLI style compilation**: Already configured — handles SCSS compilation per-component with ViewEncapsulation
-- **Selective component imports**: Tree-shake unused Bootstrap — reduces CSS bundle from 200KB to ~120KB (-40%)
+- **Dart Sass 1.97.3**: Already installed via Angular CLI — Full `@use/@forward` support with 4+ years maturity
+- **Bootstrap 5.3.3**: CSS framework — CRITICAL CONSTRAINT: Uses `@import` internally, cannot use `@use` syntax until Bootstrap 6
+- **sass-migrator 2.5.7**: Migration tool — Automates 90% of component file conversion (cannot handle Bootstrap boundaries)
+- **Angular CLI 19.2.19**: Build system — Native `@use/@forward` compilation support via sass-loader
 
-**Critical configuration changes:**
-- Remove `bootstrap.min.css` from `angular.json` styles array
-- Create `scss/_variables.scss` for Bootstrap variable overrides
-- Create `scss/_bootstrap-imports.scss` for selective component imports
-- Update `styles.scss` to import variables → Bootstrap → overrides
+**Critical finding:** Bootstrap 5.3 must be imported with `@import` because Bootstrap's internal SCSS files use `@import`. The `@use "bootstrap" with ($primary: ...)` configuration pattern does not work with Bootstrap 5.3. This is not a project limitation but a Bootstrap architectural constraint that will be resolved in Bootstrap 6 (no release date confirmed).
 
 ### Expected Features
 
+The migration must deliver a hybrid architecture that modernizes application code while maintaining Bootstrap compatibility. The feature landscape defines both what must be migrated (table stakes) and what should be deferred.
+
 **Must have (table stakes):**
-- **Centralized color variables** — Replace all hardcoded hex values with Bootstrap theme variables for consistency
-- **Single selection color scheme** — Standardize on secondary (teal) for all selection/highlight states
-- **Bootstrap button classes** — Migrate from custom `%button` placeholder to `.btn` classes for consistent sizing and states
-- **Proper import order** — Variables must come after functions but before maps (Bootstrap 5.2+ requirement)
-- **Theme color integration** — Custom colors mapped into Bootstrap's `$theme-colors` to work with utilities
+- All component SCSS files use `@use` instead of `@import` — Required to eliminate application deprecation warnings
+- Variable access via `@use` with namespace management — Core module system functionality
+- Bootstrap variable overrides continue working — Critical constraint for theme customization
+- Zero visual regressions — Non-negotiable success criteria
+- Zero Sass warnings from application code — Primary goal of migration
 
-**Should have (competitive):**
-- **SCSS color functions** — Use Bootstrap's `tint-color()`, `shade-color()` for hover states instead of hardcoded hex
-- **Component state variables** — Define semantic variables (e.g., `$file-selected-bg`) that wrap Bootstrap colors
-- **Utility class usage** — Use `.text-primary`, `.bg-light`, `.p-3` in templates where possible for smaller CSS
+**Should have (differentiators):**
+- `_common.scss` as `@forward` aggregation hub — Provides clean variable re-export pattern
+- Index files for module organization — Simplifies import paths if module structure grows
+- Private member prefixes for API boundaries — Marks internal-only variables with `_` prefix
 
-**Defer (v2+):**
-- **CSS custom properties bridge** — Runtime theme switching (Bootstrap 5.3 does this automatically for theme colors)
-- **Full utility class migration** — Requires template changes across all components (extensive testing burden)
-- **Dark mode support** — Requires comprehensive color system overhaul (Bootstrap 5.3 has dark mode support built-in)
+**Defer (v2+ or Bootstrap 6):**
+- Migrating Bootstrap to `@use` — Blocked by Bootstrap 5.3 architecture, wait for Bootstrap 6
+- Scoped Bootstrap imports — Optimization not required for initial migration
+- Explicit namespaces instead of wildcard — `as *` is acceptable for pragmatic migration
+
+**Anti-features (explicitly avoid):**
+- Mixing `@use` and `@import` in same file — Creates namespace conflicts
+- Using `sass-migrator` on Bootstrap-dependent files — Tool fails on third-party dependencies
+- Silencing all deprecation warnings — Hides application code issues
+- Adding `!default` everywhere — Breaks existing variable precedence
 
 ### Architecture Approach
 
-The architecture establishes a clear file structure with separated concerns: `_variables.scss` for theme overrides (before Bootstrap), `_bootstrap-imports.scss` for selective component imports, `_overrides.scss` for post-compilation tweaks, and component SCSS for scoped styles. Critical import order is functions → variable overrides → variables → maps → mixins → components → utilities. Angular's ViewEncapsulation.Emulated (default) ensures Bootstrap classes work globally while component styles remain scoped.
+The current SeedSync SCSS architecture already has component files using `@use` correctly, positioning the project well for completing the migration. The dependency graph reveals that only three files need transformation: `_common.scss` (convert to `@forward` aggregator), `_bootstrap-overrides.scss` (add namespace to variable references), and `styles.scss` (maintain hybrid `@import` for Bootstrap).
+
+**Current architecture (already partially modernized):**
+```
+styles.scss (global) — @import Bootstrap + app modules
+├── Bootstrap core (@import) — Legacy loading required
+├── _bootstrap-variables.scss — Variable overrides (plain definitions)
+├── _bootstrap-overrides.scss (@import) — Post-compilation CSS tweaks
+└── _common.scss (@import) — Variable re-export bridge
+
+Component files (16 files) — @use '../../common/common' as * (ALREADY MODERN)
+```
+
+**Target architecture (hybrid approach):**
+```
+styles.scss (global) — Hybrid @import (Bootstrap) + @use (app)
+├── Bootstrap core (@import) — KEEP legacy loading (Bootstrap 5.3 constraint)
+├── _bootstrap-variables.scss — No changes (pure variable definitions)
+├── _bootstrap-overrides.scss (@use) — Add namespaces to variable refs
+└── _common.scss (@forward) — Transform into aggregation module
+
+Component files (16 files) — No changes needed (already using @use correctly)
+```
 
 **Major components:**
-1. **Global styles (`styles.scss`)** — Entry point that orchestrates import order (variables first, then Bootstrap, then overrides)
-2. **Bootstrap customization layer (`scss/_variables.scss`)** — Override Bootstrap defaults before compilation (colors, spacing, button sizing)
-3. **Selective imports (`scss/_bootstrap-imports.scss`)** — Import only used Bootstrap components for smaller bundle
-4. **Component styles** — Use `@use` for shared variables, reference Bootstrap CSS custom properties (`var(--bs-primary)`)
+1. **Bootstrap isolation layer** (`styles.scss`) — Maintains `@import` for Bootstrap core, uses `@use` for app modules
+2. **Variable aggregation hub** (`_common.scss`) — Uses `@forward` to re-export Bootstrap variables and custom variables
+3. **Component consumption** (all `*.component.scss`) — Already using `@use` with wildcard namespace for direct variable access
 
-**Data flow:**
-```
-Bootstrap Default Variables
-    ↓ (overridden by)
-scss/_variables.scss
-    ↓ (compiled into)
-Bootstrap Components & Utilities
-    ↓ (referenced by)
-Component .scss files
-```
+**Key architectural insight:** Angular's ViewEncapsulation (component style scoping) and Sass's module system (variable/mixin scoping) are orthogonal concerns that don't interfere. ViewEncapsulation scopes compiled CSS selectors to components at runtime; the module system scopes variables during SCSS compilation. Both can coexist without conflicts.
 
 ### Critical Pitfalls
 
-1. **Pre-compiled CSS to SCSS Migration Breaking Change** — Switching from `bootstrap.min.css` to SCSS imports breaks build if not done correctly. Prevention: Phase 1 must establish proper SCSS import structure, remove pre-compiled CSS from `angular.json`, test build succeeds before any customizations.
+The research identified 13 pitfalls across critical, moderate, and minor categories. The top 5 that directly impact this migration:
 
-2. **SCSS Import Order Violations** — Bootstrap 5 requires strict order (functions → variables → maps → mixins). Violating this causes cryptic errors or variables that don't take effect. Prevention: Follow required order, document it, test immediately after setup.
+1. **Bootstrap 5.3 uses `@import` internally** (CRITICAL) — Cannot use `@use "bootstrap"` syntax. Must keep `@import` for all Bootstrap loading in `styles.scss`. This is a foundational architecture decision that affects all subsequent work. Accept that Bootstrap deprecation warnings will remain until Bootstrap 6.
 
-3. **CSS Specificity Wars (Custom Placeholders vs Bootstrap Classes)** — Custom `%button` placeholder conflicts with Bootstrap `.btn` classes. Specificity issues cause inconsistent hover/focus/disabled states. Prevention: Extend Bootstrap classes instead of replacing them, use Bootstrap's CSS variables for customization, test all button states.
+2. **Variable override timing with `@use with` configuration** (CRITICAL) — The `@use "module" with ($var: value)` pattern doesn't work with Bootstrap 5.3 because Bootstrap doesn't expose configuration properly. Must continue using pre-import variable definition pattern: define overrides in `_bootstrap-variables.scss`, then `@import` Bootstrap variables afterward.
 
-4. **Hardcoded Hex Colors Breaking Variable Unification** — Existing code has hardcoded colors like `#286090` in `:active` state that don't update when variables change. Prevention: Audit with `grep -r "#[0-9A-Fa-f]\{6\}"`, replace with Bootstrap's `shade-color()` function, document intentionally unique colors.
+3. **Namespace conflicts from mixing `@use` and `@import`** (CRITICAL) — A file loaded via both `@use` and `@import` creates duplicate definitions. Choose ONE mechanism per file. For SeedSync: `@import` for Bootstrap (required), `@use` for application modules (preferred). Never mix both for the same file.
 
-5. **Angular ViewEncapsulation Breaking Bootstrap Global Styles** — Component-scoped SCSS with higher specificity overrides global Bootstrap styles. Prevention: Move Bootstrap customizations to `styles.scss`, use custom class names in component SCSS (not Bootstrap class names), use `:host` selector for component boundaries.
+4. **sass-migrator fails on third-party dependencies** (CRITICAL) — The automated migration tool cannot handle Bootstrap imports in `node_modules`. Do NOT run with `--migrate-deps` flag on global stylesheets. Use migrator only for pure application code without Bootstrap dependencies. Manually migrate `_common.scss` and `styles.scss`.
+
+5. **`@forward` must come before all other rules** (MODERATE) — Sass enforces strict ordering: `@forward` first, then `@use`, then variables/CSS. When transforming `_common.scss`, place all `@forward` statements at the top. Violation causes explicit compilation errors.
+
+**Additional notable pitfall:** Using `@use as *` wildcard defeats namespace benefits (moderate impact). For SeedSync, this is an acceptable pragmatic choice to minimize code changes in component files. Document this as "minimum viable migration" and consider future refactoring to explicit namespaces.
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on the dependency graph and constraint analysis, the migration should follow a 6-phase structure that isolates Bootstrap handling early, transforms the aggregation layer, then tackles component migration with automation.
 
-### Phase 1: Bootstrap SCSS Setup (Foundation)
-**Rationale:** Infrastructure must be established before any customization work. This phase sets up the SCSS import system that enables all subsequent phases.
-**Delivers:** Proper SCSS compilation infrastructure with no visual changes (validates setup works correctly)
-**Addresses:** Proper import order (table stakes), avoids tree-shaking benefits initially (can be optimized later)
-**Avoids:** Pre-compiled CSS to SCSS migration breaking change (Pitfall #1), SCSS import order violations (Pitfall #2)
-**Research confidence:** HIGH (standard Bootstrap setup pattern)
+### Phase 1: Strategy and Dependency Audit
+**Rationale:** Bootstrap 5.3 compatibility is a foundational constraint that dictates the entire migration strategy. Must validate assumptions and catalog all SCSS files before making architectural decisions.
 
-**Key tasks:**
-- Create `scss/` directory structure (`_variables.scss`, `_bootstrap-imports.scss`, `_overrides.scss`)
-- Update `styles.scss` to import in correct order
-- Remove `bootstrap.min.css` from `angular.json`
-- Import full Bootstrap initially (optimize later)
-- Test build succeeds and CSS output matches current design
+**Delivers:** Complete inventory of SCSS files, confirmed Bootstrap/Font Awesome versions, documented hybrid approach decision, migration strategy document with Bootstrap isolation pattern.
 
-### Phase 2: Color Variable Consolidation
-**Rationale:** Once SCSS infrastructure exists, consolidate colors before migrating components. Single source of truth for colors prevents drift during button migration.
-**Delivers:** Bootstrap theme variables replace all custom color variables, hardcoded hex colors mapped to variables
-**Addresses:** Centralized color variables (table stakes), theme color integration (table stakes)
-**Avoids:** Hardcoded hex colors breaking unification (Pitfall #4)
-**Research confidence:** HIGH (documented Bootstrap pattern)
+**Addresses:** Pitfall 1 (Bootstrap compatibility), Pitfall 8 (Font Awesome version check), Pitfall 9 (deprecation warning strategy).
 
-**Key tasks:**
-- Map `$primary-color: #337BB7` → Bootstrap's `$primary`
-- Map `$secondary-color: #79DFB6` → Bootstrap's `$secondary`
-- Audit hardcoded hex colors with `grep -r "#[0-9A-Fa-f]\{6\}"`
-- Replace hardcoded colors with `shade-color()`, `tint-color()` functions
-- Document intentionally unique colors
+**Avoids:** Starting migration without understanding Bootstrap constraints (would require rework).
 
-### Phase 3: Button Height Standardization
-**Rationale:** Button sizing must be standardized before migrating button patterns (Phase 4). Ensures consistent heights (40px standard) across all buttons.
-**Delivers:** Bootstrap button variables configured for consistent sizing
-**Addresses:** Bootstrap button classes (table stakes prerequisite), consistent spacing scale (table stakes)
-**Avoids:** Inconsistent button heights causing visual regressions
-**Research confidence:** HIGH (Bootstrap sizing system well-defined)
+**Research flag:** Standard inventory phase, no additional research needed (patterns well-documented).
 
-**Key tasks:**
-- Configure Bootstrap button variables (`$btn-padding-y`, `$btn-padding-x`, `$btn-font-size`)
-- Set defaults to achieve 40px height (current standard)
-- Test button size classes (`btn-sm`, `btn-lg`)
-- Remove inline `height: 40px` overrides
+### Phase 2: Bootstrap Isolation (styles.scss)
+**Rationale:** Isolate Bootstrap to its own loading context before migrating application code. This prevents namespace conflicts and validates that the hybrid approach compiles successfully.
 
-### Phase 4: Button Class Migration
-**Rationale:** With sizing standardized (Phase 3) and colors consolidated (Phase 2), migrate custom `%button` placeholder to Bootstrap classes. This is the highest-risk phase requiring careful testing.
-**Delivers:** Remove 200+ lines custom button CSS, all buttons use Bootstrap classes
-**Addresses:** Bootstrap button classes (table stakes)
-**Avoids:** CSS specificity wars (Pitfall #3), icon color inheritance breaking (Pitfall #8), ViewEncapsulation issues (Pitfall #5)
-**Research confidence:** MEDIUM (component-specific challenges may arise)
+**Delivers:** `styles.scss` updated to maintain `@import` for Bootstrap core while preparing for `@use` integration of application modules. Confirmed that Bootstrap continues to work with current variable override pattern.
 
-**Key tasks:**
-- Replace `@extend %button` with `.btn .btn-primary` in templates
-- Test all button states: default, hover, focus, active, disabled, loading
-- Verify icon colors in all states (especially with `filter: invert()`)
-- Handle custom `.selected` state using Bootstrap CSS variables
-- Remove `%button` placeholder from `_common.scss`
+**Uses:** Bootstrap 5.3.3 (keep on `@import`), Angular CLI Sass compilation.
 
-### Phase 5: Selection Color Unification
-**Rationale:** Final visual polish after core infrastructure is stable. Low risk since it's primarily CSS variable substitution.
-**Delivers:** Unified teal selection highlighting across all components
-**Addresses:** Single selection color scheme (table stakes)
-**Avoids:** Selection color unification breaking visual hierarchy (Pitfall #7)
-**Research confidence:** HIGH (CSS-only changes)
+**Addresses:** Feature requirement (Bootstrap variable overrides must work), Pitfall 3 (namespace conflicts).
 
-**Key tasks:**
-- Standardize on `$secondary` (teal) for all selections
-- Maintain semantic variations (full opacity for primary selection, transparent for bulk)
-- Update selection banner, bulk actions bar
-- Test visual hierarchy is still clear
+**Avoids:** Attempting to migrate Bootstrap to `@use` (not supported until Bootstrap 6).
+
+**Research flag:** No additional research needed (Bootstrap limitation confirmed by official sources).
+
+### Phase 3: Transform _common.scss (aggregation layer)
+**Rationale:** The `_common.scss` file is the bridge between Bootstrap and components. Converting it to use `@forward` enables components to access variables via `@use` while maintaining the current variable API.
+
+**Delivers:** `_common.scss` transformed into a `@forward` aggregation module that re-exports Bootstrap variables and custom variables. All downstream consumers (component files) can now use `@use` to access these variables with proper module scoping.
+
+**Uses:** `@forward` for re-export, `@use` for local consumption of Bootstrap functions.
+
+**Implements:** Variable aggregation hub component from architecture analysis.
+
+**Addresses:** Feature requirement (variable access with `@use`), Architecture pattern (`@forward` aggregation).
+
+**Avoids:** Pitfall 5 (`@forward` ordering), Pitfall 6 (Bootstrap variable re-export pattern).
+
+**Research flag:** No additional research needed (pattern well-documented in ARCHITECTURE.md).
+
+### Phase 4: Transform _bootstrap-overrides.scss
+**Rationale:** This file contains post-compilation CSS tweaks that reference Bootstrap variables. Must add namespaces to variable references to work with the modernized `_common.scss`.
+
+**Delivers:** `_bootstrap-overrides.scss` converted from `@import 'bootstrap-variables'` to `@use 'bootstrap-variables' as bv`, with all variable references updated to use `bv.$` prefix.
+
+**Uses:** `@use` with explicit namespace for clarity.
+
+**Addresses:** Architecture component (post-compilation override layer).
+
+**Avoids:** Forgetting to namespace variable references (causes undefined variable errors).
+
+**Research flag:** No additional research needed (straightforward namespace addition).
+
+### Phase 5: Component File Migration (automated)
+**Rationale:** Component files already use `@use` syntax correctly (`@use '../../common/common' as *`). This phase is primarily validation that the transformed `_common.scss` works correctly with all consumers.
+
+**Delivers:** Verification that all 16 component files continue to compile and access variables correctly through the modernized `_common.scss`. Any manual fixes needed for edge cases.
+
+**Uses:** `sass-migrator` for validation (dry-run mode), manual review for any Bootstrap-touching components.
+
+**Addresses:** Feature requirement (all component SCSS uses `@use`), Pitfall 4 (sass-migrator limitations).
+
+**Avoids:** Running sass-migrator on files that import Bootstrap (tool fails).
+
+**Research flag:** No additional research needed (components already modernized).
+
+### Phase 6: Validation and Testing
+**Rationale:** Visual regression is the highest risk. Must systematically verify that compiled CSS output is identical and all Angular tests continue passing.
+
+**Delivers:** Confirmed zero visual regressions via screenshot comparison, all 381 Angular unit tests passing, zero deprecation warnings from application code, documented Bootstrap warnings as expected (external dependency).
+
+**Uses:** Angular test suite, visual comparison tooling (manual screenshots or automated).
+
+**Addresses:** Feature requirement (zero visual regressions, zero warnings from app code), Success criteria from FEATURES.md.
+
+**Avoids:** Pitfall 9 (silencing all warnings prematurely), Pitfall 13 (not measuring build performance improvement).
+
+**Research flag:** No additional research needed (standard validation phase).
 
 ### Phase Ordering Rationale
 
-- **Phase 1 is prerequisite** — Sets up SCSS infrastructure that all other phases depend on
-- **Phase 2 before Phase 3** — Colors must be consolidated before button sizing (buttons reference color variables)
-- **Phase 3 before Phase 4** — Button sizing must be standardized before migrating button classes (can't migrate if target sizes are inconsistent)
-- **Phase 4 is highest risk** — Requires component-by-component migration with extensive testing
-- **Phase 5 is polish** — Low risk, purely visual, builds on stable infrastructure
-
-**Dependencies:**
-```
-Phase 1 (Foundation)
-    ↓
-Phase 2 (Colors)
-    ↓
-Phase 3 (Button Sizing)
-    ↓
-Phase 4 (Button Migration) ← HIGH RISK, test extensively
-    ↓
-Phase 5 (Selection Polish)
-```
+- **Bootstrap isolation first (Phase 2):** Prevents namespace conflicts by establishing clear boundary between legacy `@import` (Bootstrap) and modern `@use` (application code).
+- **Aggregation layer next (Phase 3):** The `_common.scss` transformation is the critical dependency for all component files. Must be stable before validating component consumption.
+- **Component validation last (Phase 5):** Components already use correct syntax, so this is primarily validation rather than migration. Low risk, can parallelize with Phase 4.
+- **Validation throughout (Phase 6):** Visual regression testing after each phase would be ideal, but comprehensive validation at the end is acceptable given low file count.
 
 ### Research Flags
 
-**Phases with standard patterns (skip research-phase):**
-- **Phase 1:** Standard Bootstrap SCSS setup — well-documented in official docs
-- **Phase 2:** Variable consolidation — find/replace with verification
-- **Phase 3:** Button sizing configuration — straightforward Bootstrap variables
-- **Phase 5:** CSS variable substitution — no architecture complexity
+Phases with standard patterns (skip research-phase):
+- **Phase 1:** Inventory and audit — Standard file enumeration
+- **Phase 2:** Bootstrap isolation — Pattern documented in STACK.md and PITFALLS.md
+- **Phase 3:** `@forward` aggregation — Pattern documented in ARCHITECTURE.md
+- **Phase 4:** Namespace addition — Mechanical transformation
+- **Phase 5:** Component validation — Already migrated, just verification
+- **Phase 6:** Testing and validation — Standard QA phase
 
-**Phase needing careful planning (but not research-phase):**
-- **Phase 4:** Button migration is MEDIUM complexity due to component-by-component testing requirements, but patterns are clear from research. Main risk is testing coverage, not unknown patterns.
+**No phases require `/gsd:research-phase` invocation.** All patterns are well-documented in the completed research files with high confidence from official Sass and Bootstrap sources.
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All recommendations verified against Bootstrap 5.3.8 source files in `node_modules/bootstrap/scss/` and Angular 19.x CLI configuration |
-| Features | HIGH | Feature priorities validated by inspecting SeedSync codebase patterns (hardcoded colors, custom button placeholder, selection color inconsistencies) |
-| Architecture | HIGH | File structure and import order verified in Bootstrap 5.3 official docs, tested against Angular SCSS compilation |
-| Pitfalls | HIGH | Critical pitfalls documented in official Bootstrap migration guide, component-specific risks identified via codebase analysis |
+| Stack | HIGH | All versions verified, Dart Sass 1.97.3 fully supports module system with 4+ years maturity |
+| Features | HIGH | Hybrid approach validated by community (Bootstrap limitation documented in official GitHub discussions) |
+| Architecture | HIGH | Component files already using `@use` correctly, dependency graph clear, transformation pattern well-defined |
+| Pitfalls | HIGH | All critical pitfalls verified with official Sass documentation and Bootstrap GitHub issues |
 
 **Overall confidence:** HIGH
 
+The research is based on official documentation from Sass team (module system spec, deprecation timeline) and authoritative sources from Bootstrap maintainers (GitHub discussions confirming no module support until v6). The hybrid approach is the industry-standard workaround used by Angular projects worldwide. The main uncertainty is visual regression risk, which is inherent to any SCSS refactoring and mitigated by comprehensive testing.
+
 ### Gaps to Address
 
-While overall confidence is high, these areas need attention during implementation:
+While research confidence is high, these areas need validation during implementation:
 
-- **Button migration complexity:** Research identifies patterns, but component-specific challenges may arise (e.g., buttons with custom loading states, icon buttons with special filters). Handle by: Test each component thoroughly after migration, document edge cases as discovered.
+- **Bootstrap function namespace behavior:** Research indicates Bootstrap functions (`shade-color`, `tint-color`) are defined in `bootstrap/scss/functions` with `@import`. Need to test whether `@use 'bootstrap/scss/functions'` makes these available, or if `_common.scss` must continue using `@import` for Bootstrap functions. Fallback pattern documented in ARCHITECTURE.md Phase 2.
 
-- **Responsive breakpoint alignment:** SeedSync uses custom breakpoints (`$medium-min-width: 601px`) that don't align with Bootstrap's (`sm: 576px`, `md: 768px`, `lg: 992px`). Handle by: Decide on strategy in Phase 1 (migrate to Bootstrap breakpoints vs. override Bootstrap defaults), apply consistently.
+- **Angular CLI compilation with hybrid approach:** While research confirms Angular CLI supports both `@import` and `@use` in the same project, need to validate that mixing both in `styles.scss` (Bootstrap via `@import`, application modules via `@use`) compiles without warnings or errors. This is a critical assumption for Phase 2.
 
-- **Z-index conflicts:** Custom z-index values (sidebar: 300, header: 200) may conflict with Bootstrap components (dropdown: 1000, modal: 1055). Handle by: Document z-index layering system in Phase 1, test modals/dropdowns when introduced in Phase 4.
+- **sass-migrator behavior on component files:** Tool should skip components that already use `@use`, but need to verify it doesn't attempt to "re-migrate" or introduce changes. Plan to run in `--dry-run` mode first to preview changes before applying.
 
-- **Font-Awesome icon color inheritance:** Icons using `filter: invert(1.0)` may break when migrating to Bootstrap button classes. Handle by: Test icon colors in all button states during Phase 4, adjust filters as needed (`brightness(0) invert(1)` for forced white).
-
-- **Dart Sass deprecation warnings:** Bootstrap 5.3.3 generates harmless deprecation warnings about `@import` usage. Handle by: Document as expected in Phase 1, consider suppressing with `quietDeps: true` in `angular.json` to reduce noise.
+- **Performance impact measurement:** Research indicates 10-30% faster compilation with `@use` vs `@import`. Should measure before/after build times to quantify improvement and validate research claims. Use `ng build --configuration production` for timing.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- **Bootstrap 5.3.8 SCSS source inspection** — Local `node_modules/bootstrap/scss/` files analyzed for variable structure, required import order, available customization points
-- **Angular 19.x CLI configuration** — Local `angular.json` analyzed for current CSS imports, style compilation settings
-- **SeedSync codebase analysis** — Local SCSS files inspected for current patterns:
-  - `src/angular/src/app/common/_common.scss` — Custom color variables, `%button` placeholder, z-index values
-  - `src/angular/src/app/pages/files/file.component.scss` — Selection patterns, button usage, icon filters
-  - `src/angular/src/styles.scss` — Current global styles, box-sizing reset
-  - `src/angular/angular.json` — Bootstrap pre-compiled CSS import (line 36)
+
+**Official Sass documentation:**
+- [Sass @use Rule](https://sass-lang.com/documentation/at-rules/use/) — Module loading syntax and namespace rules
+- [Sass @forward Rule](https://sass-lang.com/documentation/at-rules/forward/) — Re-export patterns and ordering requirements
+- [Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/) — Deprecation timeline (Dart Sass 3.0 removes `@import`)
+- [Sass Module System Launch](https://www.sasscss.com/blog/the-module-system-is-launched) — Official announcement and rationale
+- [Sass Migrator CLI](https://sass-lang.com/documentation/cli/migrator/) — Automated migration tool documentation
+
+**Official Bootstrap documentation:**
+- [Bootstrap 5.3 Sass Docs](https://getbootstrap.com/docs/5.3/customize/sass/) — Shows only `@import` syntax, no `@use` support
+- [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) — Module system tracking issue
+- [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) — Bootstrap 6 in early development
+- [Bootstrap @use Discussion #41260](https://github.com/orgs/twbs/discussions/41260) — Community confirmation of no module support
+
+**Official Angular documentation:**
+- [Angular Component Styling](https://angular.dev/guide/components/styling) — ViewEncapsulation behavior
+- [The New State of CSS in Angular](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6) — Angular CLI Sass support
 
 ### Secondary (MEDIUM confidence)
-- **Bootstrap 5.3 Official Documentation** — SCSS customization patterns, Sass variable customization approach, import order requirements, button variants, color theming system
-- **Angular ViewEncapsulation patterns** — How component scoping interacts with global Bootstrap styles
 
-### Tertiary (LOW confidence)
-- **Bundle size impact** — Estimated 40% reduction based on selective imports (would need to measure actual before/after)
-- **Build time impact** — SCSS compilation ~2-3 seconds per full rebuild (would need to benchmark in actual environment)
+**Community migration guides:**
+- [Stop Using @import Guide](https://dev.to/quesby/stop-using-import-how-to-prepare-for-dart-sass-30-full-migration-guide-1agh) — Comprehensive migration walkthrough
+- [Migrating from @import to @use](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221) — Real-world migration patterns
+- [Using index files with Sass @use](https://tannerdolby.com/writing/using-index-files-in-sass/) — Aggregation patterns
+- [Sass modules primer (OddBird)](https://www.oddbird.net/2019/10/02/sass-modules/) — Module system concepts
+
+**Angular community resources:**
+- [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd) — Namespace conventions
+- [Structure SCSS in Angular](https://dev.to/stefaniefluin/how-to-structure-scss-in-an-angular-app-3376) — Architecture patterns
+- [Angular 19 Sass Warnings](https://coreui.io/blog/angular-19-sass-deprecation-warnings/) — Deprecation warning handling
+
+### Tertiary (LOW confidence, for patterns only)
+
+- [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) — Speculative features (not official)
+- [Bootstrap 5.3.8 with @use workaround](https://timdows.com/blogs/bootstrap-5-3-8-with-use/) — Community workaround attempt
 
 ---
-*Research completed: 2026-02-03*
+
+*Research completed: 2026-02-07*
 *Ready for roadmap: yes*
+
+**Total files to modify:** 3 files
+- `_common.scss` — Transform to `@forward` aggregation module
+- `_bootstrap-overrides.scss` — Add namespaces to variable references
+- `styles.scss` — Maintain hybrid `@import` (Bootstrap) + prepare for `@use` (app modules)
+
+**Component files (16):** No changes needed, already using `@use` correctly
+
+**Success criteria:**
+- All component SCSS files use `@use` (already done)
+- Zero deprecation warnings from application code
+- All 381 Angular unit tests passing
+- Zero visual regressions
+- Bootstrap warnings accepted as external dependency limitation
