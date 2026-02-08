@@ -1,5 +1,33 @@
 # Project Milestones: SeedSync UI Polish
 
+## v1.4 Sass @use Migration (Shipped: 2026-02-08)
+
+**Delivered:** Migrated all application SCSS from deprecated @import to modern @use/@forward module system, proactively preparing for Dart Sass 3.0.
+
+**Phases completed:** 12-14 (3 plans total)
+
+**Key accomplishments:**
+
+- Transformed `_common.scss` to @forward aggregation module with namespaced variable access
+- Transformed `_bootstrap-overrides.scss` to @use with `bv.` and `fn.` namespaces
+- Updated `styles.scss` to @use for application modules (hybrid architecture with Bootstrap @import)
+- Eliminated all application SCSS deprecation warnings (zero from src/app/ paths)
+- All 381 unit tests pass, zero visual regressions
+- Only 3 SCSS files modified across entire migration — minimal blast radius
+
+**Stats:**
+
+- 3 SCSS files modified
+- 44 insertions, 23 deletions
+- 3 phases, 3 plans
+- 2 days (2026-02-07 to 2026-02-08)
+
+**Git range:** `d17c957` → `1001fdf`
+
+**What's next:** UI Polish project complete. All Sass tech debt resolved.
+
+---
+
 ## v1.3 Polish & Clarity (Shipped: 2026-02-04)
 
 **Delivered:** Fixed 62 TypeScript lint errors and added file counts to status dropdown for at-a-glance clarity.
