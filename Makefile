@@ -20,7 +20,7 @@ DEFAULT_STAGING_REGISTRY:=localhost:5000
 DOCKER=${DOCKER_BUILDKIT_FLAGS} DOCKER_BUILDKIT=1 docker
 DOCKER_COMPOSE=${DOCKER_BUILDKIT_FLAGS} COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose
 
-.PHONY: builddir deb docker-image clean
+.PHONY: builddir deb docker-image clean coverage-python
 
 all: deb docker-image
 
@@ -293,6 +293,9 @@ run-remote-server:
 		-p 1234:1234 \
 		--name seedsync_test_e2e_remote-dev \
 		seedsync/test/e2e/remote
+
+coverage-python:
+	cd ${SOURCEDIR}/python && poetry run pytest --cov --cov-report=term-missing --cov-report=html
 
 clean:
 	rm -rf ${BUILDDIR}
