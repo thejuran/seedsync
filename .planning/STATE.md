@@ -48,6 +48,10 @@ Progress: [####################] 100%
 
 ## Accumulated Context
 
+### Pending Todos
+
+- Clean up CI test runner warnings (pytest cache + webob cgi deprecation)
+
 ### Tech Debt
 
 - ~~Sass @import deprecation~~ RESOLVED in v1.4
