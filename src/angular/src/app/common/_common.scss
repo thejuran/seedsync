@@ -1,5 +1,11 @@
-// Import Bootstrap variables (makes them available to this file and components that import this file)
-@import 'bootstrap-variables';
+// Forward Bootstrap variables to components (makes them accessible via @use '../../common/common' as *)
+@forward 'bootstrap-variables';
+
+// Local access to Bootstrap variables with namespace
+@use 'bootstrap-variables' as bv;
+
+// Bootstrap functions (shade-color, tint-color)
+@use 'bootstrap/scss/functions' as fn;
 
 // ============================================================================
 // Bootstrap Semantic Color Variables (for component use)
@@ -13,12 +19,12 @@
 // $primary, $secondary, $success, $danger, $warning, $info
 
 // Bootstrap 5.3 subtle alert color variables (generated from theme colors)
-$warning-text-emphasis: shade-color($warning, 60%);
-$danger-text-emphasis: shade-color($danger, 60%);
-$warning-bg-subtle: tint-color($warning, 80%);
-$danger-bg-subtle: tint-color($danger, 80%);
-$warning-border-subtle: tint-color($warning, 60%);
-$danger-border-subtle: tint-color($danger, 60%);
+$warning-text-emphasis: fn.shade-color(bv.$warning, 60%);
+$danger-text-emphasis: fn.shade-color(bv.$danger, 60%);
+$warning-bg-subtle: fn.tint-color(bv.$warning, 80%);
+$danger-bg-subtle: fn.tint-color(bv.$danger, 80%);
+$warning-border-subtle: fn.tint-color(bv.$warning, 60%);
+$danger-border-subtle: fn.tint-color(bv.$danger, 60%);
 
 // Bootstrap gray scale (commonly used for borders, backgrounds)
 $gray-100: #f8f9fa;

@@ -2,7 +2,8 @@
 // These are imported AFTER Bootstrap components are compiled
 // Use for overriding specific Bootstrap component styles
 
-@import 'bootstrap-variables';
+@use 'bootstrap-variables' as bv;
+@use 'bootstrap/scss/functions' as fn;
 
 // Bootstrap modal customization (migrated from styles.scss)
 .modal-body {
@@ -17,23 +18,23 @@
 [data-bs-theme="dark"] {
   .dropdown-menu {
     // Background and border
-    --bs-dropdown-bg: #{$primary-color};
-    --bs-dropdown-border-color: #{$primary-dark-color};
+    --bs-dropdown-bg: #{bv.$primary-color};
+    --bs-dropdown-border-color: #{bv.$primary-dark-color};
     --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.3);
 
     // Item colors
     --bs-dropdown-link-color: white;
     --bs-dropdown-link-hover-color: white;
-    --bs-dropdown-link-hover-bg: #{$secondary-dark-color};
+    --bs-dropdown-link-hover-bg: #{bv.$secondary-dark-color};
     --bs-dropdown-link-active-color: white;
-    --bs-dropdown-link-active-bg: #{$secondary-dark-color};
+    --bs-dropdown-link-active-bg: #{bv.$secondary-dark-color};
     --bs-dropdown-link-disabled-color: rgba(white, 0.65);
   }
 
   // Toggle button pressed/open state
   .dropdown-toggle.show {
-    background-color: $secondary-dark-color;
-    border-color: $secondary-darker-color;
+    background-color: bv.$secondary-dark-color;
+    border-color: bv.$secondary-darker-color;
   }
 }
 
@@ -91,7 +92,7 @@
 
   // Focus state (teal ring)
   &:focus {
-    border-color: tint-color($secondary, 50%);  // Light teal border
+    border-color: fn.tint-color(bv.$secondary, 50%);  // Light teal border
     // box-shadow is set by Bootstrap via focus ring variables
   }
 

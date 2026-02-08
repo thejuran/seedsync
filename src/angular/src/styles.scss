@@ -1,4 +1,18 @@
-// Bootstrap SCSS imports in correct order
+// =============================================================================
+// SECTION 1: Application Modules (@use -- modern Sass module system)
+// These modules were migrated from @import to @use/@forward in Phase 12-13.
+// Using @use eliminates application deprecation warnings.
+// @use rules MUST appear before any @import or style rules (Sass spec).
+// =============================================================================
+@use 'app/common/bootstrap-overrides';
+@use 'app/common/common';
+
+// =============================================================================
+// SECTION 2: Bootstrap Core (@import -- required by Bootstrap 5.3)
+// Bootstrap 5.3 uses @import internally and is not compatible with @use.
+// Deprecation warnings from Bootstrap are accepted as external dependency noise.
+// This hybrid approach will be revisited when Bootstrap 6 adds @use support.
+// =============================================================================
 
 // 1. Bootstrap functions (required for variable calculations)
 @import '../node_modules/bootstrap/scss/functions';
@@ -13,7 +27,9 @@
 @import '../node_modules/bootstrap/scss/mixins';
 @import '../node_modules/bootstrap/scss/root';
 
-// 4. All Bootstrap components (import ALL to ensure no visual changes)
+// =============================================================================
+// SECTION 3: Bootstrap Components (@import -- required by Bootstrap 5.3)
+// =============================================================================
 @import '../node_modules/bootstrap/scss/utilities';
 @import '../node_modules/bootstrap/scss/reboot';
 @import '../node_modules/bootstrap/scss/type';
@@ -50,11 +66,9 @@
 // 5. Bootstrap utilities API
 @import '../node_modules/bootstrap/scss/utilities/api';
 
-// 6. Bootstrap post-compilation overrides
-@import 'app/common/bootstrap-overrides';
-
-// 7. Custom application styles
-@import 'app/common/common';
+// =============================================================================
+// SECTION 4: Global CSS Rules
+// =============================================================================
 
 html {
     -ms-text-size-adjust: 100%;
