@@ -8,22 +8,29 @@ Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap
 
 Clean, maintainable codebase with intuitive user interface.
 
-## Current Milestone: v1.5 Backend Testing
+## Current State: v1.5 Backend Testing Shipped
+
+All 6 milestones complete. UI polish and backend testing done.
+
+- 952 Python tests (231 new in v1.5), 84% coverage with fail_under threshold
+- Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
+- All 381 Angular unit tests passing
+- Zero TypeScript lint errors, zero SCSS deprecation warnings
+
+<details>
+<summary>Previous: v1.5 In-Progress State</summary>
 
 **Goal:** Comprehensive Python backend testing — fill coverage gaps, add pytest-cov tooling, improve test quality with shared fixtures.
 
-**Target features:**
+**Delivered:**
 - pytest-cov integration with coverage reports and thresholds
-- Unit tests for all common module gaps (5 untested files)
-- Unit tests for all web handler gaps (7 untested handlers)
-- Unit tests for controller.py (766 lines, zero unit tests currently)
-- Shared fixtures via conftest.py to reduce test boilerplate
+- Unit tests for all common module gaps (5 files, 100% coverage)
+- Unit tests for all web handler gaps (7 handlers, 69 tests)
+- Unit tests for controller.py (106 tests)
+- Shared fixtures via conftest.py (3 fixtures)
+- Coverage: 77% → 84%, fail_under enforced
 
-**Current backend test state:**
-- 711 existing tests (614 unit + 97 integration) across 50 files
-- No coverage measurement tooling
-- Key gaps: controller.py (no unit tests), 7 web handlers (integration only), 5 common module files (no tests)
-- Test patterns: unittest.TestCase, MagicMock, pytest runner
+</details>
 
 <details>
 <summary>Previous: v1.4 Shipped State</summary>
@@ -91,15 +98,16 @@ All UI Polish milestones complete. Sass @import deprecation resolved.
 - Maintain identical visual output (zero regressions)
 - All unit tests continue passing
 
-### Active
+### Validated
 
-**v1.5 (In Progress):**
+**v1.5 (Shipped 2026-02-08):**
 
-- pytest-cov integration with coverage reporting
-- Unit tests for common module gaps (constants, context, error, localization, types)
-- Unit tests for web handler gaps (7 handlers)
-- Unit tests for controller.py and controller_job.py
-- Shared fixtures via conftest.py
+- pytest-cov integration with coverage reporting and fail_under threshold
+- Unit tests for common module gaps (5 modules, 100% coverage)
+- Unit tests for web handler gaps (7 handlers, 69 tests)
+- Unit tests for controller.py and controller_job.py (106 tests)
+- Shared fixtures via conftest.py (3 fixtures)
+- Coverage 77% → 84%, 231 new tests
 
 ### Out of Scope
 
@@ -117,6 +125,7 @@ All UI Polish milestones complete. Sass @import deprecation resolved.
 - Bootstrap subtle variables re-exported via @forward in _common.scss for component module access
 - Third-party deprecation warnings (Bootstrap, Font-Awesome) accepted as noise
 - ~~Sass @import deprecation~~ Resolved in v1.4
+- ~~Backend test coverage gaps~~ Resolved in v1.5 (84% coverage, fail_under enforced)
 
 ## Constraints
 
@@ -149,14 +158,14 @@ All UI Polish milestones complete. Sass @import deprecation resolved.
 
 ## Project Status
 
-**Status:** IN PROGRESS — v1.5 Backend Testing
+**Status:** COMPLETE — All milestones shipped
 
-Quality project with 5 milestones shipped, 1 in progress:
+Quality project with 6 milestones shipped:
 - v1.0-v1.4: UI Polish (Bootstrap, styling, lint, Sass migration)
-- v1.5: Backend testing (in progress)
+- v1.5: Backend testing (231 new tests, 84% coverage)
 
 **Future work (if desired):**
 - Dark mode toggle feature
 
 ---
-*Last updated: 2026-02-08 after v1.5 milestone started*
+*Last updated: 2026-02-08 after v1.5 milestone shipped*

@@ -1,5 +1,33 @@
 # Project Milestones: SeedSync UI Polish
 
+## v1.5 Backend Testing (Shipped: 2026-02-08)
+
+**Delivered:** Comprehensive Python backend test coverage — 231 new tests across common modules, web handlers, and controller, with pytest-cov tooling and enforced 84% coverage threshold.
+
+**Phases completed:** 15-19 (8 plans total)
+
+**Key accomplishments:**
+
+- Added pytest-cov tooling with coverage config, shared conftest.py fixtures, and `make coverage-python` target
+- Unit tests for all 5 common modules achieving 100% coverage (constants, context, error, localization, types)
+- Unit tests for all 7 untested web handlers (AutoQueue, Config, Server, Status, HeartbeatStream, ModelStream, StatusStream)
+- Comprehensive controller unit tests: 106 tests covering init, lifecycle, commands, model pipeline, and ControllerJob
+- Coverage improved from 77% to 84% (+314 statements covered, +231 tests)
+- Enforced `fail_under = 84` threshold preventing future regression
+
+**Stats:**
+
+- 19 files changed (+2,315 lines)
+- 14 new test files, 1 conftest.py
+- 5 phases, 8 plans
+- Same-day completion (2026-02-08)
+
+**Git range:** `56463ad` → `03869bc`
+
+**What's next:** Quality project complete. All UI polish and backend testing milestones shipped.
+
+---
+
 ## v1.4 Sass @use Migration (Shipped: 2026-02-08)
 
 **Delivered:** Migrated all application SCSS from deprecated @import to modern @use/@forward module system, proactively preparing for Dart Sass 3.0.

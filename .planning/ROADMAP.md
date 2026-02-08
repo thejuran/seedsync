@@ -7,7 +7,7 @@
 - **v1.2 UI Cleanup** - Phase 9 (shipped 2026-02-04)
 - **v1.3 Polish & Clarity** - Phases 10-11 (shipped 2026-02-04)
 - **v1.4 Sass @use Migration** - Phases 12-14 (shipped 2026-02-08)
-- **v1.5 Backend Testing** - Phases 15-19 (in progress)
+- **v1.5 Backend Testing** - Phases 15-19 (shipped 2026-02-08)
 
 ## Phases
 
@@ -68,19 +68,13 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
 
 
 <details>
-<summary>v1.5 Backend Testing (Phases 15-19) - IN PROGRESS</summary>
+<summary>v1.5 Backend Testing (Phases 15-19) - SHIPPED 2026-02-08</summary>
 
 - [x] Phase 15: Coverage Tooling & Shared Fixtures (1/1 plans) - completed 2026-02-08
-  - [x] 15-01-PLAN.md — Add pytest-cov, coverage config, conftest.py fixtures, Makefile target
 - [x] Phase 16: Common Module Tests (1/1 plans) - completed 2026-02-08
-  - [x] 16-01-PLAN.md — Unit tests for all 5 common modules (constants, context, error, localization, types)
 - [x] Phase 17: Web Handler Unit Tests (2/2 plans) - completed 2026-02-08
-  - [x] 17-01-PLAN.md — Request/response handler tests (AutoQueue, Config, Server, Status)
-  - [x] 17-02-PLAN.md — Stream handler tests (Heartbeat, Model, StatusStream)
 - [x] Phase 18: Controller Unit Tests (2/2 plans) - completed 2026-02-08
-  - [x] 18-01-PLAN.md — Controller initialization, lifecycle, public API, command processing (52 tests)
-  - [x] 18-02-PLAN.md — Model update pipeline, tracking/pruning, ControllerJob (54 tests)
-- [ ] Phase 19: Coverage Baseline & Validation (1 plan)
+- [x] Phase 19: Coverage Baseline & Validation (1/1 plans) - completed 2026-02-08
 
 See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 
@@ -111,9 +105,9 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 | 16. Common Module Tests | v1.5 | 1/1 | Complete | 2026-02-08 |
 | 17. Web Handler Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 18. Controller Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
-| 19. Coverage Baseline & Validation | v1.5 | 0/1 | Not Started | -- |
+| 19. Coverage Baseline & Validation | v1.5 | 1/1 | Complete | 2026-02-08 |
 
 ---
 
 *Last updated: 2026-02-08*
-*v1.5 milestone started: 2026-02-08*
+*v1.5 milestone shipped: 2026-02-08*

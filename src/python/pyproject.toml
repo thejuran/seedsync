@@ -41,6 +41,7 @@ omit = [
 branch = true
 
 [tool.coverage.report]
+fail_under = 84
 show_missing = true
 skip_empty = true
 exclude_lines = [
