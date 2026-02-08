@@ -40,7 +40,7 @@ Docker images are published to GitHub Container Registry and support both `amd64
 | Tag | Description |
 |-----|-------------|
 | `ghcr.io/thejuran/seedsync:latest` | Latest stable release (recommended) |
-| `ghcr.io/thejuran/seedsync:1.2.0` | Pinned to a specific version |
+| `ghcr.io/thejuran/seedsync:1.3.0` | Pinned to a specific version |
 | `ghcr.io/thejuran/seedsync:dev` | Latest master build (may be unstable) |
 
 ### Running the container

@@ -4,6 +4,17 @@ All notable changes to SeedSync are documented here.
 
 ---
 
+## [1.3.0] - 2026-02-08
+
+### Added
+- "Remote Added" and "Local Added" timestamp columns in the file list showing when files were added to the remote server and downloaded locally
+- Timestamps displayed in `yyyy/MM/dd HH:mm` format, hidden on mobile
+
+### Fixed
+- File creation timestamps always null on Linux — scanner now falls back to `st_ctime` when `st_birthtime` is unavailable
+
+---
+
 ## [1.2.0] - 2026-02-05
 
 ### Added
