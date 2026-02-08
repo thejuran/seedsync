@@ -7,8 +7,8 @@ from queue import Queue
 from controller import Controller
 from controller.controller import ControllerError
 from controller.controller_persist import ControllerPersist
-from model import ModelFile, ModelError, IModelListener
-from lftp import LftpError, LftpJobStatusParserError
+from model import ModelFile, ModelError, IModelListener, ModelDiff, Model
+from lftp import LftpError, LftpJobStatus, LftpJobStatusParserError
 
 
 class BaseControllerTestCase(unittest.TestCase):
@@ -569,3 +569,450 @@ class TestControllerCommandCommon(BaseControllerTestCase):
         mock_cb1.on_success.assert_called_once()
         mock_cb2.on_success.assert_called_once()
         self.assertEqual(2, self.mock_lftp_manager.queue.call_count)
+
+
+class TestControllerCollect(BaseControllerTestCase):
+    """Tests for Controller._collect_* data collection methods."""
+
+    def test_collect_scan_results_delegates_to_scan_manager(self):
+        expected = (MagicMock(), MagicMock(), MagicMock())
+        self.mock_scan_manager.pop_latest_results.return_value = expected
+        result = self.controller._collect_scan_results()
+        self.mock_scan_manager.pop_latest_results.assert_called_once()
+        self.assertEqual(expected, result)
+
+    def test_collect_lftp_status_delegates_to_lftp_manager(self):
+        expected = [MagicMock()]
+        self.mock_lftp_manager.status.return_value = expected
+        result = self.controller._collect_lftp_status()
+        self.mock_lftp_manager.status.assert_called_once()
+        self.assertEqual(expected, result)
+
+    def test_collect_extract_results_delegates_to_file_op_manager(self):
+        mock_statuses = MagicMock()
+        mock_completed = [MagicMock()]
+        self.mock_file_op_manager.pop_extract_statuses.return_value = mock_statuses
+        self.mock_file_op_manager.pop_completed_extractions.return_value = mock_completed
+        statuses, completed = self.controller._collect_extract_results()
+        self.mock_file_op_manager.pop_extract_statuses.assert_called_once()
+        self.mock_file_op_manager.pop_completed_extractions.assert_called_once()
+        self.assertEqual(mock_statuses, statuses)
+        self.assertEqual(mock_completed, completed)
+
+
+class TestControllerFeedModelBuilder(BaseControllerTestCase):
+    """Tests for Controller._feed_model_builder()."""
+
+    def test_remote_scan_sets_remote_files(self):
+        remote_scan = MagicMock()
+        self.controller._feed_model_builder(
+            remote_scan, None, None, None, None, []
+        )
+        self.mock_model_builder.set_remote_files.assert_called_once_with(remote_scan.files)
+
+    def test_local_scan_sets_local_files(self):
+        local_scan = MagicMock()
+        self.controller._feed_model_builder(
+            None, local_scan, None, None, None, []
+        )
+        self.mock_model_builder.set_local_files.assert_called_once_with(local_scan.files)
+
+    def test_active_scan_sets_active_files(self):
+        active_scan = MagicMock()
+        self.controller._feed_model_builder(
+            None, None, active_scan, None, None, []
+        )
+        self.mock_model_builder.set_active_files.assert_called_once_with(active_scan.files)
+
+    def test_lftp_statuses_sets_lftp_statuses(self):
+        lftp_statuses = [MagicMock()]
+        self.controller._feed_model_builder(
+            None, None, None, lftp_statuses, None, []
+        )
+        self.mock_model_builder.set_lftp_statuses.assert_called_once_with(lftp_statuses)
+
+    def test_extract_statuses_sets_extract_statuses(self):
+        extract_statuses = MagicMock()
+        extract_statuses.statuses = [MagicMock()]
+        self.controller._feed_model_builder(
+            None, None, None, None, extract_statuses, []
+        )
+        self.mock_model_builder.set_extract_statuses.assert_called_once_with(
+            extract_statuses.statuses
+        )
+
+    def test_extracted_results_adds_to_persist_and_sets_extracted_files(self):
+        result = MagicMock()
+        result.name = "extracted_file"
+        # Reset mock since __init__ already called set_extracted_files once
+        self.mock_model_builder.set_extracted_files.reset_mock()
+        self.controller._feed_model_builder(
+            None, None, None, None, None, [result]
+        )
+        self.assertIn("extracted_file", self.persist.extracted_file_names)
+        self.mock_model_builder.set_extracted_files.assert_called_once_with(
+            self.persist.extracted_file_names
+        )
+
+    def test_all_none_no_set_methods_called(self):
+        # Reset mocks since __init__ already called set_extracted_files and set_downloaded_files
+        self.mock_model_builder.set_extracted_files.reset_mock()
+        self.mock_model_builder.set_downloaded_files.reset_mock()
+        self.controller._feed_model_builder(
+            None, None, None, None, None, []
+        )
+        self.mock_model_builder.set_remote_files.assert_not_called()
+        self.mock_model_builder.set_local_files.assert_not_called()
+        self.mock_model_builder.set_active_files.assert_not_called()
+        self.mock_model_builder.set_lftp_statuses.assert_not_called()
+        self.mock_model_builder.set_extract_statuses.assert_not_called()
+        self.mock_model_builder.set_extracted_files.assert_not_called()
+
+    def test_multiple_extracted_results(self):
+        result1 = MagicMock()
+        result1.name = "file_a"
+        result2 = MagicMock()
+        result2.name = "file_b"
+        # Reset mock since __init__ already called set_extracted_files once
+        self.mock_model_builder.set_extracted_files.reset_mock()
+        self.controller._feed_model_builder(
+            None, None, None, None, None, [result1, result2]
+        )
+        self.assertIn("file_a", self.persist.extracted_file_names)
+        self.assertIn("file_b", self.persist.extracted_file_names)
+        self.mock_model_builder.set_extracted_files.assert_called_once()
+
+
+class TestControllerDetectAndTrackQueued(BaseControllerTestCase):
+    """Tests for Controller._detect_and_track_queued()."""
+
+    def test_added_downloading_with_local_size_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.DOWNLOADING
+        f.local_size = 100
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertIn("file", self.persist.downloaded_file_names)
+
+    def test_added_queued_not_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.QUEUED
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertNotIn("file", self.persist.downloaded_file_names)
+
+    def test_downloading_with_local_size_zero_not_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.DOWNLOADING
+        f.local_size = 0
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertNotIn("file", self.persist.downloaded_file_names)
+
+    def test_downloading_with_local_size_none_not_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.DOWNLOADING
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertNotIn("file", self.persist.downloaded_file_names)
+
+    def test_already_tracked_not_readded(self):
+        self.persist.downloaded_file_names.add("file")
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.DOWNLOADING
+        f.local_size = 100
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        # Reset mock to detect if set_downloaded_files is called again
+        self.mock_model_builder.set_downloaded_files.reset_mock()
+        self.controller._detect_and_track_queued(diff)
+        # Should NOT call set_downloaded_files again since already tracked
+        self.mock_model_builder.set_downloaded_files.assert_not_called()
+
+    def test_updated_default_to_downloading_with_content_tracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DEFAULT
+        new_f = ModelFile("file", False)
+        new_f.state = ModelFile.State.DOWNLOADING
+        new_f.local_size = 500
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertIn("file", self.persist.downloaded_file_names)
+
+    def test_updated_downloading_no_content_to_content_tracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADING
+        old_f.local_size = 0
+        new_f = ModelFile("file", False)
+        new_f.state = ModelFile.State.DOWNLOADING
+        new_f.local_size = 500
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.controller._detect_and_track_queued(diff)
+        self.assertIn("file", self.persist.downloaded_file_names)
+
+    def test_removed_diff_no_change(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADING
+        old_f.local_size = 100
+        diff = ModelDiff(ModelDiff.Change.REMOVED, old_f, None)
+        self.controller._detect_and_track_queued(diff)
+        self.assertNotIn("file", self.persist.downloaded_file_names)
+
+
+class TestControllerDetectAndTrackDownload(BaseControllerTestCase):
+    """Tests for Controller._detect_and_track_download()."""
+
+    def test_added_downloaded_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.DOWNLOADED
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_download(diff)
+        self.assertIn("file", self.persist.downloaded_file_names)
+
+    def test_updated_downloading_to_downloaded_tracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADING
+        new_f = ModelFile("file", False)
+        new_f.state = ModelFile.State.DOWNLOADED
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.controller._detect_and_track_download(diff)
+        self.assertIn("file", self.persist.downloaded_file_names)
+
+    def test_updated_downloaded_to_downloaded_not_retracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADED
+        new_f = ModelFile("file", False)
+        new_f.state = ModelFile.State.DOWNLOADED
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.mock_model_builder.set_downloaded_files.reset_mock()
+        self.controller._detect_and_track_download(diff)
+        # Should NOT track because old_file.state was already DOWNLOADED
+        self.mock_model_builder.set_downloaded_files.assert_not_called()
+
+    def test_added_queued_not_tracked(self):
+        f = ModelFile("file", False)
+        f.state = ModelFile.State.QUEUED
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._detect_and_track_download(diff)
+        self.assertNotIn("file", self.persist.downloaded_file_names)
+
+    def test_removed_not_tracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADED
+        diff = ModelDiff(ModelDiff.Change.REMOVED, old_f, None)
+        self.mock_model_builder.set_downloaded_files.reset_mock()
+        self.controller._detect_and_track_download(diff)
+        self.mock_model_builder.set_downloaded_files.assert_not_called()
+
+    def test_updated_to_non_downloaded_not_tracked(self):
+        old_f = ModelFile("file", False)
+        old_f.state = ModelFile.State.DOWNLOADING
+        new_f = ModelFile("file", False)
+        new_f.state = ModelFile.State.QUEUED
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.mock_model_builder.set_downloaded_files.reset_mock()
+        self.controller._detect_and_track_download(diff)
+        self.mock_model_builder.set_downloaded_files.assert_not_called()
+
+
+class TestControllerPruneExtracted(BaseControllerTestCase):
+    """Tests for Controller._prune_extracted_files()."""
+
+    def test_file_in_persist_and_model_with_deleted_state_removed(self):
+        self.persist.extracted_file_names.add("file")
+        self._add_file_to_model("file", state=ModelFile.State.DELETED)
+        self.controller._prune_extracted_files()
+        self.assertNotIn("file", self.persist.extracted_file_names)
+
+    def test_file_in_persist_and_model_with_downloaded_state_kept(self):
+        self.persist.extracted_file_names.add("file")
+        self._add_file_to_model("file", state=ModelFile.State.DOWNLOADED, local_size=100)
+        self.controller._prune_extracted_files()
+        self.assertIn("file", self.persist.extracted_file_names)
+
+    def test_file_in_persist_but_not_in_model_kept(self):
+        self.persist.extracted_file_names.add("missing_file")
+        # Do NOT add file to model -- scans may not be available
+        self.controller._prune_extracted_files()
+        self.assertIn("missing_file", self.persist.extracted_file_names)
+
+    def test_empty_persist_no_crash(self):
+        # persist.extracted_file_names is empty by default
+        self.controller._prune_extracted_files()  # should not raise
+
+
+class TestControllerApplyModelDiff(BaseControllerTestCase):
+    """Tests for Controller._apply_model_diff()."""
+
+    def test_added_file_appears_in_model(self):
+        f = ModelFile("new_file", False)
+        f.remote_size = 1000
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._apply_model_diff([diff])
+        result = self.controller._Controller__model.get_file("new_file")
+        self.assertEqual("new_file", result.name)
+
+    def test_removed_file_gone_from_model(self):
+        self._add_file_to_model("old_file", remote_size=1000)
+        old_f = self.controller._Controller__model.get_file("old_file")
+        diff = ModelDiff(ModelDiff.Change.REMOVED, old_f, None)
+        self.controller._apply_model_diff([diff])
+        self.assertNotIn("old_file", self.controller._Controller__model.get_file_names())
+
+    def test_updated_file_updated_in_model(self):
+        self._add_file_to_model("file", remote_size=1000)
+        new_f = ModelFile("file", False)
+        new_f.remote_size = 2000
+        old_f = self.controller._Controller__model.get_file("file")
+        diff = ModelDiff(ModelDiff.Change.UPDATED, old_f, new_f)
+        self.controller._apply_model_diff([diff])
+        result = self.controller._Controller__model.get_file("file")
+        self.assertEqual(2000, result.remote_size)
+
+    def test_mixed_diffs_correct_final_state(self):
+        self._add_file_to_model("remove_me", remote_size=100)
+        old_f = self.controller._Controller__model.get_file("remove_me")
+        f_add_b = ModelFile("add_b", False)
+        f_add_b.remote_size = 200
+        f_add_c = ModelFile("add_c", False)
+        f_add_c.remote_size = 300
+        diffs = [
+            ModelDiff(ModelDiff.Change.REMOVED, old_f, None),
+            ModelDiff(ModelDiff.Change.ADDED, None, f_add_b),
+            ModelDiff(ModelDiff.Change.ADDED, None, f_add_c),
+        ]
+        self.controller._apply_model_diff(diffs)
+        file_names = self.controller._Controller__model.get_file_names()
+        self.assertNotIn("remove_me", file_names)
+        self.assertIn("add_b", file_names)
+        self.assertIn("add_c", file_names)
+
+    def test_empty_diff_no_crash(self):
+        self.controller._apply_model_diff([])  # should not raise
+
+    def test_added_downloaded_state_triggers_tracking(self):
+        f = ModelFile("dl_file", False)
+        f.state = ModelFile.State.DOWNLOADED
+        diff = ModelDiff(ModelDiff.Change.ADDED, None, f)
+        self.controller._apply_model_diff([diff])
+        self.assertIn("dl_file", self.persist.downloaded_file_names)
+
+
+class TestControllerActiveFileTracking(BaseControllerTestCase):
+    """Tests for Controller._update_active_file_tracking()."""
+
+    def test_running_lftp_statuses_updates_active_list(self):
+        mock_status = MagicMock()
+        mock_status.state = LftpJobStatus.State.RUNNING
+        mock_status.name = "file_a"
+        self.controller._update_active_file_tracking([mock_status], None)
+        self.assertEqual(["file_a"],
+                         self.controller._Controller__active_downloading_file_names)
+
+    def test_queued_lftp_status_empty_list(self):
+        mock_status = MagicMock()
+        mock_status.state = LftpJobStatus.State.QUEUED
+        mock_status.name = "file_a"
+        self.controller._update_active_file_tracking([mock_status], None)
+        self.assertEqual([],
+                         self.controller._Controller__active_downloading_file_names)
+
+    def test_none_lftp_statuses_preserves_existing_list(self):
+        self.controller._Controller__active_downloading_file_names = ["existing"]
+        self.controller._update_active_file_tracking(None, None)
+        self.assertEqual(["existing"],
+                         self.controller._Controller__active_downloading_file_names)
+
+    def test_calls_scan_manager_update_active_files(self):
+        mock_status = MagicMock()
+        mock_status.state = LftpJobStatus.State.RUNNING
+        mock_status.name = "file_a"
+        self.mock_file_op_manager.get_active_extracting_file_names.return_value = ["extract_b"]
+        self.controller._update_active_file_tracking([mock_status], None)
+        self.mock_scan_manager.update_active_files.assert_called_once_with(
+            ["file_a", "extract_b"]
+        )
+
+
+class TestControllerBuildAndApplyModel(BaseControllerTestCase):
+    """Tests for Controller._build_and_apply_model()."""
+
+    def test_no_changes_build_model_not_called(self):
+        self.mock_model_builder.has_changes.return_value = False
+        self.controller._build_and_apply_model(None)
+        self.mock_model_builder.build_model.assert_not_called()
+
+    def test_has_changes_build_model_called(self):
+        self.mock_model_builder.has_changes.return_value = True
+        new_model = Model()
+        self.mock_model_builder.build_model.return_value = new_model
+        self.controller._build_and_apply_model(None)
+        self.mock_model_builder.build_model.assert_called_once()
+
+    def test_has_changes_new_file_appears_in_controller_model(self):
+        self.mock_model_builder.has_changes.return_value = True
+        new_model = Model()
+        f = ModelFile("brand_new", False)
+        f.remote_size = 999
+        new_model.add_file(f)
+        self.mock_model_builder.build_model.return_value = new_model
+        self.controller._build_and_apply_model(None)
+        result = self.controller._Controller__model.get_file("brand_new")
+        self.assertEqual("brand_new", result.name)
+
+    def test_has_changes_empty_model_no_change(self):
+        self.mock_model_builder.has_changes.return_value = True
+        new_model = Model()
+        self.mock_model_builder.build_model.return_value = new_model
+        self.controller._build_and_apply_model(None)
+        self.assertEqual(set(), self.controller._Controller__model.get_file_names())
+
+
+class TestControllerUpdateStatus(BaseControllerTestCase):
+    """Tests for Controller._update_controller_status()."""
+
+    def test_remote_scan_updates_status(self):
+        remote_scan = MagicMock()
+        remote_scan.timestamp = 12345
+        remote_scan.failed = False
+        remote_scan.error_message = None
+        self.controller._update_controller_status(remote_scan, None)
+        self.assertEqual(12345,
+                         self.mock_context.status.controller.latest_remote_scan_time)
+        self.assertEqual(False,
+                         self.mock_context.status.controller.latest_remote_scan_failed)
+        self.assertIsNone(
+            self.mock_context.status.controller.latest_remote_scan_error)
+
+    def test_local_scan_updates_status(self):
+        local_scan = MagicMock()
+        local_scan.timestamp = 67890
+        self.controller._update_controller_status(None, local_scan)
+        self.assertEqual(67890,
+                         self.mock_context.status.controller.latest_local_scan_time)
+
+    def test_both_none_no_crash(self):
+        self.controller._update_controller_status(None, None)  # should not raise
+
+
+class TestControllerPropagateExceptions(BaseControllerTestCase):
+    """Tests for Controller.__propagate_exceptions and process()."""
+
+    def setUp(self):
+        super().setUp()
+        self._make_controller_started()
+
+    def test_process_calls_all_propagation_methods(self):
+        self.controller.process()
+        self.mock_lftp_manager.raise_pending_error.assert_called_once()
+        self.mock_scan_manager.propagate_exceptions.assert_called_once()
+        self.mock_mp_logger.propagate_exception.assert_called_once()
+        self.mock_file_op_manager.propagate_exception.assert_called_once()
+
+    def test_lftp_error_from_raise_pending_error_propagates(self):
+        self.mock_lftp_manager.raise_pending_error.side_effect = LftpError("lftp broke")
+        with self.assertRaises(LftpError):
+            self.controller.process()
+
+    def test_process_calls_cleanup_completed_processes(self):
+        self.controller.process()
+        self.mock_file_op_manager.cleanup_completed_processes.assert_called_once()
