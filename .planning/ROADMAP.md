@@ -7,6 +7,7 @@
 - **v1.2 UI Cleanup** - Phase 9 (shipped 2026-02-04)
 - **v1.3 Polish & Clarity** - Phases 10-11 (shipped 2026-02-04)
 - **v1.4 Sass @use Migration** - Phases 12-14 (shipped 2026-02-08)
+- **v1.5 Backend Testing** - Phases 15-19 (in progress)
 
 ## Phases
 
@@ -66,6 +67,20 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
 </details>
 
 
+<details>
+<summary>v1.5 Backend Testing (Phases 15-19) - IN PROGRESS</summary>
+
+- [ ] Phase 15: Coverage Tooling & Shared Fixtures (1 plan)
+- [ ] Phase 16: Common Module Tests (1 plan)
+- [ ] Phase 17: Web Handler Unit Tests (2 plans)
+- [ ] Phase 18: Controller Unit Tests (2 plans)
+- [ ] Phase 19: Coverage Baseline & Validation (1 plan)
+
+See `.planning/milestones/v1.5-ROADMAP.md` for full details.
+
+</details>
+
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -86,7 +101,13 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
 | 13. Styles Entry Point | v1.4 | 1/1 | Complete | 2026-02-08 |
 | 14. Validation | v1.4 | 1/1 | Complete | 2026-02-08 |
 
+| 15. Coverage Tooling & Shared Fixtures | v1.5 | 0/1 | Not Started | -- |
+| 16. Common Module Tests | v1.5 | 0/1 | Not Started | -- |
+| 17. Web Handler Unit Tests | v1.5 | 0/2 | Not Started | -- |
+| 18. Controller Unit Tests | v1.5 | 0/2 | Not Started | -- |
+| 19. Coverage Baseline & Validation | v1.5 | 0/1 | Not Started | -- |
+
 ---
 
 *Last updated: 2026-02-08*
-*v1.4 milestone shipped: 2026-02-08*
+*v1.5 milestone started: 2026-02-08*

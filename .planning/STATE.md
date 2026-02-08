@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-07)
+See: .planning/PROJECT.md (updated 2026-02-08)
 
 **Core value:** Clean, maintainable codebase with intuitive user interface
-**Current focus:** v1.4 Sass @use Migration -- COMPLETE
+**Current focus:** v1.5 Backend Testing
 
 ## Current Position
 
-Phase: 14 of 14 (Validation) -- COMPLETE
-Plan: 1 of 1
-Status: v1.4 milestone complete, all requirements validated
-Last activity: 2026-02-08 -- Completed 14-01-PLAN.md (validation)
+Phase: 15 — Coverage Tooling & Shared Fixtures
+Plan: —
+Status: Milestone started, ready for Phase 15 planning
+Last activity: 2026-02-08 — v1.5 milestone created
 
-Progress: [████████████████████] 100%
+Progress: [░░░░░░░░░░░░░░░░░░░░] 0%
 
 ## Milestones Shipped
 
@@ -48,8 +48,9 @@ Progress: [████████████████████] 100%
 
 ### Tech Debt
 
-- ~~Sass @import deprecation~~ RESOLVED in v1.4 (Phases 12-14)
-- Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6 adds @use support)
+- ~~Sass @import deprecation~~ RESOLVED in v1.4
+- Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
+- Backend test coverage gaps (addressing in v1.5)
 
 ### Key Decisions
 
@@ -58,9 +59,9 @@ See PROJECT.md Key Decisions table for full list.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: v1.4 milestone complete
+Stopped at: v1.5 milestone created
 Resume file: None
-Next action: None -- milestone complete
+Next action: Plan Phase 15 (Coverage Tooling & Shared Fixtures)
 
 ---
 *v1.0 shipped: 2026-02-03*
@@ -68,3 +69,4 @@ Next action: None -- milestone complete
 *v1.2 shipped: 2026-02-04*
 *v1.3 shipped: 2026-02-04*
 *v1.4 shipped: 2026-02-08*
+*v1.5 started: 2026-02-08*

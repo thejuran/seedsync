@@ -1,36 +1,41 @@
-# SeedSync UI Polish
+# SeedSync Quality
 
 ## What This Is
 
-UI refinement and code quality work for SeedSync's Angular frontend. v1.0-v1.2 unified CSS/SCSS styling (Bootstrap migration, colors, buttons, dropdowns, forms, cleanup). v1.3 added code quality (lint fixes) and UX clarity (status dropdown counts). v1.4 modernizes the Sass module system from deprecated @import to @use/@forward.
+Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 shifts to backend testing — filling coverage gaps, adding tooling, and improving test quality for the Python backend.
 
 ## Core Value
 
 Clean, maintainable codebase with intuitive user interface.
 
-## Current State (v1.4 Shipped)
+## Current Milestone: v1.5 Backend Testing
 
-All planned UI Polish milestones are complete. The Sass @import deprecation tech debt is resolved.
+**Goal:** Comprehensive Python backend testing — fill coverage gaps, add pytest-cov tooling, improve test quality with shared fixtures.
 
-**v1.4 Sass @use Migration** shipped 2026-02-08:
-- All application SCSS migrated from @import to @use/@forward
-- Zero deprecation warnings from application code
-- 381 unit tests passing, zero visual regressions
-- Only 3 files modified across entire migration
+**Target features:**
+- pytest-cov integration with coverage reports and thresholds
+- Unit tests for all common module gaps (5 untested files)
+- Unit tests for all web handler gaps (7 untested handlers)
+- Unit tests for controller.py (766 lines, zero unit tests currently)
+- Shared fixtures via conftest.py to reduce test boilerplate
 
-## Current State (v1.3 Shipped)
+**Current backend test state:**
+- 711 existing tests (614 unit + 97 integration) across 50 files
+- No coverage measurement tooling
+- Key gaps: controller.py (no unit tests), 7 web handlers (integration only), 5 common module files (no tests)
+- Test patterns: unittest.TestCase, MagicMock, pytest runner
 
-- Angular 19.x with Bootstrap 5.3 SCSS source imports
-- Bootstrap theme colors defined in `_bootstrap-variables.scss`
-- All component SCSS files use Bootstrap semantic variables
-- Selection uses secondary (teal) color palette with visual hierarchy
-- All buttons use Bootstrap btn classes with consistent 40px sizing
-- Dropdowns use Bootstrap native component with dark theme via CSS variables
-- Form inputs use Bootstrap classes with teal focus rings
-- **Zero TypeScript lint errors** (`npm run lint` exits clean)
-- **Status dropdown shows file counts** per status with on-demand refresh
+<details>
+<summary>Previous: v1.4 Shipped State</summary>
+
+All UI Polish milestones complete. Sass @import deprecation resolved.
+
+- Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
 - All 381 Angular unit tests passing
-- Visual QA verified at desktop and tablet (768px) widths
+- Zero TypeScript lint errors, zero SCSS deprecation warnings
+- Visual QA verified at desktop and tablet widths
+
+</details>
 
 ## Requirements
 
@@ -86,14 +91,24 @@ All planned UI Polish milestones are complete. The Sass @import deprecation tech
 - Maintain identical visual output (zero regressions)
 - All unit tests continue passing
 
+### Active
+
+**v1.5 (In Progress):**
+
+- pytest-cov integration with coverage reporting
+- Unit tests for common module gaps (constants, context, error, localization, types)
+- Unit tests for web handler gaps (7 handlers)
+- Unit tests for controller.py and controller_job.py
+- Shared fixtures via conftest.py
+
 ### Out of Scope
 
-- Adding new UI features - this is purely CSS refactoring
-- Changing component behavior - styling only
-- Major layout restructuring - preserve existing layouts
-- Adding new dependencies - use existing Bootstrap 5
-- Dark mode toggle - not part of current unification work
-- ~~Full @use migration~~ - Completed in v1.4
+- E2E tests (Playwright) — separate concern
+- Angular unit tests — frontend, not backend
+- Performance/load testing
+- Refactoring production code to improve testability
+- CI/CD coverage gates (GitHub Actions changes)
+- Dark mode toggle
 
 ## Context
 
@@ -134,17 +149,14 @@ All planned UI Polish milestones are complete. The Sass @import deprecation tech
 
 ## Project Status
 
-**Status:** COMPLETE — All milestones shipped
+**Status:** IN PROGRESS — v1.5 Backend Testing
 
-UI Polish project with 5 milestones shipped:
-- v1.0: Bootstrap SCSS infrastructure, colors, buttons
-- v1.1: Dropdowns, forms, final polish
-- v1.2: UI cleanup (removed obsolete buttons)
-- v1.3: Lint fixes, status dropdown counts
-- v1.4: Sass @use migration
+Quality project with 5 milestones shipped, 1 in progress:
+- v1.0-v1.4: UI Polish (Bootstrap, styling, lint, Sass migration)
+- v1.5: Backend testing (in progress)
 
 **Future work (if desired):**
 - Dark mode toggle feature
 
 ---
-*Last updated: 2026-02-08 after v1.4 milestone shipped*
+*Last updated: 2026-02-08 after v1.5 milestone started*
