@@ -132,7 +132,7 @@ class SystemScanner:
             try:
                 time_created = datetime.fromtimestamp(entry.stat().st_birthtime)
             except AttributeError:
-                pass
+                time_created = datetime.fromtimestamp(entry.stat().st_ctime)
             time_modified = datetime.fromtimestamp(entry.stat().st_mtime)
             sys_file = SystemFile(name,
                                   size,
@@ -159,7 +159,7 @@ class SystemScanner:
             try:
                 time_created = datetime.fromtimestamp(entry.stat().st_birthtime)
             except AttributeError:
-                pass
+                time_created = datetime.fromtimestamp(entry.stat().st_ctime)
             time_modified = datetime.fromtimestamp(entry.stat().st_mtime)
             sys_file = SystemFile(file_name,
                                   file_size,
