@@ -74,10 +74,12 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
   - [x] 15-01-PLAN.md — Add pytest-cov, coverage config, conftest.py fixtures, Makefile target
 - [x] Phase 16: Common Module Tests (1/1 plans) - completed 2026-02-08
   - [x] 16-01-PLAN.md — Unit tests for all 5 common modules (constants, context, error, localization, types)
-- [ ] Phase 17: Web Handler Unit Tests — **2 plans**
-  - [ ] 17-01-PLAN.md — Request/response handler tests (AutoQueue, Config, Server, Status)
-  - [ ] 17-02-PLAN.md — Stream handler tests (Heartbeat, Model, StatusStream)
-- [ ] Phase 18: Controller Unit Tests (2 plans)
+- [x] Phase 17: Web Handler Unit Tests (2/2 plans) - completed 2026-02-08
+  - [x] 17-01-PLAN.md — Request/response handler tests (AutoQueue, Config, Server, Status)
+  - [x] 17-02-PLAN.md — Stream handler tests (Heartbeat, Model, StatusStream)
+- [x] Phase 18: Controller Unit Tests (2/2 plans) - completed 2026-02-08
+  - [x] 18-01-PLAN.md — Controller initialization, lifecycle, public API, command processing (52 tests)
+  - [x] 18-02-PLAN.md — Model update pipeline, tracking/pruning, ControllerJob (54 tests)
 - [ ] Phase 19: Coverage Baseline & Validation (1 plan)
 
 See `.planning/milestones/v1.5-ROADMAP.md` for full details.
@@ -107,8 +109,8 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 
 | 15. Coverage Tooling & Shared Fixtures | v1.5 | 1/1 | Complete | 2026-02-08 |
 | 16. Common Module Tests | v1.5 | 1/1 | Complete | 2026-02-08 |
-| 17. Web Handler Unit Tests | v1.5 | 0/2 | Planned | -- |
-| 18. Controller Unit Tests | v1.5 | 0/2 | Not Started | -- |
+| 17. Web Handler Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
+| 18. Controller Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 19. Coverage Baseline & Validation | v1.5 | 0/1 | Not Started | -- |
 
 ---
