@@ -1,3 +1,11 @@
+seedsync (1.3.0) stable; urgency=low
+
+  * Added "Remote Added" and "Local Added" timestamp columns to the file list
+  * Timestamps hidden on mobile, shown on desktop with date formatting
+  * Fixed creation timestamps always null on Linux by falling back to st_ctime
+
+ -- thejuran <thejuran@users.noreply.github.com>  Sun, 08 Feb 2026 00:00:00 +0000
+
 seedsync (1.2.1) stable; urgency=low
 
   * Fixed "Queue" action not available when selecting files by clicking the row
