@@ -1,3 +1,9 @@
+seedsync (1.3.1) stable; urgency=low
+
+  * Fixed integration test failures caused by unpatched created timestamps
+
+ -- thejuran <thejuran@users.noreply.github.com>  Sun, 08 Feb 2026 00:00:00 +0000
+
 seedsync (1.3.0) stable; urgency=low
 
   * Added "Remote Added" and "Local Added" timestamp columns to the file list

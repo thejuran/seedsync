@@ -4,6 +4,13 @@ All notable changes to SeedSync are documented here.
 
 ---
 
+## [1.3.1] - 2026-02-08
+
+### Fixed
+- Fixed integration test failures for controller tests on Linux caused by `st_ctime` fallback populating created timestamps that tests didn't expect
+
+---
+
 ## [1.3.0] - 2026-02-08
 
 ### Added

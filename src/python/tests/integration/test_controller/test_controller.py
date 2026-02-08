@@ -280,6 +280,14 @@ class TestController(unittest.TestCase):
         self.addCleanup(pm.stop)
         pm_cls = pm.start()
         pm_cls.return_value = None
+        pm = patch("model.file.ModelFile.remote_created_timestamp", new_callable=PropertyMock)
+        self.addCleanup(pm.stop)
+        pm_cls = pm.start()
+        pm_cls.return_value = None
+        pm = patch("model.file.ModelFile.local_created_timestamp", new_callable=PropertyMock)
+        self.addCleanup(pm.stop)
+        pm_cls = pm.start()
+        pm_cls.return_value = None
 
         # config file
         # Note: seedsynctest account must be set up. See DeveloperReadme.md for details
