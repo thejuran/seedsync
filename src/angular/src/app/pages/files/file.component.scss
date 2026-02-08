@@ -165,9 +165,15 @@
     font-size: 80%;
 }
 
-/* Hide the outer eta */
+/* Hide the outer eta and timestamps on mobile */
 .content .eta {display: none;}
+.content .remote-timestamp {display: none;}
+.content .local-timestamp {display: none;}
 .content .speed .speed-eta {font-size: 90%;}
+
+/* Timestamp font size */
+.content .remote-timestamp {font-size: 80%;}
+.content .local-timestamp {font-size: 80%;}
 
 /* actions - hidden for virtual scroll, but migrated to Bootstrap for consistency */
 .actions {
@@ -235,7 +241,9 @@
     .content .name      {flex-grow: 1;}
     .content .speed     {width: 100px; min-width: 100px;}
     .content .eta       {width: 100px; min-width: 100px;}
-    .content .size      {width: 30%; min-width: 30%;}
+    .content .remote-timestamp {width: 140px; min-width: 140px;}
+    .content .local-timestamp  {width: 140px; min-width: 140px;}
+    .content .size      {width: 20%; min-width: 20%;}
 
     .content {
         /* single row */
@@ -250,9 +258,13 @@
     .content .name {order: 1;}
     .content .speed {order: 3;}
     .content .eta {order: 4;}
-    .content .size {order: 5;}
+    .content .remote-timestamp {order: 5;}
+    .content .local-timestamp {order: 6;}
+    .content .size {order: 7;}
 
-    /* Hide the inner eta, show outer eta */
+    /* Hide the inner eta, show outer eta and timestamps */
     .content .eta {display: inline;}
+    .content .remote-timestamp {display: inline;}
+    .content .local-timestamp {display: inline;}
     .content .speed .speed-eta {display: none;}
 }

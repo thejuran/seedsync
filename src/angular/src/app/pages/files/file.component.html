@@ -49,6 +49,16 @@
         <div class="eta">
             <span *ngIf="file.status === ViewFile.Status.DOWNLOADING">{{file.eta | eta}}</span>
         </div>
+        <div class="remote-timestamp">
+            <span *ngIf="file.remoteCreatedTimestamp">
+                {{file.remoteCreatedTimestamp | date: 'yyyy/MM/dd HH:mm'}}
+            </span>
+        </div>
+        <div class="local-timestamp">
+            <span *ngIf="file.localCreatedTimestamp">
+                {{file.localCreatedTimestamp | date: 'yyyy/MM/dd HH:mm'}}
+            </span>
+        </div>
         <div class="size">
             <div class="progress">
                 <div class="progress-bar" role="progressbar"

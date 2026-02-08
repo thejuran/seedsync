@@ -60,7 +60,9 @@
     #header .name       {flex-grow: 1;}
     #header .speed      {width: 100px; min-width: 100px;}
     #header .eta        {width: 100px; min-width: 100px;}
-    #header .size       {width: 30%; min-width: 30%;}
+    #header .remote-timestamp {width: 140px; min-width: 140px;}
+    #header .local-timestamp  {width: 140px; min-width: 140px;}
+    #header .size       {width: 20%; min-width: 20%;}
 
     /* header and content elements */
     #header > div, .content > div {
