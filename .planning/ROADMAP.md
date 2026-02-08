@@ -57,8 +57,10 @@ See `.planning/milestones/v1.3-ROADMAP.md` for full details.
 <details>
 <summary>v1.4 Sass @use Migration (Phases 12-14) - IN PROGRESS</summary>
 
-- [ ] Phase 12: Shared Module Migration - not started
-- [ ] Phase 13: Styles Entry Point - not started
+- [x] Phase 12: Shared Module Migration (1/1 plans) - completed 2026-02-08
+- [ ] Phase 13: Styles Entry Point (1 plan)
+  Plans:
+  - [ ] 13-01-PLAN.md -- Migrate styles.scss app imports to @use and document hybrid approach
 - [ ] Phase 14: Validation - not started
 
 See `.planning/milestones/v1.4-ROADMAP.md` for full details.
@@ -82,11 +84,11 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
 | 10. Lint Cleanup | v1.3 | 4/4 | Complete | 2026-02-04 |
 | 11. Status Dropdown Counts | v1.3 | 1/1 | Complete | 2026-02-04 |
 
-| 12. Shared Module Migration | v1.4 | 0/1 | Not Started | — |
-| 13. Styles Entry Point | v1.4 | 0/1 | Not Started | — |
-| 14. Validation | v1.4 | 0/1 | Not Started | — |
+| 12. Shared Module Migration | v1.4 | 1/1 | Complete | 2026-02-08 |
+| 13. Styles Entry Point | v1.4 | 0/1 | Not Started | -- |
+| 14. Validation | v1.4 | 0/1 | Not Started | -- |
 
 ---
 
-*Last updated: 2026-02-07*
+*Last updated: 2026-02-08*
 *v1.4 milestone started: 2026-02-07*
