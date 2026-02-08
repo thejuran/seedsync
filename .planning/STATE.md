@@ -9,10 +9,10 @@ See: .planning/PROJECT.md (updated 2026-02-08)
 
 ## Current Position
 
-Phase: 16 — Common Module Tests (COMPLETE)
-Plan: 1/1 complete
-Status: Phase 16 complete — ready for Phase 17
-Last activity: 2026-02-08 — Phase 16 executed (56 test methods, 5 files, 100% coverage on 5 modules)
+Phase: 17 — Web Handler Unit Tests
+Plan: 17-01 and 17-02 planned, ready to execute (Wave 1, parallel)
+Status: Phase 17 planned — ready for execution
+Last activity: 2026-02-08 — Phase 17 planned (2 plans, 4 tasks, 7 test files, ~60 methods)
 
 Progress: [########░░░░░░░░░░░░] 40%
 
@@ -59,9 +59,9 @@ See PROJECT.md Key Decisions table for full list.
 ## Session Continuity
 
 Last session: 2026-02-08
-Stopped at: Phase 16 complete
+Stopped at: Phase 17 planned
 Resume file: None
-Next action: Plan Phase 17 (Web Handler Unit Tests)
+Next action: Execute Phase 17 (/gsd:execute-phase 17)
 
 ---
 *v1.0 shipped: 2026-02-03*
