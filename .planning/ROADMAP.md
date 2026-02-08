@@ -72,7 +72,8 @@ See `.planning/milestones/v1.4-ROADMAP.md` for full details.
 
 - [x] Phase 15: Coverage Tooling & Shared Fixtures (1/1 plans) - completed 2026-02-08
   - [x] 15-01-PLAN.md — Add pytest-cov, coverage config, conftest.py fixtures, Makefile target
-- [ ] Phase 16: Common Module Tests (1 plan)
+- [ ] Phase 16: Common Module Tests — **1 plan**
+  - [ ] 16-01-PLAN.md — Unit tests for all 5 common modules (constants, context, error, localization, types)
 - [ ] Phase 17: Web Handler Unit Tests (2 plans)
 - [ ] Phase 18: Controller Unit Tests (2 plans)
 - [ ] Phase 19: Coverage Baseline & Validation (1 plan)
@@ -103,7 +104,7 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 | 14. Validation | v1.4 | 1/1 | Complete | 2026-02-08 |
 
 | 15. Coverage Tooling & Shared Fixtures | v1.5 | 1/1 | Complete | 2026-02-08 |
-| 16. Common Module Tests | v1.5 | 0/1 | Not Started | -- |
+| 16. Common Module Tests | v1.5 | 0/1 | Planned | -- |
 | 17. Web Handler Unit Tests | v1.5 | 0/2 | Not Started | -- |
 | 18. Controller Unit Tests | v1.5 | 0/2 | Not Started | -- |
 | 19. Coverage Baseline & Validation | v1.5 | 0/1 | Not Started | -- |
