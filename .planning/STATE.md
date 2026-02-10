@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 
 ## Current Position
 
-Phase: 24 of 25 (Status Visibility & Notifications)
-Plan: 24-01 complete, 24-02 next
-Status: Phase 24 Plan 01 complete (import_status pipeline + ToastService)
-Last activity: 2026-02-10 — Executed Phase 24 Plan 01 (7 tasks, 7 commits, 8m)
+Phase: 24 of 25 (Status Visibility & Notifications) -- COMPLETE
+Plan: 24-02 complete (all plans in phase done)
+Status: Phase 24 complete (import badge + toast triggering)
+Last activity: 2026-02-10 — Executed Phase 24 Plan 02 (4 tasks, 3 commits, 6m)
 
-Progress: [█████████░] 92% (23/25 phases complete)
+Progress: [████████████░] 96% (24/25 phases complete)
 
 ## Milestones Shipped
 
@@ -32,11 +32,12 @@ Progress: [█████████░] 92% (23/25 phases complete)
 
 **Total Project:**
 - 7 milestones shipped
-- 23 phases completed
-- 39 plans executed
+- 24 phases completed
+- 40 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 **Phase 24-01:** 7 tasks, 10 files, 8m duration
+**Phase 24-02:** 4 tasks, 4 files, 6m duration
 
 ## Accumulated Context
 
@@ -94,11 +95,16 @@ See PROJECT.md Key Decisions table for full list.
 - ToastService uses Subject (not BehaviorSubject) since toasts are ephemeral events
 - Toast lifecycle managed in AppComponent via setTimeout, not Bootstrap JS API
 
+**Phase 24-02 decisions:**
+- No TypeScript changes needed for file.component.ts -- ViewFile = ViewFile already exposes ImportStatus namespace
+- Subscribe to unfiltered ViewFileService.files (not filteredFiles) so toasts fire for all imports regardless of active filter
+- First-emission skip prevents toasting files already in IMPORTED state on page load
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 24 Plan 01 executed (7 tasks, 7 commits, 162 tests pass, build+lint clean)
-Next action: Execute Phase 24 Plan 02 — Badge UI display and toast triggering
+Stopped at: Phase 24 complete (Plan 01 + Plan 02 both executed, all requirements met)
+Next action: Execute Phase 25 — next phase in v1.7 Sonarr Integration
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
