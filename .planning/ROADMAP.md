@@ -28,12 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. User can view use year timeline per contract showing banking deadline, use year start/end, and point expiration dates
   4. System contains versioned point chart data (by resort, room type, view, season, day-of-week) for current and upcoming years
   5. System correctly identifies which resorts each contract can book based on resale/direct status
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
-- [ ] 01-02: TBD
-- [ ] 01-03: TBD
+- [ ] 01-01: Project scaffolding + database foundation (backend/frontend setup, models, migrations, resort data)
+- [ ] 01-02: Contract & point balance management (CRUD API + UI, eligibility logic, use year timeline)
+- [ ] 01-03: Point chart data system (JSON schema, data loading, versioned storage, cost lookup API + UI)
 
 ### Phase 2: Calculations & Reservations
 **Goal**: User can pick any future date and see exactly what points are available across all contracts, manage reservations, and look up trip costs -- with reservations properly deducted from all calculations
@@ -73,6 +73,6 @@ Phases execute in numeric order: 1 -> 2 -> 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Data Foundation | 0/3 | Not started | - |
+| 1. Data Foundation | 0/3 | Planned | - |
 | 2. Calculations & Reservations | 0/3 | Not started | - |
 | 3. Dashboard & Trip Explorer | 0/2 | Not started | - |
