@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 ## Current Position
 
 Phase: 3 of 3 (Dashboard & Trip Explorer)
-Plan: 2 of 3 in current phase (03-02 complete)
+Plan: 2 of 3 in current phase (03-01 and 03-02 complete)
 Status: Executing Phase 3
-Last activity: 2026-02-10 -- Completed Plan 03-02 (Dashboard Page)
+Last activity: 2026-02-10 -- Completed Plan 03-01 (Trip Explorer Backend)
 
-Progress: [========================......] 78% (7/9 plans)
+Progress: [==========================....] 89% (8/9 plans)
 
 ## Accumulated Context
 
@@ -39,6 +39,8 @@ Recent decisions affecting current work:
 - Point chart JSON schema accommodates 3 to 30+ room/view combos per resort (view_category concern RESOLVED)
 - Dashboard is the new home route (/) replacing redirect to /contracts
 - NavLink end prop added for "/" to prevent always-active highlighting
+- Trip explorer uses check_in date (not today) for use year calculation -- correct point year for future trips
+- Trip explorer is a pure composition function (no DB access in engine layer)
 
 ### Pending Todos
 
@@ -53,5 +55,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 03-02-PLAN.md (Dashboard Page). Next: 03-03 (Trip Explorer)
+Stopped at: Completed 03-01-PLAN.md (Trip Explorer Backend). Next: 03-03 (Trip Explorer UI)
 Resume file: None
