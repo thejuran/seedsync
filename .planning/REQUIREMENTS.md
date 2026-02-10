@@ -73,30 +73,30 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DATA-01 | — | Pending |
-| DATA-02 | — | Pending |
-| DATA-03 | — | Pending |
-| DATA-04 | — | Pending |
-| DATA-05 | — | Pending |
-| PNTS-01 | — | Pending |
-| PNTS-02 | — | Pending |
-| PNTS-03 | — | Pending |
-| PNTS-04 | — | Pending |
-| PNTS-05 | — | Pending |
-| PNTS-06 | — | Pending |
-| TRIP-01 | — | Pending |
-| TRIP-02 | — | Pending |
-| TRIP-03 | — | Pending |
-| TRIP-04 | — | Pending |
-| TRIP-05 | — | Pending |
-| DASH-01 | — | Pending |
-| DASH-02 | — | Pending |
+| DATA-01 | Phase 1 | Pending |
+| DATA-02 | Phase 1 | Pending |
+| DATA-03 | Phase 1 | Pending |
+| DATA-04 | Phase 1 | Pending |
+| DATA-05 | Phase 1 | Pending |
+| PNTS-01 | Phase 1 | Pending |
+| PNTS-02 | Phase 1 | Pending |
+| PNTS-03 | Phase 1 | Pending |
+| PNTS-04 | Phase 2 | Pending |
+| PNTS-05 | Phase 2 | Pending |
+| PNTS-06 | Phase 2 | Pending |
+| TRIP-01 | Phase 2 | Pending |
+| TRIP-02 | Phase 3 | Pending |
+| TRIP-03 | Phase 2 | Pending |
+| TRIP-04 | Phase 2 | Pending |
+| TRIP-05 | Phase 2 | Pending |
+| DASH-01 | Phase 3 | Pending |
+| DASH-02 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 18 total
-- Mapped to phases: 0
-- Unmapped: 18 ⚠️
+- Mapped to phases: 18
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-09*
-*Last updated: 2026-02-09 after initial definition*
+*Last updated: 2026-02-09 after roadmap creation*
