@@ -299,12 +299,24 @@ class Config(Persist):
             self.patterns_only = None
             self.auto_extract = None
 
+    class Sonarr(IC):
+        enabled = PROP("enabled", Checkers.null, Converters.bool)
+        sonarr_url = PROP("sonarr_url", Checkers.null, Converters.null)
+        sonarr_api_key = PROP("sonarr_api_key", Checkers.null, Converters.null)
+
+        def __init__(self):
+            super().__init__()
+            self.enabled = None
+            self.sonarr_url = None
+            self.sonarr_api_key = None
+
     def __init__(self):
         self.general = Config.General()
         self.lftp = Config.Lftp()
         self.controller = Config.Controller()
         self.web = Config.Web()
         self.autoqueue = Config.AutoQueue()
+        self.sonarr = Config.Sonarr()
 
     @staticmethod
     def _check_section(dct: OuterConfigType, name: str) -> InnerConfigType:
@@ -364,6 +376,10 @@ class Config(Persist):
         config.web = Config.Web.from_dict(Config._check_section(config_dict, "Web"))
         config.autoqueue = Config.AutoQueue.from_dict(Config._check_section(config_dict, "AutoQueue"))
 
+        # Sonarr section is optional for backward compatibility with older config files
+        if "Sonarr" in config_dict:
+            config.sonarr = Config.Sonarr.from_dict(Config._check_section(config_dict, "Sonarr"))
+
         Config._check_empty_outer_dict(config_dict)
         return config
 
@@ -376,6 +392,7 @@ class Config(Persist):
         config_dict["Controller"] = self.controller.as_dict()
         config_dict["Web"] = self.web.as_dict()
         config_dict["AutoQueue"] = self.autoqueue.as_dict()
+        config_dict["Sonarr"] = self.sonarr.as_dict()
         return config_dict
 
     def has_section(self, name: str) -> bool:
