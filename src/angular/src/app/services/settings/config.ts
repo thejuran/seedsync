@@ -98,7 +98,20 @@ const DefaultAutoQueue: IAutoQueue = {
 };
 const AutoQueueRecord = Record(DefaultAutoQueue);
 
-
+/*
+ * SONARR
+ */
+interface ISonarr {
+    enabled: boolean;
+    sonarr_url: string;
+    sonarr_api_key: string;
+}
+const DefaultSonarr: ISonarr = {
+    enabled: null,
+    sonarr_url: null,
+    sonarr_api_key: null,
+};
+const SonarrRecord = Record(DefaultSonarr);
 
 /*
  * CONFIG
@@ -109,7 +122,7 @@ export interface IConfig {
     controller: IController;
     web: IWeb;
     autoqueue: IAutoQueue;
-
+    sonarr: ISonarr;
 }
 const DefaultConfig: IConfig = {
     general: null,
@@ -117,6 +130,7 @@ const DefaultConfig: IConfig = {
     controller: null,
     web: null,
     autoqueue: null,
+    sonarr: null,
 };
 const ConfigRecord = Record(DefaultConfig);
 
@@ -127,6 +141,7 @@ export class Config extends ConfigRecord implements IConfig {
     controller: IController;
     web: IWeb;
     autoqueue: IAutoQueue;
+    sonarr: ISonarr;
 
     constructor(props) {
         // Create immutable members
@@ -135,7 +150,8 @@ export class Config extends ConfigRecord implements IConfig {
             lftp: LftpRecord(props.lftp),
             controller: ControllerRecord(props.controller),
             web: WebRecord(props.web),
-            autoqueue: AutoQueueRecord(props.autoqueue)
+            autoqueue: AutoQueueRecord(props.autoqueue),
+            sonarr: props.sonarr ? SonarrRecord(props.sonarr) : SonarrRecord(DefaultSonarr),
         });
     }
 }
