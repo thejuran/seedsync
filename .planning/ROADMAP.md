@@ -122,8 +122,8 @@ Plans:
 **Plans**: 2
 
 Plans:
-- [ ] 23-01: SonarrManager + ControllerPersist + Controller Integration
-- [ ] 23-02: Unit Tests for SonarrManager, Persist, and Controller
+- [x] 23-01: SonarrManager + ControllerPersist + Controller Integration
+- [x] 23-02: Unit Tests for SonarrManager, Persist, and Controller
 
 #### Phase 24: Status Visibility & Notifications
 **Goal**: User sees import status in UI and receives notifications
@@ -163,7 +163,7 @@ Phases execute in numeric order: 22 → 23 → 24 → 25
 |-------|-----------|----------------|--------|-----------|
 | 1-21. Quality Project | v1.0-v1.6 | All | Complete | 2026-02-10 |
 | 22. Configuration & Settings UI | v1.7 | 2/2 | Complete | 2026-02-10 |
-| 23. API Client Integration | v1.7 | 0/2 | Not started | - |
+| 23. API Client Integration | v1.7 | 2/2 | Complete | 2026-02-10 |
 | 24. Status Visibility & Notifications | v1.7 | 0/TBD | Not started | - |
 | 25. Auto-Delete with Safety | v1.7 | 0/TBD | Not started | - |
 

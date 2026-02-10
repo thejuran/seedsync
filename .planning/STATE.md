@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v1.7 Sonarr Integration - Phase 23 (API Client Integration)
+**Current focus:** v1.7 Sonarr Integration - Phase 24 (Status Visibility & Notifications)
 
 ## Current Position
 
-Phase: 23 of 25 (API Client Integration)
+Phase: 24 of 25 (Status Visibility & Notifications)
 Plan: Not yet planned
-Status: Phase 22 complete, Phase 23 ready for planning
-Last activity: 2026-02-10 — Executed Phase 22 (2 plans, 11 commits)
+Status: Phase 23 complete, Phase 24 ready for planning
+Last activity: 2026-02-10 — Executed Phase 23 (2 plans, 2 commits)
 
-Progress: [█████████░] 88% (22/25 phases complete)
+Progress: [█████████░] 92% (23/25 phases complete)
 
 ## Milestones Shipped
 
@@ -32,8 +32,8 @@ Progress: [█████████░] 88% (22/25 phases complete)
 
 **Total Project:**
 - 7 milestones shipped
-- 22 phases completed
-- 36 plans executed
+- 23 phases completed
+- 38 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 ## Accumulated Context
@@ -77,11 +77,20 @@ See PROJECT.md Key Decisions table for full list.
 - ChangeDetectorRef.markForCheck() for OnPush change detection with direct property bindings
 - Backward-compatible Config constructor: falls back to DefaultSonarr if props.sonarr missing
 
+**Phase 23 decisions:**
+- SonarrManager follows Manager pattern (no separate thread, polls from Controller.process() loop)
+- Import detection uses BOTH queue disappearance AND trackedDownloadState=="imported" signals
+- First poll bootstraps previous state (None check) to prevent false detections on startup
+- Network errors return None from _fetch_queue() to prevent false positives
+- Case-insensitive name matching between Sonarr queue titles and ModelFile names
+- ControllerPersist.imported_file_names uses dct.get() for backward compatibility
+- SonarrManager re-reads config each process() call (hot-toggle without restart)
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 22 executed (both plans verified, 11 commits)
-Next action: Plan Phase 23 (/gsd:plan-phase 23) — API Client Integration
+Stopped at: Phase 23 executed (both plans verified, 2 commits, 134 tests pass)
+Next action: Plan Phase 24 (/gsd:plan-phase 24) — Status Visibility & Notifications
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
