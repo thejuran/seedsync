@@ -36,6 +36,20 @@
                 .card-body {
                     padding: 10px 0;
                 }
+
+                .test-connection {
+                    margin: 10px 20px 0;
+
+                    .btn {
+                        height: 36px;
+                        font-size: 90%;
+                    }
+
+                    .test-result {
+                        margin-top: 6px;
+                        font-size: 85%;
+                    }
+                }
             }
         }
 
