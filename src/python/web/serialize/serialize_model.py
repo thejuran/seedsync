@@ -59,6 +59,11 @@ class SerializeModel(Serialize):
     __KEY_FILE_REMOTE_MODIFIED_TIMESTAMP = "remote_modified_timestamp"
     __KEY_FILE_FULL_PATH = "full_path"
     __KEY_FILE_CHILDREN = "children"
+    __KEY_FILE_IMPORT_STATUS = "import_status"
+    __VALUES_FILE_IMPORT_STATUS = {
+        ModelFile.ImportStatus.NONE: "none",
+        ModelFile.ImportStatus.IMPORTED: "imported"
+    }
 
     @staticmethod
     def __model_file_to_json_dict(model_file: ModelFile) -> dict:
@@ -80,6 +85,8 @@ class SerializeModel(Serialize):
         json_dict[SerializeModel.__KEY_FILE_REMOTE_MODIFIED_TIMESTAMP] = \
             str(model_file.remote_modified_timestamp.timestamp()) if model_file.remote_modified_timestamp else None
         json_dict[SerializeModel.__KEY_FILE_FULL_PATH] = model_file.full_path
+        json_dict[SerializeModel.__KEY_FILE_IMPORT_STATUS] = \
+            SerializeModel.__VALUES_FILE_IMPORT_STATUS[model_file.import_status]
         json_dict[SerializeModel.__KEY_FILE_CHILDREN] = list()
         for child in model_file.get_children():
             json_dict[SerializeModel.__KEY_FILE_CHILDREN].append(SerializeModel.__model_file_to_json_dict(child))
