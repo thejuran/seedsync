@@ -1,0 +1,125 @@
+{
+  "resort": "polynesian",
+  "year": 2026,
+  "seasons": [
+    {
+      "name": "Adventure",
+      "date_ranges": [
+        ["2026-01-01", "2026-01-31"],
+        ["2026-09-01", "2026-09-30"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 14, "weekend": 19 },
+        "deluxe_studio_lake": { "weekday": 22, "weekend": 28 },
+        "deluxe_studio_theme_park": { "weekday": 27, "weekend": 34 },
+        "one_bedroom_standard": { "weekday": 25, "weekend": 30 },
+        "one_bedroom_lake": { "weekday": 32, "weekend": 38 },
+        "one_bedroom_theme_park": { "weekday": 38, "weekend": 45 },
+        "two_bedroom_standard": { "weekday": 36, "weekend": 44 },
+        "two_bedroom_lake": { "weekday": 46, "weekend": 55 },
+        "two_bedroom_theme_park": { "weekday": 54, "weekend": 64 },
+        "bungalow_lake": { "weekday": 79, "weekend": 95 },
+        "bungalow_theme_park": { "weekday": 88, "weekend": 106 }
+      }
+    },
+    {
+      "name": "Choice",
+      "date_ranges": [
+        ["2026-02-01", "2026-02-14"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 16, "weekend": 22 },
+        "deluxe_studio_lake": { "weekday": 24, "weekend": 32 },
+        "deluxe_studio_theme_park": { "weekday": 30, "weekend": 38 },
+        "one_bedroom_standard": { "weekday": 28, "weekend": 34 },
+        "one_bedroom_lake": { "weekday": 36, "weekend": 43 },
+        "one_bedroom_theme_park": { "weekday": 43, "weekend": 51 },
+        "two_bedroom_standard": { "weekday": 41, "weekend": 50 },
+        "two_bedroom_lake": { "weekday": 52, "weekend": 63 },
+        "two_bedroom_theme_park": { "weekday": 62, "weekend": 73 },
+        "bungalow_lake": { "weekday": 90, "weekend": 109 },
+        "bungalow_theme_park": { "weekday": 100, "weekend": 121 }
+      }
+    },
+    {
+      "name": "Dream",
+      "date_ranges": [
+        ["2026-02-15", "2026-03-07"],
+        ["2026-06-14", "2026-08-13"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 20, "weekend": 26 },
+        "deluxe_studio_lake": { "weekday": 29, "weekend": 38 },
+        "deluxe_studio_theme_park": { "weekday": 36, "weekend": 46 },
+        "one_bedroom_standard": { "weekday": 34, "weekend": 41 },
+        "one_bedroom_lake": { "weekday": 44, "weekend": 52 },
+        "one_bedroom_theme_park": { "weekday": 52, "weekend": 62 },
+        "two_bedroom_standard": { "weekday": 50, "weekend": 61 },
+        "two_bedroom_lake": { "weekday": 64, "weekend": 77 },
+        "two_bedroom_theme_park": { "weekday": 75, "weekend": 89 },
+        "bungalow_lake": { "weekday": 110, "weekend": 133 },
+        "bungalow_theme_park": { "weekday": 122, "weekend": 147 }
+      }
+    },
+    {
+      "name": "Magic",
+      "date_ranges": [
+        ["2026-03-08", "2026-04-11"],
+        ["2026-11-25", "2026-12-23"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 22, "weekend": 29 },
+        "deluxe_studio_lake": { "weekday": 33, "weekend": 42 },
+        "deluxe_studio_theme_park": { "weekday": 40, "weekend": 51 },
+        "one_bedroom_standard": { "weekday": 38, "weekend": 46 },
+        "one_bedroom_lake": { "weekday": 49, "weekend": 58 },
+        "one_bedroom_theme_park": { "weekday": 58, "weekend": 69 },
+        "two_bedroom_standard": { "weekday": 56, "weekend": 68 },
+        "two_bedroom_lake": { "weekday": 71, "weekend": 86 },
+        "two_bedroom_theme_park": { "weekday": 84, "weekend": 99 },
+        "bungalow_lake": { "weekday": 123, "weekend": 148 },
+        "bungalow_theme_park": { "weekday": 136, "weekend": 164 }
+      }
+    },
+    {
+      "name": "Premier",
+      "date_ranges": [
+        ["2026-12-24", "2026-12-31"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 28, "weekend": 36 },
+        "deluxe_studio_lake": { "weekday": 41, "weekend": 53 },
+        "deluxe_studio_theme_park": { "weekday": 51, "weekend": 64 },
+        "one_bedroom_standard": { "weekday": 48, "weekend": 58 },
+        "one_bedroom_lake": { "weekday": 61, "weekend": 73 },
+        "one_bedroom_theme_park": { "weekday": 73, "weekend": 87 },
+        "two_bedroom_standard": { "weekday": 70, "weekend": 85 },
+        "two_bedroom_lake": { "weekday": 89, "weekend": 108 },
+        "two_bedroom_theme_park": { "weekday": 106, "weekend": 126 },
+        "bungalow_lake": { "weekday": 154, "weekend": 186 },
+        "bungalow_theme_park": { "weekday": 171, "weekend": 206 }
+      }
+    },
+    {
+      "name": "Select",
+      "date_ranges": [
+        ["2026-04-12", "2026-06-13"],
+        ["2026-08-14", "2026-08-31"],
+        ["2026-10-01", "2026-11-24"]
+      ],
+      "rooms": {
+        "deluxe_studio_standard": { "weekday": 17, "weekend": 23 },
+        "deluxe_studio_lake": { "weekday": 26, "weekend": 33 },
+        "deluxe_studio_theme_park": { "weekday": 32, "weekend": 40 },
+        "one_bedroom_standard": { "weekday": 30, "weekend": 36 },
+        "one_bedroom_lake": { "weekday": 38, "weekend": 45 },
+        "one_bedroom_theme_park": { "weekday": 45, "weekend": 54 },
+        "two_bedroom_standard": { "weekday": 43, "weekend": 53 },
+        "two_bedroom_lake": { "weekday": 55, "weekend": 67 },
+        "two_bedroom_theme_park": { "weekday": 65, "weekend": 77 },
+        "bungalow_lake": { "weekday": 95, "weekend": 115 },
+        "bungalow_theme_park": { "weekday": 105, "weekend": 127 }
+      }
+    }
+  ]
+}

@@ -1,0 +1,119 @@
+{
+  "resort": "riviera",
+  "year": 2026,
+  "seasons": [
+    {
+      "name": "Adventure",
+      "date_ranges": [
+        ["2026-01-01", "2026-01-31"],
+        ["2026-09-01", "2026-09-30"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 10, "weekend": 13 },
+        "tower_studio_preferred": { "weekday": 12, "weekend": 16 },
+        "deluxe_studio_standard": { "weekday": 15, "weekend": 20 },
+        "deluxe_studio_preferred": { "weekday": 19, "weekend": 25 },
+        "one_bedroom_standard": { "weekday": 26, "weekend": 31 },
+        "one_bedroom_preferred": { "weekday": 32, "weekend": 39 },
+        "two_bedroom_standard": { "weekday": 38, "weekend": 46 },
+        "two_bedroom_preferred": { "weekday": 48, "weekend": 58 },
+        "grand_villa_standard": { "weekday": 58, "weekend": 70 },
+        "grand_villa_preferred": { "weekday": 73, "weekend": 88 }
+      }
+    },
+    {
+      "name": "Choice",
+      "date_ranges": [
+        ["2026-02-01", "2026-02-14"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 11, "weekend": 15 },
+        "tower_studio_preferred": { "weekday": 14, "weekend": 18 },
+        "deluxe_studio_standard": { "weekday": 17, "weekend": 23 },
+        "deluxe_studio_preferred": { "weekday": 22, "weekend": 29 },
+        "one_bedroom_standard": { "weekday": 30, "weekend": 36 },
+        "one_bedroom_preferred": { "weekday": 37, "weekend": 45 },
+        "two_bedroom_standard": { "weekday": 44, "weekend": 53 },
+        "two_bedroom_preferred": { "weekday": 55, "weekend": 67 },
+        "grand_villa_standard": { "weekday": 67, "weekend": 81 },
+        "grand_villa_preferred": { "weekday": 84, "weekend": 101 }
+      }
+    },
+    {
+      "name": "Dream",
+      "date_ranges": [
+        ["2026-02-15", "2026-03-07"],
+        ["2026-06-14", "2026-08-13"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 14, "weekend": 18 },
+        "tower_studio_preferred": { "weekday": 17, "weekend": 22 },
+        "deluxe_studio_standard": { "weekday": 21, "weekend": 28 },
+        "deluxe_studio_preferred": { "weekday": 27, "weekend": 35 },
+        "one_bedroom_standard": { "weekday": 36, "weekend": 44 },
+        "one_bedroom_preferred": { "weekday": 46, "weekend": 55 },
+        "two_bedroom_standard": { "weekday": 54, "weekend": 65 },
+        "two_bedroom_preferred": { "weekday": 67, "weekend": 81 },
+        "grand_villa_standard": { "weekday": 82, "weekend": 99 },
+        "grand_villa_preferred": { "weekday": 103, "weekend": 124 }
+      }
+    },
+    {
+      "name": "Magic",
+      "date_ranges": [
+        ["2026-03-08", "2026-04-11"],
+        ["2026-11-25", "2026-12-23"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 16, "weekend": 20 },
+        "tower_studio_preferred": { "weekday": 19, "weekend": 25 },
+        "deluxe_studio_standard": { "weekday": 24, "weekend": 31 },
+        "deluxe_studio_preferred": { "weekday": 30, "weekend": 39 },
+        "one_bedroom_standard": { "weekday": 41, "weekend": 49 },
+        "one_bedroom_preferred": { "weekday": 51, "weekend": 61 },
+        "two_bedroom_standard": { "weekday": 60, "weekend": 73 },
+        "two_bedroom_preferred": { "weekday": 75, "weekend": 91 },
+        "grand_villa_standard": { "weekday": 92, "weekend": 111 },
+        "grand_villa_preferred": { "weekday": 115, "weekend": 139 }
+      }
+    },
+    {
+      "name": "Premier",
+      "date_ranges": [
+        ["2026-12-24", "2026-12-31"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 20, "weekend": 25 },
+        "tower_studio_preferred": { "weekday": 24, "weekend": 31 },
+        "deluxe_studio_standard": { "weekday": 30, "weekend": 39 },
+        "deluxe_studio_preferred": { "weekday": 38, "weekend": 49 },
+        "one_bedroom_standard": { "weekday": 51, "weekend": 61 },
+        "one_bedroom_preferred": { "weekday": 64, "weekend": 77 },
+        "two_bedroom_standard": { "weekday": 75, "weekend": 91 },
+        "two_bedroom_preferred": { "weekday": 94, "weekend": 114 },
+        "grand_villa_standard": { "weekday": 115, "weekend": 139 },
+        "grand_villa_preferred": { "weekday": 144, "weekend": 174 }
+      }
+    },
+    {
+      "name": "Select",
+      "date_ranges": [
+        ["2026-04-12", "2026-06-13"],
+        ["2026-08-14", "2026-08-31"],
+        ["2026-10-01", "2026-11-24"]
+      ],
+      "rooms": {
+        "tower_studio_standard": { "weekday": 12, "weekend": 15 },
+        "tower_studio_preferred": { "weekday": 15, "weekend": 19 },
+        "deluxe_studio_standard": { "weekday": 18, "weekend": 24 },
+        "deluxe_studio_preferred": { "weekday": 23, "weekend": 30 },
+        "one_bedroom_standard": { "weekday": 31, "weekend": 38 },
+        "one_bedroom_preferred": { "weekday": 39, "weekend": 47 },
+        "two_bedroom_standard": { "weekday": 46, "weekend": 56 },
+        "two_bedroom_preferred": { "weekday": 58, "weekend": 70 },
+        "grand_villa_standard": { "weekday": 70, "weekend": 85 },
+        "grand_villa_preferred": { "weekday": 88, "weekend": 106 }
+      }
+    }
+  ]
+}

@@ -90,3 +90,36 @@ class ContractWithDetails(ContractResponse):
     point_balances: list[PointBalanceResponse] = []
     eligible_resorts: list[str] = []
     use_year_timeline: dict = {}
+
+
+# Point Chart schemas
+
+class PointChartSummary(BaseModel):
+    resort: str
+    year: int
+    file: str
+
+
+class PointCostRequest(BaseModel):
+    resort: str
+    room_key: str
+    check_in: str  # ISO date
+    check_out: str  # ISO date
+
+
+class NightlyCost(BaseModel):
+    date: str
+    day_of_week: str
+    season: str
+    is_weekend: bool
+    points: int
+
+
+class StayCostResponse(BaseModel):
+    resort: str
+    room: str
+    check_in: str
+    check_out: str
+    num_nights: int
+    total_points: int
+    nightly_breakdown: list[NightlyCost]

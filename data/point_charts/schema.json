@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DVC Point Chart",
+  "type": "object",
+  "required": ["resort", "year", "seasons"],
+  "properties": {
+    "resort": {
+      "type": "string",
+      "description": "Resort slug matching data/resorts.json"
+    },
+    "year": {
+      "type": "integer",
+      "description": "Calendar year this chart applies to (e.g., 2026)"
+    },
+    "seasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "date_ranges", "rooms"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Season/travel period name (e.g., Adventure, Dream, Premier)"
+          },
+          "date_ranges": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": { "type": "string", "format": "date" },
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "description": "Array of [start_date, end_date] pairs. A season can span multiple non-contiguous date ranges."
+          },
+          "rooms": {
+            "type": "object",
+            "description": "Keys are composite room identifiers: {room_type}_{view_category} (e.g., 'deluxe_studio_standard', 'one_bedroom_lake', 'bungalow_theme_park'). Values are point costs.",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["weekday", "weekend"],
+              "properties": {
+                "weekday": { "type": "integer", "minimum": 1, "description": "Points per night Sun-Thu" },
+                "weekend": { "type": "integer", "minimum": 1, "description": "Points per night Fri-Sat" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
