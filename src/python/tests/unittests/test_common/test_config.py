@@ -184,6 +184,7 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(config.has_section("controller"))
         self.assertTrue(config.has_section("web"))
         self.assertTrue(config.has_section("autoqueue"))
+        self.assertTrue(config.has_section("sonarr"))
         self.assertFalse(config.has_section("nope"))
         self.assertFalse(config.has_section("from_file"))
         self.assertFalse(config.has_section("__init__"))
@@ -481,6 +482,9 @@ class TestConfig(unittest.TestCase):
         config.autoqueue.enabled = True
         config.autoqueue.patterns_only = True
         config.autoqueue.auto_extract = False
+        config.sonarr.enabled = False
+        config.sonarr.sonarr_url = "http://localhost:8989"
+        config.sonarr.sonarr_api_key = "abc123"
         config.to_file(config_file_path)
         with open(config_file_path, "r") as f:
             actual_str = f.read()
@@ -522,6 +526,11 @@ class TestConfig(unittest.TestCase):
         enabled = True
         patterns_only = True
         auto_extract = False
+
+        [Sonarr]
+        enabled = False
+        sonarr_url = http://localhost:8989
+        sonarr_api_key = abc123
         """
 
         golden_lines = [s.strip() for s in golden_str.splitlines()]

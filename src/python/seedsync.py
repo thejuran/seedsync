@@ -319,6 +319,10 @@ class Seedsync:
         config.autoqueue.patterns_only = False
         config.autoqueue.auto_extract = True
 
+        config.sonarr.enabled = False
+        config.sonarr.sonarr_url = ""
+        config.sonarr.sonarr_api_key = ""
+
         return config
 
     @staticmethod
