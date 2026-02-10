@@ -1,23 +1,29 @@
-# SeedSync Quality
+# SeedSync
 
 ## What This Is
 
-Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 added backend testing. v1.6 cleaned up CI — consolidating duplicate workflows and silencing test runner noise.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 adds Sonarr integration for automated post-download workflow.
 
 ## Core Value
 
-Clean, maintainable codebase with intuitive user interface.
+Reliable file sync from seedbox to local with automated media library integration.
+
+## Current Milestone: v1.7 Sonarr Integration
+
+**Goal:** Integrate with Sonarr to detect imported files and auto-delete local copies, with status visibility and in-app notifications.
+
+**Target features:**
+- Sonarr API integration (connection, queue polling, import detection)
+- Auto-delete local files after Sonarr confirms import (global toggle)
+- Status visibility in UI (files waiting for import, imported, history)
+- In-app notifications + log entries for import events
+- Settings UI for Sonarr configuration (URL, API key, enable/disable)
+
+**Deferred:** Radarr support (nearly identical API, planned for future milestone)
 
 ## Current State
 
-All 7 milestones shipped (v1.0 through v1.6). Quality project complete.
-
-- 952 Python tests, 84% coverage with fail_under threshold
-- Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
-- All 381 Angular unit tests passing
-- Zero TypeScript lint errors, zero SCSS deprecation warnings
-- Single CI workflow (master.yml) handles all Docker publishing
-- Clean test runner output (no cache or deprecation warnings)
+952 Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. All 381 Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
 
 ## Requirements
 
@@ -143,15 +149,13 @@ All 7 milestones shipped (v1.0 through v1.6). Quality project complete.
 
 ## Project Status
 
-**Status:** Complete — all 7 milestones shipped
+**Status:** v1.7 in progress
 
-Quality project with 7 milestones shipped:
-- v1.0-v1.4: UI Polish (Bootstrap, styling, lint, Sass migration)
-- v1.5: Backend testing (231 new tests, 84% coverage)
-- v1.6: CI Cleanup (workflow consolidation, warning suppression)
+Quality project (v1.0-v1.6) complete. Now adding Sonarr integration.
 
 **Future work (if desired):**
+- Radarr integration (same API pattern as Sonarr)
 - Dark mode toggle feature
 
 ---
-*Last updated: 2026-02-10 after v1.6 milestone*
+*Last updated: 2026-02-10 after starting v1.7 milestone*
