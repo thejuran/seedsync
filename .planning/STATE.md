@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 24 of 25 (Status Visibility & Notifications)
-Plan: Not yet planned
-Status: Phase 23 complete, Phase 24 ready for planning
-Last activity: 2026-02-10 — Executed Phase 23 (2 plans, 2 commits)
+Plan: 24-01 complete, 24-02 next
+Status: Phase 24 Plan 01 complete (import_status pipeline + ToastService)
+Last activity: 2026-02-10 — Executed Phase 24 Plan 01 (7 tasks, 7 commits, 8m)
 
 Progress: [█████████░] 92% (23/25 phases complete)
 
@@ -33,8 +33,10 @@ Progress: [█████████░] 92% (23/25 phases complete)
 **Total Project:**
 - 7 milestones shipped
 - 23 phases completed
-- 38 plans executed
+- 39 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
+
+**Phase 24-01:** 7 tasks, 10 files, 8m duration
 
 ## Accumulated Context
 
@@ -86,11 +88,17 @@ See PROJECT.md Key Decisions table for full list.
 - ControllerPersist.imported_file_names uses dct.get() for backward compatibility
 - SonarrManager re-reads config each process() call (hot-toggle without restart)
 
+**Phase 24-01 decisions:**
+- copy.copy() + manual _ModelFile__frozen = False for copy-on-write (frozen flag persists through shallow copy)
+- Deferred WAITING_FOR_IMPORT enum value per research recommendation (start with NONE/IMPORTED only)
+- ToastService uses Subject (not BehaviorSubject) since toasts are ephemeral events
+- Toast lifecycle managed in AppComponent via setTimeout, not Bootstrap JS API
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 23 executed (both plans verified, 2 commits, 134 tests pass)
-Next action: Plan Phase 24 (/gsd:plan-phase 24) — Status Visibility & Notifications
+Stopped at: Phase 24 Plan 01 executed (7 tasks, 7 commits, 162 tests pass, build+lint clean)
+Next action: Execute Phase 24 Plan 02 — Badge UI display and toast triggering
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
