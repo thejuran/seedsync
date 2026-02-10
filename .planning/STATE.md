@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 ## Current Position
 
-Phase: Phase 20 (CI Workflow Consolidation)
+Phase: Phase 21 (Test Runner Cleanup)
 Plan: 01 complete
-Status: Phase 20 complete, ready for Phase 21
-Progress: ██████████░░░░░░░░░░ 1/2 phases (50%)
-Last activity: 2026-02-10 — Phase 20 complete (CI workflow consolidation)
+Status: Phase 21 complete, v1.6 milestone complete
+Progress: ████████████████████ 2/2 phases (100%)
+Last activity: 2026-02-10 — Phase 21 complete (pytest warning suppression)
 
 ## Milestones Shipped
 
@@ -30,8 +30,8 @@ Last activity: 2026-02-10 — Phase 20 complete (CI workflow consolidation)
 
 **Total Project:**
 - 6 milestones shipped
-- 20 phases completed
-- 30 plans executed
+- 21 phases completed
+- 31 plans executed
 - 4 days total (2026-02-03 to 2026-02-10)
 
 **By Milestone:**
@@ -50,11 +50,12 @@ Last activity: 2026-02-10 — Phase 20 complete (CI workflow consolidation)
 | Phase | Plan | Task | Duration | Completed |
 |-------|------|------|----------|-----------|
 | 20 | 01 | CI workflow consolidation | 2 min | 2026-02-10 |
+| 21 | 01 | pytest warning suppression | 5 min | 2026-02-10 |
 
-**v1.6 (in progress):**
+**v1.6 (complete):**
 - Phases: 2 (20-21)
-- Plans: 1 complete, 1 remaining
-- Status: Phase 20 complete
+- Plans: 2 complete
+- Status: All phases complete
 
 ## Accumulated Context
 
@@ -66,7 +67,8 @@ None.
 
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
 - ~~Duplicate Docker workflow (docker-publish.yml vs master.yml)~~ RESOLVED in Phase 20
-- ~~CI test runner warnings (pytest cache + webob cgi deprecation)~~ Addressing in Phase 21
+- ~~CI test runner warnings (pytest cache + webob cgi deprecation)~~ RESOLVED in Phase 21
+- `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected (runs on amd64).
 
 ### Key Decisions
 
@@ -75,9 +77,9 @@ See PROJECT.md Key Decisions table for full list.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed Phase 20 Plan 01 (CI workflow consolidation)
-Resume file: .planning/phases/20-ci-workflow-consolidation/20-01-SUMMARY.md
-Next action: `/gsd:plan-phase 21` to create Phase 21 plan
+Stopped at: Completed Phase 21 Plan 01 (pytest warning suppression)
+Resume file: .planning/phases/21-test-runner-cleanup/21-01-SUMMARY.md
+Next action: `/gsd:complete-milestone` to ship v1.6
 
 ---
 *v1.0 shipped: 2026-02-03*

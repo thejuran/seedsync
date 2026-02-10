@@ -87,7 +87,10 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 
 - [x] Phase 20: CI Workflow Consolidation (1/1 plans) - completed 2026-02-09
   - [x] 20-01-PLAN.md -- Consolidate Docker workflows, add :dev publishing to master.yml, remove docker-publish.yml
-- [ ] Phase 21: Test Runner Cleanup (0/1 plans) - not started
+- [x] Phase 21: Test Runner Cleanup (1/1 plans) - completed 2026-02-10
+  - [x] 21-01-PLAN.md -- Suppress pytest cache warnings and filter webob deprecation warnings
+
+Plans: 2 plans complete
 
 See `.planning/milestones/v1.6-ROADMAP.md` for full details.
 
@@ -118,10 +121,11 @@ See `.planning/milestones/v1.6-ROADMAP.md` for full details.
 | 18. Controller Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 19. Coverage Baseline & Validation | v1.5 | 1/1 | Complete | 2026-02-08 |
 | 20. CI Workflow Consolidation | v1.6 | 1/1 | Complete | 2026-02-09 |
-| 21. Test Runner Cleanup | v1.6 | 0/1 | Not started | -- |
+| 21. Test Runner Cleanup | v1.6 | 1/1 | Complete | 2026-02-10 |
 
 ---
 
-*Last updated: 2026-02-09*
+*Last updated: 2026-02-10*
 *Phase 20 completed: 2026-02-09*
+*Phase 21 completed: 2026-02-10*
 *v1.6 milestone started: 2026-02-09*
