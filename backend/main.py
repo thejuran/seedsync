@@ -5,6 +5,8 @@ from backend.db.database import engine, Base
 from backend.api.contracts import router as contracts_router
 from backend.api.points import router as points_router
 from backend.api.point_charts import router as point_charts_router
+from backend.api.reservations import router as reservations_router
+from backend.api.availability import router as availability_router
 from backend.data.resorts import load_resorts
 
 @asynccontextmanager
@@ -27,6 +29,8 @@ app.add_middleware(
 app.include_router(contracts_router)
 app.include_router(points_router)
 app.include_router(point_charts_router)
+app.include_router(reservations_router)
+app.include_router(availability_router)
 
 @app.get("/api/health")
 async def health_check():

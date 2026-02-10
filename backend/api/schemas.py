@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, date as date_type
 
 VALID_USE_YEAR_MONTHS = [2, 3, 4, 6, 8, 9, 10, 12]
 
@@ -123,3 +123,106 @@ class StayCostResponse(BaseModel):
     num_nights: int
     total_points: int
     nightly_breakdown: list[NightlyCost]
+
+
+# Reservation schemas
+
+class ReservationCreate(BaseModel):
+    resort: str = Field(..., min_length=1)
+    room_key: str = Field(..., min_length=1)
+    check_in: date_type
+    check_out: date_type
+    points_cost: int = Field(..., gt=0)
+    status: str = Field("confirmed", pattern="^(confirmed|pending|cancelled)$")
+    confirmation_number: Optional[str] = None
+    notes: Optional[str] = None
+
+    @field_validator("resort")
+    @classmethod
+    def validate_resort(cls, v):
+        from backend.data.resorts import get_resort_slugs
+        if v not in get_resort_slugs():
+            raise ValueError("Invalid resort slug.")
+        return v
+
+    @field_validator("check_out")
+    @classmethod
+    def validate_check_out(cls, v, info):
+        check_in = info.data.get("check_in")
+        if check_in and v <= check_in:
+            raise ValueError("check_out must be after check_in")
+        if check_in and (v - check_in).days > 14:
+            raise ValueError("Stay cannot exceed 14 nights")
+        return v
+
+
+class ReservationUpdate(BaseModel):
+    resort: Optional[str] = None
+    room_key: Optional[str] = None
+    check_in: Optional[date_type] = None
+    check_out: Optional[date_type] = None
+    points_cost: Optional[int] = Field(None, gt=0)
+    status: Optional[str] = Field(None, pattern="^(confirmed|pending|cancelled)$")
+    confirmation_number: Optional[str] = None
+    notes: Optional[str] = None
+
+    @field_validator("resort")
+    @classmethod
+    def validate_resort(cls, v):
+        if v is not None:
+            from backend.data.resorts import get_resort_slugs
+            if v not in get_resort_slugs():
+                raise ValueError("Invalid resort slug.")
+        return v
+
+
+class ReservationResponse(BaseModel):
+    id: int
+    contract_id: int
+    resort: str
+    room_key: str
+    check_in: date_type
+    check_out: date_type
+    points_cost: int
+    status: str
+    confirmation_number: Optional[str]
+    notes: Optional[str]
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+# Availability schemas
+
+class AvailabilityContractResult(BaseModel):
+    contract_id: int
+    contract_name: str
+    home_resort: str
+    annual_points: int
+    use_year: int
+    use_year_start: str
+    use_year_end: str
+    use_year_status: str
+    banking_deadline: str
+    banking_deadline_passed: bool
+    days_until_banking_deadline: int
+    days_until_expiration: int
+    balances: dict
+    total_points: int
+    committed_points: int
+    committed_reservation_count: int
+    available_points: int
+
+
+class AvailabilitySummary(BaseModel):
+    total_contracts: int
+    total_points: int
+    total_committed: int
+    total_available: int
+
+
+class AvailabilityResponse(BaseModel):
+    target_date: str
+    contracts: list[AvailabilityContractResult]
+    summary: AvailabilitySummary
