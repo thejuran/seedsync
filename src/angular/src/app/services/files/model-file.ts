@@ -15,6 +15,7 @@ export interface ModelFileJson {
     eta: number;
     full_path: string;
     is_extractable?: boolean;
+    import_status?: string;
     local_created_timestamp?: number | null;
     local_modified_timestamp?: number | null;
     remote_created_timestamp?: number | null;
@@ -36,6 +37,7 @@ interface IModelFile {
     eta: number;
     full_path: string;
     is_extractable: boolean;
+    import_status: ModelFile.ImportStatus;
     local_created_timestamp: Date;
     local_modified_timestamp: Date;
     remote_created_timestamp: Date;
@@ -54,6 +56,7 @@ const DefaultModelFile: IModelFile = {
     eta: null,
     full_path: null,
     is_extractable: null,
+    import_status: null,
     local_created_timestamp: null,
     local_modified_timestamp: null,
     remote_created_timestamp: null,
@@ -78,6 +81,7 @@ export class ModelFile extends ModelFileRecord implements IModelFile {
     eta: number;
     full_path: string;
     is_extractable: boolean;
+    import_status: ModelFile.ImportStatus;
     local_created_timestamp: Date;
     local_modified_timestamp: Date;
     remote_created_timestamp: Date;
@@ -115,6 +119,11 @@ export namespace ModelFile {
             ? new Date(1000 * json.remote_modified_timestamp)
             : null;
 
+        // Import status mapping (with fallback for older backends)
+        const importStatusStr = json.import_status || "none";
+        const importStatus = ModelFile.ImportStatus[importStatusStr.toUpperCase() as keyof typeof ModelFile.ImportStatus]
+            || ModelFile.ImportStatus.NONE;
+
         return new ModelFile({
             name: json.name,
             is_dir: json.is_dir,
@@ -125,6 +134,7 @@ export namespace ModelFile {
             eta: json.eta,
             full_path: json.full_path,
             is_extractable: json.is_extractable != null ? json.is_extractable : null,
+            import_status: importStatus,
             local_created_timestamp: localCreatedTimestamp,
             local_modified_timestamp: localModifiedTimestamp,
             remote_created_timestamp: remoteCreatedTimestamp,
@@ -141,5 +151,10 @@ export namespace ModelFile {
         DELETED = "deleted",
         EXTRACTING = "extracting",
         EXTRACTED = "extracted"
+    }
+
+    export enum ImportStatus {
+        NONE            = "none",
+        IMPORTED        = "imported"
     }
 }
