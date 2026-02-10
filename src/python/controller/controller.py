@@ -10,6 +10,7 @@ from enum import Enum
 from .scan_manager import ScanManager
 from .lftp_manager import LftpManager
 from .file_operation_manager import FileOperationManager
+from .sonarr_manager import SonarrManager
 from .extract import ExtractStatus
 from .model_builder import ModelBuilder
 from .memory_monitor import MemoryMonitor
@@ -122,6 +123,9 @@ class Controller:
             force_remote_scan_callback=self.__scan_manager.force_remote_scan
         )
 
+        # Setup the Sonarr manager
+        self.__sonarr_manager = SonarrManager(context=self.__context)
+
         # Keep track of active downloading files
         self.__active_downloading_file_names = []
 
@@ -157,6 +161,14 @@ class Controller:
             'stopped_evictions',
             lambda: self.__persist.stopped_file_names.total_evictions
         )
+        self.__memory_monitor.register_data_source(
+            'imported_files',
+            lambda: len(self.__persist.imported_file_names)
+        )
+        self.__memory_monitor.register_data_source(
+            'imported_evictions',
+            lambda: self.__persist.imported_file_names.total_evictions
+        )
 
         self.__started = False
 
@@ -186,6 +198,8 @@ class Controller:
         self.__update_model()
         # Periodically log memory statistics
         self.__memory_monitor.log_stats_if_due()
+        # Poll Sonarr for imported files
+        self.__check_sonarr_imports()
 
     def exit(self):
         self.logger.debug("Exiting controller")
@@ -624,6 +638,19 @@ class Controller:
 
         # Step 5: Update controller status
         self._update_controller_status(latest_remote_scan, latest_local_scan)
+
+    def __check_sonarr_imports(self):
+        """
+        Poll Sonarr for newly imported files and update persist state.
+        """
+        # Get current model file names for matching
+        model_file_names = set(self.__model.get_file_names())
+
+        newly_imported = self.__sonarr_manager.process(model_file_names)
+
+        for file_name in newly_imported:
+            self.__persist.imported_file_names.add(file_name)
+            self.logger.info("Recorded Sonarr import: '{}'".format(file_name))
 
     def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """

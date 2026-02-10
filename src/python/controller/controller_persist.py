@@ -20,6 +20,7 @@ class ControllerPersist(Persist):
     __KEY_DOWNLOADED_FILE_NAMES = "downloaded"
     __KEY_EXTRACTED_FILE_NAMES = "extracted"
     __KEY_STOPPED_FILE_NAMES = "stopped"
+    __KEY_IMPORTED_FILE_NAMES = "imported"
 
     # Default maximum tracked files (shared between downloaded and extracted)
     DEFAULT_MAX_TRACKED_FILES = 10000
@@ -44,6 +45,11 @@ class ControllerPersist(Persist):
         self.stopped_file_names: BoundedOrderedSet[str] = BoundedOrderedSet(
             maxlen=self._max_tracked_files
         )
+        # Track files that Sonarr has imported - used for import detection
+        # and preventing duplicate processing
+        self.imported_file_names: BoundedOrderedSet[str] = BoundedOrderedSet(
+            maxlen=self._max_tracked_files
+        )
 
     def set_base_logger(self, base_logger: logging.Logger):
         """Set the base logger for this persist instance."""
@@ -64,6 +70,7 @@ class ControllerPersist(Persist):
             'downloaded_evictions': self.downloaded_file_names.total_evictions,
             'extracted_evictions': self.extracted_file_names.total_evictions,
             'stopped_evictions': self.stopped_file_names.total_evictions,
+            'imported_evictions': self.imported_file_names.total_evictions,
             'max_tracked_files': self._max_tracked_files
         }
 
@@ -117,6 +124,17 @@ class ControllerPersist(Persist):
                         )
                     )
 
+            # imported_list is optional for backwards compatibility with old persist files
+            imported_list = dct.get(ControllerPersist.__KEY_IMPORTED_FILE_NAMES, [])
+            for name in imported_list:
+                evicted = persist.imported_file_names.add(name)
+                if evicted:
+                    persist._logger.debug(
+                        "Evicted '{}' from imported files during load (limit: {})".format(
+                            evicted, persist._max_tracked_files
+                        )
+                    )
+
             return persist
         except (json.decoder.JSONDecodeError, KeyError) as e:
             raise PersistError("Error parsing ControllerPersist - {}: {}".format(
@@ -134,6 +152,7 @@ class ControllerPersist(Persist):
         dct[ControllerPersist.__KEY_DOWNLOADED_FILE_NAMES] = self.downloaded_file_names.as_list()
         dct[ControllerPersist.__KEY_EXTRACTED_FILE_NAMES] = self.extracted_file_names.as_list()
         dct[ControllerPersist.__KEY_STOPPED_FILE_NAMES] = self.stopped_file_names.as_list()
+        dct[ControllerPersist.__KEY_IMPORTED_FILE_NAMES] = self.imported_file_names.as_list()
         return json.dumps(dct, indent=Constants.JSON_PRETTY_PRINT_INDENT)
 
     @classmethod
