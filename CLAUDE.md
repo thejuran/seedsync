@@ -169,7 +169,6 @@ The API uses proper HTTP status codes:
 - `src/debian/changelog` - Version changelog for deb package
 - `Makefile` - All build and test commands
 - `.github/workflows/master.yml` - CI pipeline (tests, E2E, release publish)
-- `.github/workflows/docker-publish.yml` - Docker image publish (`:dev` on master, `:X.Y.Z` on tags)
 - `src/angular/eslint.config.js` - ESLint configuration (flat config)
 - `src/angular/playwright.config.ts` - Angular e2e Playwright config
 - `src/e2e/playwright.config.ts` - Main e2e Playwright config
