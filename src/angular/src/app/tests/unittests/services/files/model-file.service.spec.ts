@@ -82,6 +82,7 @@ describe("Testing model file service", () => {
                 downloading_speed: 99,
                 eta: 54,
                 full_path: "/full/path/to/file.one",
+                import_status: ModelFile.ImportStatus.NONE,
                 children: Immutable.Set<ModelFile>()
             })
         ];
@@ -145,6 +146,7 @@ describe("Testing model file service", () => {
                 downloading_speed: 99,
                 eta: 54,
                 full_path: "/full/path/to/file.one",
+                import_status: ModelFile.ImportStatus.NONE,
                 children: Immutable.Set<ModelFile>()
             }),
             new ModelFile({
@@ -156,6 +158,7 @@ describe("Testing model file service", () => {
                 downloading_speed: 99,
                 eta: 54,
                 full_path: "/full/path/to/file.two",
+                import_status: ModelFile.ImportStatus.NONE,
                 children: Immutable.Set<ModelFile>()
             })
         ];
@@ -279,6 +282,7 @@ describe("Testing model file service", () => {
                 downloading_speed: 55,
                 eta: 1,
                 full_path: "/new/path/to/file.one",
+                import_status: ModelFile.ImportStatus.NONE,
                 children: Immutable.Set<ModelFile>()
             })
         ];
