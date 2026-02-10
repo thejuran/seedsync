@@ -37,17 +37,17 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| WKFL-01 | — | Pending |
-| WKFL-02 | — | Pending |
-| WKFL-03 | — | Pending |
-| WARN-01 | — | Pending |
-| WARN-02 | — | Pending |
+| WKFL-01 | Phase 20 | Pending |
+| WKFL-02 | Phase 20 | Pending |
+| WKFL-03 | Phase 20 | Pending |
+| WARN-01 | Phase 21 | Pending |
+| WARN-02 | Phase 21 | Pending |
 
 **Coverage:**
 - v1.6 requirements: 5 total
-- Mapped to phases: 0
-- Unmapped: 5
+- Mapped to phases: 5
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-09*
-*Last updated: 2026-02-09 after initial definition*
+*Last updated: 2026-02-09 after roadmap creation*

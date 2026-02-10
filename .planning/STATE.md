@@ -9,10 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-09 — Milestone v1.6 started
+Phase: Phase 20 (CI Workflow Consolidation)
+Plan: Not started
+Status: Roadmap created, ready to plan
+Progress: ░░░░░░░░░░░░░░░░░░░░ 0/2 phases (0%)
+Last activity: 2026-02-09 — v1.6 roadmap created
 
 ## Milestones Shipped
 
@@ -44,18 +45,22 @@ Last activity: 2026-02-09 — Milestone v1.6 started
 | v1.4 | 3 | 3 | 2 days |
 | v1.5 | 5 | 8 | same day |
 
+**v1.6 (in progress):**
+- Phases: 2 (20-21)
+- Plans: 2 estimated
+- Status: Roadmap complete
+
 ## Accumulated Context
 
 ### Pending Todos
 
-- ~~Clean up CI test runner warnings (pytest cache + webob cgi deprecation)~~ Addressed in v1.6
+None.
 
 ### Tech Debt
 
-- ~~Sass @import deprecation~~ RESOLVED in v1.4
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
-- ~~Backend test coverage gaps~~ RESOLVED in v1.5 (84% coverage, fail_under enforced)
-- Duplicate Docker workflow (docker-publish.yml vs master.yml) — Addressing in v1.6
+- ~~Duplicate Docker workflow (docker-publish.yml vs master.yml)~~ Addressing in Phase 20
+- ~~CI test runner warnings (pytest cache + webob cgi deprecation)~~ Addressing in Phase 21
 
 ### Key Decisions
 
@@ -64,9 +69,9 @@ See PROJECT.md Key Decisions table for full list.
 ## Session Continuity
 
 Last session: 2026-02-09
-Stopped at: v1.6 milestone started (defining requirements)
-Resume file: None
-Next action: Define requirements and create roadmap
+Stopped at: v1.6 roadmap created
+Resume file: .planning/milestones/v1.6-ROADMAP.md
+Next action: `/gsd:plan-phase 20` to create Phase 20 plan
 
 ---
 *v1.0 shipped: 2026-02-03*
@@ -75,3 +80,4 @@ Next action: Define requirements and create roadmap
 *v1.3 shipped: 2026-02-04*
 *v1.4 shipped: 2026-02-08*
 *v1.5 shipped: 2026-02-08*
+*v1.6 roadmap: 2026-02-09*

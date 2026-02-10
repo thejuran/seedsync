@@ -8,6 +8,7 @@
 - **v1.3 Polish & Clarity** - Phases 10-11 (shipped 2026-02-04)
 - **v1.4 Sass @use Migration** - Phases 12-14 (shipped 2026-02-08)
 - **v1.5 Backend Testing** - Phases 15-19 (shipped 2026-02-08)
+- **v1.6 CI Cleanup** - Phases 20-21 (in progress)
 
 ## Phases
 
@@ -81,6 +82,17 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 </details>
 
 
+<details open>
+<summary>v1.6 CI Cleanup (Phases 20-21) - IN PROGRESS</summary>
+
+- [ ] Phase 20: CI Workflow Consolidation (0/1 plans) - not started
+- [ ] Phase 21: Test Runner Cleanup (0/1 plans) - not started
+
+See `.planning/milestones/v1.6-ROADMAP.md` for full details.
+
+</details>
+
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -96,18 +108,18 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 | 9. Remove Obsolete Buttons | v1.2 | 1/1 | Complete | 2026-02-04 |
 | 10. Lint Cleanup | v1.3 | 4/4 | Complete | 2026-02-04 |
 | 11. Status Dropdown Counts | v1.3 | 1/1 | Complete | 2026-02-04 |
-
 | 12. Shared Module Migration | v1.4 | 1/1 | Complete | 2026-02-08 |
 | 13. Styles Entry Point | v1.4 | 1/1 | Complete | 2026-02-08 |
 | 14. Validation | v1.4 | 1/1 | Complete | 2026-02-08 |
-
 | 15. Coverage Tooling & Shared Fixtures | v1.5 | 1/1 | Complete | 2026-02-08 |
 | 16. Common Module Tests | v1.5 | 1/1 | Complete | 2026-02-08 |
 | 17. Web Handler Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 18. Controller Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 19. Coverage Baseline & Validation | v1.5 | 1/1 | Complete | 2026-02-08 |
+| 20. CI Workflow Consolidation | v1.6 | 0/1 | Not started | — |
+| 21. Test Runner Cleanup | v1.6 | 0/1 | Not started | — |
 
 ---
 
-*Last updated: 2026-02-08*
-*v1.5 milestone shipped: 2026-02-08*
+*Last updated: 2026-02-09*
+*v1.6 milestone started: 2026-02-09*
