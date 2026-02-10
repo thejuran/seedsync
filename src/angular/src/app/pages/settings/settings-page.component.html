@@ -44,6 +44,64 @@
                 *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_EXTRACT">
             </ng-container>
 
+            <!--suppress HtmlUnknownAttribute -->
+            <div class="card">
+                <h3 class="card-header" id="heading-arr">
+                    <button class="btn"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse-arr">
+                        *arr Integration
+                    </button>
+                </h3>
+                <div id="collapse-arr" class="collapse" data-bs-parent="#accordion">
+                    <div class="card-body">
+                        <div>
+                            <app-option
+                                [type]="OptionType.Checkbox"
+                                [label]="'Enable Sonarr Integration'"
+                                [value]="(config | async)?.get('sonarr')?.get('enabled')"
+                                (changeEvent)="onSetConfig('sonarr', 'enabled', $event)">
+                            </app-option>
+                        </div>
+                        <fieldset [attr.disabled]="!(config | async)?.get('sonarr')?.get('enabled') ? '' : null">
+                            <div>
+                                <app-option
+                                    [type]="OptionType.Text"
+                                    [label]="'Sonarr URL'"
+                                    [description]="'e.g. http://localhost:8989'"
+                                    [value]="(config | async)?.get('sonarr')?.get('sonarr_url')"
+                                    (changeEvent)="onSetConfig('sonarr', 'sonarr_url', $event)">
+                                </app-option>
+                            </div>
+                            <div>
+                                <app-option
+                                    [type]="OptionType.Password"
+                                    [label]="'Sonarr API Key'"
+                                    [description]="'Found in Sonarr under Settings \u2192 General \u2192 API Key'"
+                                    [value]="(config | async)?.get('sonarr')?.get('sonarr_api_key')"
+                                    (changeEvent)="onSetConfig('sonarr', 'sonarr_api_key', $event)">
+                                </app-option>
+                            </div>
+                            <div class="test-connection">
+                                <button class="btn btn-secondary" type="button"
+                                        [disabled]="testConnectionLoading"
+                                        (click)="onTestSonarrConnection()">
+                                    <span *ngIf="!testConnectionLoading">Test Connection</span>
+                                    <span *ngIf="testConnectionLoading">Testing...</span>
+                                </button>
+                                <div *ngIf="testConnectionResult"
+                                     class="test-result"
+                                     [class.text-success]="testConnectionResult.success"
+                                     [class.text-danger]="!testConnectionResult.success">
+                                    {{testConnectionResult.message}}
+                                </div>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+
         </div>
         <div id="right">
             <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
