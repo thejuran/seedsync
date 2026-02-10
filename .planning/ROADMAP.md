@@ -134,10 +134,11 @@ Plans:
   2. Import events appear in log viewer with filename and timestamp
   3. In-app toast notification appears when Sonarr imports a file
   4. Toast notifications are non-blocking and auto-dismiss after 5 seconds
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] 24-01: TBD
+- [x] 24-01: Backend import_status property + serialization + controller integration + frontend toast service
+- [x] 24-02: Frontend import status badge display + toast notification triggering
 
 #### Phase 25: Auto-Delete with Safety
 **Goal**: Local files auto-delete after Sonarr import with safety mechanisms
@@ -149,10 +150,11 @@ Plans:
   3. Auto-delete only removes local copy, never touches remote seedbox files
   4. Dry-run mode logs what would be deleted without actually deleting
   5. Auto-delete only triggers for files that were actually imported (not import failures)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 25-01: TBD
+- [ ] 25-01-PLAN.md -- Config.AutoDelete backend + frontend settings UI
+- [ ] 25-02-PLAN.md -- Controller auto-delete logic + unit tests
 
 ## Progress
 
@@ -164,8 +166,8 @@ Phases execute in numeric order: 22 → 23 → 24 → 25
 | 1-21. Quality Project | v1.0-v1.6 | All | Complete | 2026-02-10 |
 | 22. Configuration & Settings UI | v1.7 | 2/2 | Complete | 2026-02-10 |
 | 23. API Client Integration | v1.7 | 2/2 | Complete | 2026-02-10 |
-| 24. Status Visibility & Notifications | v1.7 | 0/TBD | Not started | - |
-| 25. Auto-Delete with Safety | v1.7 | 0/TBD | Not started | - |
+| 24. Status Visibility & Notifications | v1.7 | 2/2 | Complete | 2026-02-10 |
+| 25. Auto-Delete with Safety | v1.7 | 0/2 | Not started | - |
 
 ---
 
