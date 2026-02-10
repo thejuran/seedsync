@@ -85,7 +85,8 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 <details open>
 <summary>v1.6 CI Cleanup (Phases 20-21) - IN PROGRESS</summary>
 
-- [ ] Phase 20: CI Workflow Consolidation (0/1 plans) - not started
+- [ ] Phase 20: CI Workflow Consolidation (1 plan) - planned
+  - [ ] 20-01-PLAN.md -- Consolidate Docker workflows, add :dev publishing to master.yml, remove docker-publish.yml
 - [ ] Phase 21: Test Runner Cleanup (0/1 plans) - not started
 
 See `.planning/milestones/v1.6-ROADMAP.md` for full details.
@@ -116,8 +117,8 @@ See `.planning/milestones/v1.6-ROADMAP.md` for full details.
 | 17. Web Handler Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 18. Controller Unit Tests | v1.5 | 2/2 | Complete | 2026-02-08 |
 | 19. Coverage Baseline & Validation | v1.5 | 1/1 | Complete | 2026-02-08 |
-| 20. CI Workflow Consolidation | v1.6 | 0/1 | Not started | — |
-| 21. Test Runner Cleanup | v1.6 | 0/1 | Not started | — |
+| 20. CI Workflow Consolidation | v1.6 | 0/1 | Planned | -- |
+| 21. Test Runner Cleanup | v1.6 | 0/1 | Not started | -- |
 
 ---
 
