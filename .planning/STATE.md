@@ -11,8 +11,8 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 
 Phase: 22 of 25 (Configuration & Settings UI)
 Plan: 22-02 (Frontend Settings UI)
-Status: Plan 22-01 complete, 22-02 next
-Last activity: 2026-02-10 — Completed 22-01 (Backend Config + Test Connection)
+Status: Phase 22 complete (both plans done), Phase 23 next
+Last activity: 2026-02-10 — Completed 22-02 (Frontend Settings UI)
 
 Progress: [████████░░] 84% (21/25 phases complete)
 
@@ -33,7 +33,7 @@ Progress: [████████░░] 84% (21/25 phases complete)
 **Total Project:**
 - 7 milestones shipped
 - 21 phases completed
-- 32 plans executed
+- 34 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 ## Accumulated Context
@@ -71,11 +71,17 @@ See PROJECT.md Key Decisions table for full list.
 - Test connection returns HTTP 200 with JSON body (matches RestService pattern)
 - Uses `requests` library directly (not pyarr) for simple status check
 
+**Phase 22-02 decisions:**
+- Custom card (not #optionsList template) for *arr Integration section -- Test Connection button does not fit standard pattern
+- HTML5 fieldset disabled pattern to grey out URL, API Key, Test Connection when toggle is OFF
+- ChangeDetectorRef.markForCheck() for OnPush change detection with direct property bindings
+- Backward-compatible Config constructor: falls back to DefaultSonarr if props.sonarr missing
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 22-01-PLAN.md (Backend Config + Test Connection)
-Next action: Execute Plan 22-02 (Frontend Settings UI)
+Stopped at: Completed 22-02-PLAN.md (Frontend Settings UI)
+Next action: Execute Phase 23 (Sonarr Manager + Queue Polling)
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
