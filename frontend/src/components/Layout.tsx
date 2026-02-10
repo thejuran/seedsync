@@ -7,6 +7,7 @@ const navItems = [
   { to: "/availability", label: "Availability" },
   { to: "/reservations", label: "Reservations" },
   { to: "/point-charts", label: "Point Charts" },
+  { to: "/settings", label: "Settings" },
 ];
 
 export default function Layout() {
