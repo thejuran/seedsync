@@ -23,6 +23,7 @@ import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
 import {NotificationService} from "../../services/utils/notification.service";
 import {Notification} from "../../services/utils/notification";
 import {Localization} from "../../common/localization";
+import {ToastService} from "../../services/utils/toast.service";
 // Note: IsSelectedPipe removed in Session 16 - FileComponent now uses computed() signal
 
 @Component({
@@ -48,6 +49,10 @@ export class FileListComponent {
     // Header checkbox state: 'none', 'some', 'all'
     public headerCheckboxState$: Observable<"none" | "some" | "all">;
 
+    // Track import status to detect transitions for toast notifications
+    private _prevImportStatuses: Map<string, string> = new Map();
+    private _firstEmission = true;
+
     // Selection state for banner
     public selectedFiles$: Observable<Set<string>>;
 
@@ -67,7 +72,8 @@ export class FileListComponent {
                 public fileSelectionService: FileSelectionService,
                 private bulkCommandService: BulkCommandService,
                 private confirmModalService: ConfirmModalService,
-                private notificationService: NotificationService) {
+                private notificationService: NotificationService,
+                private _toastService: ToastService) {
         this.files = viewFileService.filteredFiles;
         this.options = this.viewFileOptionsService.options;
 
@@ -109,6 +115,43 @@ export class FileListComponent {
                 }
             })
         );
+
+        // Subscribe to file updates to detect import status transitions
+        this.viewFileService.files
+            .pipe(takeUntilDestroyed(this.destroyRef))
+            .subscribe(files => {
+                if (this._firstEmission) {
+                    // First emission is initial load - record statuses without toasting
+                    this._firstEmission = false;
+                    files.forEach(file => {
+                        if (file.importStatus) {
+                            this._prevImportStatuses.set(file.name, file.importStatus);
+                        }
+                    });
+                    return;
+                }
+
+                // Check for new imports
+                files.forEach(file => {
+                    const prevStatus = this._prevImportStatuses.get(file.name);
+                    if (file.importStatus === ViewFile.ImportStatus.IMPORTED &&
+                        prevStatus !== ViewFile.ImportStatus.IMPORTED) {
+                        this._toastService.success("Sonarr imported: " + file.name);
+                    }
+                    // Update tracked status
+                    if (file.importStatus) {
+                        this._prevImportStatuses.set(file.name, file.importStatus);
+                    }
+                });
+
+                // Clean up removed files
+                const currentNames = new Set(files.map(f => f.name));
+                for (const name of this._prevImportStatuses.keys()) {
+                    if (!currentNames.has(name)) {
+                        this._prevImportStatuses.delete(name);
+                    }
+                }
+            });
     }
 
     // =========================================================================

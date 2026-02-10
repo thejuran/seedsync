@@ -12,6 +12,7 @@ import {BulkCommandService, BulkActionResult} from "../../../../services/server/
 import {LoggerService} from "../../../../services/utils/logger.service";
 import {ConfirmModalService} from "../../../../services/utils/confirm-modal.service";
 import {NotificationService} from "../../../../services/utils/notification.service";
+import {ToastService} from "../../../../services/utils/toast.service";
 import {Notification} from "../../../../services/utils/notification";
 import {ViewFile} from "../../../../services/files/view-file";
 
@@ -25,6 +26,7 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
     let mockLoggerService: jasmine.SpyObj<LoggerService>;
     let mockConfirmModalService: jasmine.SpyObj<ConfirmModalService>;
     let mockNotificationService: jasmine.SpyObj<NotificationService>;
+    let mockToastService: jasmine.SpyObj<ToastService>;
 
     // Test files
     const testFiles = List([
@@ -54,7 +56,8 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
             "deleteLocal",
             "deleteRemote"
         ], {
-            filteredFiles: of(testFiles)
+            filteredFiles: of(testFiles),
+            files: of(testFiles)
         });
 
         mockViewFileOptionsService = jasmine.createSpyObj("ViewFileOptionsService", [], {
@@ -64,6 +67,7 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
         mockLoggerService = jasmine.createSpyObj("LoggerService", ["info", "debug", "error"]);
         mockConfirmModalService = jasmine.createSpyObj("ConfirmModalService", ["confirm"]);
         mockNotificationService = jasmine.createSpyObj("NotificationService", ["show", "hide"]);
+        mockToastService = jasmine.createSpyObj("ToastService", ["success", "info", "warning", "danger", "show"]);
 
         await TestBed.configureTestingModule({
             imports: [FileListComponent, HttpClientTestingModule, ScrollingModule],
@@ -73,7 +77,8 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
                 {provide: ViewFileOptionsService, useValue: mockViewFileOptionsService},
                 {provide: LoggerService, useValue: mockLoggerService},
                 {provide: ConfirmModalService, useValue: mockConfirmModalService},
-                {provide: NotificationService, useValue: mockNotificationService}
+                {provide: NotificationService, useValue: mockNotificationService},
+                {provide: ToastService, useValue: mockToastService}
             ]
         })
         // Override template to avoid CDK virtual scroll complexity in unit tests
@@ -375,6 +380,7 @@ describe("FileListComponent - Bulk Action Handlers", () => {
     let mockLoggerService: jasmine.SpyObj<LoggerService>;
     let mockConfirmModalService: jasmine.SpyObj<ConfirmModalService>;
     let mockNotificationService: jasmine.SpyObj<NotificationService>;
+    let mockToastService: jasmine.SpyObj<ToastService>;
 
     // Test files with various action eligibility
     const testFiles = List([
@@ -410,7 +416,8 @@ describe("FileListComponent - Bulk Action Handlers", () => {
         mockViewFileService = jasmine.createSpyObj("ViewFileService", [
             "setSelected", "unsetSelected", "queue", "stop", "extract", "deleteLocal", "deleteRemote"
         ], {
-            filteredFiles: of(testFiles)
+            filteredFiles: of(testFiles),
+            files: of(testFiles)
         });
 
         mockViewFileOptionsService = jasmine.createSpyObj("ViewFileOptionsService", [], {
@@ -421,6 +428,7 @@ describe("FileListComponent - Bulk Action Handlers", () => {
         mockLoggerService = jasmine.createSpyObj("LoggerService", ["info", "debug", "error"]);
         mockConfirmModalService = jasmine.createSpyObj("ConfirmModalService", ["confirm"]);
         mockNotificationService = jasmine.createSpyObj("NotificationService", ["show", "hide"]);
+        mockToastService = jasmine.createSpyObj("ToastService", ["success", "info", "warning", "danger", "show"]);
 
         // Default: confirmation accepted
         mockConfirmModalService.confirm.and.returnValue(Promise.resolve(true));
@@ -434,7 +442,8 @@ describe("FileListComponent - Bulk Action Handlers", () => {
                 {provide: BulkCommandService, useValue: mockBulkCommandService},
                 {provide: LoggerService, useValue: mockLoggerService},
                 {provide: ConfirmModalService, useValue: mockConfirmModalService},
-                {provide: NotificationService, useValue: mockNotificationService}
+                {provide: NotificationService, useValue: mockNotificationService},
+                {provide: ToastService, useValue: mockToastService}
             ]
         })
         .overrideTemplate(FileListComponent, "<div>Test template</div>")
