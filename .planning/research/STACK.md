@@ -1,305 +1,418 @@
-# Technology Stack: Sass @use/@forward Migration
+# Technology Stack: Sonarr Integration
 
-**Project:** SeedSync - Angular 19.x + Bootstrap 5.3
-**Research Focus:** Stack requirements for @import → @use/@forward migration
-**Researched:** 2026-02-07
+**Project:** SeedSync - Sonarr API Integration (v1.7)
+**Research Focus:** Stack additions for Sonarr API integration and auto-delete features
+**Researched:** 2026-02-10
 **Overall Confidence:** HIGH
 
 ## Executive Summary
 
-The SeedSync Angular frontend can successfully migrate from Sass `@import` to `@use`/`@forward` module system using current tooling. However, **Bootstrap 5.3 itself has not migrated to the module system** and will continue to emit deprecation warnings. This is expected and does not prevent the migration. The project's own SCSS files can be fully modernized while Bootstrap remains on `@import`.
+The Sonarr integration requires minimal stack additions to the existing SeedSync Python/Angular stack. The Python backend already has `requests ^2.32.5` for HTTP operations. For production robustness, adding `pyarr ^5.2.0` provides a battle-tested Sonarr API client with proper error handling and pagination support. The Angular frontend needs `ngx-toastr ^19.1.0` for in-app toast notifications. Webhook handling works with existing Bottle framework (no new dependencies).
 
-**Key constraint:** Bootstrap 5.3.3 internally uses `@import` and cannot be imported with `@use` syntax. Bootstrap 6 (in early development, no release date) will address this.
+**Key finding:** Stack additions are minimal and align with existing technology choices (synchronous Python HTTP client, Bootstrap-compatible Angular notifications).
 
-## Current Stack Analysis
+## Existing Stack (DO NOT ADD)
 
-### Dart Sass (CURRENT)
+### Already Available for Sonarr Integration
 
-| Component | Current Version | Support Status | Notes |
-|-----------|----------------|----------------|-------|
-| **sass** (package.json) | 1.97.3 | ✅ Full @use/@forward support | Direct dependency |
-| **@angular/build** | Uses sass 1.85.0 | ✅ Full @use/@forward support | Via Angular CLI |
-| **sass-loader** | Uses sass 1.97.3 | ✅ Full @use/@forward support | Via Angular CLI |
+| Component | Current Version | Use For | Why Sufficient |
+|-----------|----------------|---------|----------------|
+| **requests** | ^2.32.5 | HTTP client for Sonarr API | Industry standard, synchronous, already in pyproject.toml |
+| **bottle** | ^0.13.4 | Webhook endpoint handling | POST body parsing via `request.json`, no special webhook libraries needed |
+| **@angular/animations** | ^19.2.18 | Toast notification animations | Required peer dependency for ngx-toastr, already installed |
+| **bootstrap** | ^5.3.3 | Notification styling | ngx-toastr has Bootstrap 5 theme support built-in |
+| **pytest** | ^7.4.4 | Testing HTTP mocking | Works with requests library for unit testing API calls |
 
-**Analysis:**
-- Dart Sass 1.23.0+ (October 2019) introduced `@use` and `@forward`
-- Current version 1.97.3 has 4+ years of module system maturity
-- All versions in the project (1.85.0, 1.97.3) fully support module system
-- **HIGH confidence:** Zero Dart Sass version blockers for this migration
+**Implication:** The project has most infrastructure needed. Only add Sonarr-specific client library and notification UI component.
 
-**Source:** [Dart Sass Changelog](https://github.com/sass/dart-sass/blob/main/CHANGELOG.md), [Module System Launch](https://www.sasscss.com/blog/the-module-system-is-launched)
+## Recommended Stack Additions
 
-### Bootstrap (CRITICAL CONSTRAINT)
+### Core: Python Sonarr API Client (OPTIONAL BUT RECOMMENDED)
 
-| Aspect | Status | Impact |
-|--------|--------|--------|
-| **Bootstrap version** | 5.3.3 | Uses `@import` internally |
-| **Module system support** | ❌ Not available | Cannot import Bootstrap with `@use` |
-| **Deprecation warnings** | Expected | Bootstrap emits warnings, this is normal |
-| **Migration timeline** | Bootstrap 6 (TBD) | No confirmed release date |
-| **Workaround** | Continue using `@import` for Bootstrap | Project can use `@use` for own files |
-
-**Critical finding:** Bootstrap 5.3 **must be imported with `@import`** because Bootstrap's internal files use `@import`. You cannot write `@use 'bootstrap'`.
-
-**What this means:**
-1. `styles.scss` will continue to use `@import` for Bootstrap files
-2. `_common.scss` can use `@forward` to re-export Bootstrap variables
-3. Component SCSS files can use `@use` to import `_common.scss`
-4. Deprecation warnings from Bootstrap itself are expected and normal
-
-**Source:**
-- [Bootstrap 5.3 Sass Documentation](https://getbootstrap.com/docs/5.3/customize/sass/) - shows only `@import` syntax
-- [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) - Module system tracking issue
-- [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) - Bootstrap 6 in early development
-- [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) - Sass modules planned for v6
-
-### Angular CLI (INTEGRATION)
-
-| Component | Version | SCSS Compilation | Notes |
-|-----------|---------|------------------|-------|
-| **@angular/cli** | 19.2.19 | ✅ Supports @use/@forward | Via sass-loader 16.0.5 |
-| **@angular-devkit/build-angular** | 19.2.19 | ✅ Supports @use/@forward | Uses Vite + Sass |
-| **Angular stylePreprocessorOptions** | N/A | ✅ Works with @use | Load paths supported |
-
-**Analysis:**
-- Angular CLI has supported `@use`/`@forward` since Angular 12+ (2021)
-- Angular Material migrated to `@use` in v12 as a reference implementation
-- `stylePreprocessorOptions.includePaths` works with `@use` syntax
-- No Angular CLI configuration changes needed for the migration
-
-**Source:**
-- [The New State of CSS in Angular](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6)
-- [Angular Material Migration to @use](https://github.com/sass/sass/issues/3514) discussion
-
-## Recommended Stack: Migration Tools
-
-### sass-migrator (STRONGLY RECOMMENDED)
-
-| Tool | Version | Purpose | When to Use |
-|------|---------|---------|-------------|
-| **sass-migrator** | 2.5.7 (latest) | Automated @import → @use conversion | First pass migration, component files |
+| Library | Version | Purpose | Why Recommended |
+|---------|---------|---------|-----------------|
+| **pyarr** | ^5.2.0 | Sonarr/Radarr/Lidarr API wrapper | Production-stable, handles pagination, JSON responses, error handling, actively maintained (200+ stars) |
 
 **Installation:**
 ```bash
-npm install -D sass-migrator
+cd src/python
+poetry add pyarr@^5.2.0
 ```
 
-**Why use it:**
-- Automates 90% of mechanical conversion work
-- Handles namespace insertion
-- Updates variable/mixin/function references
-- Reduces manual errors
+**Why pyarr over raw requests:**
+- **Type safety:** Returns JSON dicts with documented structure
+- **Pagination handling:** Built-in support for `get_history()` and `get_queue()` pagination
+- **Error handling:** Wraps API errors with meaningful exceptions
+- **Battle-tested:** Used by Home Assistant, Notifiarr, and other production systems
+- **Maintenance:** Last release July 2023, stable (not abandoned)
 
-**Key limitation:** Cannot migrate Bootstrap files (they're third-party in node_modules). This is expected and correct behavior.
+**Why NOT pyarr:**
+- **Stale maintenance:** No releases in 18 months (but API stable)
+- **Synchronous only:** No async support (fine for SeedSync's sync architecture)
+- **If you prefer control:** Raw `requests` works fine for simple polling
 
-**Usage for this project:**
-```bash
-# Dry run to preview changes
-npx sass-migrator module --migrate-deps --dry-run --verbose src/app/common/_common.scss
+**Alternative: Use raw requests library (ACCEPTABLE)**
 
-# Migrate component files (do NOT include styles.scss which imports Bootstrap)
-npx sass-migrator module --migrate-deps src/app/**/*.component.scss
+If keeping dependencies minimal:
+```python
+import requests
+
+def get_sonarr_history(sonarr_url: str, api_key: str, page: int = 1):
+    response = requests.get(
+        f"{sonarr_url}/api/v3/history",
+        params={"page": page, "pageSize": 50, "sortKey": "date", "sortDir": "desc"},
+        headers={"X-Api-Key": api_key},
+        timeout=10
+    )
+    response.raise_for_status()
+    return response.json()
 ```
 
-**Source:**
-- [Sass Migrator Documentation](https://sass-lang.com/documentation/cli/migrator/)
-- [sass-migrator on npm](https://www.npmjs.com/package/sass-migrator)
+**Verdict:** Use `pyarr` for production. Use raw `requests` for MVP/prototype.
 
-### Manual Migration (REQUIRED FOR BOOTSTRAP BOUNDARIES)
+**Confidence:** HIGH (verified with PyPI, official docs)
 
-Files that interact with Bootstrap require manual migration:
+**Sources:**
+- [pyarr on PyPI](https://pypi.org/project/pyarr/) - Latest version 5.2.0
+- [pyarr documentation](https://docs.totaldebug.uk/pyarr/modules/sonarr.html) - SonarrAPI methods
+- [GitHub totaldebug/pyarr](https://github.com/totaldebug/pyarr) - Source code and examples
 
-| File | Migration Approach | Reason |
-|------|-------------------|---------|
-| `styles.scss` | Keep `@import` for Bootstrap | Bootstrap 5.3 not module-compatible |
-| `_bootstrap-variables.scss` | Keep as variables-only file | Used before Bootstrap import |
-| `_common.scss` | Manual `@forward` with `@use` | Bridges Bootstrap and components |
-| Component SCSS | sass-migrator + manual review | Can use full `@use` syntax |
+### UI: Angular Toast Notifications
 
-**Source:** Research synthesis from Bootstrap constraints and Sass module system documentation
-
-## Migration Strategy: Hybrid Approach
-
-### What Gets Migrated (Full @use/@forward)
-
-1. **Component SCSS files** - All `*.component.scss` files
-   - Migrate `@import '../../common/common'` → `@use '../../common/common' as *`
-   - sass-migrator can handle this automatically
-
-2. **_common.scss** - Manually convert to `@forward` hub
-   - Forward Bootstrap variables from `_bootstrap-variables.scss`
-   - Use `@forward ... as *` to maintain global variable access
-   - Add custom variables and re-export them
-
-### What Stays on @import (Bootstrap Boundary)
-
-1. **styles.scss** - Entry point that imports Bootstrap
-   - Must use `@import` for all Bootstrap SCSS files
-   - Bootstrap 5.3 internals use `@import`, non-negotiable
-
-2. **_bootstrap-variables.scss** - Bootstrap overrides
-   - Stays as plain variable definitions (no `@import`, `@use`, or `@forward`)
-   - Gets imported BEFORE Bootstrap's `_variables.scss` in styles.scss
-
-### Why This Hybrid Works
-
-- **Component isolation:** Components use modern `@use`, unaffected by Bootstrap's `@import`
-- **Build order:** Angular compiles `styles.scss` separately from component styles
-- **Deprecation warnings:** Only Bootstrap files emit warnings, not your code
-- **Future-proof:** When Bootstrap 6 ships with module support, only `styles.scss` needs updates
-
-**Source:** Synthesis of Angular CLI compilation behavior and Sass module system scoping rules
-
-## Version Requirements
-
-### DO NOT CHANGE
-
-| Package | Current Version | Keep Because |
-|---------|----------------|--------------|
-| **sass** | ^1.32.0 (resolves to 1.97.3) | Already supports @use/@forward (1.23+) |
-| **bootstrap** | ^5.3.3 | Latest stable; v6 not released |
-| **@angular/cli** | ~19.2.19 | Already supports @use compilation |
-
-### DO ADD (dev dependency)
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| **sass-migrator** | ^2.5.7 | Automated migration tool |
+| Library | Version | Purpose | Why Recommended |
+|---------|---------|---------|-----------------|
+| **ngx-toastr** | ^19.1.0 | Toast notifications for import events | Angular 19 compatible (>=17, <23), Bootstrap 5 theme included, 200K+ weekly downloads, actively maintained |
 
 **Installation:**
 ```bash
 cd src/angular
-npm install -D sass-migrator
+npm install ngx-toastr@^19.1.0
 ```
 
-## Integration Details
+**Why ngx-toastr:**
+- **Angular 19 compatible:** Version 19.x supports Angular 17-22
+- **Bootstrap 5 integration:** Built-in Bootstrap 5 theme matches existing UI
+- **Production-ready:** 200,000+ weekly npm downloads
+- **Actively maintained:** Version 20.x released 3 days ago (we use 19.x for Angular 19)
+- **Flexible:** Supports success, error, warning, info toast types
+- **Configurable:** Timeout, position, animations, max toasts, etc.
 
-### Angular Build Process with @use
+**Integration with existing Angular:**
+```typescript
+// app.config.ts (standalone components pattern)
+import { provideToastr } from 'ngx-toastr';
 
-**How Angular CLI handles SCSS:**
-1. Global styles (`styles.scss`) compiled once, output to global CSS
-2. Component styles compiled per-component, scoped to component
-3. `stylePreprocessorOptions.includePaths` available for both
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideToastr({
+      timeOut: 5000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      // Use Bootstrap 5 theme
+      toastClass: 'ngx-toastr toast',
+      iconClasses: {
+        error: 'toast-error',
+        info: 'toast-info',
+        success: 'toast-success',
+        warning: 'toast-warning',
+      },
+    }),
+  ],
+};
 
-**Effect on @use migration:**
-- Component SCSS files compile independently
-- Each component's `@use '../../common/common'` creates isolated scope
-- No global variable pollution between components
-- Bootstrap warnings only appear during global styles compilation
+// In component
+import { ToastrService } from 'ngx-toastr';
 
-**Source:** [Angular CLI build process](https://github.com/angular/angular-cli/issues/25018) and Sass module system scoping
+constructor(private toastr: ToastrService) {}
 
-### Namespace Conventions for Component Files
+showImportNotification(episodeName: string) {
+  this.toastr.success(`${episodeName} imported to Sonarr`, 'Import Complete');
+}
+```
 
-**Recommended patterns:**
+**Styles required (add to styles.scss):**
+```scss
+// Import ngx-toastr CSS (uses @import because it's third-party)
+@import 'ngx-toastr/toastr-bs5-alert';  // Bootstrap 5 theme
+```
+
+**Alternatives considered:**
+- **angular-notifier:** Outdated (last release 3 years ago), not Angular 19 compatible
+- **ng-bootstrap toasts:** Requires manual service creation, less feature-rich
+- **Custom service:** Reinventing the wheel, maintenance burden
+
+**Confidence:** HIGH (verified with npm search, GitHub releases, documentation)
+
+**Sources:**
+- [ngx-toastr on npm](https://www.npmjs.com/package/ngx-toastr) - Version 19.1.0 details
+- [ngx-toastr GitHub releases](https://github.com/scttcper/ngx-toastr/releases) - Angular compatibility
+- [ngx-toastr demo](https://ngx-toastr.vercel.app/) - Live examples
+
+## What NOT to Add
+
+| Avoid | Why | Use Instead |
+|-------|-----|-------------|
+| **httpx** | Async HTTP client adds complexity SeedSync doesn't need | Existing `requests` library (synchronous matches Manager pattern) |
+| **sonarr-py (devopsarr)** | Auto-generated from OpenAPI, less Pythonic, 10x fewer GitHub stars | `pyarr` (community-maintained, better docs) |
+| **aiohttp** | Async HTTP requires async/await rewrite of all Managers | Keep synchronous architecture |
+| **Dedicated webhook library** | Bottle handles POST JSON natively via `request.json` | Bottle's built-in `request.json` |
+| **angular2-notifications** | Outdated predecessor to ngx-toastr | `ngx-toastr` (modern, maintained) |
+| **Custom notification service** | Maintenance burden, duplicates ngx-toastr features | `ngx-toastr` (battle-tested) |
+| **Socket.io / SSE for Sonarr events** | Sonarr doesn't push events, polling is standard pattern | HTTP polling with configurable interval |
+
+## Integration with Existing Architecture
+
+### Python Backend: SonarrManager Pattern
+
+The new `SonarrManager` follows existing Manager conventions:
+
+**Fits existing patterns:**
+- **ScanManager:** Uses `pexpect` subprocess for scanner, blocking calls
+- **LftpManager:** Uses `lftp` via `pexpect` subprocess, blocking calls
+- **FileOperationManager:** Uses `patool` for extraction, blocking calls
+- **SonarrManager (NEW):** Uses `requests` or `pyarr` for HTTP calls, blocking calls
+
+**Thread model:** Manager runs in dedicated thread with periodic polling (like ScanManager's periodic scans).
+
+**Existing config pattern:**
+```python
+# Follows InnerConfig pattern from common/config.py
+class SonarrInnerConfig:
+    url: str = ""
+    api_key: str = ""
+    enabled: bool = False
+    poll_interval_seconds: int = 60
+```
+
+**Integration point:** Controller instantiates SonarrManager, adds listener for import events, updates ModelBuilder.
+
+### Angular Frontend: Settings UI + Notifications
+
+**Fits existing patterns:**
+- **Settings form:** Follows existing `settings` component with INI-style form controls
+- **Notifications:** ngx-toastr integrates with existing Bootstrap 5 styling
+- **Status display:** Follows existing `file-list` component display patterns
+
+**No new architectural patterns needed:** Settings tab, toast service, status column in file list.
+
+## Webhook Handling (NO NEW DEPENDENCIES)
+
+### Bottle Framework Already Sufficient
+
+Sonarr webhooks send JSON POST requests. Bottle handles this natively:
+
+```python
+from bottle import post, request
+
+@post('/api/sonarr/webhook')
+def sonarr_webhook():
+    """Handle Sonarr webhook for import events"""
+    payload = request.json  # Bottle parses JSON body automatically
+
+    if payload.get('eventType') == 'Download':
+        # Extract episode info from payload
+        series_title = payload['series']['title']
+        episode_file = payload['episodeFile']['relativePath']
+
+        # Trigger delete via FileOperationManager
+        controller.handle_sonarr_import(episode_file)
+
+        return {'status': 'ok'}
+
+    return {'status': 'ignored'}
+```
+
+**Why no webhook library needed:**
+- Bottle's `request.json` parses POST body
+- No signature verification needed (Sonarr is local network)
+- Simple event-type switching with dict access
+- Return JSON response with dict
+
+**Alternative approach: Polling instead of webhooks**
+
+If webhooks are complex for users to configure:
+```python
+# Poll Sonarr history every 60 seconds
+sonarr_manager.get_recent_imports(since=last_poll_time)
+# Compare with local files, trigger deletes
+```
+
+**Verdict:** Webhooks preferred (real-time), polling acceptable (simpler setup). Both use existing Bottle/requests.
+
+## Version Compatibility Matrix
+
+### Python Dependencies
+
+| Package | Version | Compatible With | Notes |
+|---------|---------|-----------------|-------|
+| **pyarr** | 5.2.0 | Python >=3.9 <4.0 | SeedSync uses Python >=3.11, fully compatible |
+| **requests** | 2.32.5 | Python >=3.8 | Already in use, no changes needed |
+| **pytest** | 7.4.4 | pytest-timeout 2.3.1, pytest-cov 7.0.0 | Existing test stack works for mocking HTTP |
+
+### Angular Dependencies
+
+| Package | Version | Compatible With | Notes |
+|---------|---------|-----------------|-------|
+| **ngx-toastr** | 19.1.0 | Angular >=17 <23 | SeedSync uses Angular 19.2.18, fully compatible |
+| **@angular/animations** | 19.2.18 | ngx-toastr peer dependency | Already installed |
+| **bootstrap** | 5.3.3 | ngx-toastr Bootstrap 5 theme | Use `toastr-bs5-alert.scss` |
+
+**No version conflicts detected.**
+
+## Installation Summary
+
+### Step 1: Python Backend
+
+```bash
+cd src/python
+
+# Option A: With pyarr (recommended for production)
+poetry add pyarr@^5.2.0
+
+# Option B: Use existing requests library (no installation needed)
+# Already have: requests ^2.32.5
+```
+
+### Step 2: Angular Frontend
+
+```bash
+cd src/angular
+
+# Install ngx-toastr
+npm install ngx-toastr@^19.1.0
+```
+
+### Step 3: Update styles.scss
 
 ```scss
-// Pattern 1: Global namespace (maintain current variable access)
-@use '../../common/common' as *;
-
-// Pattern 2: Explicit namespace (more explicit, safer for large teams)
-@use '../../common/common' as common;
-// Access: common.$primary-color
-
-// Pattern 3: Custom namespace (semantic naming)
-@use '../../common/common' as theme;
-// Access: theme.$primary-color
+// Add to src/angular/src/styles.scss
+@import 'ngx-toastr/toastr-bs5-alert';  // Bootstrap 5 theme for toasts
 ```
 
-**For this project:** Pattern 1 (`as *`) recommended
-- Matches current usage where components access `$primary-color` directly
-- Minimal code changes in component files
-- Familiar to existing codebase patterns
+### Step 4: Configure ngx-toastr in app.config.ts
 
-**Source:**
-- [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd)
-- [Sass @use Documentation](https://sass-lang.com/documentation/at-rules/use/)
+```typescript
+import { provideToastr } from 'ngx-toastr';
 
-## Deprecation Timeline
+export const appConfig: ApplicationConfig = {
+  providers: [
+    // Existing providers...
+    provideToastr({
+      timeOut: 5000,
+      positionClass: 'toast-top-right',
+      preventDuplicates: true,
+      toastClass: 'ngx-toastr toast',
+    }),
+  ],
+};
+```
 
-| Date | Event | Impact |
-|------|-------|--------|
-| **October 2019** | Dart Sass 1.23.0 ships `@use`/`@forward` | Module system available |
-| **October 2021** | `@import` officially deprecated in Dart Sass 1.80.0 | Warnings appear |
-| **Q2 2026 (estimated)** | Dart Sass 3.0.0 earliest possible release | `@import` removed |
-| **TBD** | Bootstrap 6 release | Bootstrap module support |
+## Testing Additions (NO NEW DEPENDENCIES)
 
-**Critical insight:** Dart Sass 3.0 is **at least 2 years after Dart Sass 1.80.0** (October 2021), meaning no earlier than **October 2023**. However, Dart Sass 2.0 shipped first with smaller breaking changes. **Dart Sass 3.0 has no confirmed release date as of February 2026.**
+### Python: Mocking HTTP Requests
 
-**Implication:** There is time to migrate, but the migration should not be delayed indefinitely.
+Use existing pytest with unittest.mock:
 
-**Source:**
-- [Dart Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/)
-- [Dart Sass Breaking Changes](https://sass-lang.com/documentation/breaking-changes/import/)
+```python
+from unittest.mock import patch, MagicMock
+import pytest
 
-## What NOT to Change and Why
+@patch('requests.get')
+def test_sonarr_get_history(mock_get):
+    mock_response = MagicMock()
+    mock_response.json.return_value = {
+        'records': [
+            {'eventType': 'downloadFolderImported', 'episodeId': 123}
+        ]
+    }
+    mock_get.return_value = mock_response
 
-### DO NOT migrate styles.scss to @use for Bootstrap
+    # Test SonarrManager.get_history()
+    # ...
+```
 
-**Why:**
-- Bootstrap 5.3 internally uses `@import` between its own files
-- When you `@use 'bootstrap'`, Sass tries to load it as a module
-- Bootstrap's internal `@import` statements conflict with module scoping
-- Result: Build errors or missing Bootstrap styles
+**For pyarr:** Mock the library directly:
+```python
+@patch('pyarr.SonarrAPI')
+def test_with_pyarr(mock_sonarr):
+    # Mock methods
+    # ...
+```
 
-**What to do instead:**
-- Keep `@import 'bootstrap/scss/functions'` etc. in styles.scss
-- Only migrate your own files (`_common.scss`, component files)
+### Angular: Testing Toasts
 
-### DO NOT use sass-migrator on node_modules
+Use existing Jasmine/Karma with ToastrService spy:
 
-**Why:**
-- sass-migrator skips third-party files in node_modules by design
-- Bootstrap files are not under your control
-- npm updates would overwrite any changes
+```typescript
+import { TestBed } from '@angular/core/testing';
+import { ToastrService } from 'ngx-toastr';
 
-**What to do instead:**
-- Use `--migrate-deps` only for files in `src/`
-- Manually review any Bootstrap import statements in your code
+describe('SonarrNotificationComponent', () => {
+  let toastr: jasmine.SpyObj<ToastrService>;
 
-### DO NOT expect zero deprecation warnings
+  beforeEach(() => {
+    const toastrSpy = jasmine.createSpyObj('ToastrService', ['success', 'error']);
 
-**Why:**
-- Bootstrap 5.3 will continue emitting `@import` deprecation warnings
-- These warnings come from Bootstrap's internal SCSS files
-- You cannot silence them without modifying node_modules (bad practice)
+    TestBed.configureTestingModule({
+      providers: [{ provide: ToastrService, useValue: toastrSpy }]
+    });
 
-**What to do instead:**
-- Accept that Bootstrap warnings will appear
-- Focus on eliminating warnings from your own SCSS files
-- When Bootstrap 6 releases, update and warnings disappear
+    toastr = TestBed.inject(ToastrService) as jasmine.SpyObj<ToastrService>;
+  });
+
+  it('should show success toast on import', () => {
+    component.onImportEvent({ episodeName: 'S01E01' });
+    expect(toastr.success).toHaveBeenCalledWith('S01E01 imported to Sonarr', 'Import Complete');
+  });
+});
+```
+
+**No new test libraries needed:** unittest.mock (Python stdlib), Jasmine spies (already in use).
+
+## Migration Notes: None Required
+
+This is a feature addition, not a migration. Existing code remains unchanged:
+- No version upgrades of existing packages
+- No breaking changes to current stack
+- No deprecations to address
 
 ## Success Criteria
 
-Migration is complete when:
+Stack additions are complete when:
 
-- ✅ All component `*.component.scss` files use `@use` instead of `@import`
-- ✅ `_common.scss` uses `@forward` to re-export variables
-- ✅ Component files access variables with `@use '../../common/common' as *`
-- ✅ All Angular unit tests still pass (381 tests)
-- ✅ Zero TypeScript lint errors
-- ✅ Visual regression: UI looks identical
-- ⚠️ Bootstrap deprecation warnings remain (expected)
-- ✅ Your project's SCSS files emit zero deprecation warnings
+- ✅ Python dependencies added to `src/python/pyproject.toml` (pyarr or use existing requests)
+- ✅ Angular dependencies added to `src/angular/package.json` (ngx-toastr)
+- ✅ ngx-toastr styles imported in `src/angular/src/styles.scss`
+- ✅ ngx-toastr configured in `src/angular/src/app.config.ts`
+- ✅ `poetry install` succeeds in src/python
+- ✅ `npm install` succeeds in src/angular
+- ✅ Existing tests still pass (Python pytest, Angular Karma)
+- ✅ No version conflicts reported by poetry or npm
 
 ## Sources
 
 ### Primary Sources (HIGH Confidence)
 
-1. [Dart Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/) - Official timeline
-2. [Sass @use Documentation](https://sass-lang.com/documentation/at-rules/use/) - Official spec
-3. [Sass @forward Documentation](https://sass-lang.com/documentation/at-rules/forward/) - Official spec
-4. [Bootstrap 5.3 Sass Docs](https://getbootstrap.com/docs/5.3/customize/sass/) - Shows @import only
-5. [Sass Migrator CLI](https://sass-lang.com/documentation/cli/migrator/) - Official tool docs
+1. [pyarr on PyPI](https://pypi.org/project/pyarr/) - Version 5.2.0, Python requirements
+2. [pyarr documentation](https://docs.totaldebug.uk/pyarr/modules/sonarr.html) - API methods (get_history, get_queue)
+3. [ngx-toastr on npm](https://www.npmjs.com/package/ngx-toastr) - Version 19.1.0, Angular compatibility
+4. [ngx-toastr GitHub releases](https://github.com/scttcper/ngx-toastr/releases) - Release notes, compatibility
+5. [Sonarr API Docs](https://sonarr.tv/docs/api/) - Official API endpoints
+6. [Bottle API Reference](https://bottlepy.org/docs/dev/api.html) - request.json documentation
 
 ### Secondary Sources (MEDIUM Confidence)
 
-6. [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) - Module system tracking
-7. [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) - Bootstrap 6 status
-8. [Angular CSS State](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6) - Angular CLI Sass support
-9. [Stop Using @import Guide](https://dev.to/quesby/stop-using-import-how-to-prepare-for-dart-sass-30-full-migration-guide-1agh) - Migration walkthrough
+7. [requests library PyPI](https://pypi.org/project/requests/) - Version 2.32.5 (verified in pyproject.toml)
+8. [Sonarr Webhook Wiki](https://github.com/Sonarr/Sonarr/wiki/Webhook) - Payload format examples
+9. [ngx-toastr demo](https://ngx-toastr.vercel.app/) - Configuration options
 
 ### Community Sources (LOW Confidence, for patterns only)
 
-10. [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd) - Namespace conventions
-11. [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) - Upcoming features discussion
+10. [10 Best Python HTTP Clients in 2026](https://iproyal.com/blog/best-python-http-clients/) - requests vs httpx comparison
+11. [Top 10 Angular Component Libraries 2026](https://www.syncfusion.com/blogs/post/angular-component-libraries-in-2026) - Notification library comparison
+12. [HTTPX vs Requests](https://scrapingant.com/blog/requests-vs-httpx) - Why requests is sufficient for synchronous use
+
+---
+*Stack research for: Sonarr Integration (SeedSync v1.7)*
+*Researched: 2026-02-10*
+*Focus: Additions to existing Python 3.11/Angular 19 stack*

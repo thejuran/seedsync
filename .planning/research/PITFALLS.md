@@ -1,660 +1,383 @@
-# Domain Pitfalls: Sass @import to @use/@forward Migration
+# Pitfalls Research
 
-**Domain:** Sass @import to @use/@forward migration in Angular 19.x + Bootstrap 5.3
-**Researched:** 2026-02-07
-**Confidence:** HIGH (based on official Sass documentation, Angular community issues, Bootstrap compatibility research)
+**Domain:** Sonarr API Integration for Download Managers
+**Researched:** 2026-02-10
+**Confidence:** MEDIUM
 
 ## Critical Pitfalls
 
-Mistakes that cause rewrites, compilation failures, or major regressions.
+### Pitfall 1: Delete-Before-Import Race Condition
 
-### Pitfall 1: Bootstrap 5.3 Still Uses @import Internally
-
-**What goes wrong:** Bootstrap 5.3 has not yet migrated to the Sass module system. All Bootstrap SCSS files use `@import` internally. If you migrate your project to `@use` while loading Bootstrap, you'll hit compatibility issues.
-
-**Why it happens:** Bootstrap team is working on module system migration for v6, but v5.x still uses legacy `@import`. The Sass module system and `@import` can technically coexist, but variable configuration becomes problematic.
-
-**Consequences:**
-- Cannot use `@use "bootstrap" with ($primary: ...)` syntax for variable overrides
-- Must continue using `@import` for Bootstrap loading in global styles
-- Mixing `@use` and `@import` for the same library creates namespace confusion
-
-**Prevention:**
-- Keep `@import` for Bootstrap loading in `styles.scss` (global stylesheet)
-- Use `@use` only for application-specific partials (`_common.scss`, component files)
-- Accept that Bootstrap customization must happen via pre-import variable overrides, not `@use with` configuration
-
-**Detection:**
-- Compilation errors mentioning "This module and the new module both define a variable"
-- Variables not being overridden despite `@use with` configuration
-- Undefined mixin errors from Bootstrap when using `@use`
-
-**Roadmap phase:** Phase 1 (Strategy) - This is a foundational architecture decision that affects all subsequent work.
-
-**Sources:**
-- [Bootstrap not compatible with Sass modules](https://github.com/orgs/twbs/discussions/41260)
-- [Bootstrap v5.3.4 addresses Sass deprecation warnings](https://github.com/orgs/twbs/discussions/41370)
-- [@import will remain until October 2026 minimum](https://sass-lang.com/documentation/breaking-changes/import/)
-
----
-
-### Pitfall 2: Variable Override Timing with `@use with` Configuration
-
-**What goes wrong:** When migrating from `@import`, developers expect to override variables the same way (define variable, then import). With `@use`, variable configuration MUST happen inline: `@use "module" with ($var: value)`. Variables defined before the `@use` statement are ignored.
-
-**Why it happens:** `@import` created a global namespace where variables could be defined anywhere before compilation. `@use` creates module scopes where configuration happens atomically at load time.
-
-**Consequences:**
-- Silent failures where variable overrides don't apply
-- Variables defined before `@use` statement have no effect
-- Custom values don't propagate to the module
-
-**Prevention:**
-```scss
-// WRONG - variables defined before @use are ignored
-$primary: #337BB7;
-@use 'bootstrap';  // Still uses Bootstrap's default $primary
-
-// CORRECT - configure at load time
-@use 'bootstrap' with (
-  $primary: #337BB7,
-  $secondary: #79DFB6
-);
-```
-
-**Exception:** Bootstrap 5.3 doesn't support `@use with` configuration. For Bootstrap specifically, continue using the `@import` pattern:
-```scss
-// Variables must be defined BEFORE @import (legacy pattern)
-$primary: #337BB7;
-@import 'bootstrap/scss/functions';
-@import 'bootstrap-variables';  // Your overrides
-@import 'bootstrap/scss/variables';
-```
-
-**Detection:**
-- Visual regressions where colors/sizing don't match expected values
-- Variables reverting to framework defaults
-- Console warnings about undefined variables in calculations
-
-**Roadmap phase:** Phase 2 (Bootstrap Isolation) - When deciding how to handle Bootstrap variable configuration.
-
-**Sources:**
-- [Sass @use documentation](https://sass-lang.com/documentation/at-rules/use/)
-- [Migration issues with !default variables](https://github.com/sass/sass/issues/3782)
-- [Variable override doesn't work with @use](https://github.com/sass/sass/issues/2811)
-
----
-
-### Pitfall 3: Namespace Conflicts When Mixing @use and @import
-
-**What goes wrong:** A file loaded via `@use` creates a namespaced module. The same file loaded via `@import` creates global members. If both happen in the same compilation, you get duplicate definitions or namespace conflicts.
-
-**Why it happens:** Sass maintains interoperability between module system and legacy `@import`, but the same file can exist in both the global namespace (from `@import`) and a module namespace (from `@use`).
-
-**Consequences:**
-- "This module and the new module both define a variable named X" errors
-- Ambiguous member references (is it global or namespaced?)
-- Compilation failures when Sass can't determine which definition to use
-
-**Prevention:**
-- Choose ONE loading mechanism per file: either always `@use` or always `@import`
-- For SeedSync: Use `@import` for Bootstrap (necessary), `@use` for app partials
-- Never `@use` a file that's also loaded via `@import` elsewhere
-- Document in `_common.scss` which loading mechanism each file uses
-
-**Pattern for SeedSync:**
-```scss
-// styles.scss (global) - uses @import for Bootstrap
-@import 'bootstrap/scss/functions';
-@import 'app/common/bootstrap-variables';
-@import 'bootstrap/scss/variables';
-
-// _common.scss - forwards app variables with @forward
-@forward 'bootstrap-variables';  // Make variables available to components
-
-// component.scss - uses @use for app modules
-@use '../../common/common' as *;  // Accesses forwarded variables
-```
-
-**Detection:**
-- Compilation errors with "both define a variable"
-- Variables suddenly becoming undefined after adding `@use`
-- Mixins or functions not found despite being imported
-
-**Roadmap phase:** Phase 2 (Bootstrap Isolation) and Phase 3 (Common.scss @forward layer).
-
-**Sources:**
-- [Sass module system interoperability](https://sass-lang.com/blog/the-module-system-is-launched/)
-- [Mixing @use and @import compatibility](https://sass-lang.com/documentation/at-rules/import/)
-- [Namespace conflicts discussion](https://github.com/sass/sass/issues/2778)
-
----
-
-### Pitfall 4: sass-migrator Tool Fails on Third-Party Dependencies
-
-**What goes wrong:** The `sass-migrator` tool (Sass's official migration assistant) crashes or produces broken code when encountering third-party libraries in `node_modules` like Bootstrap or Font Awesome.
-
-**Why it happens:** The migrator can only rewrite files in your project, not dependencies. When it encounters `@import "bootstrap"`, it tries to analyze and migrate Bootstrap's internal files, which fails because:
-- Bootstrap uses nested `@import` statements
-- Bootstrap functions aren't compatible with module loading
-- Migrator can't rewrite files outside the project directory
-
-**Consequences:**
-- Automated migration fails completely
-- Must manually migrate files one-by-one
-- Time-consuming manual work instead of automated tooling
-
-**Prevention:**
-- Do NOT run `sass-migrator` with `--migrate-deps` flag
-- Migrate only application-specific partials, not global stylesheets that import Bootstrap
-- Accept that Bootstrap loading must remain `@import`-based until Bootstrap v6
-- Use migrator only for pure application code without third-party imports
-
-**Migration strategy for SeedSync:**
-1. Keep `styles.scss` using `@import` (loads Bootstrap)
-2. Keep `_common.scss` using `@import` for now (re-exports Bootstrap variables)
-3. Migrate component SCSS files from `@import 'common'` to `@use 'common' as *`
-4. Do NOT attempt to migrate Bootstrap loading itself
-
-**Detection:**
-- `sass-migrator` errors: "Could not find Sass file"
-- Errors about nested imports containing functions
-- Migrator trying to rewrite files in `node_modules/`
-
-**Roadmap phase:** Phase 4 (Component Migration) - When deciding whether to use automated tooling.
-
-**Sources:**
-- [sass-migrator fails on Bootstrap](https://github.com/sass/migrator/issues/215)
-- [sass-migrator fails with Angular Material](https://github.com/sass/migrator/issues/266)
-- [Nested import function errors](https://github.com/sass/dart-sass/issues/2402)
-
----
-
-### Pitfall 5: @forward Must Come Before All Other Rules
-
-**What goes wrong:** When converting a file to use `@forward`, placing it anywhere except the very top of the file (before `@use`, before any CSS rules) causes compilation errors.
-
-**Why it happens:** Sass module system has strict ordering requirements:
-1. `@forward` rules (make members available to downstream)
-2. `@use` rules (load dependencies for this file)
-3. Everything else (variables, mixins, CSS rules)
-
-**Consequences:**
-- Compilation error: "`@forward` rules must be written before any other rules"
-- Cannot interleave `@forward` and `@use` statements
-- Cannot conditionally `@forward` based on variables
-
-**Prevention:**
-```scss
-// CORRECT order in _common.scss
-@forward 'bootstrap-variables';  // First: forward to components
-@use 'bootstrap-variables' as *; // Second: use for this file
-@import 'other-stuff';           // Third: remaining imports
-
-// Variables, mixins, CSS rules come after all @forward/@use/@import
-$custom-var: 10px;
-```
-
-**Detection:**
-- Compilation error explicitly mentioning `@forward` must be first
-- Members not being forwarded to downstream files
-- "This file doesn't forward any members" errors
-
-**Roadmap phase:** Phase 3 (Common.scss @forward layer).
-
-**Sources:**
-- [Sass @forward documentation](https://sass-lang.com/documentation/at-rules/forward/)
-- [@forward ordering discussion](https://github.com/sass/sass/issues/2893)
-- [@forward specification](https://github.com/sass/sass/blob/main/spec/at-rules/forward.md)
-
----
-
-## Moderate Pitfalls
-
-Mistakes that cause delays, require workarounds, or create technical debt.
-
-### Pitfall 6: Re-exporting Bootstrap Variables Requires Import-then-Forward Pattern
-
-**What goes wrong:** When trying to make Bootstrap variables available to component files via `@forward`, you discover that `_common.scss` must use `@import 'bootstrap-variables'` (not `@use`) because `_bootstrap-variables.scss` itself imports Bootstrap functions.
+**What goes wrong:**
+Files are deleted from local storage before Sonarr completes the import process, resulting in import failures and lost media. This is the most common and severe integration mistake.
 
 **Why it happens:**
-- `_bootstrap-variables.scss` uses `@import 'bootstrap/scss/functions'` to access `shade-color()`, `tint-color()` functions
-- If `_common.scss` tries to `@use` or `@forward` the variables file, the Bootstrap functions aren't in scope
-- The current architecture requires mixing `@import` and `@forward`
+Developers poll the queue API and see status changes (like `importPending` or completion) and assume the import is done. However, Sonarr's import is asynchronous - the queue status may update before file operations complete, especially for large files or season packs.
 
-**Consequences:**
-- Cannot fully migrate `_common.scss` to pure `@use/@forward`
-- Must maintain hybrid `@import + @forward` pattern
-- More complex mental model for developers
+**How to avoid:**
+1. Never rely solely on queue status for deletion decisions
+2. Use webhook notifications (OnImport event) as the definitive signal
+3. If polling only: Check BOTH queue removal AND history API for import confirmation
+4. Add a configurable safety delay (default 30-60 seconds) after import signal before deletion
+5. Verify file still exists in Sonarr's library via /api/v3/episodefile before deletion
 
-**Prevention:**
-- Accept the hybrid pattern for Bootstrap-dependent files
-- Document the architecture clearly in `_common.scss`:
-  ```scss
-  // Bootstrap variables must use @import (they depend on Bootstrap functions)
-  @import 'bootstrap-variables';
+**Warning signs:**
+- User reports of "Import Failed: File not found" in Sonarr logs
+- Files disappearing from download folder while queue shows "Importing"
+- Sonarr repeatedly re-grabbing already downloaded episodes
+- Import success notifications but episodes still marked as missing
 
-  // Forward them to components using @forward
-  @forward 'bootstrap-variables';  // Make available to @use 'common'
-  ```
-- Consider this temporary until Bootstrap v6 migration
-
-**Alternative (requires refactoring):**
-- Move Bootstrap function loading into `_bootstrap-variables.scss` using `@use`
-- Configure Bootstrap variables using `@use with` (blocked by Bootstrap 5.3 compatibility)
-- Not viable until Bootstrap supports module system
-
-**Detection:**
-- Compilation errors about undefined functions (`shade-color`, `tint-color`)
-- Variables becoming undefined when switching from `@import` to `@use`
-
-**Roadmap phase:** Phase 3 (Common.scss @forward layer).
-
-**Sources:**
-- [Bootstrap uses @import internally](https://getbootstrap.com/docs/5.3/customize/sass/)
-- [@forward with configuration](https://github.com/sass/sass/issues/2744)
+**Phase to address:**
+Phase 2 (Core API Integration) - implement webhook-based import detection with safety delay
 
 ---
 
-### Pitfall 7: @use as * Wildcard Defeats Namespace Benefits
+### Pitfall 2: Season Pack Partial Import Deletion
 
-**What goes wrong:** When migrating component files, developers use `@use '../../common/common' as *` (wildcard) to avoid updating all variable references. This removes the safety benefits of the module system.
+**What goes wrong:**
+When importing season packs, Sonarr may import only some episodes while the download manager deletes the entire folder, losing episodes that haven't been processed yet. This leads to incomplete seasons and user frustration.
 
 **Why it happens:**
-- Updating `$primary-color` to `common.$primary-color` everywhere is tedious
-- Wildcard syntax makes migration faster
-- Looks like a transparent migration path
+Sonarr's season pack import is multi-step: it processes episodes sequentially, and timing issues can cause some episodes to remain unprocessed. The download manager sees the first import event and assumes the entire pack is complete. Additionally, Sonarr has a documented bug where async methods are called without await, causing unpredictable deletion timing.
 
-**Consequences:**
-- Loses namespace protection (the main benefit of `@use`)
-- Name collisions become possible again
-- Harder to track where members come from
-- Defeats the purpose of migrating away from `@import`'s global scope
+**How to avoid:**
+1. Track import completion per-file, not per-torrent/download
+2. For multi-file downloads, wait for ALL expected episodes to appear in history API
+3. Parse release name to detect season packs (S01, Season.01, Complete.Series patterns)
+4. For season packs: require explicit user confirmation before auto-delete OR wait 24 hours
+5. Check queue for "remaining episodes" - don't delete if importPending items remain for same series
 
-**Prevention:**
-- Accept the wildcard for SeedSync's migration (pragmatic choice for large codebase)
-- Document that this is a "minimum viable migration" to eliminate deprecation warnings
-- Consider future refactoring to use namespaces: `common.$primary-color`
-- Alternatively, use a short namespace: `@use 'common' as c` → `c.$primary-color`
+**Warning signs:**
+- Season pack shows in queue with some episodes imported, some missing
+- User reports "Only got 8 of 12 episodes, rest disappeared"
+- Sonarr Activity shows import failures for episodes after successful ones
+- Multi-episode files (S01E01-E02) only import first episode
 
-**Best practice (if you have time):**
-```scss
-// Better: use explicit namespace
-@use '../../common/common' as common;
-
-.file.selected {
-  background-color: common.$secondary-color;
-}
-```
-
-**Pragmatic choice for large migration:**
-```scss
-// Acceptable: wildcard for faster migration
-@use '../../common/common' as *;
-
-.file.selected {
-  background-color: $secondary-color;  // No namespace needed
-}
-```
-
-**Detection:**
-- No compilation errors (wildcard works fine)
-- Code review: seeing `as *` everywhere
-- Linter warnings about name collisions (if configured)
-
-**Roadmap phase:** Phase 4 (Component Migration) - When converting component files.
-
-**Sources:**
-- [Sass @use wildcard namespace](https://sass-lang.com/documentation/at-rules/use/)
-- [Wildcard namespace discussion](https://github.com/sass/sass/issues/2625)
-- [Module system best practices](https://sass-lang.com/blog/the-module-system-is-launched/)
+**Phase to address:**
+Phase 3 (Import Detection Logic) - implement multi-file tracking with season pack detection
 
 ---
 
-### Pitfall 8: Font Awesome Version Compatibility with Module System
+### Pitfall 3: File Name Mismatch (Download Name vs Sonarr Queue)
 
-**What goes wrong:** Older versions of Font Awesome (version 4.x) use `@import` internally and don't support the Sass module system. Version 7+ supports `@use/@forward`.
-
-**Why it happens:** Font Awesome 4.x was released before the Sass module system existed. The library was refactored for v7 to support modules.
-
-**Consequences:**
-- If using Font Awesome 4.x, cannot migrate Font Awesome loading to `@use`
-- Must check Font Awesome version before attempting migration
-- May need to upgrade Font Awesome as part of Sass migration
-
-**Prevention:**
-- Check `package.json` to determine Font Awesome version
-- For Font Awesome 4.x/5.x: Keep using `@import` (like Bootstrap)
-- For Font Awesome 6+/7+: Can use `@use '@fortawesome/fontawesome-free/scss/fontawesome'`
-
-**SeedSync-specific:**
-- Project uses `font-awesome` package (version 4.x based on node_modules structure)
-- Keep Font Awesome loading via `@import` in `styles.scss`
-- Do NOT attempt to migrate Font Awesome to `@use` in this milestone
-
-**Detection:**
-- Check `package.json` for `font-awesome` vs `@fortawesome/fontawesome-free`
-- Compilation errors when trying to `@use` Font Awesome 4.x
-- Undefined mixin errors from Font Awesome
-
-**Roadmap phase:** Phase 1 (Strategy) - When cataloging third-party dependencies.
-
-**Sources:**
-- [Font Awesome v7 @use support](https://fontawesome.com/docs/web/use-with/scss)
-- [Font Awesome v7 upgrade guide](https://docs.fontawesome.com/upgrade/scss/)
-- [Font Awesome GitHub @use issues](https://github.com/FortAwesome/font-awesome-sass/issues/195)
-
----
-
-### Pitfall 9: Suppressing Deprecation Warnings Hides Real Issues
-
-**What goes wrong:** Angular 19+ allows silencing Sass deprecation warnings via `angular.json` configuration. Developers silence ALL warnings, including ones from their own code.
+**What goes wrong:**
+Unable to correlate files in download folder with Sonarr queue items because release names don't match. Download manager can't determine which files Sonarr has imported, leading to orphaned files or premature deletion.
 
 **Why it happens:**
-- Bootstrap and Font Awesome emit hundreds of deprecation warnings
-- Warnings pollute build output, making real issues hard to see
-- `silenceDeprecations: ["import"]` seems like an easy fix
+Torrent clients may rename files, LFTP might preserve original seedbox names that differ from Sonarr's grabbed release name, or scene numbering doesn't match TVDB numbering. Sonarr's parser uses TheXEM for mapping, but external tools don't have access to this.
 
-**Consequences:**
-- Hides deprecation warnings from application code that should be migrated
-- Makes it impossible to track migration progress
-- When Dart Sass 3.0 removes `@import`, compilation fails with no warning history
+**How to avoid:**
+1. Don't rely on exact filename matching between local files and Sonarr queue
+2. Use Sonarr's history API with `eventType=downloadFolderImported` to get actual imported paths
+3. Store mapping between local paths and download IDs when files arrive
+4. Query /api/v3/parse with your filename to see if Sonarr recognizes it
+5. For absolute numbering (anime): expect mismatches, require manual user mapping
 
-**Prevention:**
-- Silence deprecations selectively: only for third-party libraries
-- Use Sass's `@import` suppression API to silence specific files:
-  ```scss
-  // Silence Bootstrap deprecations only
-  @import 'bootstrap' with ($silence-deprecation-warnings: ("import"));
-  ```
-- Keep warnings enabled for application code to track migration progress
-- Document which files are silenced and why
+**Warning signs:**
+- Files remain in download folder despite Sonarr showing "imported"
+- Auto-delete never triggers even though episodes are in library
+- User has to manually delete files that Sonarr already imported
+- Logs show "Could not match file [X] to any queue item"
 
-**Alternative approach:**
-- Accept the deprecation warnings during migration
-- Use them as a checklist: warnings disappear as you migrate files
-- Silence warnings only AFTER migration is complete
-
-**Detection:**
-- Zero deprecation warnings despite using `@import` everywhere
-- Warnings suddenly appearing when `silenceDeprecations` config is removed
-- Unexpected compilation failures when upgrading Sass
-
-**Roadmap phase:** Phase 1 (Strategy) - When deciding how to handle deprecation warnings.
-
-**Sources:**
-- [Angular 19 Sass deprecation warnings](https://coreui.io/blog/angular-19-sass-deprecation-warnings/)
-- [Angular CLI silence deprecations](https://www.angulararchitects.io/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/)
-- [Sass deprecation timeline](https://sass-lang.com/documentation/breaking-changes/import/)
+**Phase to address:**
+Phase 3 (Import Detection Logic) - implement history API correlation instead of name matching
 
 ---
 
-### Pitfall 10: Circular Dependencies from @forward Chains
+### Pitfall 4: Sonarr Import While File is Transferring
 
-**What goes wrong:** When using `@forward` to create re-export chains (A forwards B, B forwards C, C forwards A), Sass encounters circular dependencies and compilation fails.
+**What goes wrong:**
+Sonarr detects and starts importing a file while LFTP is still transferring it, resulting in corrupted imports, incomplete files in library, or Sonarr errors about files changing during import.
 
 **Why it happens:**
-- `@forward` loads the module to determine what to forward
-- If that module also forwards back to the original file, infinite loop
-- More subtle when chains go through multiple files
+Sonarr monitors download folders for new files. If it sees a growing file, it may attempt import before transfer completes. This is common when Sonarr's download client category points to the same folder where LFTP is writing files.
 
-**Consequences:**
-- Compilation error: "This file is a circular dependency of itself"
-- Hard to debug when chain is long (A → B → C → D → A)
-- May not be obvious which file introduced the cycle
+**How to avoid:**
+1. LFTP should transfer to a staging directory, THEN move to Sonarr's watched folder atomically
+2. Use temp file extension (.part, .!sync) during transfer, rename on completion
+3. Configure Sonarr's "Completed Download Handling" with appropriate delay
+4. Verify file size stability before allowing Sonarr to see it (check size twice with delay)
+5. Use file locks if filesystem supports them
 
-**Prevention:**
-- Keep `@forward` chains unidirectional: always flow downstream
-- Use a "barrel file" pattern: one central file forwards many modules, but those modules never forward back
-- Document dependency direction in file comments
+**Warning signs:**
+- Import errors: "File changed while importing"
+- Imported episodes have wrong duration or are corrupted
+- Sonarr queue shows "Import failed: file in use"
+- Random import failures that succeed on retry
 
-**SeedSync architecture (avoids this):**
-```
-styles.scss (global)
-  ↓ @import
-_common.scss (barrel/bridge file)
-  ↓ @forward (one-way: makes variables available downstream)
-component.scss (leaf files)
-  ↓ @use (consumes forwarded members)
-```
-
-**Detection:**
-- Explicit compilation error: "circular dependency"
-- Sass indicates which files are in the cycle
-- Build hangs or times out (rare)
-
-**Roadmap phase:** Phase 3 (Common.scss @forward layer).
-
-**Sources:**
-- [Sass @forward documentation](https://sass-lang.com/documentation/at-rules/forward/)
-- [Circular dependency plugin error](https://github.com/aackerman/circular-dependency-plugin/issues/55)
-- [@use/@forward ordering](https://github.com/sass/dart-sass/issues/1027)
+**Phase to address:**
+Phase 1 (Foundation) - LFTP integration must use atomic moves to watched directory
 
 ---
 
-## Minor Pitfalls
+### Pitfall 5: Ignoring Import Failures (Silent Data Loss)
 
-Mistakes that cause annoyance or temporary confusion but are easily fixed.
+**What goes wrong:**
+Sonarr fails to import a file (wrong quality, naming issue, disk full), but the download manager sees queue removal and deletes the file anyway. User loses the download with no recovery path.
 
-### Pitfall 11: @use Requires Top-Level Placement (No Nested Imports)
+**Why it happens:**
+Queue item removal doesn't distinguish between successful import and failed import - both remove from queue. Developers check queue.length === 0 and assume success.
 
-**What goes wrong:** Developers try to use `@use` inside a selector, mixin, or conditional block. Sass requires `@use` at the file's top level.
+**How to avoid:**
+1. Check history API for import events, not just queue removal
+2. Look for `eventType: 'downloadFailed'` or `eventType: 'downloadFolderImported'`
+3. Parse queue item status messages for failure indicators ("rejected", "failed", "ignored")
+4. Never auto-delete if Sonarr's queue status is "Warning" (orange icon in UI)
+5. Require positive confirmation of import, not just absence from queue
 
-**Why it happens:** With `@import`, you could nest imports inside selectors or conditions. `@use` loads modules once globally per file.
+**Warning signs:**
+- Files deleted but episodes still show as missing in Sonarr
+- Sonarr Activity shows import failure but file is gone
+- User reports: "Downloaded but Sonarr says not imported, file disappeared"
+- Logs show queue item removed but no corresponding history import event
 
-**Consequences:**
-- Compilation error: "`@use` rules must be written before any other rules"
-- Cannot conditionally load modules based on variables
-- Cannot scope modules to specific selectors
-
-**Prevention:**
-```scss
-// WRONG - @use cannot be nested
-.component {
-  @use 'common';  // ERROR
-}
-
-// CORRECT - @use at top level
-@use 'common';
-
-.component {
-  // use members from common module
-}
-```
-
-**Detection:**
-- Explicit compilation error
-- Easy to fix: move `@use` to top of file
-
-**Roadmap phase:** Phase 4 (Component Migration).
-
-**Sources:**
-- [Sass @use documentation](https://sass-lang.com/documentation/at-rules/use/)
-- [Nested @use discussion](https://github.com/sass/sass/issues/2858)
+**Phase to address:**
+Phase 3 (Import Detection Logic) - implement import failure detection and retry handling
 
 ---
 
-### Pitfall 12: Path Resolution Changes with @use
+### Pitfall 6: Webhook Endpoint Not Hardened
 
-**What goes wrong:** Paths in `@use` are resolved relative to the current file, but developers might expect them to resolve relative to the project root (like some build tools).
+**What goes wrong:**
+Sonarr webhook endpoint crashes the application, misses events, or creates race conditions because it's not designed for unreliable network delivery, duplicate events, or concurrent requests.
 
-**Why it happens:** Sass always resolves paths relative to the importing file, but developers coming from other ecosystems may expect different behavior.
+**Why it happens:**
+Webhooks are fire-and-forget from Sonarr's perspective. No guarantee of delivery, ordering, or uniqueness. Network issues can cause retries, duplicate events, or out-of-order delivery.
 
-**Consequences:**
-- `@use 'common'` fails with "file not found"
-- Must use relative paths: `@use '../../common/common'`
-- Path depth depends on file location
+**How to avoid:**
+1. Webhook handler must be idempotent - processing same event twice is safe
+2. Use event IDs to deduplicate (episode ID + timestamp + event type)
+3. Handler should return 200 OK immediately, queue work asynchronously
+4. Implement timeout on webhook handler (max 5 seconds)
+5. Log all webhook payloads for debugging
+6. Handle missing fields gracefully - Sonarr's webhook schema can change
 
-**Prevention:**
-- Always use relative paths with `@use`: `../../common/common`
-- Or configure Sass `includePaths` in `angular.json` to add search paths
-- Document path conventions in project README
+**Warning signs:**
+- Application hangs when Sonarr sends webhook
+- Same episode marked for deletion multiple times
+- Events processed out of order (delete before import)
+- Webhook endpoint returns 500, Sonarr stops sending events
 
-**SeedSync pattern:**
-```scss
-// Component at src/app/pages/files/file.component.scss
-@use '../../common/common' as *;  // Navigate up to app/, then into common/
-```
-
-**Detection:**
-- "File not found" errors when using simple names
-- Works when using full relative paths
-
-**Roadmap phase:** Phase 4 (Component Migration).
-
-**Sources:**
-- [Sass module resolution](https://sass-lang.com/documentation/at-rules/use/)
-- [Sass includePaths configuration](https://sass-lang.com/documentation/cli/dart-sass/)
+**Phase to address:**
+Phase 2 (Core API Integration) - webhook endpoint implementation with queuing
 
 ---
 
-### Pitfall 13: Build Performance Impact (Positive)
+### Pitfall 7: No Retry Logic for Sonarr API Failures
 
-**What goes wrong:** This is actually a positive "pitfall" - developers don't realize that migrating to `@use` will improve build performance.
+**What goes wrong:**
+Temporary Sonarr downtime or network blip causes API request to fail, application assumes import failed or file doesn't exist, deletes the file prematurely.
 
-**Why it happens:** `@import` compiles the same file every time it's imported. `@use` compiles each file once and caches it.
+**Why it happens:**
+Sonarr restarts during updates, can be unresponsive during heavy imports, or network issues cause temporary failures. Single-attempt API calls treat temporary failures as permanent.
 
-**Consequences:**
-- Faster incremental builds
-- Reduced memory usage during compilation
-- Smaller output CSS (duplicate code eliminated)
+**How to avoid:**
+1. Implement exponential backoff retry for all Sonarr API calls (3-5 attempts)
+2. Distinguish between client errors (4xx - don't retry) and server errors (5xx - retry)
+3. Use timeout per attempt (5-10 seconds), not just total timeout
+4. Add jitter to backoff to avoid thundering herd
+5. Respect Retry-After header if Sonarr returns 429
+6. Fail safe: if API unreachable, don't delete anything
 
-**Measurement opportunity:**
-- Record build time before migration: `ng build --configuration production`
-- Record build time after migration
-- Document improvement in migration report
+**Warning signs:**
+- Logs show "Connection refused" or "Timeout" then file deleted
+- Auto-delete triggers during Sonarr maintenance windows
+- Sonarr updates break integration until manual intervention
+- Error spikes at specific times (when Sonarr performs background tasks)
 
-**Expected improvement:**
-- 10-30% faster compilation for projects with many components
-- More noticeable with larger dependency trees
-
-**Detection:**
-- No negative detection - this is a benefit
-- Monitor build times to verify improvement
-
-**Roadmap phase:** Phase 6 (Validation) - When measuring impact.
-
-**Sources:**
-- [Sass module system performance benefits](https://sass-lang.com/blog/the-module-system-is-launched/)
-- [@use vs @import performance](https://medium.com/@philip.mutua/difference-between-use-and-import-in-scss-1cb6f501e649)
-- [Angular compilation performance](https://coryrylan.com/blog/sass-and-css-import-performance-in-angular)
+**Phase to address:**
+Phase 2 (Core API Integration) - API client with retry/backoff
 
 ---
 
-## Phase-Specific Warnings
+### Pitfall 8: Assuming Queue Depth is Unlimited
 
-| Phase Topic | Likely Pitfall | Mitigation |
-|-------------|---------------|------------|
-| Phase 1: Strategy & Inventory | Assuming all third-party libraries can migrate to @use | Survey Bootstrap, Font-Awesome versions before planning. Accept @import for libraries not supporting modules. |
-| Phase 2: Bootstrap Isolation | Trying to migrate Bootstrap to @use | Keep Bootstrap loading via @import in styles.scss. Bootstrap 5.3 requires legacy loading. |
-| Phase 3: Common.scss @forward | Incorrect @forward ordering | Place all @forward statements at top of file, before @use and variables. |
-| Phase 4: Component Migration | Using @use without relative paths | Always use relative paths: `@use '../../common/common'`. Document conventions. |
-| Phase 4: Component Migration | Attempting to automate with sass-migrator | Do NOT use sass-migrator on files importing Bootstrap. Manual migration only. |
-| Phase 5: Visual Regression Testing | Missing subtle color/spacing changes from variable scoping | Compare screenshots before/after. Test all pages, all states. |
-| Phase 6: Deprecation Warning Suppression | Silencing all deprecations too early | Only silence third-party deprecations. Keep app warnings visible until migration complete. |
-| Phase 7: Performance Validation | Not measuring build time improvement | Record build time before/after to demonstrate migration value. |
+**What goes wrong:**
+During bulk imports or large backlogs, Sonarr's queue API only returns the most recent 60 items. Import detection misses older downloads, files pile up in download folder.
 
----
+**Why it happens:**
+Sonarr explicitly limits queue depth to 60 items for performance reasons (documented in Servarr Wiki). Developers assume if queue doesn't contain their file, it hasn't been grabbed.
 
-## SeedSync-Specific Context
+**How to avoid:**
+1. Never rely solely on queue API for import detection
+2. Use history API which has pagination and full records
+3. If using queue: check queue depth, warn user if at/near 60 limit
+4. Implement file age-based cleanup as fallback (delete files older than X days if queue full)
+5. Monitor queue depth, alert user to "queue overflow" condition
 
-### Current Architecture (v1.3)
+**Warning signs:**
+- Queue always shows exactly 60 items
+- Older downloads never trigger import detection
+- Files accumulate in download folder despite Sonarr importing them
+- User has large backlog and integration stops working
 
-```
-styles.scss (global entry point)
-  └─ @import 'bootstrap/scss/...'  [KEEP @import - Bootstrap 5.3 uses legacy system]
-  └─ @import 'app/common/bootstrap-variables'
-  └─ @import 'app/common/common'
-
-_bootstrap-variables.scss
-  └─ Variable overrides ($primary, $secondary, etc.)
-  └─ Uses Bootstrap functions (shade-color, tint-color)
-
-_common.scss (bridge file)
-  └─ @import 'bootstrap-variables'
-  └─ Re-exports Bootstrap variables for component access
-  └─ Defines layout variables ($sidebar-width, z-indexes)
-
-component.scss (many files)
-  └─ Currently: no imports (relies on global scope from styles.scss via Angular)
-  └─ v1.4 target: @use '../../common/common' as *
-```
-
-### Migration Constraints
-
-1. **Bootstrap 5.3 limitation:** Cannot use `@use "bootstrap" with (...)` configuration
-2. **Font Awesome 4.x limitation:** Cannot migrate Font Awesome to `@use`
-3. **Zero visual regression requirement:** Must maintain identical rendered output
-4. **Angular component scoping:** Component SCSS is scoped by Angular; global styles are not re-imported per component
-
-### Key Decision Implications
-
-From PROJECT.md:
-- "Keep @import for Bootstrap SCSS - Mixing @use/@import creates namespace conflicts" (v1.0 decision)
-- This decision is being REVISITED for v1.4 to migrate app code to `@use` while keeping Bootstrap on `@import`
-
-### Success Criteria
-
-- All component SCSS files use `@use` instead of relying on global scope
-- Zero deprecation warnings from application code
-- Bootstrap/Font-Awesome warnings silenced (they're using @import, out of our control)
-- All 381 Angular unit tests passing
-- Visual QA shows zero regressions
+**Phase to address:**
+Phase 3 (Import Detection Logic) - implement history API fallback
 
 ---
 
-## Research Confidence Assessment
+## Technical Debt Patterns
 
-| Pitfall Category | Confidence | Source Quality |
-|------------------|------------|----------------|
-| Bootstrap 5.3 compatibility | HIGH | Official GitHub discussions, Bootstrap docs |
-| @use variable configuration | HIGH | Official Sass docs, GitHub issues |
-| Namespace conflicts | HIGH | Sass blog, specification |
-| sass-migrator limitations | HIGH | sass/migrator GitHub issues |
-| @forward ordering | HIGH | Sass specification, official docs |
-| Bootstrap variable re-export | MEDIUM | Community patterns, inferred from Bootstrap architecture |
-| Wildcard namespace impact | HIGH | Sass documentation |
-| Font Awesome compatibility | HIGH | Font Awesome official docs |
-| Deprecation warning suppression | HIGH | Angular CLI docs, Sass docs |
-| Circular dependencies | HIGH | Sass docs, GitHub issues |
-| Nested @use restriction | HIGH | Sass specification |
-| Path resolution | HIGH | Sass documentation |
-| Performance impact | MEDIUM | Community blog posts, Sass team statements |
+Shortcuts that seem reasonable but create long-term problems.
 
-**Overall confidence:** HIGH - All critical pitfalls verified with official documentation or authoritative GitHub issue discussions.
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Poll queue every 10 seconds instead of webhooks | Easier to implement, no endpoint needed | Delays import detection, misses events if queue > 60 items, API rate limiting risk | MVP only - must migrate to webhooks by v1.0 |
+| Delete immediately on import signal without delay | Faster cleanup, simpler logic | Race condition causes failed imports, user data loss | Never - always use safety delay |
+| Match files by name instead of history API | Works for simple cases, less API calls | Breaks on scene releases, renamed files, anime | Never - history API is canonical source |
+| Store Sonarr API key in plaintext config | Simple configuration | Security risk if config exposed | Acceptable if config file has proper permissions (600) |
+| No retry on API failures | Simpler error handling | Temporary network issues cause permanent failures | Never - retry is essential |
+| Assume all imports are single-episode | Simpler tracking logic | Season packs lose episodes | Never - must handle multi-file downloads |
 
----
+## Integration Gotchas
+
+Common mistakes when connecting to Sonarr API.
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Queue API | Polling /api/v3/queue every few seconds | Use webhooks for events, poll queue only for UI display |
+| Import detection | Check if queue item disappeared | Check history API for downloadFolderImported event with matching download ID |
+| File correlation | Match filenames exactly | Use history API to get actual imported paths, match by parsed episode info |
+| API authentication | Send API key in query string | Send API key in X-Api-Key header |
+| Webhook events | Trust eventType alone | Check both eventType and importSuccess/failureReason fields |
+| Season packs | Treat as single import event | Track per-episode import, wait for all episodes before cleanup |
+| Connection errors | Fail fast on timeout | Retry with exponential backoff, respect Retry-After header |
+| Rate limiting | Send requests as fast as possible | Batch requests, use 1-2 second delay between non-critical calls |
+
+## Performance Traps
+
+Patterns that work at small scale but fail as usage grows.
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| Polling queue every 1 second | High CPU on Sonarr, rate limiting | Use 30-60 second intervals or webhooks | >10 active downloads |
+| Loading entire history on every check | API timeouts, slow responses | Use pageSize parameter, filter by eventType | >500 history items |
+| No caching of episode metadata | Repeated API calls for same data | Cache episode info for 5-10 minutes | >50 episodes tracked |
+| Synchronous file deletion | UI freezes during cleanup | Delete files in background thread/async | >100 files to delete |
+| Storing all history in memory | Memory bloat, crashes | Use LRU cache with eviction (existing BoundedOrderedSet pattern) | >1000 tracked items |
+| No pagination on history API | Timeouts, incomplete data | Use pageSize=50, fetch multiple pages | >100 imports |
+
+## Security Mistakes
+
+Domain-specific security issues beyond general web security.
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| API key in URL query strings | Logs expose key, proxy caches leak key | Always use X-Api-Key header |
+| No webhook signature validation | Anyone can trigger imports/deletes | Use webhook authentication if Sonarr supports it, validate source IP |
+| Trusting webhook eventType without verification | Malicious requests could trigger deletion | Re-verify via API before destructive operations |
+| API key visible in settings UI | Shoulder-surfing, screenshots leak key | Show masked value with reveal button |
+| No rate limiting on webhook endpoint | DoS via webhook spam | Implement rate limiting (max 10/second) |
+| Allowing Sonarr API calls from frontend | Key exposure in browser, XSS risks | All Sonarr API calls must be backend only |
+
+## UX Pitfalls
+
+Common user experience mistakes when adding Sonarr integration.
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| No visibility into import status | User doesn't know if auto-delete will work | Show import detection status per file in UI |
+| Auto-delete enabled by default | User loses files unexpectedly | Require explicit opt-in with warning dialog |
+| No notification when import fails | User assumes everything is working | In-app notification + log entry for failed imports |
+| Deleting files immediately on import | No recovery if import was corrupted | Add configurable safety delay (default 60 seconds) |
+| No way to disable auto-delete per file | User wants manual control for some downloads | Add per-file override toggle in UI |
+| No indication of season pack detection | User confused why file not deleted | Badge/icon showing "Season pack - waiting for all episodes" |
+| Error messages show API errors directly | "404 Not Found" confuses users | Translate to user-friendly: "Could not find episode in Sonarr" |
+| No Sonarr connection test | User configures wrong API key, nothing works | "Test Connection" button in settings that validates API key and connectivity |
+
+## "Looks Done But Isn't" Checklist
+
+Things that appear complete but are missing critical pieces.
+
+- [ ] **Import Detection:** Often missing handling for import failures - verify failure events logged and files preserved
+- [ ] **Season Packs:** Often missing per-episode tracking - verify partial imports don't trigger deletion
+- [ ] **Webhook Handler:** Often missing idempotency - verify duplicate events don't cause issues
+- [ ] **API Client:** Often missing retry logic - verify temporary network failures don't cause data loss
+- [ ] **File Matching:** Often missing scene numbering handling - verify anime imports correlate correctly
+- [ ] **Connection Errors:** Often missing graceful degradation - verify Sonarr downtime doesn't delete files
+- [ ] **Queue Overflow:** Often missing queue depth check - verify works when queue has >60 items
+- [ ] **Safety Delays:** Often missing configurable timing - verify users can adjust delay for slow NAS
+- [ ] **Hardlink Detection:** Often missing Sonarr import mode check - verify doesn't delete seeding torrents when Sonarr uses hardlinks
+- [ ] **Multi-Episode Files:** Often missing detection of S01E01E02 patterns - verify single file with multiple episodes tracked correctly
+
+## Recovery Strategies
+
+When pitfalls occur despite prevention, how to recover.
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Deleted before import | HIGH | 1. Re-download from seedbox if still there 2. Search indexers again 3. User must manually locate file |
+| Season pack partial deletion | MEDIUM | 1. Check if remaining files on seedbox 2. Re-sync missing episodes 3. Manual import in Sonarr |
+| File name mismatch | LOW | 1. Implement manual mapping UI 2. User maps local files to Sonarr episodes 3. Resume auto-delete |
+| Import during transfer | MEDIUM | 1. Re-transfer file 2. Sonarr re-import 3. Fix staging directory config |
+| Webhook endpoint crash | LOW | 1. Restart application 2. Poll queue/history to catch up on missed events 3. Fix webhook handler bug |
+| API retry exhausted | MEDIUM | 1. Queue for manual review 2. User confirms Sonarr status 3. Retry or delete manually |
+| Queue overflow missed | LOW | 1. Periodic full history scan 2. Correlate untracked files 3. Offer manual import/delete |
+| Deleted seeding torrent | HIGH | 1. Check seedbox for original 2. Re-download 3. Add hardlink detection to prevent recurrence |
+
+## Pitfall-to-Phase Mapping
+
+How roadmap phases should address these pitfalls.
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Delete-Before-Import Race | Phase 2 - Webhook implementation with safety delay | Test: Start import, trigger delete immediately, verify file preserved |
+| Season Pack Partial Import | Phase 3 - Multi-file tracking | Test: Import season pack, stop Sonarr mid-import, verify no deletion |
+| File Name Mismatch | Phase 3 - History API correlation | Test: Rename file after download, verify import still detected |
+| Import While Transferring | Phase 1 - LFTP atomic moves | Test: Monitor directory while transfer in progress, verify Sonarr doesn't see file until complete |
+| Ignored Import Failures | Phase 3 - Failure detection | Test: Force import failure (wrong quality), verify file not deleted |
+| Webhook Not Hardened | Phase 2 - Async webhook handler | Test: Send duplicate webhooks, verify idempotency; send 100 concurrent webhooks, verify no crash |
+| No API Retry Logic | Phase 2 - API client with backoff | Test: Stop Sonarr, make API call, verify retries; restart Sonarr mid-retry, verify success |
+| Queue Depth Assumption | Phase 3 - History API fallback | Test: Create 65 queue items, verify oldest imports still detected |
 
 ## Sources
 
 ### Official Documentation
-- [Sass @use documentation](https://sass-lang.com/documentation/at-rules/use/)
-- [Sass @forward documentation](https://sass-lang.com/documentation/at-rules/forward/)
-- [Sass @import deprecation timeline](https://sass-lang.com/documentation/breaking-changes/import/)
-- [Sass module system announcement](https://sass-lang.com/blog/the-module-system-is-launched/)
-- [Bootstrap 5.3 Sass documentation](https://getbootstrap.com/docs/5.3/customize/sass/)
-- [Font Awesome v7 @use support](https://fontawesome.com/docs/web/use-with/scss)
+- [Sonarr API Docs](https://sonarr.tv/docs/api/)
+- [Sonarr Troubleshooting - Servarr Wiki](https://wiki.servarr.com/sonarr/troubleshooting)
+- [Sonarr Activity - Servarr Wiki](https://wiki.servarr.com/sonarr/activity)
+- [Hardlinks and Instant Moves - TRaSH Guides](https://trash-guides.info/File-and-Folder-Structure/Hardlinks-and-Instant-Moves/)
+- [Remote Path Mappings - TRaSH Guides](https://trash-guides.info/Sonarr/Tips/Sonarr-remote-path-mapping/)
 
-### GitHub Discussions (HIGH confidence)
-- [Bootstrap not compatible with Sass modules - Discussion #41260](https://github.com/orgs/twbs/discussions/41260)
-- [Bootstrap April 2025 update roadmap - Discussion #41370](https://github.com/orgs/twbs/discussions/41370)
-- [Migration from @import to @use impossible with !default - Issue #3782](https://github.com/sass/sass/issues/3782)
-- [Overriding variables through nested @use not possible - Issue #2811](https://github.com/sass/sass/issues/2811)
-- [sass-migrator fails on Bootstrap files - Issue #215](https://github.com/sass/migrator/issues/215)
-- [sass-migrator fails with Angular Material - Issue #266](https://github.com/sass/migrator/issues/266)
-- [Font Awesome @use issues - Issue #195](https://github.com/FortAwesome/font-awesome-sass/issues/195)
-- [@forward ordering restrictions - Issue #2893](https://github.com/sass/sass/issues/2893)
-- [Namespace conflicts - Issue #2778](https://github.com/sass/sass/issues/2778)
-- [Wildcard namespace syntax - Issue #2625](https://github.com/sass/sass/issues/2625)
-- [Angular 19 Sass warnings - Issue #4809](https://github.com/ng-bootstrap/ng-bootstrap/issues/4809)
+### GitHub Issues (Race Conditions & Import Problems)
+- [Race condition during episode import - Issue #5475](https://github.com/Sonarr/Sonarr/issues/5475)
+- [Import Season Deletes Episodes before Importing - Issue #5949](https://github.com/Sonarr/Sonarr/issues/5949)
+- [Partial import of season pack for cross-seeded torrent - Issue #5625](https://github.com/Sonarr/Sonarr/issues/5625)
+- [Failed import does not properly fail - Issue #6873](https://github.com/Sonarr/Sonarr/issues/6873)
+- [Pending Import still in import queue after removed from download client - Issue #3557](https://github.com/Sonarr/Sonarr/issues/3557)
+- [Files/Folders no longer being deleted after import - Issue #7043](https://github.com/Sonarr/Sonarr/issues/7043)
+- [Sonarr deletes files before importing them - Issue #3131](https://github.com/Sonarr/Sonarr/issues/3131)
 
-### Community Resources (MEDIUM confidence)
-- [Angular 19 Sass deprecation warnings guide - CoreUI](https://coreui.io/blog/angular-19-sass-deprecation-warnings/)
-- [Disabling Angular v19 Sass warnings - ANGULARarchitects](https://www.angulararchitects.io/blog/how-to-disable-the-angular-v19s-sass-compiler-deprecation-warnings/)
-- [Sass import performance in Angular - Cory Rylan](https://coryrylan.com/blog/sass-and-css-import-performance-in-angular)
-- [Difference between @use and @import - Medium](https://medium.com/@philip.mutua/difference-between-use-and-import-in-scss-1cb6f501e649)
-- [Structure Angular SCSS - Medium](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd)
-- [Migrating @import to @use - Medium](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221)
+### GitHub Issues (File Matching & Parsing)
+- [Matching issue with files names containing 'Part.1', 'Part.2' - Issue #7826](https://github.com/Sonarr/Sonarr/issues/7826)
+- [Prefer Standard over Absolute Numbering - Issue #7246](https://github.com/Sonarr/Sonarr/issues/7246)
+- [Sonarr retries download if it exists in qBitTorrent with different name - Issue #5336](https://github.com/Sonarr/Sonarr/issues/5336)
 
-### Web Search Verification
-All pitfalls cross-referenced with 2026-dated search results to verify current status and recommendations.
+### GitHub Issues (Queue & Status)
+- [GET Queue API 'status' filter does not work - Issue #7389](https://github.com/Sonarr/Sonarr/issues/7389)
+- [Importer sometimes fails to remove folder, gets stuck in activity queue - Issue #5937](https://github.com/Sonarr/Sonarr/issues/5937)
+- [If download completes but files aren't present immediately - Issue #4811](https://github.com/Sonarr/Sonarr/issues/4811)
+
+### GitHub Issues (API & Integration)
+- [Improved Indexer Backoff and Status handling logic - Issue #3132](https://github.com/Sonarr/Sonarr/issues/3132)
+- [Filter eventType option in history API - Issue #3587](https://github.com/Sonarr/Sonarr/issues/3587)
+- [On Download Webhook Fails - Issue #7149](https://github.com/Sonarr/Sonarr/issues/7149)
+- [Download Client Settings - Category Bug - Issue #5510](https://github.com/Sonarr/Sonarr/issues/5510)
+
+### Community Forums
+- [Import race condition? - sonarr forums](https://forums.sonarr.tv/t/import-race-condition/39676)
+- [Can Sonarr Delete Files after Import? - sonarr forums](https://forums.sonarr.tv/t/can-sonarr-delete-files-after-import/32432)
+- [Downloads get stuck in queue at 100% progress - sonarr forums](https://forums.sonarr.tv/t/downloads-get-stuck-in-queue-at-100-progress-import-failed-but-import-does-not-fail-and-sonarr-has-already-moved-and-renamed-the-files/30458)
+- [Download clients unavailable due to failures - sonarr forums](https://forums.sonarr.tv/t/download-clients-unavailable-due-to-failures-qbittorrent-and-sabnzbd/15374)
+- [Too many API Hits on indexer - sonarr forums](https://forums.sonarr.tv/t/too-many-api-hits-on-indexer/17466)
+
+### Source Code
+- [Webhook.cs - Sonarr GitHub](https://github.com/Sonarr/Sonarr/blob/develop/src/NzbDrone.Core/Notifications/Webhook/Webhook.cs)
+
+### API Documentation & Libraries
+- [sonarr package - golift.io/starr/sonarr](https://pkg.go.dev/golift.io/starr/sonarr)
+- [SonarrAPI - pyarr documentation](https://docs.totaldebug.uk/pyarr/modules/sonarr.html)
+
+---
+*Pitfalls research for: Sonarr Integration for Download Managers*
+*Researched: 2026-02-10*

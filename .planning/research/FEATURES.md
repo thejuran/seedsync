@@ -1,181 +1,361 @@
-# Feature Landscape: Sass @use/@forward Migration
+# Feature Research: Sonarr Integration
 
-**Domain:** Sass module system migration (@import to @use/@forward)
-**Project Context:** Angular 19.x with Bootstrap 5.3 SCSS
-**Researched:** 2026-02-07
+**Domain:** Download Manager + Media Management Integration
+**Researched:** 2026-02-10
+**Confidence:** MEDIUM
 
-## Table Stakes
+## Feature Landscape
 
-Features required for a complete @use/@forward migration. Missing = migration incomplete or broken.
+### Table Stakes (Users Expect These)
+
+Features users assume exist. Missing these = product feels incomplete.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| Global styles.scss uses @use | Entry point must use module system | **Medium** | Bootstrap doesn't support @use yet; workaround needed |
-| Component SCSS uses @use | All @import statements must be replaced | **Low** | Standard namespace pattern `@use '../../common/common' as *` |
-| Namespace management | Prevent naming collisions | **Low** | Use `as *` for convenience or explicit namespaces |
-| Variable access with @use | Access Bootstrap/custom variables | **Medium** | Requires @forward aggregation pattern |
-| Bootstrap variable overrides | Customize theme colors | **High** | Bootstrap's lack of @use support complicates this |
-| No visual regressions | Identical CSS output | **High** | Critical constraint; requires careful testing |
-| Zero Sass warnings | Clean build output | **Low** | Primary goal: eliminate @import deprecation warnings |
-| Backward-compatible structure | Existing architecture preserved | **Medium** | Don't break component import patterns |
+| API Connection Configuration | Standard for any third-party integration | LOW | URL, API key, enable/disable toggle. Sonarr v3 API requires X-Api-Key header or ?apikey= query param |
+| Import Status Detection | Core value proposition | MEDIUM | Poll `/api/v3/history` endpoint with `eventType=downloadFolderImported` filter. Requires matching downloaded file paths to import events |
+| Auto-Delete After Import | Primary automation goal | MEDIUM | Delete local copy after confirmed import. Must NOT delete remote/seedbox files. Global toggle in settings |
+| Manual Import Check | User wants control when automation fails | LOW | Button to force status refresh for selected file. Useful for troubleshooting |
+| Connection Validation | Users need to know if setup is broken | LOW | Test button that hits `/api/v3/system/status` to verify API connectivity and version |
 
-## Differentiators
+### Differentiators (Competitive Advantage)
 
-Features that improve code quality beyond basic migration. Not required, but valuable.
+Features that set the product apart. Not required, but valuable.
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| Index files for aggregation | Clean `@use 'common'` instead of deep paths | **Low** | Use `_index.scss` with @forward rules |
-| Private member prefixes | Clear API boundaries with `_` or `-` prefix | **Low** | Hide internal-only variables/mixins |
-| Explicit namespaces | Self-documenting imports like `@use 'colors' as c` | **Low** | Alternative to `as *` for clarity |
-| Scoped Bootstrap imports | Only import needed Bootstrap components | **Medium** | Reduces compiled CSS size |
-| Prefixed forwards | Namespace collision prevention with `as prefix-*` | **Low** | Useful for large module sets |
-| Show/hide forwarding control | Explicit API surface with `show` or `hide` | **Low** | Fine-grained control over exposed members |
-| Configuration cascade | Override variables at multiple levels | **High** | Would enable better theming patterns |
+| In-App Import Notifications | Users don't need to check multiple apps | LOW | Real-time SSE notifications when import detected (leverage existing SSE infrastructure). Shows "X imported by Sonarr" |
+| Import History Log | Debugging and record-keeping | LOW | Add import events to existing log viewer. Shows filename, timestamp, import path |
+| Per-File Import Status Badge | Visual clarity in file list | LOW | Add "Waiting for import", "Imported", or "Not tracked" badge to file status display (extend existing status system) |
+| Dry-Run Mode | Safety for testing setup | MEDIUM | "Detect imports but don't auto-delete" setting. Logs what would be deleted |
+| Import Path Verification | Catch configuration mismatches early | MEDIUM | Warn if Sonarr's import paths don't overlap with SeedSync's local paths (import won't be detected) |
 
-## Anti-Features
+### Anti-Features (Commonly Requested, Often Problematic)
 
-Features to explicitly NOT build during migration. Common mistakes in Sass migrations.
+Features that seem good but create problems.
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| Mix @import and @use in same file | Creates namespace conflicts and unpredictable behavior | Migrate file completely to @use or leave as @import |
-| Global namespace pollution | Defeats purpose of module system | Use namespaces (even `as *` is scoped to file) |
-| Deep-copy Bootstrap internals | Maintenance nightmare when Bootstrap updates | Use @forward to re-export, not duplicate |
-| Premature optimization | Over-engineering the module structure | Start simple, refactor if needed |
-| Silent failures | Hiding broken imports/references | Let build fail, fix issues explicitly |
-| Automated migration without testing | Tools can't catch Bootstrap incompatibility | Manual verification after any automation |
-| Adding `!default` everywhere | Breaks existing variable precedence | Only add where configuration is intentional |
-| Using `includePaths` with @use | Not recommended by Sass team | Use relative or package-based URLs |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| Manage Sonarr Queue from SeedSync | "One UI for everything" | Scope creep. Sonarr already has excellent UI. Creates duplicate functionality and maintenance burden | Link to Sonarr UI from settings page |
+| Delete Remote Files After Import | "Clean up seedbox automatically" | Breaks seeding. User's use case explicitly keeps remote files for seeding. Dangerous if misconfigured | Document that remote deletion is handled by seedbox/torrent client, not SeedSync |
+| Bi-directional Sync with Sonarr | "Keep everything in sync" | Sonarr is source of truth for library, SeedSync is source for downloads. Bi-directional creates conflict resolution complexity | SeedSync reads Sonarr state (imports), doesn't write to it |
+| Track ALL Sonarr Activity | "Monitor everything Sonarr does" | SeedSync only cares about files it synced. Tracking all Sonarr imports adds noise and unnecessary API calls | Only track import events for files in SeedSync's local path |
 
 ## Feature Dependencies
 
 ```
-Migration sequence (order matters):
+API Connection Configuration
+    └──requires──> Connection Validation (test API works)
 
-1. Bootstrap handling strategy
-   ↓
-2. Variable forwarding pattern (_common.scss becomes aggregator)
-   ↓
-3. Component file migration (@use instead of @import)
-   ↓
-4. Verification (visual + tests)
+Import Status Detection
+    └──requires──> API Connection Configuration
+    └──requires──> File Path Matching Logic (map SeedSync files to Sonarr imports)
+
+Auto-Delete After Import
+    └──requires──> Import Status Detection
+    └──requires──> File Deletion (existing SeedSync feature)
+
+Import History Log
+    └──requires──> Import Status Detection
+    └──enhances──> Existing Log Viewer
+
+In-App Import Notifications
+    └──requires──> Import Status Detection
+    └──enhances──> Existing SSE Infrastructure
+
+Per-File Import Status Badge
+    └──requires──> Import Status Detection
+    └──enhances──> Existing File Status Tracking
+
+Dry-Run Mode
+    └──requires──> Import Status Detection
+    └──requires──> Auto-Delete Logic (but prevents execution)
+
+Import Path Verification
+    └──requires──> API Connection Configuration
+    └──conflicts──> Nothing (standalone validation)
 ```
 
-### Critical Path: Bootstrap Compatibility
+### Dependency Notes
 
-**The Problem:** Bootstrap 5.3 does not support Sass @use/@forward (see [GitHub discussion](https://github.com/orgs/twbs/discussions/41260)).
+- **Import Status Detection requires File Path Matching:** Sonarr history returns imported paths (e.g., `/tv/Show Name/Season 1/episode.mkv`). Must correlate with SeedSync local files (e.g., `/downloads/episode.mkv`) by filename matching
+- **Auto-Delete requires Import Detection:** Cannot delete until confirmed imported. False positives would lose data
+- **In-App Notifications enhance SSE Infrastructure:** Leverage existing real-time streaming. No new tech stack needed
+- **Dry-Run prevents Auto-Delete execution:** Safety mechanism for testing without consequences
 
-**Impact:** Cannot use `@use 'bootstrap' with ($primary: #337BB7)` pattern.
+## MVP Definition
 
-**Workaround Options:**
+### Launch With (v1.7 - Sonarr Integration MVP)
 
-1. **Keep @import for Bootstrap** (simplest, used by many projects)
-   - `styles.scss` continues using @import for Bootstrap
-   - Component files use @use for custom modules only
-   - Acceptable tradeoff: Bootstrap warnings remain, custom code is clean
+Minimum viable product — what's needed to validate the concept.
 
-2. **Migrate to CoreUI Bootstrap fork** (complete solution, high risk)
-   - CoreUI maintains a Bootstrap fork with @use support
-   - Requires dependency change and testing
-   - Risk: fork may lag behind Bootstrap releases
+- [x] API Connection Configuration — Cannot function without connecting to Sonarr
+- [x] Connection Validation — Users need feedback that setup works
+- [x] Import Status Detection — Core value proposition. Poll `/api/v3/history` endpoint
+- [x] Auto-Delete After Import — Primary automation goal. Global enable/disable toggle
+- [x] Per-File Import Status Badge — Visual clarity. Extends existing status: WAITING_IMPORT, IMPORTED
+- [x] Import History Log — Debugging and trust-building. Add to existing logs
 
-3. **Manual Bootstrap @use wrapper** (complex, fragile)
-   - Wrap Bootstrap imports in custom module with @forward
-   - Attempt to expose variables for configuration
-   - High risk of breaking on Bootstrap updates
+### Add After Validation (v1.8+)
 
-**Recommendation:** Option 1 (keep Bootstrap on @import, migrate custom code to @use). This is the pragmatic approach used by the community until Bootstrap officially supports @use.
+Features to add once core is working.
 
-## Current Project Patterns
+- [ ] In-App Import Notifications — User delight feature. Add once polling works reliably
+- [ ] Dry-Run Mode — Safety feature. Add once auto-delete proves stable
+- [ ] Manual Import Check — Troubleshooting tool. Add when users report detection issues
+- [ ] Import Path Verification — Configuration helper. Add if users report setup problems
 
-**Existing structure:**
+### Future Consideration (v2+)
+
+Features to defer until product-market fit is established.
+
+- [ ] Radarr Support — Same pattern, different media type. Add if Sonarr integration succeeds
+- [ ] Webhook Support (instead of polling) — More efficient, but requires Sonarr configuration. Polling is simpler MVP
+- [ ] Import Statistics Dashboard — "X files imported this month". Add if users request analytics
+
+## Feature Prioritization Matrix
+
+| Feature | User Value | Implementation Cost | Priority |
+|---------|------------|---------------------|----------|
+| API Connection Configuration | HIGH | LOW | P1 |
+| Connection Validation | HIGH | LOW | P1 |
+| Import Status Detection | HIGH | MEDIUM | P1 |
+| Auto-Delete After Import | HIGH | MEDIUM | P1 |
+| Per-File Import Status Badge | HIGH | LOW | P1 |
+| Import History Log | MEDIUM | LOW | P1 |
+| In-App Import Notifications | MEDIUM | LOW | P2 |
+| Dry-Run Mode | MEDIUM | MEDIUM | P2 |
+| Manual Import Check | MEDIUM | LOW | P2 |
+| Import Path Verification | LOW | MEDIUM | P2 |
+| Webhook Support | MEDIUM | HIGH | P3 |
+| Radarr Support | HIGH | MEDIUM | P3 |
+| Import Statistics Dashboard | LOW | MEDIUM | P3 |
+
+**Priority key:**
+- P1: Must have for launch (v1.7)
+- P2: Should have, add when possible (v1.8+)
+- P3: Nice to have, future consideration (v2+)
+
+## Sonarr API Integration Details
+
+### Key Endpoints
+
+| Endpoint | Method | Purpose | Response Fields |
+|----------|--------|---------|-----------------|
+| `/api/v3/system/status` | GET | Validate API connection, check version | `version`, `appName`, `instanceName` |
+| `/api/v3/history` | GET | Get import events | Array of `HistoryRecord` with `eventType`, `date`, `series`, `episode`, `data.importedPath`, `data.droppedPath` |
+| `/api/v3/queue` | GET | Monitor active downloads (optional) | `page`, `pageSize`, `totalRecords`, `records[]` with download status |
+
+### History Polling Strategy
+
+**Approach:** Poll `/api/v3/history` every 60 seconds (configurable)
+
+**Filter Logic:**
+- Query with `eventType=downloadFolderImported` (if API supports filtering)
+- If filtering not supported, fetch all history and filter client-side
+- Only process imports newer than last poll timestamp
+- Match `data.importedPath` or `data.droppedPath` against SeedSync local file paths
+
+**Path Matching:**
 ```
-styles.scss (global)
-  ├─ @import 'bootstrap' (functions, variables, components)
-  └─ @import 'app/common/common'
+Sonarr import: /tv/Show Name/Season 1/episode.mkv
+SeedSync file:  /downloads/episode.mkv
 
-_common.scss (aggregator)
-  ├─ @import 'bootstrap-variables'
-  └─ Re-exports Bootstrap variables for component access
-
-component.scss
-  └─ @import '../../common/common' (accesses Bootstrap + custom variables)
+Match by: filename (episode.mkv) + optional size/hash verification
 ```
 
-**Target structure (hybrid approach):**
+**Edge Cases:**
+- Multiple files with same name: Check file size or modification time
+- Sonarr imports before SeedSync finishes download: Import event arrives early, SeedSync marks "pending import confirmation"
+- Sonarr imports from different path: No match, SeedSync doesn't track (correct behavior)
+
+### Webhook Alternative (Future)
+
+Sonarr supports webhook notifications for import events:
+- Event: `OnDownload` or `OnImport`
+- Payload: JSON with `eventType`, `series`, `episodes[]`, `episodeFile`
+- Advantage: Real-time, no polling overhead
+- Disadvantage: Requires user to configure webhook in Sonarr settings, adds complexity
+
+**Recommendation:** Start with polling (simpler setup), add webhook support in v2 if polling causes performance issues.
+
+## Integration Patterns from Similar Tools
+
+### How Sonarr Works with Download Clients
+
+Based on research, standard Sonarr + download client workflow:
+
+1. **Download client** (qBittorrent, Transmission, etc.) downloads files to `/downloads/`
+2. **Sonarr** polls download client API, detects completed downloads in queue
+3. **Sonarr** imports files from `/downloads/` to `/tv/` (copies or hardlinks)
+4. **Sonarr** removes from download client queue (optional, if "Remove Completed" enabled)
+5. **Download client** continues seeding original files in `/downloads/` (torrents)
+
+### SeedSync's Role in This Workflow
+
+SeedSync operates BEFORE Sonarr in the chain:
+
+1. **SeedSync** syncs files from remote seedbox to local `/downloads/`
+2. **Sonarr** (running on local machine) detects files in `/downloads/`, imports to `/tv/`
+3. **SeedSync** detects import via Sonarr API, deletes local `/downloads/` copy
+4. **Remote seedbox** continues seeding (SeedSync does NOT touch remote files)
+
+**Key Difference from Standard Integrations:**
+- Sonarr typically manages download client (add torrents, remove when done)
+- SeedSync does NOT manage Sonarr (read-only relationship)
+- SeedSync is a "download transport layer" between seedbox and Sonarr
+
+## Competitor Feature Analysis
+
+| Feature | Sonarr Built-in (Download Clients) | SeedSync + Sonarr | Our Approach |
+|---------|-------------------------------------|-------------------|--------------|
+| Add downloads to client | Yes (Sonarr → client API) | No (user manages seedbox) | Not applicable. SeedSync syncs, doesn't control downloads |
+| Detect completed downloads | Yes (poll client queue) | Yes (poll Sonarr history) | Poll `/api/v3/history` for imports |
+| Import to library | Yes (Sonarr moves files) | Yes (Sonarr moves files) | SeedSync doesn't import, Sonarr does |
+| Delete after import | Yes (remove from client) | Yes (delete local copy) | Delete local file, NOT remote seedbox file |
+| Monitor import status | Yes (queue UI in Sonarr) | No (external tool) | Add status badge in SeedSync UI |
+| Notifications | Yes (webhooks, custom scripts) | No | Leverage SSE for in-app notifications |
+
+### Comparable Tools
+
+**Tools that integrate with Sonarr:**
+- **SABnzbd/NZBGet:** Download clients with Sonarr integration (bi-directional)
+- **Radarr:** Sister project to Sonarr for movies (identical API pattern)
+- **Bazarr:** Subtitle manager, reads Sonarr API for library state (read-only, like SeedSync)
+- **Overseerr:** Request manager, writes to Sonarr API to add shows (write-only)
+
+**SeedSync's Pattern:** Read-only consumer (like Bazarr), monitoring import events without controlling Sonarr.
+
+## Configuration Requirements
+
+### User Must Provide
+
+- **Sonarr URL:** e.g., `http://localhost:8989`
+- **API Key:** Generated in Sonarr → Settings → General → Security
+- **Enable/Disable:** Global toggle for auto-delete behavior
+- **Poll Interval:** Default 60 seconds (advanced setting)
+
+### Validation Checks
+
+1. **Connection Test:** GET `/api/v3/system/status` with provided API key
+2. **Version Check:** Verify Sonarr v3+ (v4/v5 use same v3 API base)
+3. **Path Overlap Warning:** If possible, warn if Sonarr's download client path doesn't match SeedSync local path
+
+### Error Handling
+
+| Error | Cause | User Message |
+|-------|-------|--------------|
+| 401 Unauthorized | Invalid API key | "Invalid Sonarr API key. Check Settings → General → Security in Sonarr." |
+| Connection refused | Wrong URL or Sonarr offline | "Cannot connect to Sonarr at [URL]. Verify Sonarr is running." |
+| 404 on `/api/v3/` | Very old Sonarr version | "Sonarr v3+ required. Update Sonarr to use this feature." |
+| No imports detected | Path mismatch or no activity | "No imports detected. Verify Sonarr is importing files from [local path]." |
+
+## Implementation Notes
+
+### File Status Lifecycle
+
+Extend existing SeedSync file states:
+
 ```
-styles.scss (global)
-  ├─ @import 'bootstrap' (KEPT as @import - no Bootstrap @use support)
-  └─ @use 'app/common' as *
-
-_common/_index.scss (aggregator)
-  ├─ @forward 'bootstrap-variables'
-  ├─ @forward 'app-variables'
-  └─ @forward 'mixins' (if any)
-
-component.scss
-  └─ @use '../../common' as * (namespace-free for convenience)
+DOWNLOADING → DOWNLOADED → EXTRACTED → WAITING_IMPORT → IMPORTED → DELETED
+                                         ↓
+                                     (timeout after 7 days)
+                                         ↓
+                                     IMPORT_TIMEOUT
 ```
 
-**Key insight:** Hybrid approach is acceptable. Global `styles.scss` can use @import for Bootstrap while component files use @use for custom modules. This eliminates custom code deprecation warnings while accepting Bootstrap's @import warnings as external dependency noise.
+**New States:**
+- `WAITING_IMPORT`: File ready, awaiting Sonarr import confirmation
+- `IMPORTED`: Sonarr confirmed import, eligible for auto-delete (if enabled)
+- `IMPORT_TIMEOUT`: No import after 7 days, user should investigate
 
-## MVP Recommendation
+### Polling Loop Pseudocode
 
-For this migration, prioritize:
+```python
+every 60 seconds:
+    if sonarr_integration_enabled:
+        history = sonarr_api.get_history(since=last_poll_time)
+        for event in history.filter(eventType='downloadFolderImported'):
+            imported_path = event.data.importedPath
+            filename = basename(imported_path)
 
-1. **Migrate component SCSS files to @use** - Eliminates custom code warnings
-2. **Convert _common.scss to @forward aggregator** - Maintains variable access pattern
-3. **Keep Bootstrap on @import** - Accepts external library limitations
-4. **Verify zero visual regressions** - Critical success criteria
+            local_file = find_file_by_name(filename)
+            if local_file and local_file.status == 'WAITING_IMPORT':
+                local_file.status = 'IMPORTED'
+                log(f"{filename} imported by Sonarr to {imported_path}")
+                notify_sse(f"{filename} imported")
 
-Defer to post-migration (if needed):
-- Index files for deeply nested modules - Current structure is shallow enough
-- Private member prefixes - No large shared module library yet
-- Explicit namespaces - `as *` is fine for small module count
-- Scoped Bootstrap imports - Optimization, not required
+                if auto_delete_enabled:
+                    delete_local_file(local_file)
+                    local_file.status = 'DELETED'
 
-## Migration Complexity Assessment
+        last_poll_time = now()
+```
 
-| Area | Complexity | Reason |
-|------|------------|--------|
-| Component files | **Low** | Simple pattern: `@import 'common'` → `@use 'common' as *` |
-| _common.scss aggregator | **Medium** | Convert @import to @forward, test variable access |
-| Bootstrap integration | **High** | No official @use support; requires workaround |
-| Variable overrides | **Medium** | Need to preserve existing customization via pre-import pattern |
-| Visual verification | **Medium** | Compare before/after screenshots, run tests |
+### Database Schema Extensions
 
-## Expected Outcomes
+Add to existing file tracking:
 
-**Success criteria:**
-- ✓ All component SCSS files use @use (no @import in custom code)
-- ✓ Build output shows zero @import warnings from custom code
-- ✓ All 381+ unit tests continue passing
-- ✓ Visual comparison shows zero regressions
-- ✓ Bootstrap customization continues working (theme colors, etc.)
+```sql
+-- New columns for file table
+sonarr_import_detected BOOLEAN DEFAULT FALSE
+sonarr_import_path TEXT NULL
+sonarr_import_timestamp TIMESTAMP NULL
+sonarr_eligible_for_delete BOOLEAN DEFAULT FALSE
+```
 
-**Acceptable tradeoffs:**
-- ⚠️ Bootstrap @import warnings remain (external dependency limitation)
-- ⚠️ Hybrid @import/@use approach in styles.scss (industry standard workaround)
+### Settings UI Mockup
 
-**Not acceptable:**
-- ✗ Visual regressions (colors, spacing, layout changes)
-- ✗ Broken variable access in components
-- ✗ Test failures
-- ✗ New warnings from custom code
+```
+[Sonarr Integration]
+
+[ ] Enable Sonarr Integration
+
+Sonarr URL: [http://localhost:8989        ]
+API Key:    [********************************] [Test Connection]
+
+[ ] Auto-delete local files after Sonarr imports them
+    ⚠️  Remote seedbox files will NOT be deleted. Only local copies.
+
+Advanced:
+Poll Interval: [60] seconds
+
+[Save Settings]
+```
 
 ## Sources
 
-Research based on:
-- [Sass official @use documentation](https://sass-lang.com/documentation/at-rules/use/)
-- [Sass official @forward documentation](https://sass-lang.com/documentation/at-rules/forward/)
-- [Sass @import deprecation announcement](https://sass-lang.com/blog/import-is-deprecated/)
-- [Bootstrap 5.3 Sass customization docs](https://getbootstrap.com/docs/5.3/customize/sass/)
-- [GitHub: Bootstrap @use compatibility discussion](https://github.com/orgs/twbs/discussions/41260)
-- [Using index files with Sass @use rules](https://tannerdolby.com/writing/using-index-files-in-sass/)
-- [Migrating from @import to @use and @forward](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221)
-- [Sass modules primer (OddBird)](https://www.oddbird.net/2019/10/02/sass-modules/)
-- [Stop using @import: Dart Sass 3.0 migration guide](https://dev.to/quesby/stop-using-import-how-to-prepare-for-dart-sass-30-full-migration-guide-1agh)
-- [Bootstrap 5.3.8 with @use workaround](https://timdows.com/blogs/bootstrap-5-3-8-with-use/)
+**Official Documentation:**
+- [Sonarr API Docs](https://sonarr.tv/docs/api/)
+- [Sonarr Custom Scripts | Servarr Wiki](https://wiki.servarr.com/sonarr/custom-scripts)
+- [Sonarr Settings | Servarr Wiki](https://wiki.servarr.com/sonarr/settings)
+- [Sonarr Activity | Servarr Wiki](https://wiki.servarr.com/sonarr/activity)
 
-**Confidence level:** HIGH - Patterns are well-documented, Bootstrap limitation is confirmed by official sources, hybrid approach is industry standard workaround.
+**API Implementation References:**
+- [sonarr package - golift.io/starr/sonarr - Go Packages](https://pkg.go.dev/golift.io/starr/sonarr)
+- [sonarr-py · PyPI](https://pypi.org/project/sonarr-py/)
+- [Filter eventType option in history API · Issue #3587 · Sonarr/Sonarr](https://github.com/Sonarr/Sonarr/issues/3587)
+
+**Integration Patterns:**
+- [Sonarr Guide: Setup, Configuration & How It Works](https://www.rapidseedbox.com/blog/ultimate-guide-to-sonarr)
+- [How to Link NZBGet with Sonarr, Radarr, and Other Tools | NZBGet](https://nzbget.com/documentation/how-to-link-nzbget-with-sonarr-radarr-and-other-tools/)
+- [Sonarr System | Servarr Wiki](https://wiki.servarr.com/sonarr/system)
+
+**Completed Download Handling:**
+- [Can Sonarr Delete Files after Import? - Help & Support - sonarr :: forums](https://forums.sonarr.tv/t/can-sonarr-delete-files-after-import/32432)
+- [Sonarr doesn't remove downloads from client after importing - Help & Support - sonarr :: forums](https://forums.sonarr.tv/t/sonarr-doesnt-remove-downloads-from-client-after-importing/31045)
+
+**Webhook & Custom Scripts:**
+- [Custom Post Processing Scripts - Nzbdrone](https://nzbdrone.readthedocs.io/Custom-Post-Processing-Scripts/)
+- [Sonarr - Wiki](https://notifiarr.wiki/pages/integrations/sonarr/)
+- [Webhooks - Feedback request - Feature Requests - sonarr :: forums](https://forums.sonarr.tv/t/webhooks-feedback-request/7085)
+
+**Community Projects:**
+- [GitHub - Sonarr/Sonarr: Smart PVR for newsgroup and bittorrent users.](https://github.com/Sonarr/Sonarr)
+- [sonarr · GitHub Topics · GitHub](https://github.com/topics/sonarr)
+- [GitHub - GregTroar/DeleteArr: Delete files after being imported in Sonarr/Radarr](https://github.com/GregTroar/DeleteArr)
+
+---
+*Feature research for: Sonarr Integration in SeedSync*
+*Researched: 2026-02-10*
+*Confidence: MEDIUM (official API docs were not fully accessible, relying on client libraries and community sources)*

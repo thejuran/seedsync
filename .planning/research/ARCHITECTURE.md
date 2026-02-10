@@ -1,524 +1,762 @@
-# Architecture Patterns: Sass @use/@forward Migration in Angular
+# Architecture Research: Sonarr Integration
 
-**Domain:** Angular 19.x SCSS with Bootstrap 5.3 variable sharing
-**Researched:** 2026-02-07
-**Overall Confidence:** HIGH
+**Domain:** Media automation integration (Sonarr API)
+**Researched:** 2026-02-10
+**Confidence:** MEDIUM
 
-## Executive Summary
+## Integration Overview
 
-Migrating from `@import` to `@use/@forward` in Angular's component-scoped SCSS architecture requires understanding how Sass's module system interacts with Angular CLI's build process and ViewEncapsulation. The current SeedSync architecture has **already adopted `@use` for all component files**, with only the shared module files (`_common.scss` and `_bootstrap-overrides.scss`) still using `@import`. This positions the project well for completing the migration, which primarily involves transforming the shared module layer.
-
-**Key architectural insight:** `@use` introduces module scoping that fundamentally changes variable access patterns. Instead of global variables available everywhere, variables are namespaced and must be explicitly accessed via `module.$variable` or imported with `as *` for wildcard namespace access.
-
-## Current Architecture Analysis
-
-### File Dependency Graph
+SeedSync v1.7 adds Sonarr integration to auto-delete local files after confirmed import. The integration follows existing Manager pattern and Model listener architecture.
 
 ```
-styles.scss (global entry point)
-├── Bootstrap functions (@import)
-├── _bootstrap-variables.scss (@import) — CUSTOM OVERRIDES
-├── Bootstrap core (@import)
-│   ├── variables
-│   ├── variables-dark
-│   ├── maps
-│   ├── mixins
-│   └── root
-├── Bootstrap components (@import) — ALL COMPONENTS
-├── _bootstrap-overrides.scss (@import) — POST-COMPILATION OVERRIDES
-│   └── @import 'bootstrap-variables'
-└── _common.scss (@import) — VARIABLE RE-EXPORT MODULE
-    └── @import 'bootstrap-variables'
-
-Component .scss files (16 files):
-├── file.component.scss (@use '../../common/common' as *)
-├── sidebar.component.scss (@use '../../common/common' as *)
-├── settings-page.component.scss (@use '../../common/common' as *)
-└── ... (all other components use @use)
+┌─────────────────────────────────────────────────────────────┐
+│                  Controller (Main Loop)                      │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │ ScanManager  │  │LftpManager   │  │FileOpManager │       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│  ┌──────────────────────────────────────────────────┐       │
+│  │         SonarrManager (NEW)                      │       │
+│  │  - Polls Sonarr API for import status           │       │
+│  │  - Detects when files are imported               │       │
+│  │  - Triggers auto-delete commands                 │       │
+│  └──────────────────────────────────────────────────┘       │
+├─────────────────────────────────────────────────────────────┤
+│                        Model Layer                           │
+│  ┌─────────────────────────────────────────────────────┐    │
+│  │  ModelFile (State Machine)                          │    │
+│  │  States: DEFAULT → DOWNLOADING → DOWNLOADED         │    │
+│  │          EXTRACTED → DELETED                        │    │
+│  │  NEW: sonarr_imported timestamp (optional)          │    │
+│  └─────────────────────────────────────────────────────┘    │
+├─────────────────────────────────────────────────────────────┤
+│                    Persistence Layer                         │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+│  │ Downloaded   │  │ Extracted    │  │ Sonarr       │       │
+│  │ Files (BOS)  │  │ Files (BOS)  │  │ Imports (NEW)│       │
+│  └──────────────┘  └──────────────┘  └──────────────┘       │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           │ External API
+                           ↓
+                   ┌──────────────┐
+                   │ Sonarr v3/v5 │
+                   │   REST API   │
+                   └──────────────┘
 ```
 
-**Key observation:** Components already use `@use` with wildcard namespace (`as *`), which provides direct access to all variables, functions, and mixins exported by `_common.scss`. The migration challenge is in transforming the shared module layer.
+## New Components
 
-### Current Variable Access Patterns
+### 1. SonarrManager (Controller Layer)
 
-**In _common.scss (current with @import):**
-```scss
-@import 'bootstrap-variables';
+**Responsibility:** Poll Sonarr API to detect imports and trigger auto-delete
 
-// Re-export Bootstrap variables for component access
-$warning-text-emphasis: shade-color($warning, 60%);
-$danger-text-emphasis: shade-color($danger, 60%);
-$gray-100: #f8f9fa;
+| Method | Purpose | When Called |
+|--------|---------|-------------|
+| `process()` | Main polling loop iteration | From Controller.process() |
+| `poll_sonarr()` | Query Sonarr API for import status | Each process() cycle |
+| `check_for_imports()` | Map Sonarr queue/history to ModelFiles | After poll |
+| `trigger_auto_delete()` | Send DELETE_LOCAL command to Controller | When import detected |
+
+**Lifecycle:**
+- `__init__()`: Create SonarrAPI client, load config
+- `start()`: Begin polling (if enabled)
+- `stop()`: Clean shutdown
+- `propagate_exception()`: Re-raise API errors
+
+**Integration Points:**
+- **Controller**: Receives DELETE_LOCAL commands via queue_command()
+- **Model**: Read-only access to check file states
+- **Config**: SonarrConfig section (host, port, API key, poll interval, auto-delete enabled)
+- **ControllerPersist**: Track imported files to avoid re-deleting
+
+### 2. SonarrPersist (Persistence Layer)
+
+**Responsibility:** Track which files were confirmed imported to prevent duplicate deletions
+
+```python
+class SonarrPersist(Persist):
+    def __init__(self, max_tracked_files: Optional[int] = None):
+        self.imported_file_names: BoundedOrderedSet[str] = BoundedOrderedSet(
+            maxlen=max_tracked_files or 10000
+        )
+
+    # Serialize to JSON alongside ControllerPersist
 ```
 
-**In component files (current with @use):**
-```scss
-@use '../../common/common' as *;
+**Why separate from downloaded_file_names:**
+- Downloaded = "file finished syncing from seedbox"
+- Imported = "Sonarr confirmed import, safe to delete"
+- Different lifecycles: download persists across restarts, import is one-time check
 
-.file.selected {
-    background-color: $secondary-color;  // Direct access via wildcard namespace
-}
+### 3. SonarrConfig (Config Layer)
 
-.bulk-progress-overlay .progress-text {
-    color: $gray-800;  // Bootstrap variable re-exported by _common.scss
-}
+**Location:** `common/config.py` - new `[Sonarr]` section
+
+| Property | Type | Default | Purpose |
+|----------|------|---------|---------|
+| `enabled` | bool | False | Enable Sonarr integration |
+| `host` | str | "localhost" | Sonarr hostname/IP |
+| `port` | int | 8989 | Sonarr port |
+| `api_key` | str | "" | API authentication key |
+| `use_ssl` | bool | False | HTTPS vs HTTP |
+| `poll_interval_sec` | int | 60 | Seconds between API polls |
+| `auto_delete_enabled` | bool | True | Auto-delete after import |
+| `verify_ssl` | bool | True | Verify SSL certificates |
+
+### 4. SonarrService (API Client Layer)
+
+**Responsibility:** Thin wrapper around pyarr for API communication
+
+```python
+class SonarrService:
+    def __init__(self, host, port, api_key, use_ssl, verify_ssl):
+        from pyarr import SonarrAPI
+        protocol = "https" if use_ssl else "http"
+        self.client = SonarrAPI(
+            f"{protocol}://{host}:{port}",
+            api_key=api_key,
+            verify_ssl=verify_ssl
+        )
+
+    def get_queue(self) -> List[Dict]:
+        """Returns Sonarr queue records"""
+        return self.client.get_queue()
+
+    def get_history(self, event_type="downloadFolderImported") -> List[Dict]:
+        """Returns recent import history"""
+        return self.client.get_history(event_type=event_type)
 ```
 
-**Critical insight:** Components already use `@use` with wildcard (`as *`), which means they expect direct variable access without namespace prefixes. The migration must preserve this access pattern by using `@forward` in `_common.scss`.
+**Why pyarr:**
+- Mature Python wrapper (5.2.0, production/stable)
+- Handles authentication, retries, error mapping
+- Returns JSON dicts (easy to work with, version-resilient)
+- MIT licensed, well-maintained
 
-## Sass Module System Architecture
+## Integration with Existing Architecture
 
-### @use vs @forward: When to Use Each
+### Manager Pattern
 
-| Directive | Purpose | Use Case | Members Available |
-|-----------|---------|----------|-------------------|
-| **@use** | Load module for local use | Consume variables/mixins in current file | Only in current file (namespaced) |
-| **@forward** | Re-export module members | Create aggregation modules for downstream consumers | Available to files that `@use` this file |
+**Existing Pattern:**
+```python
+# Controller owns managers
+self.__scan_manager = ScanManager(context, mp_logger)
+self.__lftp_manager = LftpManager(context)
+self.__file_op_manager = FileOperationManager(context, mp_logger, callbacks)
 
-**Key distinction:**
-- `@use` is for **consumption** (using variables/mixins in the current file)
-- `@forward` is for **aggregation** (making variables/mixins available to downstream files)
-
-### The @forward Rule for Variable Re-export
-
-**Current pattern (with @import):**
-```scss
-// _common.scss (current)
-@import 'bootstrap-variables';
-
-// Re-declare variables to make them available
-$warning-text-emphasis: shade-color($warning, 60%);
+# Controller.process() calls each manager
+self.__scan_manager.pop_latest_results()
+self.__lftp_manager.status()
+self.__file_op_manager.cleanup_completed_processes()
 ```
 
-**New pattern (with @forward):**
-```scss
-// _common.scss (migrated)
-@forward 'bootstrap-variables';
+**Sonarr Integration:**
+```python
+# Add to Controller.__init__()
+self.__sonarr_manager = SonarrManager(
+    context=self.__context,
+    controller=self,  # For queue_command() and model access
+    persist=self.__sonarr_persist
+)
 
-// Re-declare variables that use forwarded module's functions
-@use 'bootstrap-variables' as bv;
-$warning-text-emphasis: shade-color(bv.$warning, 60%);
+# Add to Controller.process() main loop
+if self.__context.config.sonarr.enabled:
+    self.__sonarr_manager.process()
 ```
 
-**Why both @forward and @use?**
-- `@forward 'bootstrap-variables'` makes all Bootstrap variable overrides available to downstream consumers
-- `@use 'bootstrap-variables' as bv` allows _common.scss itself to access those variables to compute derived values
-- Derived variables are automatically available to downstream consumers as module members
+### Model Listener Pattern
 
-### Module Namespace Access Patterns
+**DON'T use Model listeners for Sonarr.**
 
-When component files use `@use '../../common/common' as *`, they get wildcard namespace access:
+**Rationale:**
+- Listeners notify on file state changes (DOWNLOADING → DOWNLOADED)
+- Sonarr import happens EXTERNALLY (Sonarr moves/renames file)
+- No SeedSync state change triggers import detection
+- Import detection must be POLL-BASED from Sonarr API
 
-```scss
-// Component file
-@use '../../common/common' as *;
+**AutoQueue uses listeners because:**
+- Files are added/updated by SeedSync's own scanners
+- State changes are internal (remote scan finds new file → queue it)
 
-// Direct access (no prefix needed)
-background-color: $secondary-color;
-color: $gray-800;
+**Sonarr is different:**
+- State change happens in external system
+- Must actively query to discover
 
-// Functions also available without prefix
-$subtle-bg: tint-color($warning, 80%);
+### Command Pattern for Delete
+
+**Existing Pattern:**
+```python
+# Web handler creates command
+command = Controller.Command(Controller.Command.Action.DELETE_LOCAL, filename)
+controller.queue_command(command)
+
+# Controller processes commands in main loop
+command = self.__command_queue.get_nowait()
+if command.action == Controller.Command.Action.DELETE_LOCAL:
+    self.__file_op_manager.delete_local(file)
 ```
 
-**Alternative namespace patterns:**
-
-```scss
-// Explicit namespace
-@use '../../common/common' as common;
-background-color: common.$secondary-color;
-
-// Default namespace (uses filename)
-@use '../../common/common';
-background-color: common.$secondary-color;
+**Sonarr Auto-Delete:**
+```python
+# SonarrManager detects import
+if file_imported and auto_delete_enabled:
+    command = Controller.Command(
+        Controller.Command.Action.DELETE_LOCAL,
+        filename
+    )
+    self.__controller.queue_command(command)
 ```
 
-**Decision for SeedSync:** Keep wildcard namespace (`as *`) to maintain existing component code compatibility.
+**Why NOT direct call to FileOperationManager:**
+- Violates Manager encapsulation (Controller owns FileOpManager)
+- Command pattern provides unified queueing, callbacks, error handling
+- Consistent with existing architecture
 
-## Integration with Angular Architecture
+## Data Flow: Import Detection → Auto-Delete
 
-### Angular CLI Build Process with @use
+### Polling-Based Detection (RECOMMENDED)
 
-Angular CLI's SCSS preprocessor (sass-embedded) resolves `@use` rules using:
-
-1. **Relative paths first:** `@use '../../common/common'` resolves relative to current file
-2. **Load paths second:** Can be configured in `angular.json` via `stylePreprocessorOptions.includePaths`
-3. **node_modules fallback:** Automatically checks `node_modules/` for packages
-
-**Current configuration analysis:**
-- No `stylePreprocessorOptions.includePaths` in angular.json (default behavior)
-- Bootstrap loaded via full path: `@import '../node_modules/bootstrap/scss/functions'`
-- Component files use relative paths: `@use '../../common/common'`
-
-**No configuration changes needed** for @use/@forward migration. Path resolution works identically for both directives.
-
-### ViewEncapsulation and Module Scoping
-
-Angular's component scoping (ViewEncapsulation.Emulated) is **orthogonal** to Sass module scoping:
-
-| Scoping Layer | Mechanism | Scope |
-|---------------|-----------|-------|
-| **Angular ViewEncapsulation** | Attribute selectors (`[_ngcontent-xxx]`) | CSS selectors are scoped to component template |
-| **Sass Module System** | Namespace prefixes | Variables/functions/mixins are scoped to modules |
-
-**Key insight:** Angular's ViewEncapsulation scopes **compiled CSS selectors** to components. Sass's module system scopes **variables/functions/mixins** during SCSS compilation. These are separate concerns that don't interfere with each other.
-
-**Example of both working together:**
-
-```scss
-// file.component.scss (SCSS source)
-@use '../../common/common' as *;
-
-.file.selected {  // Selector
-    background-color: $secondary-color;  // Variable (Sass module scope)
-}
+**Flow:**
+```
+1. Controller.process() calls SonarrManager.process()
+   ↓
+2. SonarrManager.poll_sonarr() → SonarrService.get_queue()
+   ↓
+3. Check queue records for trackedDownloadStatus changes
+   - IF record.status == "completed" AND record.trackedDownloadState == "importPending"
+     → Import in progress, wait
+   - IF record disappears from queue (was present, now missing)
+     → Import complete
+   ↓
+4. Cross-reference with Model.get_file(filename)
+   - Check: file.state == DOWNLOADED or EXTRACTED
+   - Check: file.local_size > 0
+   ↓
+5. IF all checks pass AND filename not in sonarr_persist.imported_file_names:
+   - Add to imported_file_names (prevent re-delete)
+   - Queue DELETE_LOCAL command
+   - Log: "Sonarr imported [filename], queueing auto-delete"
+   ↓
+6. Controller processes DELETE_LOCAL command normally
+   - FileOperationManager.delete_local(file)
+   - Force local scan to update model
 ```
 
-**Compiled output (CSS):**
-```css
-/* Angular adds ViewEncapsulation attributes */
-.file.selected[_ngcontent-abc-123] {
-    background-color: #79DFB6;  /* Variable resolved during Sass compilation */
-}
+**Poll Strategy:**
+- Default interval: 60 seconds (configurable)
+- On each poll: GET /api/v3/queue
+- Track queue record IDs in memory: `prev_queue_ids` → `current_queue_ids`
+- Detect completion: ID was in prev, not in current, filename matches ModelFile
+
+**Why queue, not history:**
+- Queue shows active downloads + imports in progress
+- History requires filtering, pagination, timestamp comparisons
+- Queue disappearance = definitive "import complete" signal
+- Simpler logic, fewer edge cases
+
+### Alternative: Webhook-Based Detection (Future Enhancement)
+
+**Not recommended for v1.7:**
+- Requires inbound HTTP endpoint (complicates deployment)
+- Network restrictions (Docker, NAT, firewall)
+- Webhook reliability issues (delivery guarantees, retries)
+- Polling is simpler, more reliable for single-user use case
+
+**If implemented later:**
+```
+Sonarr OnDownload webhook → SeedSync /webhook/sonarr endpoint
+    ↓
+SonarrWebhookHandler validates payload
+    ↓
+SonarrManager.handle_import_event(filename, series, episode)
+    ↓
+Queue DELETE_LOCAL command (same as polling path)
 ```
 
-**No conflicts:** Module scoping resolves variables at compile-time, ViewEncapsulation scopes selectors at runtime.
+## Mapping Sonarr Queue to ModelFile
 
-### Bootstrap 5.3 and the Module System
+### Queue Record Structure
 
-**Critical finding:** Bootstrap 5.3 itself **does not use** the Sass module system internally. Bootstrap still uses `@import` for its internal structure. This has implications for how we integrate with it.
+Based on Go package documentation and issue discussions:
 
-**Bootstrap's current architecture:**
-```scss
-// bootstrap/scss/_functions.scss
-// Uses @import internally
-
-// bootstrap/scss/_variables.scss
-// Defines variables with !default flag
-// Uses @import for dependencies
-```
-
-**What this means for migration:**
-- We can use `@use` to load Bootstrap modules **from the outside**
-- Bootstrap functions like `shade-color()` and `tint-color()` are globally available within the Bootstrap compilation context
-- Variable overrides must happen **before** Bootstrap's variables are loaded (same as @import)
-
-**The Bootstrap import sequence must be preserved:**
-
-```scss
-// 1. Functions first (required for variable calculations)
-@use '../node_modules/bootstrap/scss/functions' as bootstrap-fn;
-
-// 2. Variable overrides BEFORE Bootstrap variables
-@use 'app/common/bootstrap-variables' as bv;
-
-// 3. Bootstrap core (uses overrides)
-@use '../node_modules/bootstrap/scss/variables' with (
-    $primary: bv.$primary,
-    $secondary: bv.$secondary,
-    // ... other overrides
-);
-```
-
-**WAIT — configuration constraint discovered:** Bootstrap 5.3 uses `@import` internally, which means:
-- Bootstrap's `_variables.scss` doesn't properly expose configurable variables via `@use ... with ()`
-- We cannot use `@use` with configuration for Bootstrap until Bootstrap itself migrates to the module system
-
-**Current recommendation:** Keep Bootstrap imports using `@use` for loading, but variable overrides must still happen via separate import ordering (load functions, define overrides, load variables). This is a **hybrid pattern** that works with Bootstrap's current architecture.
-
-## Migration Strategy
-
-### Phase 1: Transform _bootstrap-variables.scss
-
-**Goal:** Convert from global `@import` consumer to module that can be `@forward`ed.
-
-**Current structure:**
-```scss
-// _bootstrap-variables.scss
-// Variable definitions (no imports needed)
-$primary: #337BB7;
-$secondary: #79DFB6;
-```
-
-**After migration:**
-```scss
-// _bootstrap-variables.scss
-// No changes needed - this file only defines variables
-// It becomes a pure variable definition module
-$primary: #337BB7;
-$secondary: #79DFB6;
-```
-
-**Confidence:** HIGH — this file is already structured as a pure variable module with no dependencies.
-
-### Phase 2: Transform _common.scss (The Aggregation Module)
-
-**Goal:** Convert from `@import` re-export to `@forward` aggregation pattern.
-
-**Current structure:**
-```scss
-// _common.scss
-@import 'bootstrap-variables';
-
-// Re-export Bootstrap variables
-$warning-text-emphasis: shade-color($warning, 60%);
-$gray-100: #f8f9fa;
-
-// Custom variables
-$small-max-width: 600px;
-$sidebar-width: 170px;
-```
-
-**After migration:**
-```scss
-// _common.scss
-@forward 'bootstrap-variables';
-
-// Load Bootstrap functions for color calculations
-@use '../../../node_modules/bootstrap/scss/functions' as bs;
-@use 'bootstrap-variables' as bv;
-
-// Re-export computed Bootstrap semantic variables
-$warning-text-emphasis: bs.shade-color(bv.$warning, 60%);
-$danger-text-emphasis: bs.shade-color(bv.$danger, 60%);
-$warning-bg-subtle: bs.tint-color(bv.$warning, 80%);
-$danger-bg-subtle: bs.tint-color(bv.$danger, 80%);
-$warning-border-subtle: bs.tint-color(bv.$warning, 60%);
-$danger-border-subtle: bs.tint-color(bv.$danger, 60%);
-
-// Re-export Bootstrap gray scale
-$gray-100: #f8f9fa;
-$gray-300: #dee2e6;
-$gray-800: #343a40;
-
-// Custom variables (automatically available to consumers)
-$small-max-width: 600px;
-$medium-min-width: 601px;
-$medium-max-width: 992px;
-$large-min-width: 993px;
-$sidebar-width: 170px;
-
-// Z-index variables
-$zindex-sidebar: 300;
-$zindex-top-header: 200;
-$zindex-file-options: 201;
-$zindex-file-search: 100;
-```
-
-**Key changes:**
-1. `@forward 'bootstrap-variables'` makes all Bootstrap overrides available to consumers
-2. `@use` Bootstrap functions with `bs` namespace for color calculations
-3. `@use 'bootstrap-variables' as bv` for accessing variables in calculations
-4. Computed variables are defined at module level (automatically available to consumers)
-
-**Critical consideration:** Bootstrap functions (`shade-color`, `tint-color`) are defined in `bootstrap/scss/functions`, not in a module system format. We need to test whether `@use 'bootstrap/scss/functions'` makes these functions available, or if we need to keep using `@import` for Bootstrap dependencies.
-
-**Fallback pattern if Bootstrap functions aren't module-compatible:**
-```scss
-// _common.scss
-@forward 'bootstrap-variables';
-
-// Bootstrap functions still need @import
-@import '../../../node_modules/bootstrap/scss/functions';
-@use 'bootstrap-variables' as bv;
-
-// Rest of file unchanged
-```
-
-### Phase 3: Transform _bootstrap-overrides.scss
-
-**Goal:** Convert post-compilation overrides from `@import` to `@use`.
-
-**Current structure:**
-```scss
-// _bootstrap-overrides.scss
-@import 'bootstrap-variables';
-
-.modal-body {
-    overflow-wrap: normal;
-    hyphens: auto;
-}
-
-[data-bs-theme="dark"] {
-    .dropdown-menu {
-        --bs-dropdown-bg: #{$primary-color};
+```json
+{
+  "id": 12345,
+  "seriesId": 123,
+  "episodeId": 456,
+  "title": "Series.Name.S01E01.1080p.WEB.H264-GROUP",
+  "size": 1234567890,
+  "status": "completed",
+  "trackedDownloadStatus": "ok",
+  "trackedDownloadState": "importPending",
+  "statusMessages": [
+    {
+      "title": "Import pending",
+      "messages": ["Waiting for download client"]
     }
+  ],
+  "downloadId": "abc123",
+  "protocol": "torrent",
+  "downloadClient": "qBittorrent",
+  "outputPath": "/downloads/Series.Name.S01E01.1080p.WEB.H264-GROUP"
 }
 ```
 
-**After migration:**
-```scss
-// _bootstrap-overrides.scss
-@use 'bootstrap-variables' as bv;
+### Key Fields for Import Detection
 
-.modal-body {
-    overflow-wrap: normal;
-    hyphens: auto;
-}
+| Field | Purpose | Values |
+|-------|---------|--------|
+| `title` | Match to ModelFile.name | Exact string match (case-sensitive) |
+| `trackedDownloadState` | Import lifecycle | "downloading", "importPending", "importing", "imported" |
+| `status` | Download completion | "downloading", "completed", "failed" |
+| `outputPath` | Verify path match | Must contain local_path from config |
+| `statusMessages` | Error detection | Check for "No files eligible for import" |
 
-[data-bs-theme="dark"] {
-    .dropdown-menu {
-        --bs-dropdown-bg: #{bv.$primary-color};
-    }
-}
+### Matching Logic
 
-.form-control {
-    &:focus {
-        border-color: tint-color(bv.$secondary, 50%);
-    }
-}
+```python
+def find_matching_model_file(queue_record: Dict) -> Optional[ModelFile]:
+    """
+    Map Sonarr queue record to SeedSync ModelFile.
+
+    Returns:
+        ModelFile if match found, None otherwise
+    """
+    # Strategy 1: Direct name match
+    # Sonarr title is usually the folder/file name
+    title = queue_record.get("title", "")
+    model_file = self.__controller.get_model().get_file(title)
+    if model_file:
+        return model_file
+
+    # Strategy 2: Extract base name from outputPath
+    # outputPath = "/downloads/Series.Name.S01E01.1080p.WEB.H264-GROUP"
+    # base_name = "Series.Name.S01E01.1080p.WEB.H264-GROUP"
+    output_path = queue_record.get("outputPath", "")
+    if output_path:
+        base_name = os.path.basename(output_path)
+        model_file = self.__controller.get_model().get_file(base_name)
+        if model_file:
+            return model_file
+
+    # No match found
+    return None
 ```
 
-**Key changes:**
-1. `@use 'bootstrap-variables' as bv` loads variables with namespace
-2. All variable references use `bv.$` prefix
-3. Functions need namespace if available, or may still need `@import` for Bootstrap functions
+**Edge Cases:**
+- **Sonarr renames files:** outputPath changes after import, title stays same
+- **Multiple episodes in one download:** Sonarr may have multiple queue records for same ModelFile
+- **Partial imports:** Some files fail, others succeed (check statusMessages)
 
-### Phase 4: Transform styles.scss (Global Entry Point)
+### Import Completion Detection
 
-**Goal:** Convert Bootstrap imports from `@import` to `@use`.
+**Method 1: Queue Disappearance (RECOMMENDED)**
+```python
+prev_queue_ids = {record["id"] for record in prev_queue}
+current_queue_ids = {record["id"] for record in current_queue}
+completed_ids = prev_queue_ids - current_queue_ids
 
-**Current structure (excerpt):**
-```scss
-// styles.scss
-@import '../node_modules/bootstrap/scss/functions';
-@import 'app/common/bootstrap-variables';
-@import '../node_modules/bootstrap/scss/variables';
-@import '../node_modules/bootstrap/scss/variables-dark';
-// ... all Bootstrap components
-@import 'app/common/bootstrap-overrides';
-@import 'app/common/common';
+for record in prev_queue:
+    if record["id"] in completed_ids:
+        # This record disappeared → import complete
+        model_file = find_matching_model_file(record)
+        if model_file:
+            trigger_auto_delete(model_file)
 ```
 
-**After migration (target structure):**
-```scss
-// styles.scss
-
-// 1. Load Bootstrap functions (for variable calculations)
-@use '../node_modules/bootstrap/scss/functions' as bs-fn;
-
-// 2. Load our variable overrides
-@use 'app/common/bootstrap-variables' as bv;
-
-// 3. Load Bootstrap core with configuration
-// NOTE: This may not work with Bootstrap 5.3 - needs testing
-@use '../node_modules/bootstrap/scss/variables' as bs-vars with (
-    $primary: bv.$primary,
-    $secondary: bv.$secondary,
-    // ... other overrides
-);
-
-// Alternative if configuration doesn't work:
-@import '../node_modules/bootstrap/scss/functions';
-@forward 'app/common/bootstrap-variables';
-@import '../node_modules/bootstrap/scss/variables';
-
-// 4. Bootstrap core systems
-@use '../node_modules/bootstrap/scss/variables-dark' as *;
-@use '../node_modules/bootstrap/scss/maps' as *;
-@use '../node_modules/bootstrap/scss/mixins' as *;
-@use '../node_modules/bootstrap/scss/root' as *;
-
-// 5. Bootstrap components
-@use '../node_modules/bootstrap/scss/utilities' as *;
-@use '../node_modules/bootstrap/scss/reboot' as *;
-// ... all other Bootstrap components
-
-// 6. Post-compilation overrides
-@use 'app/common/bootstrap-overrides' as *;
-
-// 7. Custom application styles
-@use 'app/common/common' as *;
+**Method 2: History API (Alternative)**
+```python
+# Query history for recent imports (last 5 minutes)
+history = sonarr_service.get_history(event_type="downloadFolderImported")
+for record in history:
+    if record["eventType"] == "downloadFolderImported":
+        source_path = record["data"]["droppedPath"]
+        base_name = os.path.basename(source_path)
+        model_file = find_matching_model_file({"title": base_name})
+        if model_file:
+            trigger_auto_delete(model_file)
 ```
 
-**Critical challenge:** Bootstrap 5.3 uses `@import` internally, which makes the `@use ... with ()` configuration pattern unreliable. May need to keep hybrid `@import` approach for Bootstrap core while using `@use` for custom modules.
+**Recommendation:** Use Method 1 (queue disappearance) for v1.7. Simpler, fewer API calls, no timestamp math.
 
-**Hybrid pattern (more realistic):**
-```scss
-// styles.scss
+## State Tracking: Do We Need a New ModelFile State?
 
-// Bootstrap must stay with @import (it uses @import internally)
-@import '../node_modules/bootstrap/scss/functions';
-@import 'app/common/bootstrap-variables';  // Overrides
-@import '../node_modules/bootstrap/scss/variables';
-@import '../node_modules/bootstrap/scss/variables-dark';
-@import '../node_modules/bootstrap/scss/maps';
-@import '../node_modules/bootstrap/scss/mixins';
-@import '../node_modules/bootstrap/scss/root';
+**Question:** Should we add `SONARR_IMPORTED` state?
 
-// Bootstrap components
-@import '../node_modules/bootstrap/scss/utilities';
-@import '../node_modules/bootstrap/scss/reboot';
-// ... (all other components)
+**Answer:** NO. Use status field instead.
 
-// Post-compilation overrides (can use @use)
-@use 'app/common/bootstrap-overrides' as *;
+### Why NOT a new state:
 
-// Custom application styles (can use @use)
-@use 'app/common/common' as *;
+**ModelFile.State is a LIFECYCLE state machine:**
+```
+DEFAULT → QUEUED → DOWNLOADING → DOWNLOADED → EXTRACTED → DELETED
 ```
 
-**Confidence:** MEDIUM — Bootstrap's lack of module system support may force a hybrid approach where only custom modules use `@use/@forward`.
+Each state represents SeedSync's own operations. Sonarr import is an EXTERNAL event, not part of SeedSync's sync lifecycle.
 
-### Phase 5: Component Files (No Changes Required)
+**Adding SONARR_IMPORTED would:**
+- Break existing state machine logic (what comes after EXTRACTED?)
+- Confuse users (UI shows file as "imported" but it's still locally present)
+- Complicate ModelBuilder (how to infer this state from scans?)
 
-**Component files already use `@use` correctly:**
-```scss
-@use '../../common/common' as *;
+### Alternative: Add `sonarr_imported_timestamp` Field
+
+**Proposal:**
+```python
+class ModelFile:
+    def __init__(self, name: str, is_dir: bool):
+        # ... existing fields ...
+        self.__sonarr_imported_timestamp = None  # Optional[datetime]
+
+    @property
+    def sonarr_imported_timestamp(self) -> Optional[datetime]:
+        return self.__sonarr_imported_timestamp
+
+    @sonarr_imported_timestamp.setter
+    def sonarr_imported_timestamp(self, timestamp: datetime):
+        self._check_frozen()
+        self.__sonarr_imported_timestamp = timestamp
 ```
 
-**No changes needed.** Component files already follow the module system pattern and will automatically benefit from the transformed `_common.scss` aggregation module.
+**Benefits:**
+- Non-invasive (doesn't affect state machine)
+- Supports UI display ("Imported by Sonarr at [time]")
+- Enables notifications ("File X was imported")
+- Optional (None if Sonarr integration disabled)
 
-**Confidence:** HIGH — 16 component files already using correct pattern.
+**BUT:** May be overkill for v1.7. The imported_file_names BoundedOrderedSet in SonarrPersist is sufficient for auto-delete logic.
 
-## Migration Order (Dependency-First)
+**Recommendation for v1.7:** Skip the ModelFile field. Use SonarrPersist tracking only. Add field later if UI needs it.
 
-Based on the dependency graph, migrate in this order:
+## Configuration Integration
 
+### Config File Structure
+
+```ini
+[Sonarr]
+# Enable Sonarr integration
+enabled = False
+
+# Sonarr server details
+host = localhost
+port = 8989
+api_key =
+
+# Connection settings
+use_ssl = False
+verify_ssl = True
+
+# Polling interval (seconds)
+poll_interval_sec = 60
+
+# Auto-delete after import
+auto_delete_enabled = True
 ```
-1. _bootstrap-variables.scss (leaf node - no dependencies)
-   Status: Already compatible (pure variable definitions)
-   Changes: None needed
 
-2. _common.scss (depends on _bootstrap-variables.scss)
-   Status: Needs transformation
-   Changes: Add @forward, convert @import to @use with namespace
+### Config Class Implementation
 
-3. _bootstrap-overrides.scss (depends on _bootstrap-variables.scss)
-   Status: Needs transformation
-   Changes: Convert @import to @use with namespace
+**Location:** `src/python/common/config.py`
 
-4. styles.scss (depends on all modules)
-   Status: Needs transformation (if Bootstrap allows)
-   Changes: Convert custom module @imports to @use, may need hybrid approach for Bootstrap
+```python
+class SonarrConfig(Config.Section):
+    _SECTION_NAME = "Sonarr"
 
-5. Component files (depend on _common.scss)
-   Status: Already migrated
-   Changes: None needed
+    enabled = Config.PROP(
+        Config.Checkers.boolean(),
+        Config.Converters.boolean(),
+        default="False"
+    )
+
+    host = Config.PROP(
+        Config.Checkers.string(),
+        Config.Converters.string(),
+        default="localhost"
+    )
+
+    port = Config.PROP(
+        Config.Checkers.integer(min_value=1, max_value=65535),
+        Config.Converters.integer(),
+        default="8989"
+    )
+
+    api_key = Config.PROP(
+        Config.Checkers.string(),
+        Config.Converters.string(),
+        default=""
+    )
+
+    use_ssl = Config.PROP(
+        Config.Checkers.boolean(),
+        Config.Converters.boolean(),
+        default="False"
+    )
+
+    verify_ssl = Config.PROP(
+        Config.Checkers.boolean(),
+        Config.Converters.boolean(),
+        default="True"
+    )
+
+    poll_interval_sec = Config.PROP(
+        Config.Checkers.integer(min_value=10, max_value=3600),
+        Config.Converters.integer(),
+        default="60"
+    )
+
+    auto_delete_enabled = Config.PROP(
+        Config.Checkers.boolean(),
+        Config.Converters.boolean(),
+        default="True"
+    )
+
+# Add to Config.InnerConfig
+class InnerConfig(Config):
+    def __init__(self):
+        # ... existing sections ...
+        self.sonarr = SonarrConfig(self)
 ```
 
-**Total files to modify:** 3 files (excluding component files which are already done)
-- _common.scss (transform)
-- _bootstrap-overrides.scss (transform)
-- styles.scss (hybrid approach due to Bootstrap constraints)
+## Architectural Patterns
+
+### Pattern 1: Manager with External API Client
+
+**What:** SonarrManager owns SonarrService, calls from process() loop
+
+**When to use:** External API integration with polling
+
+**Trade-offs:**
+- **Pro:** Encapsulation (API details hidden from Controller)
+- **Pro:** Testable (mock SonarrService in tests)
+- **Pro:** Error isolation (API exceptions caught in manager)
+- **Con:** Adds layer (could call pyarr directly, but less testable)
+
+**Example:**
+```python
+class SonarrManager:
+    def __init__(self, context, controller, persist):
+        self.__sonarr_service = SonarrService(
+            host=context.config.sonarr.host,
+            port=context.config.sonarr.port,
+            api_key=context.config.sonarr.api_key,
+            use_ssl=context.config.sonarr.use_ssl,
+            verify_ssl=context.config.sonarr.verify_ssl
+        )
+        self.__prev_queue_ids = set()
+
+    def process(self):
+        try:
+            queue = self.__sonarr_service.get_queue()
+            self.__check_for_imports(queue)
+        except Exception as e:
+            self.logger.warning(f"Sonarr API error: {e}")
+```
+
+### Pattern 2: BoundedOrderedSet for Tracking
+
+**What:** Use existing BoundedOrderedSet for imported file tracking
+
+**When to use:** Need to remember past events without unbounded growth
+
+**Trade-offs:**
+- **Pro:** Prevents memory leak (auto-evicts old entries)
+- **Pro:** Consistent with downloaded_file_names, extracted_file_names
+- **Pro:** LRU eviction prevents re-deleting very old files
+- **Con:** If limit exceeded, oldest imports forgotten (could re-delete if file re-appears)
+
+**Mitigation:** Set maxlen high (10000 default, configurable). Average user won't hit this in practice.
+
+### Pattern 3: Polling with State Diffing
+
+**What:** Track prev_queue_ids, compare to current_queue_ids, detect disappearances
+
+**When to use:** Detecting external events via polling
+
+**Trade-offs:**
+- **Pro:** Reliable (no missed events if poll interval reasonable)
+- **Pro:** Simple (no webhook infrastructure)
+- **Con:** Latency (import → delete has poll_interval delay)
+- **Con:** API load (polls even when idle)
+
+**Optimization:** Exponential backoff if queue empty for N consecutive polls (future enhancement).
+
+## Anti-Patterns
+
+### Anti-Pattern 1: Adding SONARR_IMPORTED State
+
+**What people might do:** Add new state to ModelFile.State enum
+
+**Why it's wrong:**
+- Breaks state machine semantics (EXTRACTED → SONARR_IMPORTED → DELETED is illogical)
+- External event shouldn't be part of internal lifecycle
+- Complicates ModelBuilder (can't infer from filesystem scans)
+
+**Do this instead:** Use optional timestamp field OR persist-only tracking
+
+### Anti-Pattern 2: Direct FileOperationManager Calls
+
+**What people might do:**
+```python
+# In SonarrManager.process()
+self.__file_op_manager.delete_local(file)  # WRONG
+```
+
+**Why it's wrong:**
+- Violates encapsulation (Controller owns FileOpManager)
+- Bypasses command queue (no callback support)
+- Breaks testability (can't mock command execution)
+
+**Do this instead:** Use Controller.queue_command()
+```python
+command = Controller.Command(Action.DELETE_LOCAL, filename)
+self.__controller.queue_command(command)
+```
+
+### Anti-Pattern 3: Synchronous API Calls in Critical Path
+
+**What people might do:** Poll Sonarr in Controller.get_model_files() (request path)
+
+**Why it's wrong:**
+- Blocks web responses (Sonarr API could take 1-5 seconds)
+- DoS risk (slow API cascades to all clients)
+- Violates separation (request handling should be fast)
+
+**Do this instead:** Poll in Controller.process() background loop, not request path
+
+## Build Order (Dependency-Driven)
+
+Based on component dependencies, suggested implementation order:
+
+### Phase 1: Configuration & Persistence (No Dependencies)
+1. **SonarrConfig** (config.py)
+   - Add [Sonarr] section with properties
+   - No dependencies, pure data structure
+   - Test: Config parsing from .ini file
+
+2. **SonarrPersist** (controller_persist.py or new sonarr_persist.py)
+   - BoundedOrderedSet for imported_file_names
+   - JSON serialization/deserialization
+   - Test: Save/load persistence
+
+### Phase 2: API Client (External Dependency)
+3. **Add pyarr dependency** (pyproject.toml)
+   - `poetry add pyarr`
+   - Pin version (5.2.0 or later)
+
+4. **SonarrService** (new file: controller/sonarr_service.py)
+   - Wrap pyarr.SonarrAPI
+   - get_queue(), get_history() methods
+   - Error handling for API failures
+   - Test: Mock pyarr, verify error handling
+
+### Phase 3: Manager Logic (Depends on Phase 1 & 2)
+5. **SonarrManager** (new file: controller/sonarr_manager.py)
+   - process() polling loop
+   - find_matching_model_file() mapping logic
+   - check_for_imports() with queue diffing
+   - trigger_auto_delete() command queueing
+   - Test: Mock SonarrService, verify command generation
+
+### Phase 4: Controller Integration (Depends on Phase 3)
+6. **Controller modifications** (controller.py)
+   - Add sonarr_manager initialization
+   - Call sonarr_manager.process() in main loop
+   - Add sonarr_persist to ControllerPersist
+   - Test: Integration test with mock Sonarr API
+
+### Phase 5: Web API (Depends on Phase 3)
+7. **REST endpoints** (web layer)
+   - GET /api/sonarr/config → Current settings
+   - POST /api/sonarr/config → Update settings
+   - GET /api/sonarr/status → Connection test, last poll time
+   - Test: API contract tests
+
+### Phase 6: Frontend (Depends on Phase 5)
+8. **Settings UI** (Angular)
+   - Sonarr config form (host, port, API key)
+   - Connection test button
+   - Enable/disable toggle
+   - Test: E2E settings page
+
+9. **Status Display** (Angular)
+   - File list shows import status (optional)
+   - Notifications for imports (optional)
+   - Test: E2E file operations
+
+### Dependency Graph
+```
+Config ─┐
+        ├─→ SonarrService ─→ SonarrManager ─→ Controller ─→ Web API ─→ Frontend
+Persist ┘                                   ↗
+                                      pyarr ┘
+```
+
+**Critical Path:** Config → pyarr → SonarrService → SonarrManager → Controller
+
+**Parallel Work:** Frontend UI can be built against mocked API while backend is in progress.
+
+## Testing Strategy
+
+### Unit Tests
+
+| Component | Mock Dependencies | Key Test Cases |
+|-----------|-------------------|----------------|
+| SonarrService | pyarr.SonarrAPI | API errors, response parsing |
+| SonarrManager | SonarrService, Controller | Queue diffing, file matching, command generation |
+| SonarrPersist | None | Serialization, eviction, bounds |
+| SonarrConfig | None | Validation, defaults |
+
+### Integration Tests
+
+1. **Mock Sonarr API Server**
+   - Flask server returning fake queue/history responses
+   - Test full poll → detect → delete flow
+   - Verify no duplicate deletes
+
+2. **E2E with Real Sonarr (Optional)**
+   - Docker Compose: SeedSync + Sonarr + qBittorrent
+   - Download file → Sonarr imports → SeedSync deletes
+   - Manual verification
+
+## Scaling Considerations
+
+| Scale | Considerations |
+|-------|----------------|
+| Single user (v1.7 target) | Polling every 60s is fine, minimal API load |
+| Multiple instances | Each instance polls independently (no coordination needed) |
+| High file volume (1000+ files/day) | BoundedOrderedSet eviction may need higher limit |
+| Sonarr API rate limits | Add exponential backoff on errors, respect retry-after headers |
+
+**Not a scaling concern:** Sonarr integration is single-user, local network use case. Not designed for multi-tenant or high-throughput scenarios.
 
 ## Sources
 
-### Official Documentation (HIGH Confidence)
-- [Sass @use Rule](https://sass-lang.com/documentation/at-rules/use/)
-- [Sass @forward Rule](https://sass-lang.com/documentation/at-rules/forward/)
-- [Sass Module System Launch](https://sass-lang.com/blog/the-module-system-is-launched/)
-- [Bootstrap 5.3 Sass Documentation](https://getbootstrap.com/docs/5.3/customize/sass/)
-- [Angular Component Styling](https://angular.dev/guide/components/styling)
+### Sonarr API Documentation
+- [Sonarr API Docs](https://sonarr.tv/docs/api/) - Official API reference (MEDIUM confidence - landing page only)
+- [GET /api/v3/queue · Issue #7422](https://github.com/Sonarr/Sonarr/issues/7422) - Queue endpoint discussion
+- [sonarr package - golift.io/starr/sonarr](https://pkg.go.dev/golift.io/starr/sonarr) - Go API wrapper (shows response schemas)
 
-### Community Resources (MEDIUM Confidence)
-- [Understanding @use & @forward](https://aslamdoctor.com/understanding-the-difference-between-import-use-forward-in-sass/)
-- [Migrating from @import to @use](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221)
-- [Angular SCSS Structure Best Practices](https://dev.to/stefaniefluin/how-to-structure-scss-in-an-angular-app-3376)
-- [Sass @use vs @forward](https://kjmonahan.dev/sass-use-vs-forward/)
-- [Angular ViewEncapsulation Guide](https://dev.to/manthanank/angular-view-encapsulation-a-practical-guide-to-component-styling-5df2)
+### Webhook vs Polling
+- [Webhooks vs. Polling](https://medium.com/@nile.bits/webhooks-vs-polling-431294f5af8a) - General comparison
+- [Polling vs Webhooks: When to Use One Over the Other](https://unified.to/blog/polling_vs_webhooks_when_to_use_one_over_the_other) - Decision framework
+- [Webhook vs. API Polling in System Design](https://www.geeksforgeeks.org/system-design/webhook-vs-api-polling-in-system-design/) - Tradeoffs
 
-### Technical Discussions (MEDIUM Confidence)
-- [Bootstrap Sass Module System Issue](https://github.com/sass/migrator/issues/235)
-- [Angular CLI SCSS Path Resolution](https://github.com/angular/angular-cli/issues/12981)
-- [Bootstrap 5 @use Migration Discussion](https://github.com/orgs/twbs/discussions/41260)
+### Python Libraries
+- [pyarr · PyPI](https://pypi.org/project/pyarr/) - Python Sonarr API wrapper
+- [GitHub - totaldebug/pyarr](https://github.com/totaldebug/pyarr) - Source repository
+- [pyarr documentation](https://docs.totaldebug.uk/pyarr/) - API reference
+
+### Sonarr Queue/History Details
+- [Sonarr Troubleshooting | Servarr Wiki](https://wiki.servarr.com/sonarr/troubleshooting) - Queue status explanations
+- [Question about latest changes in queue api · Issue #7663](https://github.com/Sonarr/Sonarr/issues/7663) - statusMessages field
+- [GET Queue API 'status' filter does not work · Issue #7389](https://github.com/Sonarr/Sonarr/issues/7389) - Queue filtering
+
+### SeedSync Codebase
+- Analyzed: controller.py, scan_manager.py, lftp_manager.py, file_operation_manager.py
+- Analyzed: model/file.py (ModelFile.State)
+- Analyzed: controller_persist.py (BoundedOrderedSet pattern)
+- Analyzed: auto_queue.py (Listener pattern)
+- Analyzed: CLAUDE.md (architecture overview)
+
+---
+*Architecture research for: Sonarr Integration in SeedSync*
+*Researched: 2026-02-10*

@@ -1,288 +1,250 @@
 # Project Research Summary
 
-**Project:** SeedSync v1.4 Sass @use Migration
-**Domain:** Sass module system migration (Angular + Bootstrap application)
-**Researched:** 2026-02-07
-**Confidence:** HIGH
+**Project:** SeedSync v1.7 - Sonarr Integration
+**Domain:** Media Management Integration (Sonarr API)
+**Researched:** 2026-02-10
+**Confidence:** MEDIUM
 
 ## Executive Summary
 
-The SeedSync Angular frontend can successfully migrate from deprecated Sass `@import` to the modern `@use/@forward` module system using current tooling (Dart Sass 1.97.3, Angular CLI 19.2.19). However, a critical constraint shapes the entire migration strategy: Bootstrap 5.3 has not migrated to the module system and continues to use `@import` internally. This means a hybrid approach is required where Bootstrap loading remains on `@import` while application-specific SCSS files migrate to `@use/@forward`.
+SeedSync v1.7 adds Sonarr integration to automatically delete local files after they've been imported to the Sonarr media library. This closes the automation loop: files sync from seedbox → Sonarr imports to library → local copies auto-delete to save space. The integration requires minimal stack additions (pyarr Python client, ngx-toastr Angular notifications) and follows SeedSync's existing Manager pattern with polling-based import detection.
 
-The recommended strategy is pragmatic and achievable: keep Bootstrap imports in `styles.scss` using the legacy `@import` pattern, transform `_common.scss` into a `@forward` aggregation hub using the module system, and migrate all component files (already using `@use`) to consume the modernized common module. This hybrid approach eliminates deprecation warnings from application code while accepting that Bootstrap itself will continue emitting warnings until Bootstrap 6 ships with module support.
+The critical risk is premature deletion - deleting files before Sonarr completes import, causing data loss. Research shows this is the most common integration mistake. The solution: poll Sonarr's queue API for disappearance (definitive import signal), add a configurable safety delay (default 60 seconds), and track imported files to prevent duplicate deletions. For season packs, per-episode tracking prevents partial import deletion.
 
-Key risks are manageable: namespace conflicts from mixing `@use` and `@import` are avoided by isolating Bootstrap to the global stylesheet, variable override timing issues are sidestepped by keeping Bootstrap's pre-import configuration pattern, and the `sass-migrator` tool's inability to handle third-party dependencies is mitigated by manual migration of the small number of files that interact with Bootstrap. Visual regression is the highest risk and requires careful before/after comparison, but the architecture analysis confirms that Angular's ViewEncapsulation and Sass's module scoping are orthogonal concerns that won't interfere.
+The recommended approach is polling-based detection (simpler than webhooks), queue disappearance as completion signal (more reliable than history API), and Command pattern for deletes (consistent with existing architecture). Start with MVP features (API connection, import detection, auto-delete, status badges) and defer enhancements (webhooks, dry-run mode, Radarr support) to v1.8+.
 
 ## Key Findings
 
 ### Recommended Stack
 
-The current stack (Dart Sass 1.97.3 via Angular CLI 19.2.19) fully supports the Sass module system with no version upgrades required. The module system has been available since Dart Sass 1.23.0 (October 2019) and is mature with 4+ years of stability. The only addition needed is `sass-migrator` 2.5.7 as a dev dependency for automated migration of component files.
+The existing Python/Angular stack needs only two additions: a Sonarr API client for the backend and toast notifications for the frontend. The Python backend already has `requests ^2.32.5` for HTTP operations, and the Bottle framework natively handles webhook endpoints via `request.json`. Adding `pyarr ^5.2.0` provides a production-ready Sonarr API wrapper with pagination, error handling, and battle-tested reliability. For the Angular frontend, `ngx-toastr ^19.1.0` provides Bootstrap 5-compatible toast notifications for import events.
 
 **Core technologies:**
-- **Dart Sass 1.97.3**: Already installed via Angular CLI — Full `@use/@forward` support with 4+ years maturity
-- **Bootstrap 5.3.3**: CSS framework — CRITICAL CONSTRAINT: Uses `@import` internally, cannot use `@use` syntax until Bootstrap 6
-- **sass-migrator 2.5.7**: Migration tool — Automates 90% of component file conversion (cannot handle Bootstrap boundaries)
-- **Angular CLI 19.2.19**: Build system — Native `@use/@forward` compilation support via sass-loader
+- **pyarr 5.2.0** (Python): Sonarr/Radarr API wrapper - mature library (200+ GitHub stars) with built-in pagination and error handling
+- **ngx-toastr 19.1.0** (Angular): Toast notifications - Angular 19 compatible with Bootstrap 5 theme support, 200K+ weekly downloads
+- **requests 2.32.5** (existing): HTTP client - sufficient for polling, already in pyproject.toml (alternative to pyarr if keeping dependencies minimal)
 
-**Critical finding:** Bootstrap 5.3 must be imported with `@import` because Bootstrap's internal SCSS files use `@import`. The `@use "bootstrap" with ($primary: ...)` configuration pattern does not work with Bootstrap 5.3. This is not a project limitation but a Bootstrap architectural constraint that will be resolved in Bootstrap 6 (no release date confirmed).
+**What NOT to add:**
+- Async HTTP clients (httpx, aiohttp) - SeedSync's synchronous Manager pattern doesn't need async complexity
+- Webhook-specific libraries - Bottle's `request.json` handles webhook POST payloads natively
+- Custom notification services - reinventing the wheel when ngx-toastr exists
 
 ### Expected Features
 
-The migration must deliver a hybrid architecture that modernizes application code while maintaining Bootstrap compatibility. The feature landscape defines both what must be migrated (table stakes) and what should be deferred.
+Research identified a clear MVP scope for v1.7 and enhancements for v1.8+. The core value proposition is automatic deletion after confirmed import, with visual feedback in the UI.
 
 **Must have (table stakes):**
-- All component SCSS files use `@use` instead of `@import` — Required to eliminate application deprecation warnings
-- Variable access via `@use` with namespace management — Core module system functionality
-- Bootstrap variable overrides continue working — Critical constraint for theme customization
-- Zero visual regressions — Non-negotiable success criteria
-- Zero Sass warnings from application code — Primary goal of migration
+- API connection configuration (URL, API key, enable/disable toggle) - standard for third-party integrations
+- Import status detection via polling `/api/v3/history` or queue - core value proposition
+- Auto-delete after import with global toggle - primary automation goal
+- Per-file import status badge - extends existing file status display with "Waiting for import", "Imported" states
+- Import history log - debugging and trust-building, integrates with existing log viewer
+- Connection validation test button - verify setup before enabling integration
 
-**Should have (differentiators):**
-- `_common.scss` as `@forward` aggregation hub — Provides clean variable re-export pattern
-- Index files for module organization — Simplifies import paths if module structure grows
-- Private member prefixes for API boundaries — Marks internal-only variables with `_` prefix
+**Should have (competitive advantage - defer to v1.8+):**
+- In-app import notifications - real-time SSE notifications when import detected (leverage existing SSE infrastructure)
+- Dry-run mode - "detect imports but don't auto-delete" for safe testing
+- Manual import check button - force status refresh for troubleshooting
+- Import path verification - warn if Sonarr import paths don't overlap with SeedSync local paths
 
-**Defer (v2+ or Bootstrap 6):**
-- Migrating Bootstrap to `@use` — Blocked by Bootstrap 5.3 architecture, wait for Bootstrap 6
-- Scoped Bootstrap imports — Optimization not required for initial migration
-- Explicit namespaces instead of wildcard — `as *` is acceptable for pragmatic migration
+**Defer (v2+):**
+- Radarr support - same pattern as Sonarr, different media type
+- Webhook support - more efficient than polling but requires Sonarr configuration and endpoint hardening
+- Import statistics dashboard - analytics once product-market fit established
 
-**Anti-features (explicitly avoid):**
-- Mixing `@use` and `@import` in same file — Creates namespace conflicts
-- Using `sass-migrator` on Bootstrap-dependent files — Tool fails on third-party dependencies
-- Silencing all deprecation warnings — Hides application code issues
-- Adding `!default` everywhere — Breaks existing variable precedence
+**Anti-features (don't build):**
+- Manage Sonarr queue from SeedSync - scope creep, duplicates Sonarr UI
+- Delete remote files after import - breaks seeding, dangerous if misconfigured
+- Bi-directional sync with Sonarr - conflict resolution complexity, violates single source of truth
+- Track ALL Sonarr activity - adds noise, SeedSync only cares about files it synced
 
 ### Architecture Approach
 
-The current SeedSync SCSS architecture already has component files using `@use` correctly, positioning the project well for completing the migration. The dependency graph reveals that only three files need transformation: `_common.scss` (convert to `@forward` aggregator), `_bootstrap-overrides.scss` (add namespace to variable references), and `styles.scss` (maintain hybrid `@import` for Bootstrap).
-
-**Current architecture (already partially modernized):**
-```
-styles.scss (global) — @import Bootstrap + app modules
-├── Bootstrap core (@import) — Legacy loading required
-├── _bootstrap-variables.scss — Variable overrides (plain definitions)
-├── _bootstrap-overrides.scss (@import) — Post-compilation CSS tweaks
-└── _common.scss (@import) — Variable re-export bridge
-
-Component files (16 files) — @use '../../common/common' as * (ALREADY MODERN)
-```
-
-**Target architecture (hybrid approach):**
-```
-styles.scss (global) — Hybrid @import (Bootstrap) + @use (app)
-├── Bootstrap core (@import) — KEEP legacy loading (Bootstrap 5.3 constraint)
-├── _bootstrap-variables.scss — No changes (pure variable definitions)
-├── _bootstrap-overrides.scss (@use) — Add namespaces to variable refs
-└── _common.scss (@forward) — Transform into aggregation module
-
-Component files (16 files) — No changes needed (already using @use correctly)
-```
+The Sonarr integration follows SeedSync's existing Manager pattern with polling-based external API interaction. A new SonarrManager polls the Sonarr queue API to detect import completion (queue disappearance), maps queue records to ModelFiles by filename, and queues DELETE_LOCAL commands via Controller's command pattern. Persistence uses BoundedOrderedSet to track imported filenames and prevent duplicate deletions.
 
 **Major components:**
-1. **Bootstrap isolation layer** (`styles.scss`) — Maintains `@import` for Bootstrap core, uses `@use` for app modules
-2. **Variable aggregation hub** (`_common.scss`) — Uses `@forward` to re-export Bootstrap variables and custom variables
-3. **Component consumption** (all `*.component.scss`) — Already using `@use` with wildcard namespace for direct variable access
+1. **SonarrManager** (new) - Polls Sonarr API every 60 seconds, detects import completion via queue disappearance, maps to ModelFiles, triggers auto-delete commands
+2. **SonarrPersist** (new) - BoundedOrderedSet tracking imported_file_names (max 10,000) to prevent re-deletion, serialized to JSON
+3. **SonarrService** (new) - Thin wrapper around pyarr for API calls (get_queue, get_history), handles connection errors
+4. **SonarrConfig** (new) - Config section with host, port, api_key, enabled, poll_interval_sec, auto_delete_enabled
+5. **Controller integration** - Instantiate SonarrManager, call process() in main loop, handle DELETE_LOCAL commands
 
-**Key architectural insight:** Angular's ViewEncapsulation (component style scoping) and Sass's module system (variable/mixin scoping) are orthogonal concerns that don't interfere. ViewEncapsulation scopes compiled CSS selectors to components at runtime; the module system scopes variables during SCSS compilation. Both can coexist without conflicts.
+**Key patterns:**
+- **Manager with External API Client** - SonarrManager owns SonarrService, encapsulates API details
+- **BoundedOrderedSet for Tracking** - LRU eviction prevents memory bloat, consistent with existing downloaded_file_names pattern
+- **Polling with State Diffing** - Track prev_queue_ids vs current_queue_ids, detect disappearances for import completion
+- **Command Pattern for Delete** - Use Controller.queue_command() for DELETE_LOCAL, not direct FileOperationManager calls
+
+**Integration points:**
+- Fits existing Manager pattern (ScanManager, LftpManager, FileOperationManager all use synchronous blocking calls)
+- No new ModelFile states needed - use optional timestamp field or persist-only tracking
+- Webhook handling works with existing Bottle framework (future enhancement, not MVP)
+- Settings UI follows existing INI-style form controls in settings component
 
 ### Critical Pitfalls
 
-The research identified 13 pitfalls across critical, moderate, and minor categories. The top 5 that directly impact this migration:
+Research from GitHub issues and Sonarr forums identified 8 critical pitfalls. The top 3 pose the highest risk of data loss.
 
-1. **Bootstrap 5.3 uses `@import` internally** (CRITICAL) — Cannot use `@use "bootstrap"` syntax. Must keep `@import` for all Bootstrap loading in `styles.scss`. This is a foundational architecture decision that affects all subsequent work. Accept that Bootstrap deprecation warnings will remain until Bootstrap 6.
+1. **Delete-Before-Import Race Condition** - Files deleted before Sonarr completes import, causing import failures and lost media. PREVENTION: Never rely on queue status alone; use queue disappearance as signal; add 60-second safety delay; track imported_file_names to prevent re-deletion.
 
-2. **Variable override timing with `@use with` configuration** (CRITICAL) — The `@use "module" with ($var: value)` pattern doesn't work with Bootstrap 5.3 because Bootstrap doesn't expose configuration properly. Must continue using pre-import variable definition pattern: define overrides in `_bootstrap-variables.scss`, then `@import` Bootstrap variables afterward.
+2. **Season Pack Partial Import Deletion** - Deleting entire season pack folder while Sonarr is still processing episodes sequentially, losing unprocessed episodes. PREVENTION: Track import per-file, not per-torrent; detect season packs by release name; wait for ALL episodes to import before cleanup; require user confirmation for season packs.
 
-3. **Namespace conflicts from mixing `@use` and `@import`** (CRITICAL) — A file loaded via both `@use` and `@import` creates duplicate definitions. Choose ONE mechanism per file. For SeedSync: `@import` for Bootstrap (required), `@use` for application modules (preferred). Never mix both for the same file.
+3. **File Name Mismatch (Download Name vs Sonarr Queue)** - Cannot correlate local files with Sonarr queue because torrent client renamed files or scene numbering differs. PREVENTION: Use history API with droppedPath/importedPath fields instead of exact filename matching; store mapping between local paths and download IDs.
 
-4. **sass-migrator fails on third-party dependencies** (CRITICAL) — The automated migration tool cannot handle Bootstrap imports in `node_modules`. Do NOT run with `--migrate-deps` flag on global stylesheets. Use migrator only for pure application code without Bootstrap dependencies. Manually migrate `_common.scss` and `styles.scss`.
+4. **Sonarr Import While File is Transferring** - Sonarr detects growing file during LFTP transfer, attempts import before complete. PREVENTION: LFTP should use staging directory with atomic move; temp file extension (.part) during transfer.
 
-5. **`@forward` must come before all other rules** (MODERATE) — Sass enforces strict ordering: `@forward` first, then `@use`, then variables/CSS. When transforming `_common.scss`, place all `@forward` statements at the top. Violation causes explicit compilation errors.
+5. **Ignoring Import Failures (Silent Data Loss)** - Sonarr fails import but queue removal triggers deletion anyway. PREVENTION: Check history API for downloadFolderImported events, not just queue removal; never auto-delete if queue status shows "Warning".
 
-**Additional notable pitfall:** Using `@use as *` wildcard defeats namespace benefits (moderate impact). For SeedSync, this is an acceptable pragmatic choice to minimize code changes in component files. Document this as "minimum viable migration" and consider future refactoring to explicit namespaces.
+6. **Webhook Endpoint Not Hardened** - Webhook handler crashes, misses events, or processes duplicates. PREVENTION: Idempotent handler with event deduplication; return 200 OK immediately, queue work async; timeout protection.
+
+7. **No Retry Logic for Sonarr API Failures** - Temporary Sonarr downtime causes API failure, app assumes import failed and deletes. PREVENTION: Exponential backoff retry (3-5 attempts); distinguish 4xx (don't retry) vs 5xx (retry); fail safe - don't delete if API unreachable.
+
+8. **Assuming Queue Depth is Unlimited** - Sonarr queue API limited to 60 items; import detection misses older downloads. PREVENTION: Use history API as fallback; check queue depth and warn if at limit; age-based cleanup fallback.
 
 ## Implications for Roadmap
 
-Based on the dependency graph and constraint analysis, the migration should follow a 6-phase structure that isolates Bootstrap handling early, transforms the aggregation layer, then tackles component migration with automation.
+Based on architecture dependencies and pitfall prevention requirements, suggest 4 phases with clear build order.
 
-### Phase 1: Strategy and Dependency Audit
-**Rationale:** Bootstrap 5.3 compatibility is a foundational constraint that dictates the entire migration strategy. Must validate assumptions and catalog all SCSS files before making architectural decisions.
+### Phase 1: Configuration & Persistence Foundation
+**Rationale:** No external dependencies, pure data structures enable parallel work on later phases
+**Delivers:** Config file parsing, persistence layer, settings UI
+**Addresses:**
+- SonarrConfig section in config.py with validation
+- SonarrPersist using BoundedOrderedSet pattern
+- Settings UI form (API connection fields, enable toggle)
+**Avoids:** No data loss risk - no delete logic yet
+**Research flag:** Standard patterns (config INI, BoundedOrderedSet) - skip `/gsd:research-phase`
 
-**Delivers:** Complete inventory of SCSS files, confirmed Bootstrap/Font Awesome versions, documented hybrid approach decision, migration strategy document with Bootstrap isolation pattern.
+### Phase 2: API Client with Retry & Safety
+**Rationale:** External API interaction must be robust before triggering deletes
+**Delivers:** Sonarr API client with connection validation, retry logic, error handling
+**Addresses:**
+- Add pyarr dependency to pyproject.toml
+- SonarrService wrapper with get_queue(), get_history()
+- Connection test endpoint for settings UI
+- Exponential backoff retry (3 attempts)
+**Avoids:**
+- Pitfall 7 (No Retry Logic) - implements backoff
+- Pitfall 6 (Webhook Not Hardened) - if webhooks added, async queuing
+**Research flag:** Needs research - API error scenarios, retry strategies, rate limiting
 
-**Addresses:** Pitfall 1 (Bootstrap compatibility), Pitfall 8 (Font Awesome version check), Pitfall 9 (deprecation warning strategy).
+### Phase 3: Import Detection with Safeguards
+**Rationale:** Core value proposition, must implement ALL safety checks before enabling auto-delete
+**Delivers:** Polling loop, queue disappearance detection, file matching, safety delay
+**Addresses:**
+- SonarrManager.process() polling loop
+- Queue state diffing (prev_queue_ids vs current_queue_ids)
+- File matching via history API (not just filename)
+- Configurable safety delay (default 60 seconds)
+- Import failure detection (check history eventType)
+**Avoids:**
+- Pitfall 1 (Delete-Before-Import) - safety delay + queue disappearance signal
+- Pitfall 3 (File Name Mismatch) - history API correlation
+- Pitfall 5 (Ignoring Failures) - check for downloadFolderImported event
+- Pitfall 8 (Queue Depth) - history API fallback
+**Research flag:** Needs research - queue vs history API tradeoffs, edge cases in import detection
 
-**Avoids:** Starting migration without understanding Bootstrap constraints (would require rework).
-
-**Research flag:** Standard inventory phase, no additional research needed (patterns well-documented).
-
-### Phase 2: Bootstrap Isolation (styles.scss)
-**Rationale:** Isolate Bootstrap to its own loading context before migrating application code. This prevents namespace conflicts and validates that the hybrid approach compiles successfully.
-
-**Delivers:** `styles.scss` updated to maintain `@import` for Bootstrap core while preparing for `@use` integration of application modules. Confirmed that Bootstrap continues to work with current variable override pattern.
-
-**Uses:** Bootstrap 5.3.3 (keep on `@import`), Angular CLI Sass compilation.
-
-**Addresses:** Feature requirement (Bootstrap variable overrides must work), Pitfall 3 (namespace conflicts).
-
-**Avoids:** Attempting to migrate Bootstrap to `@use` (not supported until Bootstrap 6).
-
-**Research flag:** No additional research needed (Bootstrap limitation confirmed by official sources).
-
-### Phase 3: Transform _common.scss (aggregation layer)
-**Rationale:** The `_common.scss` file is the bridge between Bootstrap and components. Converting it to use `@forward` enables components to access variables via `@use` while maintaining the current variable API.
-
-**Delivers:** `_common.scss` transformed into a `@forward` aggregation module that re-exports Bootstrap variables and custom variables. All downstream consumers (component files) can now use `@use` to access these variables with proper module scoping.
-
-**Uses:** `@forward` for re-export, `@use` for local consumption of Bootstrap functions.
-
-**Implements:** Variable aggregation hub component from architecture analysis.
-
-**Addresses:** Feature requirement (variable access with `@use`), Architecture pattern (`@forward` aggregation).
-
-**Avoids:** Pitfall 5 (`@forward` ordering), Pitfall 6 (Bootstrap variable re-export pattern).
-
-**Research flag:** No additional research needed (pattern well-documented in ARCHITECTURE.md).
-
-### Phase 4: Transform _bootstrap-overrides.scss
-**Rationale:** This file contains post-compilation CSS tweaks that reference Bootstrap variables. Must add namespaces to variable references to work with the modernized `_common.scss`.
-
-**Delivers:** `_bootstrap-overrides.scss` converted from `@import 'bootstrap-variables'` to `@use 'bootstrap-variables' as bv`, with all variable references updated to use `bv.$` prefix.
-
-**Uses:** `@use` with explicit namespace for clarity.
-
-**Addresses:** Architecture component (post-compilation override layer).
-
-**Avoids:** Forgetting to namespace variable references (causes undefined variable errors).
-
-**Research flag:** No additional research needed (straightforward namespace addition).
-
-### Phase 5: Component File Migration (automated)
-**Rationale:** Component files already use `@use` syntax correctly (`@use '../../common/common' as *`). This phase is primarily validation that the transformed `_common.scss` works correctly with all consumers.
-
-**Delivers:** Verification that all 16 component files continue to compile and access variables correctly through the modernized `_common.scss`. Any manual fixes needed for edge cases.
-
-**Uses:** `sass-migrator` for validation (dry-run mode), manual review for any Bootstrap-touching components.
-
-**Addresses:** Feature requirement (all component SCSS uses `@use`), Pitfall 4 (sass-migrator limitations).
-
-**Avoids:** Running sass-migrator on files that import Bootstrap (tool fails).
-
-**Research flag:** No additional research needed (components already modernized).
-
-### Phase 6: Validation and Testing
-**Rationale:** Visual regression is the highest risk. Must systematically verify that compiled CSS output is identical and all Angular tests continue passing.
-
-**Delivers:** Confirmed zero visual regressions via screenshot comparison, all 381 Angular unit tests passing, zero deprecation warnings from application code, documented Bootstrap warnings as expected (external dependency).
-
-**Uses:** Angular test suite, visual comparison tooling (manual screenshots or automated).
-
-**Addresses:** Feature requirement (zero visual regressions, zero warnings from app code), Success criteria from FEATURES.md.
-
-**Avoids:** Pitfall 9 (silencing all warnings prematurely), Pitfall 13 (not measuring build performance improvement).
-
-**Research flag:** No additional research needed (standard validation phase).
+### Phase 4: Auto-Delete Integration & Testing
+**Rationale:** Delete logic must be thoroughly tested with mocks before production use
+**Delivers:** Command queueing, Controller integration, comprehensive test suite
+**Addresses:**
+- queue_command(DELETE_LOCAL) from SonarrManager
+- Controller.process() calls sonarr_manager.process()
+- Per-file import tracking in SonarrPersist
+- Unit tests with mock SonarrService
+- Integration tests with mock Sonarr API server
+**Avoids:**
+- Pitfall 2 (Season Pack Partial) - track per-file imports (defer season pack detection to v1.8)
+- Pitfall 4 (Import While Transferring) - assumes Phase 1 LFTP atomic moves
+**Research flag:** Standard patterns (Command pattern, Manager testing) - skip `/gsd:research-phase`
 
 ### Phase Ordering Rationale
 
-- **Bootstrap isolation first (Phase 2):** Prevents namespace conflicts by establishing clear boundary between legacy `@import` (Bootstrap) and modern `@use` (application code).
-- **Aggregation layer next (Phase 3):** The `_common.scss` transformation is the critical dependency for all component files. Must be stable before validating component consumption.
-- **Component validation last (Phase 5):** Components already use correct syntax, so this is primarily validation rather than migration. Low risk, can parallelize with Phase 4.
-- **Validation throughout (Phase 6):** Visual regression testing after each phase would be ideal, but comprehensive validation at the end is acceptable given low file count.
+- **Phase 1 before Phase 2:** Config/persistence are prerequisites for API client initialization
+- **Phase 2 before Phase 3:** Cannot detect imports without working API client
+- **Phase 3 before Phase 4:** Import detection logic must be validated before connecting to delete operations
+- **Parallel work opportunity:** Frontend settings UI (Phase 1) can be built against mocked API while backend progresses
+- **Risk mitigation:** Delete logic comes LAST after all safety mechanisms validated
+- **Pitfall coverage:** Each phase explicitly addresses specific pitfalls from research
 
 ### Research Flags
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1:** Inventory and audit — Standard file enumeration
-- **Phase 2:** Bootstrap isolation — Pattern documented in STACK.md and PITFALLS.md
-- **Phase 3:** `@forward` aggregation — Pattern documented in ARCHITECTURE.md
-- **Phase 4:** Namespace addition — Mechanical transformation
-- **Phase 5:** Component validation — Already migrated, just verification
-- **Phase 6:** Testing and validation — Standard QA phase
+**Phases needing deeper research during planning:**
+- **Phase 2 (API Client):** Sonarr API rate limiting behavior, error response formats, retry-after headers
+- **Phase 3 (Import Detection):** Queue vs history API reliability tradeoffs, season pack detection heuristics, file matching edge cases
 
-**No phases require `/gsd:research-phase` invocation.** All patterns are well-documented in the completed research files with high confidence from official Sass and Bootstrap sources.
+**Phases with standard patterns (skip research-phase):**
+- **Phase 1 (Config/Persistence):** Well-documented INI config, BoundedOrderedSet already used in codebase
+- **Phase 4 (Testing):** Standard pytest mocking patterns, existing FileOperationManager test examples
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | All versions verified, Dart Sass 1.97.3 fully supports module system with 4+ years maturity |
-| Features | HIGH | Hybrid approach validated by community (Bootstrap limitation documented in official GitHub discussions) |
-| Architecture | HIGH | Component files already using `@use` correctly, dependency graph clear, transformation pattern well-defined |
-| Pitfalls | HIGH | All critical pitfalls verified with official Sass documentation and Bootstrap GitHub issues |
+| Stack | HIGH | pyarr and ngx-toastr verified on PyPI/npm, version compatibility confirmed, existing requests library sufficient |
+| Features | MEDIUM | MVP scope clear from Sonarr documentation and competitor analysis, but user validation needed for UI/UX decisions |
+| Architecture | MEDIUM | Manager pattern fits existing codebase, but queue vs history API tradeoffs need validation during implementation |
+| Pitfalls | MEDIUM | GitHub issues and forums provide clear warning signs, but actual API behavior needs testing with real Sonarr instance |
 
-**Overall confidence:** HIGH
-
-The research is based on official documentation from Sass team (module system spec, deprecation timeline) and authoritative sources from Bootstrap maintainers (GitHub discussions confirming no module support until v6). The hybrid approach is the industry-standard workaround used by Angular projects worldwide. The main uncertainty is visual regression risk, which is inherent to any SCSS refactoring and mitigated by comprehensive testing.
+**Overall confidence:** MEDIUM
 
 ### Gaps to Address
 
-While research confidence is high, these areas need validation during implementation:
+- **Queue disappearance reliability:** Research assumes queue item removal indicates import complete, but need to validate with real Sonarr instance (v3, v4, v5) to confirm behavior is consistent
+- **Season pack detection:** Research identifies the problem but defers heuristics to implementation phase - need to test with real season pack releases
+- **Webhook vs polling tradeoffs:** Research recommends polling for MVP, but actual API load and detection latency need measurement to validate this choice
+- **File matching edge cases:** History API correlation is recommended, but need to test with renamed files, scene numbering, absolute numbering (anime) to validate matching logic
+- **Safety delay tuning:** Default 60 seconds based on forum discussions, but users with slow NAS or large files may need longer - make configurable and document
+- **Import failure detection:** Need to catalog all possible failure scenarios (wrong quality, disk full, naming issue) and verify history API provides distinguishable events
 
-- **Bootstrap function namespace behavior:** Research indicates Bootstrap functions (`shade-color`, `tint-color`) are defined in `bootstrap/scss/functions` with `@import`. Need to test whether `@use 'bootstrap/scss/functions'` makes these available, or if `_common.scss` must continue using `@import` for Bootstrap functions. Fallback pattern documented in ARCHITECTURE.md Phase 2.
-
-- **Angular CLI compilation with hybrid approach:** While research confirms Angular CLI supports both `@import` and `@use` in the same project, need to validate that mixing both in `styles.scss` (Bootstrap via `@import`, application modules via `@use`) compiles without warnings or errors. This is a critical assumption for Phase 2.
-
-- **sass-migrator behavior on component files:** Tool should skip components that already use `@use`, but need to verify it doesn't attempt to "re-migrate" or introduce changes. Plan to run in `--dry-run` mode first to preview changes before applying.
-
-- **Performance impact measurement:** Research indicates 10-30% faster compilation with `@use` vs `@import`. Should measure before/after build times to quantify improvement and validate research claims. Use `ng build --configuration production` for timing.
+**How to handle during planning:**
+- Phase 2: Manual testing with real Sonarr instance to validate queue behavior
+- Phase 3: Create test matrix of file naming scenarios (scene, TVDB, absolute numbering)
+- Phase 3: Implement configurable safety delay with sane default
+- Phase 4: Integration test with mock Sonarr returning various failure responses
 
 ## Sources
 
 ### Primary (HIGH confidence)
 
-**Official Sass documentation:**
-- [Sass @use Rule](https://sass-lang.com/documentation/at-rules/use/) — Module loading syntax and namespace rules
-- [Sass @forward Rule](https://sass-lang.com/documentation/at-rules/forward/) — Re-export patterns and ordering requirements
-- [Sass @import Deprecation](https://sass-lang.com/blog/import-is-deprecated/) — Deprecation timeline (Dart Sass 3.0 removes `@import`)
-- [Sass Module System Launch](https://www.sasscss.com/blog/the-module-system-is-launched) — Official announcement and rationale
-- [Sass Migrator CLI](https://sass-lang.com/documentation/cli/migrator/) — Automated migration tool documentation
+**Official Documentation:**
+- [Sonarr API Docs](https://sonarr.tv/docs/api/) - API endpoints (landing page only, limited detail)
+- [Sonarr Activity | Servarr Wiki](https://wiki.servarr.com/sonarr/activity) - Queue and history behavior
+- [Sonarr Troubleshooting | Servarr Wiki](https://wiki.servarr.com/sonarr/troubleshooting) - Queue status explanations
+- [Hardlinks and Instant Moves - TRaSH Guides](https://trash-guides.info/File-and-Folder-Structure/Hardlinks-and-Instant-Moves/) - Import behavior
 
-**Official Bootstrap documentation:**
-- [Bootstrap 5.3 Sass Docs](https://getbootstrap.com/docs/5.3/customize/sass/) — Shows only `@import` syntax, no `@use` support
-- [Bootstrap Issue #35906](https://github.com/twbs/bootstrap/issues/35906) — Module system tracking issue
-- [Bootstrap Roadmap April 2025](https://github.com/orgs/twbs/discussions/41370) — Bootstrap 6 in early development
-- [Bootstrap @use Discussion #41260](https://github.com/orgs/twbs/discussions/41260) — Community confirmation of no module support
-
-**Official Angular documentation:**
-- [Angular Component Styling](https://angular.dev/guide/components/styling) — ViewEncapsulation behavior
-- [The New State of CSS in Angular](https://blog.angular.dev/the-new-state-of-css-in-angular-bec011715ee6) — Angular CLI Sass support
+**API Libraries:**
+- [pyarr on PyPI](https://pypi.org/project/pyarr/) - Version 5.2.0, Python requirements
+- [pyarr documentation](https://docs.totaldebug.uk/pyarr/modules/sonarr.html) - SonarrAPI methods
+- [ngx-toastr on npm](https://www.npmjs.com/package/ngx-toastr) - Version 19.1.0, Angular compatibility
+- [sonarr package - golift.io/starr/sonarr](https://pkg.go.dev/golift.io/starr/sonarr) - Go API wrapper (response schemas)
 
 ### Secondary (MEDIUM confidence)
 
-**Community migration guides:**
-- [Stop Using @import Guide](https://dev.to/quesby/stop-using-import-how-to-prepare-for-dart-sass-30-full-migration-guide-1agh) — Comprehensive migration walkthrough
-- [Migrating from @import to @use](https://norato-felipe.medium.com/migrating-from-import-to-use-and-forward-in-sass-175b3a8a6221) — Real-world migration patterns
-- [Using index files with Sass @use](https://tannerdolby.com/writing/using-index-files-in-sass/) — Aggregation patterns
-- [Sass modules primer (OddBird)](https://www.oddbird.net/2019/10/02/sass-modules/) — Module system concepts
+**GitHub Issues (Race Conditions & Import Problems):**
+- [Race condition during episode import - Issue #5475](https://github.com/Sonarr/Sonarr/issues/5475)
+- [Import Season Deletes Episodes before Importing - Issue #5949](https://github.com/Sonarr/Sonarr/issues/5949)
+- [Partial import of season pack - Issue #5625](https://github.com/Sonarr/Sonarr/issues/5625)
+- [Failed import does not properly fail - Issue #6873](https://github.com/Sonarr/Sonarr/issues/6873)
+- [Sonarr deletes files before importing - Issue #3131](https://github.com/Sonarr/Sonarr/issues/3131)
 
-**Angular community resources:**
-- [Angular SCSS Best Practices](https://medium.com/@sehban.alam/structure-your-angular-scss-like-a-pro-best-practices-real-world-examples-8da57386afdd) — Namespace conventions
-- [Structure SCSS in Angular](https://dev.to/stefaniefluin/how-to-structure-scss-in-an-angular-app-3376) — Architecture patterns
-- [Angular 19 Sass Warnings](https://coreui.io/blog/angular-19-sass-deprecation-warnings/) — Deprecation warning handling
+**GitHub Issues (Queue & API):**
+- [GET Queue API 'status' filter does not work - Issue #7389](https://github.com/Sonarr/Sonarr/issues/7389)
+- [Filter eventType option in history API - Issue #3587](https://github.com/Sonarr/Sonarr/issues/3587)
+- [Question about latest changes in queue api - Issue #7663](https://github.com/Sonarr/Sonarr/issues/7663)
 
-### Tertiary (LOW confidence, for patterns only)
+**Community Forums:**
+- [Import race condition? - sonarr forums](https://forums.sonarr.tv/t/import-race-condition/39676)
+- [Can Sonarr Delete Files after Import? - sonarr forums](https://forums.sonarr.tv/t/can-sonarr-delete-files-after-import/32432)
+- [Downloads get stuck in queue - sonarr forums](https://forums.sonarr.tv/t/downloads-get-stuck-in-queue-at-100-progress/30458)
 
-- [Bootstrap 6 Preview](https://coreui.io/blog/bootstrap-6/) — Speculative features (not official)
-- [Bootstrap 5.3.8 with @use workaround](https://timdows.com/blogs/bootstrap-5-3-8-with-use/) — Community workaround attempt
+### Tertiary (LOW confidence, patterns only)
+
+**Integration Patterns:**
+- [Sonarr Guide: Setup, Configuration & How It Works](https://www.rapidseedbox.com/blog/ultimate-guide-to-sonarr) - General workflow
+- [GitHub - GregTroar/DeleteArr](https://github.com/GregTroar/DeleteArr) - Community tool for post-import cleanup (inspiration)
+- [Webhooks vs. Polling](https://medium.com/@nile.bits/webhooks-vs-polling-431294f5af8a) - Decision framework
 
 ---
-
-*Research completed: 2026-02-07*
+*Research completed: 2026-02-10*
 *Ready for roadmap: yes*
-
-**Total files to modify:** 3 files
-- `_common.scss` — Transform to `@forward` aggregation module
-- `_bootstrap-overrides.scss` — Add namespaces to variable references
-- `styles.scss` — Maintain hybrid `@import` (Bootstrap) + prepare for `@use` (app modules)
-
-**Component files (16):** No changes needed, already using `@use` correctly
-
-**Success criteria:**
-- All component SCSS files use `@use` (already done)
-- Zero deprecation warnings from application code
-- All 381 Angular unit tests passing
-- Zero visual regressions
-- Bootstrap warnings accepted as external dependency limitation
