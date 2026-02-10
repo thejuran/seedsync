@@ -92,3 +92,54 @@ export interface Resort {
   location: string;
   restricted: boolean;
 }
+
+// Point Chart types
+
+export interface PointChart {
+  resort: string;
+  year: number;
+  seasons: Season[];
+}
+
+export interface Season {
+  name: string;
+  date_ranges: [string, string][];
+  rooms: Record<string, { weekday: number; weekend: number }>;
+}
+
+export interface RoomInfo {
+  key: string;
+  room_type: string;
+  view: string;
+}
+
+export interface PointChartSummary {
+  resort: string;
+  year: number;
+  file: string;
+}
+
+export interface NightlyCost {
+  date: string;
+  day_of_week: string;
+  season: string;
+  is_weekend: boolean;
+  points: number;
+}
+
+export interface StayCostResponse {
+  resort: string;
+  room: string;
+  check_in: string;
+  check_out: string;
+  num_nights: number;
+  total_points: number;
+  nightly_breakdown: NightlyCost[];
+}
+
+export interface PointCostRequest {
+  resort: string;
+  room_key: string;
+  check_in: string;
+  check_out: string;
+}
