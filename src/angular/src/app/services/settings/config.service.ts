@@ -22,6 +22,8 @@ export class ConfigService extends BaseWebService implements OnDestroy {
         (section: string, option: string, value: string): string =>
             `/server/config/set/${section}/${option}/${value}`;
 
+    private readonly SONARR_TEST_URL = "/server/config/sonarr/test-connection";
+
     private _config: BehaviorSubject<Config> = new BehaviorSubject(null);
 
     constructor(_streamServiceProvider: StreamServiceRegistry,
@@ -76,6 +78,14 @@ export class ConfigService extends BaseWebService implements OnDestroy {
             });
             return obs;
         }
+    }
+
+    /**
+     * Tests the Sonarr connection using currently saved config values
+     * @returns {Observable<WebReaction>}
+     */
+    public testSonarrConnection(): Observable<WebReaction> {
+        return this._restService.sendRequest(this.SONARR_TEST_URL);
     }
 
     protected onConnected(): void {
