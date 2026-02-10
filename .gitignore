@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# Node
+node_modules/
+dist/
+
+# Database
+*.db
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+
+# Build artifacts
+frontend/dist/
+backend/db/migrations/versions/*.pyc
+
+# IDE
+.vscode/
+.idea/
