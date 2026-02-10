@@ -8,7 +8,7 @@
 - **v1.3 Polish & Clarity** - Phases 10-11 (shipped 2026-02-04)
 - **v1.4 Sass @use Migration** - Phases 12-14 (shipped 2026-02-08)
 - **v1.5 Backend Testing** - Phases 15-19 (shipped 2026-02-08)
-- **v1.6 CI Cleanup** - Phases 20-21 (in progress)
+- **v1.6 CI Cleanup** - Phases 20-21 (shipped 2026-02-10)
 
 ## Phases
 
@@ -82,15 +82,11 @@ See `.planning/milestones/v1.5-ROADMAP.md` for full details.
 </details>
 
 
-<details open>
-<summary>v1.6 CI Cleanup (Phases 20-21) - IN PROGRESS</summary>
+<details>
+<summary>v1.6 CI Cleanup (Phases 20-21) - SHIPPED 2026-02-10</summary>
 
 - [x] Phase 20: CI Workflow Consolidation (1/1 plans) - completed 2026-02-09
-  - [x] 20-01-PLAN.md -- Consolidate Docker workflows, add :dev publishing to master.yml, remove docker-publish.yml
 - [x] Phase 21: Test Runner Cleanup (1/1 plans) - completed 2026-02-10
-  - [x] 21-01-PLAN.md -- Suppress pytest cache warnings and filter webob deprecation warnings
-
-Plans: 2 plans complete
 
 See `.planning/milestones/v1.6-ROADMAP.md` for full details.
 
@@ -126,6 +122,5 @@ See `.planning/milestones/v1.6-ROADMAP.md` for full details.
 ---
 
 *Last updated: 2026-02-10*
-*Phase 20 completed: 2026-02-09*
-*Phase 21 completed: 2026-02-10*
-*v1.6 milestone started: 2026-02-09*
+*v1.6 shipped: 2026-02-10*
+*All 7 milestones complete (21 phases, 31 plans)*

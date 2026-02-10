@@ -1,5 +1,30 @@
 # Project Milestones: SeedSync UI Polish
 
+## v1.6 CI Cleanup (Shipped: 2026-02-10)
+
+**Delivered:** Consolidated duplicate Docker CI workflows into a single master.yml pipeline and cleaned up test runner warning noise.
+
+**Phases completed:** 20-21 (2 plans total)
+
+**Key accomplishments:**
+
+- Consolidated Docker publishing into single CI workflow (master.yml), gated on e2e test passage
+- Eliminated duplicate docker-publish.yml that bypassed test gating
+- `:dev` image auto-published on master push (multi-arch: amd64 + arm64)
+- Suppressed pytest cache warnings and webob/cgi deprecation warnings in test output
+
+**Stats:**
+
+- 11 files changed (+706 lines, -72 lines)
+- 2 phases, 2 plans, 4 tasks
+- 1 day (2026-02-09 to 2026-02-10)
+
+**Git range:** `eab6146` → `c3d369f`
+
+**What's next:** Quality project complete. All 7 milestones shipped.
+
+---
+
 ## v1.5 Backend Testing (Shipped: 2026-02-08)
 
 **Delivered:** Comprehensive Python backend test coverage — 231 new tests across common modules, web handlers, and controller, with pytest-cov tooling and enforced 84% coverage threshold.

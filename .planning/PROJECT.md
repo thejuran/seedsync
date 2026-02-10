@@ -2,33 +2,22 @@
 
 ## What This Is
 
-Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 added backend testing. v1.6 cleans up CI — consolidating duplicate workflows and silencing test runner noise.
+Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 added backend testing. v1.6 cleaned up CI — consolidating duplicate workflows and silencing test runner noise.
 
 ## Core Value
 
 Clean, maintainable codebase with intuitive user interface.
 
-## Current Milestone: v1.6 CI Cleanup
+## Current State
 
-**Goal:** Clean up CI by consolidating duplicate Docker workflows and fixing test runner warnings.
+All 7 milestones shipped (v1.0 through v1.6). Quality project complete.
 
-**Target features:**
-- Consolidate `docker-publish.yml` into `master.yml` with `:dev` tag publishing on master push
-- Remove redundant `docker-publish.yml` workflow
-- Fix pytest cache warnings in Docker test runner
-- Fix webob cgi deprecation warnings in test output
-
-<details>
-<summary>Previous: v1.5 Backend Testing Shipped</summary>
-
-All 6 milestones complete. UI polish and backend testing done.
-
-- 952 Python tests (231 new in v1.5), 84% coverage with fail_under threshold
+- 952 Python tests, 84% coverage with fail_under threshold
 - Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
 - All 381 Angular unit tests passing
 - Zero TypeScript lint errors, zero SCSS deprecation warnings
-
-</details>
+- Single CI workflow (master.yml) handles all Docker publishing
+- Clean test runner output (no cache or deprecation warnings)
 
 ## Requirements
 
@@ -95,6 +84,16 @@ All 6 milestones complete. UI polish and backend testing done.
 - Shared fixtures via conftest.py (3 fixtures)
 - Coverage 77% → 84%, 231 new tests
 
+### Validated
+
+**v1.6 (Shipped 2026-02-10):**
+
+- `:dev` Docker image published to GHCR on every master push (multi-arch) - v1.6
+- `docker-publish.yml` removed — single CI workflow handles everything - v1.6
+- Version tag publishing continues working on tag pushes - v1.6
+- pytest cache warnings suppressed in Docker test runner - v1.6
+- webob cgi deprecation warnings filtered from test output - v1.6
+
 ### Out of Scope
 
 - E2E tests (Playwright) — separate concern
@@ -144,15 +143,15 @@ All 6 milestones complete. UI polish and backend testing done.
 
 ## Project Status
 
-**Status:** v1.6 CI Cleanup in progress
+**Status:** Complete — all 7 milestones shipped
 
-Quality project with 6 milestones shipped:
+Quality project with 7 milestones shipped:
 - v1.0-v1.4: UI Polish (Bootstrap, styling, lint, Sass migration)
 - v1.5: Backend testing (231 new tests, 84% coverage)
-- v1.6: CI Cleanup (in progress)
+- v1.6: CI Cleanup (workflow consolidation, warning suppression)
 
 **Future work (if desired):**
 - Dark mode toggle feature
 
 ---
-*Last updated: 2026-02-09 after v1.6 milestone started*
+*Last updated: 2026-02-10 after v1.6 milestone*
