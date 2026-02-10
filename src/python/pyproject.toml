@@ -31,6 +31,11 @@ pytest-cov = "^7.0.0"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 timeout = 60
+cache_dir = "/tmp/.pytest_cache"
+filterwarnings = [
+    # webob and bottle both import the deprecated cgi module (Python 3.11+)
+    "ignore:'cgi' is deprecated:DeprecationWarning",
+]
 
 [tool.coverage.run]
 source = ["."]
