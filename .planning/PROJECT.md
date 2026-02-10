@@ -2,13 +2,24 @@
 
 ## What This Is
 
-Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 shifts to backend testing — filling coverage gaps, adding tooling, and improving test quality for the Python backend.
+Quality improvement work for SeedSync. v1.0-v1.4 focused on UI polish (Bootstrap migration, styling, lint, Sass modernization). v1.5 added backend testing. v1.6 cleans up CI — consolidating duplicate workflows and silencing test runner noise.
 
 ## Core Value
 
 Clean, maintainable codebase with intuitive user interface.
 
-## Current State: v1.5 Backend Testing Shipped
+## Current Milestone: v1.6 CI Cleanup
+
+**Goal:** Clean up CI by consolidating duplicate Docker workflows and fixing test runner warnings.
+
+**Target features:**
+- Consolidate `docker-publish.yml` into `master.yml` with `:dev` tag publishing on master push
+- Remove redundant `docker-publish.yml` workflow
+- Fix pytest cache warnings in Docker test runner
+- Fix webob cgi deprecation warnings in test output
+
+<details>
+<summary>Previous: v1.5 Backend Testing Shipped</summary>
 
 All 6 milestones complete. UI polish and backend testing done.
 
@@ -16,31 +27,6 @@ All 6 milestones complete. UI polish and backend testing done.
 - Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
 - All 381 Angular unit tests passing
 - Zero TypeScript lint errors, zero SCSS deprecation warnings
-
-<details>
-<summary>Previous: v1.5 In-Progress State</summary>
-
-**Goal:** Comprehensive Python backend testing — fill coverage gaps, add pytest-cov tooling, improve test quality with shared fixtures.
-
-**Delivered:**
-- pytest-cov integration with coverage reports and thresholds
-- Unit tests for all common module gaps (5 files, 100% coverage)
-- Unit tests for all web handler gaps (7 handlers, 69 tests)
-- Unit tests for controller.py (106 tests)
-- Shared fixtures via conftest.py (3 fixtures)
-- Coverage: 77% → 84%, fail_under enforced
-
-</details>
-
-<details>
-<summary>Previous: v1.4 Shipped State</summary>
-
-All UI Polish milestones complete. Sass @import deprecation resolved.
-
-- Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward
-- All 381 Angular unit tests passing
-- Zero TypeScript lint errors, zero SCSS deprecation warnings
-- Visual QA verified at desktop and tablet widths
 
 </details>
 
@@ -158,14 +144,15 @@ All UI Polish milestones complete. Sass @import deprecation resolved.
 
 ## Project Status
 
-**Status:** COMPLETE — All milestones shipped
+**Status:** v1.6 CI Cleanup in progress
 
 Quality project with 6 milestones shipped:
 - v1.0-v1.4: UI Polish (Bootstrap, styling, lint, Sass migration)
 - v1.5: Backend testing (231 new tests, 84% coverage)
+- v1.6: CI Cleanup (in progress)
 
 **Future work (if desired):**
 - Dark mode toggle feature
 
 ---
-*Last updated: 2026-02-08 after v1.5 milestone shipped*
+*Last updated: 2026-02-09 after v1.6 milestone started*

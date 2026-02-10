@@ -2,19 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-08)
+See: .planning/PROJECT.md (updated 2026-02-09)
 
 **Core value:** Clean, maintainable codebase with intuitive user interface
-**Current focus:** v1.5 Backend Testing — COMPLETE
+**Current focus:** v1.6 CI Cleanup
 
 ## Current Position
 
-Phase: 19 — Coverage Baseline & Validation (COMPLETE)
-Plan: 19-01-PLAN.md executed
-Status: v1.5 milestone complete — all 19 phases shipped
-Last activity: 2026-02-08 — Phase 19 executed (fail_under=84 threshold set, 84% coverage, 952 tests)
-
-Progress: [####################] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-09 — Milestone v1.6 started
 
 ## Milestones Shipped
 
@@ -50,13 +48,14 @@ Progress: [####################] 100%
 
 ### Pending Todos
 
-- Clean up CI test runner warnings (pytest cache + webob cgi deprecation)
+- ~~Clean up CI test runner warnings (pytest cache + webob cgi deprecation)~~ Addressed in v1.6
 
 ### Tech Debt
 
 - ~~Sass @import deprecation~~ RESOLVED in v1.4
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
 - ~~Backend test coverage gaps~~ RESOLVED in v1.5 (84% coverage, fail_under enforced)
+- Duplicate Docker workflow (docker-publish.yml vs master.yml) — Addressing in v1.6
 
 ### Key Decisions
 
@@ -64,10 +63,10 @@ See PROJECT.md Key Decisions table for full list.
 
 ## Session Continuity
 
-Last session: 2026-02-08
-Stopped at: v1.5 milestone complete (all phases shipped)
+Last session: 2026-02-09
+Stopped at: v1.6 milestone started (defining requirements)
 Resume file: None
-Next action: Start next milestone or audit v1.5 (/gsd:audit-milestone or /gsd:new-milestone)
+Next action: Define requirements and create roadmap
 
 ---
 *v1.0 shipped: 2026-02-03*
