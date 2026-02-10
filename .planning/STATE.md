@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 22 of 25 (Configuration & Settings UI)
-Plan: Ready to plan
-Status: Ready to plan
-Last activity: 2026-02-10 — v1.7 roadmap created
+Plan: 22-02 (Frontend Settings UI)
+Status: Plan 22-01 complete, 22-02 next
+Last activity: 2026-02-10 — Completed 22-01 (Backend Config + Test Connection)
 
 Progress: [████████░░] 84% (21/25 phases complete)
 
@@ -33,7 +33,7 @@ Progress: [████████░░] 84% (21/25 phases complete)
 **Total Project:**
 - 7 milestones shipped
 - 21 phases completed
-- 31 plans executed
+- 32 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 ## Accumulated Context
@@ -65,11 +65,17 @@ Top 3 risks identified:
 
 See PROJECT.md Key Decisions table for full list.
 
+**Phase 22-01 decisions:**
+- Config.Sonarr uses Checkers.null (validation at test endpoint, not config parse)
+- Backward-compatible from_dict: optional Sonarr section via `if "Sonarr" in config_dict`
+- Test connection returns HTTP 200 with JSON body (matches RestService pattern)
+- Uses `requests` library directly (not pyarr) for simple status check
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Created v1.7 roadmap with 4 phases (22-25), mapped all 12 requirements
-Next action: Plan Phase 22 (Configuration & Settings UI)
+Stopped at: Completed 22-01-PLAN.md (Backend Config + Test Connection)
+Next action: Execute Plan 22-02 (Frontend Settings UI)
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
