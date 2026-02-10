@@ -1,0 +1,155 @@
+[
+  {
+    "slug": "aulani",
+    "name": "Aulani, Disney Vacation Club Villas",
+    "short_name": "Aulani",
+    "location": "Ko Olina, Hawaii",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "island_gardens", "ocean"]
+  },
+  {
+    "slug": "animal_kingdom_jambo",
+    "name": "Disney's Animal Kingdom Villas - Jambo House",
+    "short_name": "AKL Jambo",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["studio_value", "deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "savanna"]
+  },
+  {
+    "slug": "animal_kingdom_kidani",
+    "name": "Disney's Animal Kingdom Villas - Kidani Village",
+    "short_name": "AKL Kidani",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "savanna"]
+  },
+  {
+    "slug": "bay_lake_tower",
+    "name": "Bay Lake Tower at Disney's Contemporary Resort",
+    "short_name": "Bay Lake Tower",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "lake", "theme_park"]
+  },
+  {
+    "slug": "beach_club",
+    "name": "Disney's Beach Club Villas",
+    "short_name": "Beach Club",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "boardwalk",
+    "name": "Disney's BoardWalk Villas",
+    "short_name": "BoardWalk",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "preferred"]
+  },
+  {
+    "slug": "wilderness_lodge_boulder_ridge",
+    "name": "Boulder Ridge Villas at Disney's Wilderness Lodge",
+    "short_name": "Boulder Ridge",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "wilderness_lodge_copper_creek",
+    "name": "Copper Creek Villas & Cabins at Disney's Wilderness Lodge",
+    "short_name": "Copper Creek",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa", "cabin"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "grand_floridian",
+    "name": "Disney's Grand Floridian Resort & Spa Villas",
+    "short_name": "Grand Floridian",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["resort_studio", "deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "lake", "theme_park"]
+  },
+  {
+    "slug": "hilton_head",
+    "name": "Disney's Hilton Head Island Resort",
+    "short_name": "Hilton Head",
+    "location": "Hilton Head Island, SC",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "old_key_west",
+    "name": "Disney's Old Key West Resort",
+    "short_name": "Old Key West",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "polynesian",
+    "name": "Disney's Polynesian Villas & Bungalows",
+    "short_name": "Polynesian",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "bungalow"],
+    "view_categories": ["standard", "lake", "theme_park"]
+  },
+  {
+    "slug": "saratoga_springs",
+    "name": "Disney's Saratoga Springs Resort & Spa",
+    "short_name": "Saratoga Springs",
+    "location": "Walt Disney World",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa", "treehouse"],
+    "view_categories": ["standard", "preferred"]
+  },
+  {
+    "slug": "vero_beach",
+    "name": "Disney's Vero Beach Resort",
+    "short_name": "Vero Beach",
+    "location": "Vero Beach, FL",
+    "restricted": false,
+    "room_types": ["deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard"]
+  },
+  {
+    "slug": "riviera",
+    "name": "Disney's Riviera Resort",
+    "short_name": "Riviera",
+    "location": "Walt Disney World",
+    "restricted": true,
+    "room_types": ["tower_studio", "deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "preferred"]
+  },
+  {
+    "slug": "disneyland_hotel",
+    "name": "The Villas at Disneyland Hotel",
+    "short_name": "Disneyland Hotel",
+    "location": "Disneyland Resort",
+    "restricted": true,
+    "room_types": ["tower_studio", "deluxe_studio", "one_bedroom", "two_bedroom", "grand_villa"],
+    "view_categories": ["standard", "preferred", "premium"]
+  },
+  {
+    "slug": "cabins_fort_wilderness",
+    "name": "Cabins at Disney's Fort Wilderness Resort",
+    "short_name": "Fort Wilderness Cabins",
+    "location": "Walt Disney World",
+    "restricted": true,
+    "room_types": ["cabin"],
+    "view_categories": ["standard"]
+  }
+]
