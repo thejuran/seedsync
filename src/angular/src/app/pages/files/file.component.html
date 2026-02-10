@@ -26,6 +26,11 @@
             <!-- don't show text for default status -->
             <span *ngIf="file.status != ViewFile.Status.DEFAULT"
                   class="text">{{file.status | capitalize}}</span>
+            <!-- Import status badge -->
+            <span class="badge bg-success import-badge"
+                  *ngIf="file.importStatus === ViewFile.ImportStatus.IMPORTED">
+                Imported
+            </span>
         </div>
         <div class="name">
             <img src="assets/icons/file-light.svg" *ngIf="!file.isDir && !file.isArchive" />
