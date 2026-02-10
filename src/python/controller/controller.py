@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 from threading import Lock
 from queue import Queue
 from enum import Enum
+import copy
 
 # my libs
 from .scan_manager import ScanManager
@@ -639,9 +640,23 @@ class Controller:
         # Step 5: Update controller status
         self._update_controller_status(latest_remote_scan, latest_local_scan)
 
+        # Step 6: Set import status for persisted imported files
+        for file_name in self.__model.get_file_names():
+            if file_name in self.__persist.imported_file_names:
+                try:
+                    file = self.__model.get_file(file_name)
+                    if file.import_status != ModelFile.ImportStatus.IMPORTED:
+                        new_file = copy.copy(file)
+                        new_file._ModelFile__frozen = False
+                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
+                        self.__model.update_file(new_file)
+                except ModelError:
+                    pass
+
     def __check_sonarr_imports(self):
         """
         Poll Sonarr for newly imported files and update persist state.
+        Also sets import_status on model files for UI badge display.
         """
         # Get current model file names for matching
         model_file_names = set(self.__model.get_file_names())
@@ -651,6 +666,16 @@ class Controller:
         for file_name in newly_imported:
             self.__persist.imported_file_names.add(file_name)
             self.logger.info("Recorded Sonarr import: '{}'".format(file_name))
+            # Update model file import status for UI badge
+            try:
+                old_file = self.__model.get_file(file_name)
+                if old_file.import_status != ModelFile.ImportStatus.IMPORTED:
+                    new_file = copy.copy(old_file)
+                    new_file._ModelFile__frozen = False
+                    new_file.import_status = ModelFile.ImportStatus.IMPORTED
+                    self.__model.update_file(new_file)
+            except ModelError:
+                pass  # File no longer in model
 
     def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
