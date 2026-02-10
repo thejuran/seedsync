@@ -31,11 +31,11 @@ Build on the shipped v1.0 dashboard in four phases: first package the app for se
   3. User can change port and database path via `.env` file without editing any code
   4. User can toggle borrowing policy between 100% and 50% and see it reflected in point calculations
   5. App works out of the box with pre-loaded 2026 point chart data (no manual data import required for charts)
-**Plans**: TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] 04-01: TBD
-- [ ] 04-02: TBD
+- [ ] 04-01-PLAN.md -- Docker infrastructure + backend config (Dockerfile, compose, entrypoint, SPA serving, Pydantic Settings)
+- [ ] 04-02-PLAN.md -- App settings + borrowing policy (AppSetting model, settings API, borrowing enforcement, Settings page UI)
 
 #### Phase 5: Booking Impact + Booking Windows
 **Goal**: User can preview how a potential booking affects their point balances and see when booking windows open for any trip date
@@ -84,7 +84,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 4. Docker + Settings | v1.1 | 0/TBD | Not started | - |
+| 4. Docker + Settings | v1.1 | 0/2 | Planning complete | - |
 | 5. Impact + Windows | v1.1 | 0/TBD | Not started | - |
 | 6. Scenarios | v1.1 | 0/TBD | Not started | - |
 | 7. Heatmap | v1.1 | 0/TBD | Not started | - |
