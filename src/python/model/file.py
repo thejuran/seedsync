@@ -30,6 +30,10 @@ class ModelFile:
         EXTRACTING = 5
         EXTRACTED = 6
 
+    class ImportStatus(Enum):
+        NONE = 0                    # Not tracked by Sonarr / no import detected
+        IMPORTED = 1                # Imported by Sonarr
+
     def __init__(self, name: str, is_dir: bool):
         self.__name = name  # file or folder name
         self.__is_dir = is_dir  # True if this is a dir, False if file
@@ -50,6 +54,7 @@ class ModelFile:
         self.__children = []  # children files
         self.__parent = None  # direct predecessor
         self.__frozen = False  # immutability flag
+        self.__import_status = ModelFile.ImportStatus.NONE
 
     @property
     def is_frozen(self) -> bool:
@@ -222,6 +227,17 @@ class ModelFile:
     def is_extractable(self, is_extractable: bool):
         self._check_frozen()
         self.__is_extractable = is_extractable
+
+    @property
+    def import_status(self) -> "ModelFile.ImportStatus":
+        return self.__import_status
+
+    @import_status.setter
+    def import_status(self, import_status: "ModelFile.ImportStatus"):
+        self._check_frozen()
+        if type(import_status) != ModelFile.ImportStatus:
+            raise TypeError
+        self.__import_status = import_status
 
     @property
     def local_created_timestamp(self) -> datetime: return self.__local_created_timestamp
