@@ -46,7 +46,7 @@ export class SettingsPageComponent implements OnInit {
     private _configRestartNotif: Notification;
     private _badValueNotifs: Map<string, Notification>;
 
-    public testConnectionLoading: boolean = false;
+    public testConnectionLoading = false;
     public testConnectionResult: {success: boolean; message: string} = null;
 
     constructor(private _logger: LoggerService,
