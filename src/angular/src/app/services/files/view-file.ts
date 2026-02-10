@@ -27,6 +27,7 @@ interface IViewFile {
     localModifiedTimestamp: Date;
     remoteCreatedTimestamp: Date;
     remoteModifiedTimestamp: Date;
+    importStatus: ViewFile.ImportStatus;
 }
 
 // Boiler plate code to set up an immutable class
@@ -50,7 +51,8 @@ const DefaultViewFile: IViewFile = {
     localCreatedTimestamp: null,
     localModifiedTimestamp: null,
     remoteCreatedTimestamp: null,
-    remoteModifiedTimestamp: null
+    remoteModifiedTimestamp: null,
+    importStatus: null
 };
 const ViewFileRecord = Record(DefaultViewFile);
 
@@ -79,6 +81,7 @@ export class ViewFile extends ViewFileRecord implements IViewFile {
     localModifiedTimestamp: Date;
     remoteCreatedTimestamp: Date;
     remoteModifiedTimestamp: Date;
+    importStatus: ViewFile.ImportStatus;
 
     constructor(props) {
         super(props);
@@ -95,5 +98,10 @@ export namespace ViewFile {
         DELETED         = "deleted",
         EXTRACTING      = "extracting",
         EXTRACTED       = "extracted"
+    }
+
+    export enum ImportStatus {
+        NONE                = "none",
+        IMPORTED            = "imported"
     }
 }
