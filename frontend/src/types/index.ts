@@ -197,3 +197,28 @@ export interface AvailabilityResponse {
   contracts: AvailabilityContractResult[];
   summary: AvailabilitySummary;
 }
+
+// Trip Explorer types
+
+export interface TripExplorerOption {
+  contract_id: number;
+  contract_name: string;
+  available_points: number;
+  resort: string;
+  resort_name: string;
+  room_key: string;
+  total_points: number;
+  num_nights: number;
+  points_remaining: number;
+  nightly_avg: number;
+}
+
+export interface TripExplorerResponse {
+  check_in: string;
+  check_out: string;
+  num_nights: number;
+  options: TripExplorerOption[];
+  resorts_checked: string[];
+  resorts_skipped: string[];
+  total_options: number;
+}
