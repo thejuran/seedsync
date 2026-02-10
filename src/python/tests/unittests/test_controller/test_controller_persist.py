@@ -36,6 +36,8 @@ class TestControllerPersist(unittest.TestCase):
         self.assertEqual({"one", "two", "th ree", "fo.ur"}, set(dct["downloaded"]))
         self.assertTrue("extracted" in dct)
         self.assertEqual({"fi\"ve", "si@x", "se\\ven", "ei-ght"}, set(dct["extracted"]))
+        self.assertTrue("imported" in dct)
+        self.assertEqual([], dct["imported"])
 
     def test_to_and_from_str(self):
         persist = ControllerPersist()
@@ -47,6 +49,8 @@ class TestControllerPersist(unittest.TestCase):
         persist.extracted_file_names.add("si@x")
         persist.extracted_file_names.add("se\\ven")
         persist.extracted_file_names.add("ei-ght")
+        persist.imported_file_names.add("imp_one")
+        persist.imported_file_names.add("imp_two")
 
         persist_actual = ControllerPersist.from_str(persist.to_str())
         self.assertEqual(
@@ -56,6 +60,10 @@ class TestControllerPersist(unittest.TestCase):
         self.assertEqual(
             persist.extracted_file_names,
             persist_actual.extracted_file_names
+        )
+        self.assertEqual(
+            persist.imported_file_names,
+            persist_actual.imported_file_names
         )
 
     def test_persist_read_error(self):
@@ -185,3 +193,39 @@ class TestControllerPersist(unittest.TestCase):
         self.assertIn("file1", persist.downloaded_file_names)
         self.assertNotIn("file2", persist.downloaded_file_names)
         self.assertIn("file3", persist.downloaded_file_names)
+
+    def test_imported_file_names_roundtrip(self):
+        """Test imported_file_names serialization roundtrip."""
+        persist = ControllerPersist()
+        persist.imported_file_names.add("import1")
+        persist.imported_file_names.add("import2")
+        persist.imported_file_names.add("import3")
+
+        persist_actual = ControllerPersist.from_str(persist.to_str())
+        self.assertEqual(persist.imported_file_names, persist_actual.imported_file_names)
+
+    def test_imported_file_names_in_to_str(self):
+        """Test imported key appears in serialized output."""
+        persist = ControllerPersist()
+        persist.imported_file_names.add("file_a")
+        persist.imported_file_names.add("file_b")
+        dct = json.loads(persist.to_str())
+        self.assertIn("imported", dct)
+        self.assertEqual(["file_a", "file_b"], dct["imported"])
+
+    def test_backward_compatibility_no_imported_key(self):
+        """Test old persist files without imported key load successfully."""
+        content = json.dumps({"downloaded": ["a"], "extracted": ["b"]})
+        persist = ControllerPersist.from_str(content)
+        self.assertEqual(0, len(persist.imported_file_names))
+
+    def test_imported_eviction_stats(self):
+        """Test imported eviction stats are tracked."""
+        persist = ControllerPersist(max_tracked_files=2)
+        persist.imported_file_names.add("imp1")
+        persist.imported_file_names.add("imp2")
+        persist.imported_file_names.add("imp3")  # imp1 evicted
+
+        stats = persist.get_eviction_stats()
+        self.assertIn('imported_evictions', stats)
+        self.assertEqual(1, stats['imported_evictions'])
