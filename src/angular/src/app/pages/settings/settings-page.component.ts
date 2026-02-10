@@ -1,10 +1,10 @@
-import {ChangeDetectionStrategy, Component, OnInit} from "@angular/core";
-import {NgFor, NgTemplateOutlet, AsyncPipe} from "@angular/common";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {NgFor, NgIf, NgTemplateOutlet, AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 
 import {LoggerService} from "../../services/utils/logger.service";
 import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
-import {OptionComponent} from "./option.component";
+import {OptionComponent, OptionType} from "./option.component";
 import {ConfigService} from "../../services/settings/config.service";
 import {Config} from "../../services/settings/config";
 import {Notification} from "../../services/utils/notification";
@@ -25,7 +25,7 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgFor, NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
+    imports: [NgFor, NgIf, NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
 })
 export class SettingsPageComponent implements OnInit {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;
@@ -34,6 +34,8 @@ export class SettingsPageComponent implements OnInit {
     public OPTIONS_CONTEXT_OTHER = OPTIONS_CONTEXT_OTHER;
     public OPTIONS_CONTEXT_AUTOQUEUE = OPTIONS_CONTEXT_AUTOQUEUE;
     public OPTIONS_CONTEXT_EXTRACT = OPTIONS_CONTEXT_EXTRACT;
+
+    public OptionType = OptionType;
 
     public config: Observable<Config>;
 
@@ -44,11 +46,15 @@ export class SettingsPageComponent implements OnInit {
     private _configRestartNotif: Notification;
     private _badValueNotifs: Map<string, Notification>;
 
+    public testConnectionLoading: boolean = false;
+    public testConnectionResult: {success: boolean; message: string} = null;
+
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
                 private _configService: ConfigService,
                 private _notifService: NotificationService,
-                private _commandService: ServerCommandService) {
+                private _commandService: ServerCommandService,
+                private _cdr: ChangeDetectorRef) {
         this._connectedService = _streamServiceRegistry.connectedService;
         this.config = _configService.config;
         this.commandsEnabled = false;
@@ -116,6 +122,45 @@ export class SettingsPageComponent implements OnInit {
                 } else {
                     this._logger.error(reaction.errorMessage);
                 }
+            }
+        });
+    }
+
+    onTestSonarrConnection(): void {
+        this.testConnectionLoading = true;
+        this.testConnectionResult = null;
+        this._cdr.markForCheck();
+
+        this._configService.testSonarrConnection().subscribe({
+            next: reaction => {
+                this.testConnectionLoading = false;
+                if (reaction.success) {
+                    try {
+                        const result = JSON.parse(reaction.data);
+                        if (result.success) {
+                            this.testConnectionResult = {
+                                success: true,
+                                message: "Connected to Sonarr v" + result.version
+                            };
+                        } else {
+                            this.testConnectionResult = {
+                                success: false,
+                                message: result.error
+                            };
+                        }
+                    } catch {
+                        this.testConnectionResult = {
+                            success: false,
+                            message: "Unexpected response from server"
+                        };
+                    }
+                } else {
+                    this.testConnectionResult = {
+                        success: false,
+                        message: reaction.errorMessage || "Failed to reach server"
+                    };
+                }
+                this._cdr.markForCheck();
             }
         });
     }
