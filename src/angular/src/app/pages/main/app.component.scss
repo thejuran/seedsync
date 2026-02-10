@@ -144,6 +144,11 @@
     }
 }
 
+/* Toast container z-index to ensure it appears above all content */
+.toast-container {
+    z-index: 1090; /* Above Bootstrap modal backdrop (1050) but below modal (1055) */
+}
+
 // Large screens
 @media only screen and (min-width: $large-min-width) {
 
