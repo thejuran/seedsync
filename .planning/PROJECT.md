@@ -8,6 +8,18 @@ A personal web application for managing Disney Vacation Club points across multi
 
 For any future date, clearly show available points across all contracts and what resorts/rooms those points can actually book -- accounting for banking, borrowing, existing reservations, and resale restrictions.
 
+## Current Milestone: v1.1 Share & Plan
+
+**Goal:** Make the app shareable via Docker and add planning tools (booking impact preview, what-if scenarios, booking window alerts, cost heatmap) so users can plan trips, not just track points.
+
+**Target features:**
+- Docker packaging with docker-compose for self-hosting
+- Booking impact preview integrated into Trip Explorer
+- Standalone scenario playground for modeling multiple hypothetical bookings
+- Booking window alerts (11-month home resort, 7-month any resort)
+- Seasonal cost heatmap for visual resort/room/date comparison
+- Configurable borrowing policy (100%/50%)
+
 ## Current State
 
 **Shipped:** v1.0 (2026-02-10)
@@ -33,14 +45,19 @@ v1.0 delivers the complete manual-entry DVC point tracking experience:
 - [x] Per-contract resale/direct flag driving resort eligibility filtering
 - [x] Versioned point chart data by resort/room/season/day-of-week
 
+### Active (v1.1)
+
+- [ ] Docker packaging with docker-compose for self-hosting
+- [ ] Booking impact preview for potential bookings (Trip Explorer integration)
+- [ ] What-if scenario playground for modeling multiple hypothetical bookings
+- [ ] Booking window alerts (11-month home resort, 7-month any resort opening dates)
+- [ ] Seasonal cost heatmap for visual resort/room/date comparison
+- [ ] Configurable borrowing policy (100%/50% setting)
+
 ### Deferred to v2
 
 - [ ] DVC account scraping to import contracts, point balances, and reservations
 - [ ] DVC point chart scraping to get current room costs by resort/season
-- [ ] Banking/borrowing impact preview for potential bookings
-- [ ] What-if scenario modeling for point availability
-- [ ] Key date reminders (booking windows, banking deadlines)
-- [ ] Seasonal cost heatmap for resort/room comparison
 
 ### Out of Scope
 
@@ -59,7 +76,7 @@ v1.0 delivers the complete manual-entry DVC point tracking experience:
 
 ## Constraints
 
-- **Data source**: v1 uses manual entry; v2 targets DVC website scraping
+- **Data source**: Manual entry through v1.x; scraping deferred to v2
 - **Resale rules**: Encodes DVC resale restriction rules (original 14 vs restricted 3)
 - **Point charts**: Versioned JSON data, currently 2 resorts loaded
 - **Single user**: No authentication needed
@@ -75,5 +92,8 @@ v1.0 delivers the complete manual-entry DVC point tracking experience:
 | SQLite for storage | Single-user, zero-config, trivial backups | Shipped v1.0 |
 | Pure-function engine layer | Testable, composable, no DB coupling in business logic | Shipped v1.0 |
 
+| Docker for sharing, not Railway | Open-source self-hosted tool; no auth needed, no revenue model | v1.1 |
+| v1.x = manual entry, v2 = scraping | Reserves major version for data source change | v1.1 |
+
 ---
-*Last updated: 2026-02-10 after v1.0 milestone completion*
+*Last updated: 2026-02-10 after v1.1 milestone start*

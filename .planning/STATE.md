@@ -5,13 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** For any future date, clearly show available points across all contracts and what resorts/rooms those points can actually book.
-**Current state:** v1.0 shipped. No active milestone.
+**Current state:** v1.1 milestone started. Defining requirements.
 
 ## Current Position
 
-Milestone: v1.0 COMPLETE (archived to .planning/milestones/)
-Status: Between milestones
-Last activity: 2026-02-10 -- v1.0 milestone archived
+Phase: Not started (defining requirements)
+Plan: --
+Status: Defining requirements
+Last activity: 2026-02-10 -- Milestone v1.1 started
 
 ## Accumulated Context
 
@@ -26,16 +27,21 @@ Key architectural decisions carrying forward:
 - Point charts as versioned JSON data
 - Eligibility computed at read time
 
+v1.1 decisions:
+- Docker for sharing (not Railway) -- open-source self-hosted tool
+- No scraping in v1.x -- reserves v2 for data source change
+- Configurable borrowing policy (100%/50%) to handle potential DVC policy change
+
 ### Pending Todos
 
 None.
 
 ### Blockers/Concerns
 
-- DVC borrowing policy may revert from 100% to 50% -- make configurable in v2
+- DVC borrowing policy may revert from 100% to 50% -- addressed in v1.1 scope
 
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: v1.0 milestone complete and archived. Next: `/gsd:new-milestone` for v2.
+Stopped at: v1.1 milestone started, defining requirements.
 Resume file: None
