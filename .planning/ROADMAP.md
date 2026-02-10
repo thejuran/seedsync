@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Data Foundation** - Project scaffolding, contract/point management, and point chart data
 - [x] **Phase 2: Calculations & Reservations** - Point timeline calculator, reservation tracking, and trip cost lookup
-- [ ] **Phase 3: Dashboard & Trip Explorer** - Unified dashboard with alerts and "what can I afford?" trip explorer
+- [x] **Phase 3: Dashboard & Trip Explorer** - Unified dashboard with alerts and "what can I afford?" trip explorer
 
 ## Phase Details
 
@@ -63,9 +63,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Trip Explorer backend (engine function + API endpoint composing existing availability, eligibility, and cost functions)
-- [ ] 03-02: Dashboard page (frontend composition of existing endpoints -- summary cards, urgent alerts, upcoming reservations)
-- [ ] 03-03: Trip Explorer UI + navigation updates (trip explorer page with date form and results, dashboard as landing page, nav restructure)
+- [x] 03-01: Trip Explorer backend (engine function + API endpoint composing existing availability, eligibility, and cost functions)
+- [x] 03-02: Dashboard page (frontend composition of existing endpoints -- summary cards, urgent alerts, upcoming reservations)
+- [x] 03-03: Trip Explorer UI + navigation updates (trip explorer page with date form and results, dashboard as landing page, nav restructure)
 
 ## Progress
 
@@ -76,4 +76,4 @@ Phases execute in numeric order: 1 -> 2 -> 3
 |-------|----------------|--------|-----------|
 | 1. Data Foundation | 3/3 | Complete | 2026-02-09 |
 | 2. Calculations & Reservations | 3/3 | Complete | 2026-02-09 |
-| 3. Dashboard & Trip Explorer | 0/3 | Not started | - |
+| 3. Dashboard & Trip Explorer | 3/3 | Complete | 2026-02-10 |
