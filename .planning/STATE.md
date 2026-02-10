@@ -10,28 +10,28 @@ See: .planning/PROJECT.md (updated 2026-02-09)
 ## Current Position
 
 Phase: 1 of 3 (Data Foundation)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: Executing
-Last activity: 2026-02-10 -- Completed Plan 01-01 (Project Scaffolding + Database Foundation)
+Last activity: 2026-02-10 -- Completed Plan 01-02 (Contract & Point Balance Management)
 
-Progress: [==========....................] 11% (1/9 plans)
+Progress: [======================........] 22% (2/9 plans)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 1
-- Average duration: 6m 44s
-- Total execution time: ~7 minutes
+- Total plans completed: 2
+- Average duration: 6m 48s
+- Total execution time: ~14 minutes
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| 1 | 1/3 | 6m 44s | 6m 44s |
+| 1 | 2/3 | 13m 36s | 6m 48s |
 
 **Recent Trend:**
-- Last 5 plans: 01-01 (6m 44s)
-- Trend: First plan, baseline established
+- Last 5 plans: 01-01 (6m 44s), 01-02 (6m 52s)
+- Trend: Consistent ~7min per plan
 
 *Updated after each plan completion*
 
@@ -49,6 +49,10 @@ Recent decisions affecting current work:
 - Used Python 3.12 venv (system Python 3.9 too old for modern type hints)
 - pytest-asyncio 1.x strict mode requires @pytest_asyncio.fixture for async fixtures
 - selectinload required for async relationship testing in SQLAlchemy
+- Pydantic schemas defined separately in schemas.py (not inline in router)
+- Points router uses full path routes (no prefix) for mixed /api/contracts and /api/points paths
+- Eligibility computed at read time, not stored (immediate update on purchase_type change)
+- API integration tests use dependency override with in-memory SQLite per fixture
 
 ### Pending Todos
 
@@ -63,5 +67,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 01-01-PLAN.md
+Stopped at: Completed 01-02-PLAN.md
 Resume file: None
