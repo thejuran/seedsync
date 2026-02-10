@@ -103,10 +103,11 @@ See `.planning/milestones/v1.6-ROADMAP.md` for full details.
   2. User can enable/disable Sonarr integration via toggle in Settings
   3. User can click "Test Connection" button and see success or failure message
   4. Sonarr configuration persists across app restarts
-**Plans**: TBD
+**Plans**: 2
 
 Plans:
-- [ ] 22-01: TBD
+- [x] 22-01: Backend Sonarr Config Section + Test Connection Endpoint
+- [x] 22-02: Frontend *arr Integration Settings UI
 
 #### Phase 23: API Client Integration
 **Goal**: Backend polls Sonarr queue and tracks imported files
@@ -160,7 +161,7 @@ Phases execute in numeric order: 22 → 23 → 24 → 25
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-21. Quality Project | v1.0-v1.6 | All | Complete | 2026-02-10 |
-| 22. Configuration & Settings UI | v1.7 | 0/TBD | Not started | - |
+| 22. Configuration & Settings UI | v1.7 | 2/2 | Complete | 2026-02-10 |
 | 23. API Client Integration | v1.7 | 0/TBD | Not started | - |
 | 24. Status Visibility & Notifications | v1.7 | 0/TBD | Not started | - |
 | 25. Auto-Delete with Safety | v1.7 | 0/TBD | Not started | - |
