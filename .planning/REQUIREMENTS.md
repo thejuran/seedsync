@@ -70,24 +70,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CONN-01 | — | Pending |
-| CONN-02 | — | Pending |
-| CONN-03 | — | Pending |
-| IMPRT-01 | — | Pending |
-| IMPRT-02 | — | Pending |
-| IMPRT-03 | — | Pending |
-| DEL-01 | — | Pending |
-| DEL-02 | — | Pending |
-| DEL-03 | — | Pending |
-| NOTIF-01 | — | Pending |
-| NOTIF-02 | — | Pending |
-| SAFE-01 | — | Pending |
+| CONN-01 | Phase 22 | Pending |
+| CONN-02 | Phase 22 | Pending |
+| CONN-03 | Phase 22 | Pending |
+| IMPRT-01 | Phase 23 | Pending |
+| IMPRT-02 | Phase 24 | Pending |
+| IMPRT-03 | Phase 23 | Pending |
+| DEL-01 | Phase 25 | Pending |
+| DEL-02 | Phase 25 | Pending |
+| DEL-03 | Phase 25 | Pending |
+| NOTIF-01 | Phase 24 | Pending |
+| NOTIF-02 | Phase 24 | Pending |
+| SAFE-01 | Phase 25 | Pending |
 
 **Coverage:**
 - v1.7 requirements: 12 total
-- Mapped to phases: 0
-- Unmapped: 12
+- Mapped to phases: 12
+- Unmapped: 0
+- Coverage: 100% ✓
 
 ---
 *Requirements defined: 2026-02-10*
-*Last updated: 2026-02-10 after initial definition*
+*Last updated: 2026-02-10 after roadmap creation*
