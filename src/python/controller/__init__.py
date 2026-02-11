@@ -8,6 +8,6 @@ from .auto_queue import AutoQueue, AutoQueuePersist, IAutoQueuePersistListener, 
 from .scan import IScanner, ScannerResult, ScannerProcess, ScannerError
 from .scan_manager import ScanManager
 from .lftp_manager import LftpManager
-from .sonarr_manager import SonarrManager
+from .webhook_manager import WebhookManager
 from .file_operation_manager import FileOperationManager, CommandProcessWrapper
 from .memory_monitor import MemoryMonitor, MemoryStats

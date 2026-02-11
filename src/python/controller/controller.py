@@ -12,7 +12,7 @@ import copy
 from .scan_manager import ScanManager
 from .lftp_manager import LftpManager
 from .file_operation_manager import FileOperationManager
-from .sonarr_manager import SonarrManager
+from .webhook_manager import WebhookManager
 from .extract import ExtractStatus
 from .model_builder import ModelBuilder
 from .memory_monitor import MemoryMonitor
@@ -79,9 +79,11 @@ class Controller:
 
     def __init__(self,
                  context: Context,
-                 persist: ControllerPersist):
+                 persist: ControllerPersist,
+                 webhook_manager: WebhookManager):
         self.__context = context
         self.__persist = persist
+        self.__webhook_manager = webhook_manager
         self.logger = context.logger.getChild("Controller")
         # Set logger for persist to enable eviction logging
         self.__persist.set_base_logger(self.logger)
@@ -124,9 +126,6 @@ class Controller:
             force_local_scan_callback=self.__scan_manager.force_local_scan,
             force_remote_scan_callback=self.__scan_manager.force_remote_scan
         )
-
-        # Setup the Sonarr manager
-        self.__sonarr_manager = SonarrManager(context=self.__context)
 
         # Keep track of active downloading files
         self.__active_downloading_file_names = []
@@ -203,8 +202,8 @@ class Controller:
         self.__update_model()
         # Periodically log memory statistics
         self.__memory_monitor.log_stats_if_due()
-        # Poll Sonarr for imported files
-        self.__check_sonarr_imports()
+        # Process webhook imports
+        self.__check_webhook_imports()
 
     def exit(self):
         self.logger.debug("Exiting controller")
@@ -666,19 +665,19 @@ class Controller:
         # Step 5: Update controller status
         self._update_controller_status(latest_remote_scan, latest_local_scan)
 
-    def __check_sonarr_imports(self):
+    def __check_webhook_imports(self):
         """
-        Poll Sonarr for newly imported files and update persist state.
+        Process webhook import events and update persist state.
         Also sets import_status on model files for UI badge display.
         """
         # Get current model file names for matching
         model_file_names = set(self.__model.get_file_names())
 
-        newly_imported = self.__sonarr_manager.process(model_file_names)
+        newly_imported = self.__webhook_manager.process(model_file_names)
 
         for file_name in newly_imported:
             self.__persist.imported_file_names.add(file_name)
-            self.logger.info("Recorded Sonarr import: '{}'".format(file_name))
+            self.logger.info("Recorded webhook import: '{}'".format(file_name))
             # Update model file import status for UI badge
             try:
                 old_file = self.__model.get_file(file_name)

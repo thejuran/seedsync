@@ -12,6 +12,7 @@ from .handler.auto_queue import AutoQueueHandler
 from .handler.stream_log import LogStreamHandler
 from .handler.stream_heartbeat import HeartbeatStreamHandler
 from .handler.status import StatusHandler
+from .handler.webhook import WebhookHandler
 
 
 class WebAppBuilder:
@@ -21,7 +22,8 @@ class WebAppBuilder:
     def __init__(self,
                  context: Context,
                  controller: Controller,
-                 auto_queue_persist: AutoQueuePersist):
+                 auto_queue_persist: AutoQueuePersist,
+                 webhook_manager):
         self.__context = context
         self.__controller = controller
 
@@ -30,6 +32,7 @@ class WebAppBuilder:
         self.config_handler = ConfigHandler(context.config)
         self.auto_queue_handler = AutoQueueHandler(auto_queue_persist)
         self.status_handler = StatusHandler(context.status)
+        self.webhook_handler = WebhookHandler(webhook_manager)
 
     def build(self) -> WebApp:
         web_app = WebApp(context=self.__context,
@@ -51,6 +54,7 @@ class WebAppBuilder:
         self.config_handler.add_routes(web_app)
         self.auto_queue_handler.add_routes(web_app)
         self.status_handler.add_routes(web_app)
+        self.webhook_handler.add_routes(web_app)
 
         web_app.add_default_routes()
 

@@ -17,6 +17,7 @@ from common import ServiceExit, Context, Constants, Config, Args, AppError
 from common import ServiceRestart
 from common import Localization, Status, ConfigError, Persist, PersistError
 from controller import Controller, ControllerJob, ControllerPersist, AutoQueue, AutoQueuePersist
+from controller.webhook_manager import WebhookManager
 from web import WebAppJob, WebAppBuilder
 
 
@@ -111,14 +112,17 @@ class Seedsync:
         self.context.logger.info("Starting SeedSync")
         self.context.logger.info("Platform: {}".format(platform.machine()))
 
+        # Create webhook manager (shared between controller and web app)
+        webhook_manager = WebhookManager(self.context)
+
         # Create controller
-        controller = Controller(self.context, self.controller_persist)
+        controller = Controller(self.context, self.controller_persist, webhook_manager)
 
         # Create auto queue
         auto_queue = AutoQueue(self.context, self.auto_queue_persist, controller)
 
         # Create web app
-        web_app_builder = WebAppBuilder(self.context, controller, self.auto_queue_persist)
+        web_app_builder = WebAppBuilder(self.context, controller, self.auto_queue_persist, webhook_manager)
         web_app = web_app_builder.build()
 
         # Define child threads
