@@ -185,6 +185,7 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(config.has_section("web"))
         self.assertTrue(config.has_section("autoqueue"))
         self.assertTrue(config.has_section("sonarr"))
+        self.assertTrue(config.has_section("radarr"))
         self.assertTrue(config.has_section("autodelete"))
         self.assertFalse(config.has_section("nope"))
         self.assertFalse(config.has_section("from_file"))
@@ -486,6 +487,9 @@ class TestConfig(unittest.TestCase):
         config.sonarr.enabled = False
         config.sonarr.sonarr_url = "http://localhost:8989"
         config.sonarr.sonarr_api_key = "abc123"
+        config.radarr.enabled = False
+        config.radarr.radarr_url = "http://localhost:7878"
+        config.radarr.radarr_api_key = "def456"
         config.autodelete.enabled = False
         config.autodelete.dry_run = True
         config.autodelete.delay_seconds = 60
@@ -535,6 +539,11 @@ class TestConfig(unittest.TestCase):
         enabled = False
         sonarr_url = http://localhost:8989
         sonarr_api_key = abc123
+
+        [Radarr]
+        enabled = False
+        radarr_url = http://localhost:7878
+        radarr_api_key = def456
 
         [AutoDelete]
         enabled = False

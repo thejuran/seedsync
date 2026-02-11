@@ -323,6 +323,10 @@ class Seedsync:
         config.sonarr.sonarr_url = ""
         config.sonarr.sonarr_api_key = ""
 
+        config.radarr.enabled = False
+        config.radarr.radarr_url = ""
+        config.radarr.radarr_api_key = ""
+
         config.autodelete.enabled = False
         config.autodelete.dry_run = False
         config.autodelete.delay_seconds = 60

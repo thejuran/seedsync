@@ -310,6 +310,17 @@ class Config(Persist):
             self.sonarr_url = None
             self.sonarr_api_key = None
 
+    class Radarr(IC):
+        enabled = PROP("enabled", Checkers.null, Converters.bool)
+        radarr_url = PROP("radarr_url", Checkers.null, Converters.null)
+        radarr_api_key = PROP("radarr_api_key", Checkers.null, Converters.null)
+
+        def __init__(self):
+            super().__init__()
+            self.enabled = None
+            self.radarr_url = None
+            self.radarr_api_key = None
+
     class AutoDelete(IC):
         enabled = PROP("enabled", Checkers.null, Converters.bool)
         dry_run = PROP("dry_run", Checkers.null, Converters.bool)
@@ -328,6 +339,7 @@ class Config(Persist):
         self.web = Config.Web()
         self.autoqueue = Config.AutoQueue()
         self.sonarr = Config.Sonarr()
+        self.radarr = Config.Radarr()
         self.autodelete = Config.AutoDelete()
 
     @staticmethod
@@ -397,6 +409,15 @@ class Config(Persist):
             config.sonarr.sonarr_url = ""
             config.sonarr.sonarr_api_key = ""
 
+        # Radarr section is optional for backward compatibility with older config files
+        if "Radarr" in config_dict:
+            config.radarr = Config.Radarr.from_dict(Config._check_section(config_dict, "Radarr"))
+        else:
+            # Default values for existing installs missing [Radarr] section
+            config.radarr.enabled = False
+            config.radarr.radarr_url = ""
+            config.radarr.radarr_api_key = ""
+
         # AutoDelete section is optional for backward compatibility
         if "AutoDelete" in config_dict:
             config.autodelete = Config.AutoDelete.from_dict(
@@ -421,6 +442,7 @@ class Config(Persist):
         config_dict["Web"] = self.web.as_dict()
         config_dict["AutoQueue"] = self.autoqueue.as_dict()
         config_dict["Sonarr"] = self.sonarr.as_dict()
+        config_dict["Radarr"] = self.radarr.as_dict()
         config_dict["AutoDelete"] = self.autodelete.as_dict()
         return config_dict
 
