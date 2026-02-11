@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v1.7 Sonarr Integration - Phase 24 (Status Visibility & Notifications)
+**Current focus:** v1.7 Sonarr Integration - Phase 25 (Auto-Delete with Safety)
 
 ## Current Position
 
-Phase: 24 of 25 (Status Visibility & Notifications) -- COMPLETE
-Plan: 24-02 complete (all plans in phase done)
-Status: Phase 24 complete (import badge + toast triggering)
-Last activity: 2026-02-10 — Executed Phase 24 Plan 02 (4 tasks, 3 commits, 6m)
+Phase: 25 of 25 (Auto-Delete with Safety) -- IN PROGRESS
+Plan: 25-02 next (wave 1)
+Status: Executing Phase 25 Wave 1 -- Plan 01 complete
+Last activity: 2026-02-10 — Completed 25-01 (Config.AutoDelete section)
 
 Progress: [████████████░] 96% (24/25 phases complete)
 
@@ -33,11 +33,12 @@ Progress: [████████████░] 96% (24/25 phases complete)
 **Total Project:**
 - 7 milestones shipped
 - 24 phases completed
-- 40 plans executed
+- 41 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 **Phase 24-01:** 7 tasks, 10 files, 8m duration
 **Phase 24-02:** 4 tasks, 4 files, 6m duration
+**Phase 25-01:** 2 tasks, 6 files, 3m duration
 
 ## Accumulated Context
 
@@ -100,11 +101,18 @@ See PROJECT.md Key Decisions table for full list.
 - Subscribe to unfiltered ViewFileService.files (not filteredFiles) so toasts fire for all imports regardless of active filter
 - First-emission skip prevents toasting files already in IMPORTED state on page load
 
+**Phase 25-01 decisions:**
+- Config.AutoDelete uses Checkers.null for enabled/dry_run (same pattern as Sonarr.enabled)
+- delay_seconds uses Checkers.int_positive (must be > 0)
+- AutoDelete section optional in from_dict for backward compatibility with older config files
+- Frontend uses standard #optionsList template (no custom card needed like *arr Integration)
+- AutoDelete section placed after *arr Integration card in left column
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 24 complete (Plan 01 + Plan 02 both executed, all requirements met)
-Next action: Execute Phase 25 — next phase in v1.7 Sonarr Integration
+Stopped at: Completed 25-01-PLAN.md (Config.AutoDelete section)
+Next action: Execute 25-02-PLAN.md (Auto-Delete Manager and Controller Integration)
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
