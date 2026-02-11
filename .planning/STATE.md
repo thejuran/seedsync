@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 
 ## Current Position
 
-Phase: 25 of 25 (Auto-Delete with Safety) -- IN PROGRESS
-Plan: 25-02 next (wave 1)
-Status: Executing Phase 25 Wave 1 -- Plan 01 complete
-Last activity: 2026-02-10 — Completed 25-01 (Config.AutoDelete section)
+Phase: 25 of 25 (Auto-Delete with Safety) -- COMPLETE
+Plan: 25-02 complete (all plans done)
+Status: Phase 25 complete -- all plans executed
+Last activity: 2026-02-10 — Completed 25-02 (Auto-Delete Timer Logic)
 
-Progress: [████████████░] 96% (24/25 phases complete)
+Progress: [█████████████] 100% (25/25 phases complete)
 
 ## Milestones Shipped
 
@@ -32,13 +32,14 @@ Progress: [████████████░] 96% (24/25 phases complete)
 
 **Total Project:**
 - 7 milestones shipped
-- 24 phases completed
-- 41 plans executed
+- 25 phases completed
+- 42 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
 **Phase 24-01:** 7 tasks, 10 files, 8m duration
 **Phase 24-02:** 4 tasks, 4 files, 6m duration
 **Phase 25-01:** 2 tasks, 6 files, 3m duration
+**Phase 25-02:** 2 tasks, 3 files, 4m duration
 
 ## Accumulated Context
 
@@ -108,11 +109,17 @@ See PROJECT.md Key Decisions table for full list.
 - Frontend uses standard #optionsList template (no custom card needed like *arr Integration)
 - AutoDelete section placed after *arr Integration card in left column
 
+**Phase 25-02 decisions:**
+- threading.Timer with daemon=True prevents timers from blocking process exit
+- Config re-checked at execution time for hot-toggle support (disable mid-flight)
+- Pending dict uses pop() for atomic remove-and-return (safe even if key missing)
+- BaseControllerTestCase defaults autodelete.enabled=False to prevent MagicMock Timer issues
+
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 25-01-PLAN.md (Config.AutoDelete section)
-Next action: Execute 25-02-PLAN.md (Auto-Delete Manager and Controller Integration)
+Stopped at: Completed 25-02-PLAN.md (Auto-Delete Timer Logic)
+Next action: Phase 25 complete -- all v1.7 plans executed
 
 ---
 *v1.0-v1.6 shipped: 2026-02-03 to 2026-02-10*
