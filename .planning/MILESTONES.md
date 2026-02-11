@@ -1,4 +1,31 @@
-# Project Milestones: SeedSync UI Polish
+# Project Milestones: SeedSync
+
+## v1.7 Sonarr Integration (Shipped: 2026-02-10)
+
+**Delivered:** Sonarr integration for automated post-download workflow — import detection via queue polling, status badges and toast notifications in UI, and auto-delete of local files with 6-layer safety system.
+
+**Phases completed:** 22-25 (8 plans total)
+
+**Key accomplishments:**
+
+- Sonarr API integration with configurable connection settings and test endpoint in Settings UI
+- Queue polling with import detection via queue disappearance and state change signals
+- Import status badges ("Imported") in file list with toast notifications via SSE
+- Auto-delete of local files after Sonarr import with configurable delay (default 60s)
+- 6-layer safety system: local-only deletion, dry-run mode, hot-toggle, missing file handling, clean shutdown, daemon threads
+- 38+ new unit tests, 9 UAT tests passed, 12/12 requirements satisfied
+
+**Stats:**
+
+- 32 code files changed (+1,475 lines, -24 lines)
+- 4 phases, 8 plans
+- Same-day completion (2026-02-10)
+
+**Git range:** `c3d369f` → `b356607`
+
+**What's next:** Run `/gsd:new-milestone` to start next milestone (Radarr integration, dark mode, or other features).
+
+---
 
 ## v1.6 CI Cleanup (Shipped: 2026-02-10)
 

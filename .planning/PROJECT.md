@@ -2,22 +2,20 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 adds Sonarr integration for automated post-download workflow.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration for automated post-download workflow.
 
 ## Core Value
 
 Reliable file sync from seedbox to local with automated media library integration.
 
-## Current Milestone: v1.7 Sonarr Integration
+## Latest Milestone: v1.7 Sonarr Integration (Shipped 2026-02-10)
 
-**Goal:** Integrate with Sonarr to detect imported files and auto-delete local copies, with status visibility and in-app notifications.
-
-**Target features:**
+**Delivered:**
 - Sonarr API integration (connection, queue polling, import detection)
-- Auto-delete local files after Sonarr confirms import (global toggle)
-- Status visibility in UI (files waiting for import, imported, history)
-- In-app notifications + log entries for import events
+- Auto-delete local files after Sonarr confirms import (global toggle, 60s delay)
+- Import status badges in file list UI + toast notifications
 - Settings UI for Sonarr configuration (URL, API key, enable/disable)
+- 6-layer safety system for auto-delete (local-only, dry-run, hot-toggle, etc.)
 
 **Deferred:** Radarr support (nearly identical API, planned for future milestone)
 
@@ -149,13 +147,15 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Project Status
 
-**Status:** v1.7 in progress
+**Status:** v1.7 shipped. All 8 milestones complete.
 
-Quality project (v1.0-v1.6) complete. Now adding Sonarr integration.
+Quality project (v1.0-v1.6) and Sonarr integration (v1.7) complete. 25 phases, 39 plans executed across 8 milestones.
 
 **Future work (if desired):**
 - Radarr integration (same API pattern as Sonarr)
 - Dark mode toggle feature
+- WAITING_FOR_IMPORT enum value (deferred from v1.7)
+- Sonarr webhook endpoint for real-time import detection (replaces polling)
 
 ---
-*Last updated: 2026-02-10 after starting v1.7 milestone*
+*Last updated: 2026-02-10 after completing v1.7 milestone*
