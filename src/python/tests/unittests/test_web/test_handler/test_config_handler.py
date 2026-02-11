@@ -1,8 +1,11 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import json
 import unittest
 from unittest.mock import MagicMock, patch
 from urllib.parse import quote
+
+import requests
 
 from common import Config, ConfigError
 from web.handler.config import ConfigHandler
@@ -86,3 +89,92 @@ class TestConfigHandlerSet(unittest.TestCase):
         self.mock_config.lftp = mock_inner
         self.handler._ConfigHandler__handle_set_config("lftp", "remote_path", quote("/remote/path/to/dir"))
         mock_inner.set_property.assert_called_once_with("remote_path", "/remote/path/to/dir")
+
+
+class TestConfigHandlerTestRadarrConnection(unittest.TestCase):
+    def setUp(self):
+        self.config = Config()
+        self.config.radarr.enabled = False
+        self.config.radarr.radarr_url = "http://localhost:7878"
+        self.config.radarr.radarr_api_key = "testapikey123"
+        self.handler = ConfigHandler(self.config)
+
+    def test_radarr_missing_url_returns_error(self):
+        self.config.radarr.radarr_url = ""
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertFalse(body["success"])
+        self.assertEqual("Radarr URL is required", body["error"])
+
+    def test_radarr_missing_api_key_returns_error(self):
+        self.config.radarr.radarr_api_key = ""
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertFalse(body["success"])
+        self.assertEqual("Radarr API key is required", body["error"])
+
+    @patch('web.handler.config.requests')
+    def test_radarr_success_returns_version(self, mock_requests):
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"version": "5.0.0"}
+        mock_requests.get.return_value = mock_response
+        mock_requests.ConnectionError = requests.ConnectionError
+        mock_requests.Timeout = requests.Timeout
+
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertTrue(body["success"])
+        self.assertEqual("5.0.0", body["version"])
+
+    @patch('web.handler.config.requests')
+    def test_radarr_401_returns_invalid_key(self, mock_requests):
+        mock_response = MagicMock()
+        mock_response.status_code = 401
+        mock_requests.get.return_value = mock_response
+        mock_requests.ConnectionError = requests.ConnectionError
+        mock_requests.Timeout = requests.Timeout
+
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertFalse(body["success"])
+        self.assertEqual("Invalid API key", body["error"])
+
+    @patch('web.handler.config.requests')
+    def test_radarr_connection_error(self, mock_requests):
+        mock_requests.get.side_effect = requests.ConnectionError("Connection refused")
+        mock_requests.ConnectionError = requests.ConnectionError
+        mock_requests.Timeout = requests.Timeout
+
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertFalse(body["success"])
+        self.assertIn("Connection refused", body["error"])
+
+    @patch('web.handler.config.requests')
+    def test_radarr_timeout(self, mock_requests):
+        mock_requests.get.side_effect = requests.Timeout("Connection timed out")
+        mock_requests.ConnectionError = requests.ConnectionError
+        mock_requests.Timeout = requests.Timeout
+
+        response = self.handler._ConfigHandler__handle_test_radarr_connection()
+        body = json.loads(response.body)
+        self.assertFalse(body["success"])
+        self.assertEqual("Connection timed out", body["error"])
+
+    @patch('web.handler.config.requests')
+    def test_radarr_strips_trailing_slash(self, mock_requests):
+        self.config.radarr.radarr_url = "http://localhost:7878/"
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"version": "5.0.0"}
+        mock_requests.get.return_value = mock_response
+        mock_requests.ConnectionError = requests.ConnectionError
+        mock_requests.Timeout = requests.Timeout
+
+        self.handler._ConfigHandler__handle_test_radarr_connection()
+        mock_requests.get.assert_called_once_with(
+            "http://localhost:7878/api/v3/system/status",
+            headers={"X-Api-Key": "testapikey123"},
+            timeout=10
+        )

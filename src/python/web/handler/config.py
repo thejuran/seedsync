@@ -21,6 +21,7 @@ class ConfigHandler(IHandler):
         # The regex allows slashes in values
         web_app.add_handler("/server/config/set/<section>/<key>/<value:re:.+>", self.__handle_set_config)
         web_app.add_handler("/server/config/sonarr/test-connection", self.__handle_test_sonarr_connection)
+        web_app.add_handler("/server/config/radarr/test-connection", self.__handle_test_radarr_connection)
 
     def __handle_get_config(self):
         out_json = SerializeConfig.config(self.__config)
@@ -85,6 +86,63 @@ class ConfigHandler(IHandler):
         except requests.ConnectionError:
             return HTTPResponse(
                 body=json.dumps({"success": False, "error": "Connection refused - check Sonarr URL"}),
+                content_type="application/json"
+            )
+        except requests.Timeout:
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": "Connection timed out"}),
+                content_type="application/json"
+            )
+        except Exception as e:
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": str(e)}),
+                content_type="application/json"
+            )
+
+    def __handle_test_radarr_connection(self):
+        radarr_url = self.__config.radarr.radarr_url
+        radarr_api_key = self.__config.radarr.radarr_api_key
+
+        if not radarr_url or not radarr_url.strip():
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": "Radarr URL is required"}),
+                content_type="application/json"
+            )
+        if not radarr_api_key or not radarr_api_key.strip():
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": "Radarr API key is required"}),
+                content_type="application/json"
+            )
+
+        # Strip trailing slash from URL
+        url = radarr_url.rstrip("/")
+
+        try:
+            response = requests.get(
+                "{}/api/v3/system/status".format(url),
+                headers={"X-Api-Key": radarr_api_key},
+                timeout=10
+            )
+            if response.status_code == 200:
+                data = response.json()
+                version = data.get("version", "unknown")
+                return HTTPResponse(
+                    body=json.dumps({"success": True, "version": version}),
+                    content_type="application/json"
+                )
+            elif response.status_code == 401:
+                return HTTPResponse(
+                    body=json.dumps({"success": False, "error": "Invalid API key"}),
+                    content_type="application/json"
+                )
+            else:
+                return HTTPResponse(
+                    body=json.dumps({"success": False, "error": "Radarr returned status {}".format(response.status_code)}),
+                    content_type="application/json"
+                )
+        except requests.ConnectionError:
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": "Connection refused - check Radarr URL"}),
                 content_type="application/json"
             )
         except requests.Timeout:
