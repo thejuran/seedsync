@@ -580,6 +580,22 @@ class Controller:
 
         new_model = self.__model_builder.build_model()
 
+        # Apply import_status from persisted set BEFORE diffing.
+        # Model builder creates files with default import_status=NONE.
+        # Without this, every rebuild cycle produces spurious SSE events:
+        #   update(NONE) then update(IMPORTED), causing repeated frontend toasts.
+        for file_name in new_model.get_file_names():
+            if file_name in self.__persist.imported_file_names:
+                try:
+                    file = new_model.get_file(file_name)
+                    if file.import_status != ModelFile.ImportStatus.IMPORTED:
+                        new_file = copy.copy(file)
+                        new_file._ModelFile__frozen = False
+                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
+                        new_model.update_file(new_file)
+                except ModelError:
+                    pass
+
         # Lock the model for all modifications
         with self.__model_lock:
             # Diff the new model with old model
@@ -649,19 +665,6 @@ class Controller:
 
         # Step 5: Update controller status
         self._update_controller_status(latest_remote_scan, latest_local_scan)
-
-        # Step 6: Set import status for persisted imported files
-        for file_name in self.__model.get_file_names():
-            if file_name in self.__persist.imported_file_names:
-                try:
-                    file = self.__model.get_file(file_name)
-                    if file.import_status != ModelFile.ImportStatus.IMPORTED:
-                        new_file = copy.copy(file)
-                        new_file._ModelFile__frozen = False
-                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
-                        self.__model.update_file(new_file)
-                except ModelError:
-                    pass
 
     def __check_sonarr_imports(self):
         """
