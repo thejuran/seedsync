@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Phase: 26 of 28 (Radarr Config & Shared *arr Settings UI) -- IN PROGRESS
-Plan: 01 of 02 complete
-Status: Plan 26-01 complete (backend config + test connection). Plan 26-02 remaining (frontend UI).
-Last activity: 2026-02-11 — Completed 26-01 (Radarr backend config and test connection)
+Phase: 26 of 28 (Radarr Config & Shared *arr Settings UI) -- COMPLETE
+Plan: 02 of 02 complete
+Status: Phase 26 complete. Radarr backend config (26-01) and frontend UI (26-02) both done.
+Last activity: 2026-02-11 — Completed 26-02 (Radarr frontend config and shared *arr Settings UI)
 
-Progress: [░░░░░░░░░░░░░] 0% (0/3 phases complete)
+Progress: [####░░░░░░░░░] 33% (1/3 phases complete)
 
 ## Milestones Shipped
 
@@ -34,7 +34,7 @@ Progress: [░░░░░░░░░░░░░] 0% (0/3 phases complete)
 **Total Project:**
 - 8 milestones shipped
 - 25 phases completed
-- 40 plans executed
+- 41 plans executed
 - 8 days total (2026-02-03 to 2026-02-11)
 
 ## Accumulated Context
@@ -53,6 +53,9 @@ From research/v1.8-SUMMARY.md:
 - Shared *arr Integration UI section (not separate sections)
 - Webhook-only (replace polling, no fallback)
 - Config.Radarr mirrors Config.Sonarr pattern
+- IRadarr mirrors ISonarr with radarr_url/radarr_api_key property names
+- Subsection headers use Bootstrap secondary color variable
+- Independent test connection state per *arr service (4 properties total)
 
 ### Tech Debt
 
@@ -63,8 +66,8 @@ From research/v1.8-SUMMARY.md:
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 26-01-PLAN.md (Radarr backend config)
-Next action: Execute plan 26-02 (Shared *arr Settings UI frontend)
+Stopped at: Completed 26-02-PLAN.md (Radarr frontend config and shared *arr Settings UI)
+Next action: Execute phase 27 (Webhook endpoints and processing)
 
 ---
 *v1.0-v1.7 shipped: 2026-02-03 to 2026-02-10*
