@@ -19,9 +19,9 @@ Progress: [██████░░░░] 60%
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 7 (v1.1)
+- Total plans completed: 8 (v1.1)
 - Average duration: 3m 32s
-- Total execution time: 24m 36s
+- Total execution time: 28m 12s
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [██████░░░░] 60%
 |-------|-------|-------|----------|
 | 4     | 2     | 9m 48s | 4m 54s |
 | 5     | 3     | 11m 6s | 3m 42s  |
-| 6     | 2     | 3m 42s | 1m 51s  |
+| 6     | 3     | 7m 18s | 2m 26s  |
 
 *Updated after each plan completion*
 
@@ -75,6 +75,9 @@ Phase 5 decisions:
 - Booking window alerts load independently (supplementary, not blocking dashboard)
 
 Phase 6 decisions:
+- Use today's date as target_date for scenario evaluation (answers "how do my current points change")
+- Enforce resort eligibility validation in scenario endpoint (model reality accurately)
+- Inject all hypotheticals as confirmed reservations for cumulative impact calculation
 - Zustand curried create<T>()(...) pattern for TypeScript type inference (per v5 docs)
 - Evaluation hook strips client-only fields (id, contract_name, resort_name) before POST
 - Scenarios nav item placed between Trip Explorer and Contracts (planning tools grouped)
@@ -92,6 +95,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 06-02-PLAN.md
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
 Next: Execute 06-03-PLAN.md
