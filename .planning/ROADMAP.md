@@ -46,11 +46,12 @@ Plans:
   2. User sees a warning when a proposed booking would consume points that are still eligible for banking
   3. User can see the 11-month home resort and 7-month any-resort booking window open dates for each Trip Explorer result
   4. User sees upcoming booking window openings on the dashboard alerts section
-**Plans**: TBD
+**Plans:** 3 plans
 
 Plans:
-- [ ] 05-01: TBD
-- [ ] 05-02: TBD
+- [ ] 05-01-PLAN.md -- Backend engine + preview API (booking_impact.py, booking_windows.py, POST /api/reservations/preview, tests)
+- [ ] 05-02-PLAN.md -- Trip Explorer expandable cards (BookingImpactPanel, BookingWindowBadges, expandable result cards, preview hook)
+- [ ] 05-03-PLAN.md -- Dashboard booking window alerts (GET /api/booking-windows/upcoming, UrgentAlerts extension)
 
 #### Phase 6: What-If Scenarios
 **Goal**: User can model multiple hypothetical bookings in a scenario workspace and compare cumulative impact against their current point reality
@@ -85,6 +86,6 @@ Plans:
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 4. Docker + Settings | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
-| 5. Impact + Windows | v1.1 | 0/TBD | Not started | - |
+| 5. Impact + Windows | v1.1 | 0/3 | Planned | - |
 | 6. Scenarios | v1.1 | 0/TBD | Not started | - |
 | 7. Heatmap | v1.1 | 0/TBD | Not started | - |
