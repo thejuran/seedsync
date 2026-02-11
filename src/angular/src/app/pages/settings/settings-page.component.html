@@ -142,6 +142,25 @@
                                 </div>
                             </div>
                         </fieldset>
+                        <h4 class="subsection-header">Webhook URLs</h4>
+                        <div class="webhook-urls">
+                            <p class="webhook-description">
+                                Configure these URLs in your *arr apps under Settings &rarr; Connect &rarr; Add &rarr; Webhook.
+                                Replace <code>&lt;seedsync-address&gt;</code> with your SeedSync server's IP or hostname.
+                            </p>
+                            <div class="webhook-url-item">
+                                <label>Sonarr Webhook URL</label>
+                                <div class="webhook-url-display">
+                                    <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/sonarr</code>
+                                </div>
+                            </div>
+                            <div class="webhook-url-item">
+                                <label>Radarr Webhook URL</label>
+                                <div class="webhook-url-display">
+                                    <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/radarr</code>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

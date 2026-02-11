@@ -61,6 +61,43 @@
                         font-size: 85%;
                     }
                 }
+
+                .webhook-urls {
+                    margin: 0 20px;
+
+                    .webhook-description {
+                        font-size: 85%;
+                        color: var(--bs-secondary);
+                        margin-bottom: 12px;
+
+                        code {
+                            font-size: 95%;
+                        }
+                    }
+
+                    .webhook-url-item {
+                        margin-bottom: 10px;
+
+                        label {
+                            font-size: 90%;
+                            font-weight: 500;
+                            margin-bottom: 2px;
+                        }
+
+                        .webhook-url-display {
+                            code {
+                                display: block;
+                                background: var(--bs-dark);
+                                color: var(--bs-light);
+                                padding: 6px 10px;
+                                border-radius: 4px;
+                                font-size: 85%;
+                                word-break: break-all;
+                                user-select: all;
+                            }
+                        }
+                    }
+                }
             }
         }
 
