@@ -310,6 +310,17 @@ class Config(Persist):
             self.sonarr_url = None
             self.sonarr_api_key = None
 
+    class AutoDelete(IC):
+        enabled = PROP("enabled", Checkers.null, Converters.bool)
+        dry_run = PROP("dry_run", Checkers.null, Converters.bool)
+        delay_seconds = PROP("delay_seconds", Checkers.int_positive, Converters.int)
+
+        def __init__(self):
+            super().__init__()
+            self.enabled = None
+            self.dry_run = None
+            self.delay_seconds = None
+
     def __init__(self):
         self.general = Config.General()
         self.lftp = Config.Lftp()
@@ -317,6 +328,7 @@ class Config(Persist):
         self.web = Config.Web()
         self.autoqueue = Config.AutoQueue()
         self.sonarr = Config.Sonarr()
+        self.autodelete = Config.AutoDelete()
 
     @staticmethod
     def _check_section(dct: OuterConfigType, name: str) -> InnerConfigType:
@@ -380,6 +392,12 @@ class Config(Persist):
         if "Sonarr" in config_dict:
             config.sonarr = Config.Sonarr.from_dict(Config._check_section(config_dict, "Sonarr"))
 
+        # AutoDelete section is optional for backward compatibility
+        if "AutoDelete" in config_dict:
+            config.autodelete = Config.AutoDelete.from_dict(
+                Config._check_section(config_dict, "AutoDelete")
+            )
+
         Config._check_empty_outer_dict(config_dict)
         return config
 
@@ -393,6 +411,7 @@ class Config(Persist):
         config_dict["Web"] = self.web.as_dict()
         config_dict["AutoQueue"] = self.autoqueue.as_dict()
         config_dict["Sonarr"] = self.sonarr.as_dict()
+        config_dict["AutoDelete"] = self.autodelete.as_dict()
         return config_dict
 
     def has_section(self, name: str) -> bool:
