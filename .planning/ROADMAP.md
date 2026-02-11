@@ -14,7 +14,7 @@ Build on the shipped v1.0 dashboard in four phases: first package the app for se
 
 ### Phases
 
-- [ ] **Phase 4: Docker Packaging + Settings** - One-command self-hosting with persistent data and configurable borrowing policy
+- [x] **Phase 4: Docker Packaging + Settings** - One-command self-hosting with persistent data and configurable borrowing policy
 - [ ] **Phase 5: Booking Impact + Booking Windows** - See how a potential booking affects your points and when booking windows open
 - [ ] **Phase 6: What-If Scenarios** - Model multiple hypothetical bookings and compare against reality
 - [ ] **Phase 7: Seasonal Cost Heatmap** - Visual full-year calendar showing point costs by resort and room type
@@ -34,8 +34,8 @@ Build on the shipped v1.0 dashboard in four phases: first package the app for se
 **Plans:** 2 plans
 
 Plans:
-- [ ] 04-01-PLAN.md -- Docker infrastructure + backend config (Dockerfile, compose, entrypoint, SPA serving, Pydantic Settings)
-- [ ] 04-02-PLAN.md -- App settings + borrowing policy (AppSetting model, settings API, borrowing enforcement, Settings page UI)
+- [x] 04-01-PLAN.md -- Docker infrastructure + backend config (Dockerfile, compose, entrypoint, SPA serving, Pydantic Settings)
+- [x] 04-02-PLAN.md -- App settings + borrowing policy (AppSetting model, settings API, borrowing enforcement, Settings page UI)
 
 #### Phase 5: Booking Impact + Booking Windows
 **Goal**: User can preview how a potential booking affects their point balances and see when booking windows open for any trip date
@@ -84,7 +84,7 @@ Plans:
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 4. Docker + Settings | v1.1 | 0/2 | Planning complete | - |
+| 4. Docker + Settings | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 5. Impact + Windows | v1.1 | 0/TBD | Not started | - |
 | 6. Scenarios | v1.1 | 0/TBD | Not started | - |
 | 7. Heatmap | v1.1 | 0/TBD | Not started | - |

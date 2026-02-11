@@ -9,12 +9,12 @@ Requirements for v1.1 "Share & Plan" milestone. Each maps to roadmap phases.
 
 ### Docker Packaging
 
-- [ ] **DOCK-01**: User can start the app with `docker compose up` on any machine with Docker
-- [ ] **DOCK-02**: User's data (database, point charts) persists across container restarts and rebuilds
-- [ ] **DOCK-03**: User can configure app settings (port, CORS, database path) via `.env` file
-- [ ] **DOCK-04**: Database migrations run automatically on container startup
-- [ ] **DOCK-05**: Pre-seeded 2026 point chart data ships in the image (works out of the box)
-- [ ] **DOCK-06**: FastAPI serves the React frontend (single container, single port)
+- [x] **DOCK-01**: User can start the app with `docker compose up` on any machine with Docker
+- [x] **DOCK-02**: User's data (database, point charts) persists across container restarts and rebuilds
+- [x] **DOCK-03**: User can configure app settings (port, CORS, database path) via `.env` file
+- [x] **DOCK-04**: Database migrations run automatically on container startup
+- [x] **DOCK-05**: Pre-seeded 2026 point chart data ships in the image (works out of the box)
+- [x] **DOCK-06**: FastAPI serves the React frontend (single container, single port)
 
 ### Booking Impact Preview
 
@@ -46,7 +46,7 @@ Requirements for v1.1 "Share & Plan" milestone. Each maps to roadmap phases.
 
 ### Configuration
 
-- [ ] **CONF-01**: User can configure borrowing policy (100% or 50%) as an app-wide setting
+- [x] **CONF-01**: User can configure borrowing policy (100% or 50%) as an app-wide setting
 
 ## Future Requirements
 
@@ -95,13 +95,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOCK-01 | Phase 4 | Pending |
-| DOCK-02 | Phase 4 | Pending |
-| DOCK-03 | Phase 4 | Pending |
-| DOCK-04 | Phase 4 | Pending |
-| DOCK-05 | Phase 4 | Pending |
-| DOCK-06 | Phase 4 | Pending |
-| CONF-01 | Phase 4 | Pending |
+| DOCK-01 | Phase 4 | ✓ Done |
+| DOCK-02 | Phase 4 | ✓ Done |
+| DOCK-03 | Phase 4 | ✓ Done |
+| DOCK-04 | Phase 4 | ✓ Done |
+| DOCK-05 | Phase 4 | ✓ Done |
+| DOCK-06 | Phase 4 | ✓ Done |
+| CONF-01 | Phase 4 | ✓ Done |
 | IMPT-01 | Phase 5 | Pending |
 | IMPT-02 | Phase 5 | Pending |
 | IMPT-03 | Phase 5 | Pending |
