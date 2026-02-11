@@ -48,8 +48,11 @@ export class SettingsPageComponent implements OnInit {
     private _configRestartNotif: Notification;
     private _badValueNotifs: Map<string, Notification>;
 
-    public testConnectionLoading = false;
-    public testConnectionResult: {success: boolean; message: string} = null;
+    public testSonarrConnectionLoading = false;
+    public testSonarrConnectionResult: {success: boolean; message: string} = null;
+
+    public testRadarrConnectionLoading = false;
+    public testRadarrConnectionResult: {success: boolean; message: string} = null;
 
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
@@ -129,35 +132,74 @@ export class SettingsPageComponent implements OnInit {
     }
 
     onTestSonarrConnection(): void {
-        this.testConnectionLoading = true;
-        this.testConnectionResult = null;
+        this.testSonarrConnectionLoading = true;
+        this.testSonarrConnectionResult = null;
         this._cdr.markForCheck();
 
         this._configService.testSonarrConnection().subscribe({
             next: reaction => {
-                this.testConnectionLoading = false;
+                this.testSonarrConnectionLoading = false;
                 if (reaction.success) {
                     try {
                         const result = JSON.parse(reaction.data);
                         if (result.success) {
-                            this.testConnectionResult = {
+                            this.testSonarrConnectionResult = {
                                 success: true,
                                 message: "Connected to Sonarr v" + result.version
                             };
                         } else {
-                            this.testConnectionResult = {
+                            this.testSonarrConnectionResult = {
                                 success: false,
                                 message: result.error
                             };
                         }
                     } catch {
-                        this.testConnectionResult = {
+                        this.testSonarrConnectionResult = {
                             success: false,
                             message: "Unexpected response from server"
                         };
                     }
                 } else {
-                    this.testConnectionResult = {
+                    this.testSonarrConnectionResult = {
+                        success: false,
+                        message: reaction.errorMessage || "Failed to reach server"
+                    };
+                }
+                this._cdr.markForCheck();
+            }
+        });
+    }
+
+    onTestRadarrConnection(): void {
+        this.testRadarrConnectionLoading = true;
+        this.testRadarrConnectionResult = null;
+        this._cdr.markForCheck();
+
+        this._configService.testRadarrConnection().subscribe({
+            next: reaction => {
+                this.testRadarrConnectionLoading = false;
+                if (reaction.success) {
+                    try {
+                        const result = JSON.parse(reaction.data);
+                        if (result.success) {
+                            this.testRadarrConnectionResult = {
+                                success: true,
+                                message: "Connected to Radarr v" + result.version
+                            };
+                        } else {
+                            this.testRadarrConnectionResult = {
+                                success: false,
+                                message: result.error
+                            };
+                        }
+                    } catch {
+                        this.testRadarrConnectionResult = {
+                            success: false,
+                            message: "Unexpected response from server"
+                        };
+                    }
+                } else {
+                    this.testRadarrConnectionResult = {
                         success: false,
                         message: reaction.errorMessage || "Failed to reach server"
                     };

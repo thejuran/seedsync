@@ -56,6 +56,7 @@
                 </h3>
                 <div id="collapse-arr" class="collapse" data-bs-parent="#accordion">
                     <div class="card-body">
+                        <h4 class="subsection-header">Sonarr</h4>
                         <div>
                             <app-option
                                 [type]="OptionType.Checkbox"
@@ -85,16 +86,59 @@
                             </div>
                             <div class="test-connection">
                                 <button class="btn btn-secondary" type="button"
-                                        [disabled]="testConnectionLoading"
+                                        [disabled]="testSonarrConnectionLoading"
                                         (click)="onTestSonarrConnection()">
-                                    <span *ngIf="!testConnectionLoading">Test Connection</span>
-                                    <span *ngIf="testConnectionLoading">Testing...</span>
+                                    <span *ngIf="!testSonarrConnectionLoading">Test Connection</span>
+                                    <span *ngIf="testSonarrConnectionLoading">Testing...</span>
                                 </button>
-                                <div *ngIf="testConnectionResult"
+                                <div *ngIf="testSonarrConnectionResult"
                                      class="test-result"
-                                     [class.text-success]="testConnectionResult.success"
-                                     [class.text-danger]="!testConnectionResult.success">
-                                    {{testConnectionResult.message}}
+                                     [class.text-success]="testSonarrConnectionResult.success"
+                                     [class.text-danger]="!testSonarrConnectionResult.success">
+                                    {{testSonarrConnectionResult.message}}
+                                </div>
+                            </div>
+                        </fieldset>
+                        <h4 class="subsection-header">Radarr</h4>
+                        <div>
+                            <app-option
+                                [type]="OptionType.Checkbox"
+                                [label]="'Enable Radarr Integration'"
+                                [value]="(config | async)?.get('radarr')?.get('enabled')"
+                                (changeEvent)="onSetConfig('radarr', 'enabled', $event)">
+                            </app-option>
+                        </div>
+                        <fieldset [attr.disabled]="!(config | async)?.get('radarr')?.get('enabled') ? '' : null">
+                            <div>
+                                <app-option
+                                    [type]="OptionType.Text"
+                                    [label]="'Radarr URL'"
+                                    [description]="'e.g. http://localhost:7878'"
+                                    [value]="(config | async)?.get('radarr')?.get('radarr_url')"
+                                    (changeEvent)="onSetConfig('radarr', 'radarr_url', $event)">
+                                </app-option>
+                            </div>
+                            <div>
+                                <app-option
+                                    [type]="OptionType.Password"
+                                    [label]="'Radarr API Key'"
+                                    [description]="'Found in Radarr under Settings \u2192 General \u2192 API Key'"
+                                    [value]="(config | async)?.get('radarr')?.get('radarr_api_key')"
+                                    (changeEvent)="onSetConfig('radarr', 'radarr_api_key', $event)">
+                                </app-option>
+                            </div>
+                            <div class="test-connection">
+                                <button class="btn btn-secondary" type="button"
+                                        [disabled]="testRadarrConnectionLoading"
+                                        (click)="onTestRadarrConnection()">
+                                    <span *ngIf="!testRadarrConnectionLoading">Test Connection</span>
+                                    <span *ngIf="testRadarrConnectionLoading">Testing...</span>
+                                </button>
+                                <div *ngIf="testRadarrConnectionResult"
+                                     class="test-result"
+                                     [class.text-success]="testRadarrConnectionResult.success"
+                                     [class.text-danger]="!testRadarrConnectionResult.success">
+                                    {{testRadarrConnectionResult.message}}
                                 </div>
                             </div>
                         </fieldset>

@@ -35,6 +35,17 @@
 
                 .card-body {
                     padding: 10px 0;
+
+                    .subsection-header {
+                        font-size: 100%;
+                        font-weight: 600;
+                        margin: 20px 20px 10px;
+                        color: var(--bs-secondary);
+
+                        &:first-child {
+                            margin-top: 0;
+                        }
+                    }
                 }
 
                 .test-connection {
