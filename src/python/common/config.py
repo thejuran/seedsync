@@ -391,12 +391,22 @@ class Config(Persist):
         # Sonarr section is optional for backward compatibility with older config files
         if "Sonarr" in config_dict:
             config.sonarr = Config.Sonarr.from_dict(Config._check_section(config_dict, "Sonarr"))
+        else:
+            # Default values for existing installs missing [Sonarr] section
+            config.sonarr.enabled = False
+            config.sonarr.sonarr_url = ""
+            config.sonarr.sonarr_api_key = ""
 
         # AutoDelete section is optional for backward compatibility
         if "AutoDelete" in config_dict:
             config.autodelete = Config.AutoDelete.from_dict(
                 Config._check_section(config_dict, "AutoDelete")
             )
+        else:
+            # Default values for existing installs missing [AutoDelete] section
+            config.autodelete.enabled = False
+            config.autodelete.dry_run = False
+            config.autodelete.delay_seconds = 60
 
         Config._check_empty_outer_dict(config_dict)
         return config
