@@ -114,6 +114,21 @@ const DefaultSonarr: ISonarr = {
 const SonarrRecord = Record(DefaultSonarr);
 
 /*
+ * RADARR
+ */
+interface IRadarr {
+    enabled: boolean;
+    radarr_url: string;
+    radarr_api_key: string;
+}
+const DefaultRadarr: IRadarr = {
+    enabled: null,
+    radarr_url: null,
+    radarr_api_key: null,
+};
+const RadarrRecord = Record(DefaultRadarr);
+
+/*
  * AUTODELETE
  */
 interface IAutoDelete {
@@ -138,6 +153,7 @@ export interface IConfig {
     web: IWeb;
     autoqueue: IAutoQueue;
     sonarr: ISonarr;
+    radarr: IRadarr;
     autodelete: IAutoDelete;
 }
 const DefaultConfig: IConfig = {
@@ -147,6 +163,7 @@ const DefaultConfig: IConfig = {
     web: null,
     autoqueue: null,
     sonarr: null,
+    radarr: null,
     autodelete: null,
 };
 const ConfigRecord = Record(DefaultConfig);
@@ -159,6 +176,7 @@ export class Config extends ConfigRecord implements IConfig {
     web: IWeb;
     autoqueue: IAutoQueue;
     sonarr: ISonarr;
+    radarr: IRadarr;
     autodelete: IAutoDelete;
 
     constructor(props) {
@@ -170,6 +188,7 @@ export class Config extends ConfigRecord implements IConfig {
             web: WebRecord(props.web),
             autoqueue: AutoQueueRecord(props.autoqueue),
             sonarr: props.sonarr ? SonarrRecord(props.sonarr) : SonarrRecord(DefaultSonarr),
+            radarr: props.radarr ? RadarrRecord(props.radarr) : RadarrRecord(DefaultRadarr),
             autodelete: props.autodelete ? AutoDeleteRecord(props.autodelete) : AutoDeleteRecord(DefaultAutoDelete),
         });
     }

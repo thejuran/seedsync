@@ -23,6 +23,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
             `/server/config/set/${section}/${option}/${value}`;
 
     private readonly SONARR_TEST_URL = "/server/config/sonarr/test-connection";
+    private readonly RADARR_TEST_URL = "/server/config/radarr/test-connection";
 
     private _config: BehaviorSubject<Config> = new BehaviorSubject(null);
 
@@ -86,6 +87,14 @@ export class ConfigService extends BaseWebService implements OnDestroy {
      */
     public testSonarrConnection(): Observable<WebReaction> {
         return this._restService.sendRequest(this.SONARR_TEST_URL);
+    }
+
+    /**
+     * Tests the Radarr connection using currently saved config values
+     * @returns {Observable<WebReaction>}
+     */
+    public testRadarrConnection(): Observable<WebReaction> {
+        return this._restService.sendRequest(this.RADARR_TEST_URL);
     }
 
     protected onConnected(): void {
