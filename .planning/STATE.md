@@ -10,25 +10,25 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 5 of 7 (Booking Impact + Booking Windows)
-Plan: 2/3 complete
-Status: In progress
-Last activity: 2026-02-10 -- Plan 05-02 complete (frontend booking preview UI)
+Plan: 3/3 complete
+Status: Phase 5 complete
+Last activity: 2026-02-10 -- Plan 05-03 complete (dashboard booking window alerts)
 
-Progress: [██████░░░░] 67%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 4 (v1.1)
-- Average duration: 4m 13s
-- Total execution time: 16m 50s
+- Total plans completed: 5 (v1.1)
+- Average duration: 4m 11s
+- Total execution time: 20m 54s
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 4     | 2     | 9m 48s | 4m 54s |
-| 5     | 2     | 7m 2s  | 3m 31s  |
+| 5     | 3     | 11m 6s | 3m 42s  |
 
 *Updated after each plan completion*
 
@@ -69,6 +69,9 @@ Phase 5 decisions:
 - Inline expand/collapse via useState per card (not shadcn Collapsible)
 - Native HTML details/summary for nightly breakdown (no extra deps)
 - ChevronDown icon with CSS rotate for expand indicator
+- Dashboard booking window alerts capped at 5, sorted by soonest opening, filtered to non-open windows within 30 days
+- Blue styling for booking window alerts (distinct from amber banking and red expiration)
+- Booking window alerts load independently (supplementary, not blocking dashboard)
 
 ### Pending Todos
 
@@ -83,6 +86,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Completed 05-02-PLAN.md
+Stopped at: Completed 05-03-PLAN.md (Phase 5 complete)
 Resume file: None
-Next: Execute 05-03-PLAN.md
+Next: Begin Phase 6 planning
