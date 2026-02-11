@@ -76,56 +76,60 @@ export default function PointBalanceForm({ contractId }: PointBalanceFormProps) 
       </div>
 
       {showAddForm && (
-        <div className="flex items-end gap-2 rounded-md border p-3 bg-muted/30">
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Year</label>
-            <Input
-              type="number"
-              value={newYear}
-              onChange={(e) => setNewYear(Number(e.target.value))}
-              className="w-20 h-8 text-sm"
-              min={2020}
-              max={2035}
-            />
+        <div className="rounded-md border p-3 bg-muted/30 space-y-2">
+          <div className="flex items-end gap-2">
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Year</label>
+              <Input
+                type="number"
+                value={newYear}
+                onChange={(e) => setNewYear(Number(e.target.value))}
+                className="w-20 h-8 text-sm"
+                min={2020}
+                max={2035}
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Type</label>
+              <Select
+                value={newType}
+                onValueChange={(v) => setNewType(v as PointAllocationType)}
+              >
+                <SelectTrigger className="w-28 h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALLOCATION_TYPES.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {ALLOCATION_TYPE_LABELS[t]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs text-muted-foreground">Points</label>
+              <Input
+                type="number"
+                value={newPoints}
+                onChange={(e) => setNewPoints(Number(e.target.value))}
+                className="w-20 h-8 text-sm"
+                min={0}
+              />
+            </div>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Type</label>
-            <Select
-              value={newType}
-              onValueChange={(v) => setNewType(v as PointAllocationType)}
+          <div className="flex gap-2">
+            <Button size="sm" onClick={handleAdd} disabled={createBalance.isPending}>
+              Save
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAddForm(false)}
             >
-              <SelectTrigger className="w-28 h-8 text-sm">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {ALLOCATION_TYPES.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {ALLOCATION_TYPE_LABELS[t]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              Cancel
+            </Button>
           </div>
-          <div className="space-y-1">
-            <label className="text-xs text-muted-foreground">Points</label>
-            <Input
-              type="number"
-              value={newPoints}
-              onChange={(e) => setNewPoints(Number(e.target.value))}
-              className="w-20 h-8 text-sm"
-              min={0}
-            />
-          </div>
-          <Button size="sm" onClick={handleAdd} disabled={createBalance.isPending}>
-            Save
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAddForm(false)}
-          >
-            Cancel
-          </Button>
         </div>
       )}
 
