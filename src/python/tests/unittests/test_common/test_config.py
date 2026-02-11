@@ -185,6 +185,7 @@ class TestConfig(unittest.TestCase):
         self.assertTrue(config.has_section("web"))
         self.assertTrue(config.has_section("autoqueue"))
         self.assertTrue(config.has_section("sonarr"))
+        self.assertTrue(config.has_section("autodelete"))
         self.assertFalse(config.has_section("nope"))
         self.assertFalse(config.has_section("from_file"))
         self.assertFalse(config.has_section("__init__"))
@@ -485,6 +486,9 @@ class TestConfig(unittest.TestCase):
         config.sonarr.enabled = False
         config.sonarr.sonarr_url = "http://localhost:8989"
         config.sonarr.sonarr_api_key = "abc123"
+        config.autodelete.enabled = False
+        config.autodelete.dry_run = True
+        config.autodelete.delay_seconds = 60
         config.to_file(config_file_path)
         with open(config_file_path, "r") as f:
             actual_str = f.read()
@@ -531,6 +535,11 @@ class TestConfig(unittest.TestCase):
         enabled = False
         sonarr_url = http://localhost:8989
         sonarr_api_key = abc123
+
+        [AutoDelete]
+        enabled = False
+        dry_run = True
+        delay_seconds = 60
         """
 
         golden_lines = [s.strip() for s in golden_str.splitlines()]
