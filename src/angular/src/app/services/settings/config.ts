@@ -114,6 +114,21 @@ const DefaultSonarr: ISonarr = {
 const SonarrRecord = Record(DefaultSonarr);
 
 /*
+ * AUTODELETE
+ */
+interface IAutoDelete {
+    enabled: boolean;
+    dry_run: boolean;
+    delay_seconds: number;
+}
+const DefaultAutoDelete: IAutoDelete = {
+    enabled: null,
+    dry_run: null,
+    delay_seconds: null,
+};
+const AutoDeleteRecord = Record(DefaultAutoDelete);
+
+/*
  * CONFIG
  */
 export interface IConfig {
@@ -123,6 +138,7 @@ export interface IConfig {
     web: IWeb;
     autoqueue: IAutoQueue;
     sonarr: ISonarr;
+    autodelete: IAutoDelete;
 }
 const DefaultConfig: IConfig = {
     general: null,
@@ -131,6 +147,7 @@ const DefaultConfig: IConfig = {
     web: null,
     autoqueue: null,
     sonarr: null,
+    autodelete: null,
 };
 const ConfigRecord = Record(DefaultConfig);
 
@@ -142,6 +159,7 @@ export class Config extends ConfigRecord implements IConfig {
     web: IWeb;
     autoqueue: IAutoQueue;
     sonarr: ISonarr;
+    autodelete: IAutoDelete;
 
     constructor(props) {
         // Create immutable members
@@ -152,6 +170,7 @@ export class Config extends ConfigRecord implements IConfig {
             web: WebRecord(props.web),
             autoqueue: AutoQueueRecord(props.autoqueue),
             sonarr: props.sonarr ? SonarrRecord(props.sonarr) : SonarrRecord(DefaultSonarr),
+            autodelete: props.autodelete ? AutoDeleteRecord(props.autodelete) : AutoDeleteRecord(DefaultAutoDelete),
         });
     }
 }

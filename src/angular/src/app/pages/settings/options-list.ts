@@ -184,6 +184,31 @@ export const OPTIONS_CONTEXT_AUTOQUEUE: IOptionsContext = {
     ]
 };
 
+export const OPTIONS_CONTEXT_AUTODELETE: IOptionsContext = {
+    header: "Auto-Delete After Import",
+    id: "autodelete",
+    options: [
+        {
+            type: OptionType.Checkbox,
+            label: "Enable auto-delete",
+            valuePath: ["autodelete", "enabled"],
+            description: "Automatically delete local files after Sonarr import"
+        },
+        {
+            type: OptionType.Checkbox,
+            label: "Dry-run mode",
+            valuePath: ["autodelete", "dry_run"],
+            description: "Log what would be deleted without actually deleting"
+        },
+        {
+            type: OptionType.Text,
+            label: "Safety delay (seconds)",
+            valuePath: ["autodelete", "delay_seconds"],
+            description: "Wait this long after import detection before deleting (default: 60)"
+        }
+    ]
+};
+
 export const OPTIONS_CONTEXT_EXTRACT: IOptionsContext = {
     header: "Archive Extraction",
     id: "extraction",
