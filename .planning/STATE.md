@@ -2,19 +2,19 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-10)
+See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** All milestones complete. Ready for next milestone.
+**Current focus:** v1.8 Radarr + Webhooks - Phase 26 (Radarr Config & Shared Settings UI)
 
 ## Current Position
 
-Phase: 25 of 25 (Auto-Delete with Safety) -- COMPLETE
-Plan: 25-02 complete (all plans done)
-Status: All milestones shipped (v1.0 through v1.7)
-Last activity: 2026-02-10 — Archived v1.7 milestone
+Phase: 26 of 28 (Radarr Config & Shared *arr Settings UI) -- PENDING
+Plan: Not yet planned
+Status: Milestone started, awaiting /gsd:plan-phase 26
+Last activity: 2026-02-11 — Created v1.8 milestone (requirements + roadmap)
 
-Progress: [█████████████] 100% (25/25 phases complete, 8/8 milestones shipped)
+Progress: [░░░░░░░░░░░░░] 0% (0/3 phases complete)
 
 ## Milestones Shipped
 
@@ -37,17 +37,35 @@ Progress: [█████████████] 100% (25/25 phases complete,
 - 39 plans executed
 - 8 days total (2026-02-03 to 2026-02-10)
 
-## Tech Debt
+## Accumulated Context
+
+### v1.8 Architecture Context
+
+From research/v1.8-SUMMARY.md:
+- Radarr API is identical to Sonarr (/api/v3/queue, /api/v3/system/status, X-Api-Key header)
+- Radarr default port: 7878 (vs Sonarr's 8989)
+- Both Sonarr and Radarr send EventType: "Download" for import webhooks
+- Webhook POST replaces polling — WebhookManager with thread-safe Queue
+- POST /server/webhook/sonarr and /server/webhook/radarr endpoints
+
+### Key Decisions
+
+- Shared *arr Integration UI section (not separate sections)
+- Webhook-only (replace polling, no fallback)
+- Config.Radarr mirrors Config.Sonarr pattern
+
+### Tech Debt
 
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
 - `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected.
-- 3 pre-existing test failures in model-file.service.spec.ts (unrelated to v1.7 work)
+- 3 pre-existing test failures in model-file.service.spec.ts (to be fixed in Phase 28)
 
 ## Session Continuity
 
-Last session: 2026-02-10
-Stopped at: Archived v1.7 milestone
-Next action: Run `/gsd:new-milestone` to start next milestone
+Last session: 2026-02-11
+Stopped at: Created v1.8 milestone
+Next action: Run `/gsd:plan-phase 26` to plan Radarr Config & Shared Settings UI
 
 ---
 *v1.0-v1.7 shipped: 2026-02-03 to 2026-02-10*
+*v1.8 in progress: 2026-02-11*

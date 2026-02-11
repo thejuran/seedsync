@@ -2,22 +2,32 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration for automated post-download workflow.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 adds Radarr support and replaces polling with webhooks.
 
 ## Core Value
 
 Reliable file sync from seedbox to local with automated media library integration.
 
-## Latest Milestone: v1.7 Sonarr Integration (Shipped 2026-02-10)
+## Current Milestone: v1.8 Radarr + Webhooks
 
-**Delivered:**
+**Goal:** Add Radarr support alongside Sonarr, replace polling with webhook-based import detection, and fix pre-existing test failures.
+
+**Target features:**
+- Radarr config and test connection (mirror of Sonarr)
+- Shared *arr Integration section in Settings UI (Sonarr + Radarr subsections)
+- Webhook endpoints replacing polling for both Sonarr and Radarr
+- Fix 3 pre-existing model-file.service.spec.ts test failures
+
+<details>
+<summary>v1.7 Sonarr Integration (Shipped 2026-02-10)</summary>
+
 - Sonarr API integration (connection, queue polling, import detection)
 - Auto-delete local files after Sonarr confirms import (global toggle, 60s delay)
 - Import status badges in file list UI + toast notifications
 - Settings UI for Sonarr configuration (URL, API key, enable/disable)
 - 6-layer safety system for auto-delete (local-only, dry-run, hot-toggle, etc.)
 
-**Deferred:** Radarr support (nearly identical API, planned for future milestone)
+</details>
 
 ## Current State
 
@@ -147,15 +157,14 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Project Status
 
-**Status:** v1.7 shipped. All 8 milestones complete.
+**Status:** v1.8 in progress
 
-Quality project (v1.0-v1.6) and Sonarr integration (v1.7) complete. 25 phases, 39 plans executed across 8 milestones.
+Quality project (v1.0-v1.6) and Sonarr integration (v1.7) shipped. Now adding Radarr and webhooks.
 
 **Future work (if desired):**
-- Radarr integration (same API pattern as Sonarr)
 - Dark mode toggle feature
-- WAITING_FOR_IMPORT enum value (deferred from v1.7)
-- Sonarr webhook endpoint for real-time import detection (replaces polling)
+- WAITING_FOR_IMPORT enum value
+- Lidarr/Readarr support (same *arr pattern)
 
 ---
-*Last updated: 2026-02-10 after completing v1.7 milestone*
+*Last updated: 2026-02-11 after starting v1.8 milestone*

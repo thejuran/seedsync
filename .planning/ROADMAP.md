@@ -1,4 +1,4 @@
-# Roadmap: SeedSync UI Polish & Sonarr Integration
+# Roadmap: SeedSync UI Polish & *arr Integration
 
 ## Milestones
 
@@ -10,6 +10,7 @@
 - ✅ **v1.5 Backend Testing** - Phases 15-19 (shipped 2026-02-08)
 - ✅ **v1.6 CI Cleanup** - Phases 20-21 (shipped 2026-02-10)
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
+- **v1.8 Radarr + Webhooks** - Phases 26-28 (in progress)
 
 ## Phases
 
@@ -102,22 +103,71 @@ See `.planning/milestones/v1.7-ROADMAP.md` for full details.
 
 </details>
 
+### v1.8 Radarr + Webhooks (In Progress)
+
+**Milestone Goal:** Add Radarr support, replace polling with webhook-based import detection, and fix pre-existing test failures.
+
+#### Phase 26: Radarr Config & Shared *arr Settings UI
+**Goal**: User can configure both Sonarr and Radarr in a unified *arr Integration section
+**Depends on**: Phase 25 (v1.7 complete)
+**Requirements**: RAD-01, RAD-02, RAD-03, ARR-01, ARR-02
+**Success Criteria** (what must be TRUE):
+  1. User can enter Radarr URL and API key in Settings page
+  2. User can enable/disable Radarr integration via toggle
+  3. User can click "Test Connection" for Radarr and see success/failure
+  4. Sonarr and Radarr share a unified *arr Integration section with subsections
+  5. Radarr configuration persists across app restarts
+  6. Existing Sonarr settings continue working unchanged
+**Plans**: 2
+
+Plans:
+- [ ] 26-01: Backend Config.Radarr InnerConfig + test connection endpoint
+- [ ] 26-02: Frontend shared *arr Integration UI with Sonarr + Radarr subsections
+
+#### Phase 27: Webhook Import Detection
+**Goal**: Webhook endpoints replace polling for both Sonarr and Radarr import detection
+**Depends on**: Phase 26
+**Requirements**: HOOK-01, HOOK-02, HOOK-03, HOOK-04, HOOK-05
+**Success Criteria** (what must be TRUE):
+  1. POST /server/webhook/sonarr receives Sonarr import events and triggers detection
+  2. POST /server/webhook/radarr receives Radarr import events and triggers detection
+  3. Webhook events flow through same import pipeline (persist, badge, toast, auto-delete)
+  4. SonarrManager polling code removed (webhook-only architecture)
+  5. Settings UI displays webhook URLs for user to configure in Sonarr/Radarr
+  6. Webhook endpoint returns 200 for valid events (Sonarr/Radarr retry on failure)
+**Plans**: 2
+
+Plans:
+- [ ] 27-01: WebhookManager + POST handlers + Controller integration (replace SonarrManager)
+- [ ] 27-02: Webhook URL display in Settings UI + unit tests
+
+#### Phase 28: Fix Pre-existing Test Failures
+**Goal**: All Angular unit tests passing with zero failures
+**Depends on**: Phase 26 (independent of 27, but ordered last)
+**Requirements**: TEST-01, TEST-02
+**Success Criteria** (what must be TRUE):
+  1. All 3 pre-existing failures in model-file.service.spec.ts fixed
+  2. All Angular unit tests pass (381+ tests, 0 failures)
+  3. No regressions in other test files
+**Plans**: 1
+
+Plans:
+- [ ] 28-01: Investigate and fix model-file.service.spec.ts failures
+
 ## Progress
 
-| Milestone | Phases | Plans | Status | Shipped |
-|-----------|--------|-------|--------|---------|
-| v1.0 Unify UI Styling | 1-5 | 8 | Complete | 2026-02-03 |
-| v1.1 Dropdown & Form Migration | 6-8 | 4 | Complete | 2026-02-04 |
-| v1.2 UI Cleanup | 9 | 1 | Complete | 2026-02-04 |
-| v1.3 Polish & Clarity | 10-11 | 5 | Complete | 2026-02-04 |
-| v1.4 Sass @use Migration | 12-14 | 3 | Complete | 2026-02-08 |
-| v1.5 Backend Testing | 15-19 | 8 | Complete | 2026-02-08 |
-| v1.6 CI Cleanup | 20-21 | 2 | Complete | 2026-02-10 |
-| v1.7 Sonarr Integration | 22-25 | 8 | Complete | 2026-02-10 |
+**Execution Order:**
+Phases execute in numeric order: 26 → 27 → 28
 
-**Total:** 8 milestones, 25 phases, 39 plans
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1-25. Previous | v1.0-v1.7 | All | Complete | 2026-02-10 |
+| 26. Radarr Config & Shared Settings UI | v1.8 | 0/2 | Pending | - |
+| 27. Webhook Import Detection | v1.8 | 0/2 | Pending | - |
+| 28. Fix Pre-existing Test Failures | v1.8 | 0/1 | Pending | - |
 
 ---
 
-*Last updated: 2026-02-10*
-*All milestones shipped. Run `/gsd:new-milestone` to start next milestone.*
+*Last updated: 2026-02-11*
+*v1.8 roadmap created: 2026-02-11*
+*3 phases (26-28), 12 requirements mapped*
