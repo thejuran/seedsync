@@ -3,6 +3,7 @@ import { NavLink, Outlet } from "react-router-dom";
 const navItems = [
   { to: "/", label: "Dashboard" },
   { to: "/trip-explorer", label: "Trip Explorer" },
+  { to: "/scenarios", label: "Scenarios" },
   { to: "/contracts", label: "Contracts" },
   { to: "/availability", label: "Availability" },
   { to: "/reservations", label: "Reservations" },
