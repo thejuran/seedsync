@@ -5,23 +5,23 @@
 See: .planning/PROJECT.md (updated 2026-02-10)
 
 **Core value:** For any future date, clearly show available points across all contracts and what resorts/rooms those points can actually book.
-**Current focus:** Phase 5 complete -- ready for Phase 6
+**Current focus:** Phase 6 in progress -- What-If Scenarios
 
 ## Current Position
 
-Phase: 5 of 7 (Booking Impact + Booking Windows)
-Plan: 3/3 complete
-Status: Phase complete
-Last activity: 2026-02-10 -- Phase 5 verified (11/11 must-haves, 8/8 requirements)
+Phase: 6 of 7 (What-If Scenarios)
+Plan: 2/3 complete
+Status: Executing
+Last activity: 2026-02-10 -- Completed 06-02 (scenario frontend infrastructure)
 
-Progress: [█████░░░░░] 50%
+Progress: [██████░░░░] 60%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 5 (v1.1)
-- Average duration: 4m 11s
-- Total execution time: 20m 54s
+- Total plans completed: 7 (v1.1)
+- Average duration: 3m 32s
+- Total execution time: 24m 36s
 
 **By Phase:**
 
@@ -29,6 +29,7 @@ Progress: [█████░░░░░] 50%
 |-------|-------|-------|----------|
 | 4     | 2     | 9m 48s | 4m 54s |
 | 5     | 3     | 11m 6s | 3m 42s  |
+| 6     | 2     | 3m 42s | 1m 51s  |
 
 *Updated after each plan completion*
 
@@ -73,6 +74,11 @@ Phase 5 decisions:
 - Blue styling for booking window alerts (distinct from amber banking and red expiration)
 - Booking window alerts load independently (supplementary, not blocking dashboard)
 
+Phase 6 decisions:
+- Zustand curried create<T>()(...) pattern for TypeScript type inference (per v5 docs)
+- Evaluation hook strips client-only fields (id, contract_name, resort_name) before POST
+- Scenarios nav item placed between Trip Explorer and Contracts (planning tools grouped)
+
 ### Pending Todos
 
 None.
@@ -86,6 +92,6 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-10
-Stopped at: Phase 5 complete
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
-Next: `/gsd:plan-phase 6`
+Next: Execute 06-03-PLAN.md
