@@ -1,7 +1,8 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+import threading
+from typing import Dict, List, Optional, Tuple
 from threading import Lock
 from queue import Queue
 from enum import Enum
@@ -171,6 +172,9 @@ class Controller:
             lambda: self.__persist.imported_file_names.total_evictions
         )
 
+        # Pending auto-delete timers: file_name -> Timer
+        self.__pending_auto_deletes: Dict[str, threading.Timer] = {}
+
         self.__started = False
 
     def start(self):
@@ -205,6 +209,12 @@ class Controller:
     def exit(self):
         self.logger.debug("Exiting controller")
         if self.__started:
+            # Cancel all pending auto-delete timers
+            for file_name, timer in list(self.__pending_auto_deletes.items()):
+                timer.cancel()
+                self.logger.debug("Canceled pending auto-delete for '{}'".format(file_name))
+            self.__pending_auto_deletes.clear()
+
             self.__lftp_manager.exit()
             self.__scan_manager.stop()
             self.__file_op_manager.stop()
@@ -676,6 +686,56 @@ class Controller:
                     self.__model.update_file(new_file)
             except ModelError:
                 pass  # File no longer in model
+
+            # Schedule auto-delete if enabled
+            if self.__context.config.autodelete.enabled:
+                self.__schedule_auto_delete(file_name)
+
+    def __schedule_auto_delete(self, file_name: str):
+        """Schedule auto-delete of local file after safety delay."""
+        # Cancel existing timer if file was re-detected
+        if file_name in self.__pending_auto_deletes:
+            self.__pending_auto_deletes[file_name].cancel()
+            del self.__pending_auto_deletes[file_name]
+
+        delay = self.__context.config.autodelete.delay_seconds
+        timer = threading.Timer(delay, self.__execute_auto_delete, args=[file_name])
+        timer.daemon = True  # Don't prevent process exit
+        self.__pending_auto_deletes[file_name] = timer
+        timer.start()
+        self.logger.info(
+            "Scheduled auto-delete of '{}' in {} seconds".format(file_name, delay)
+        )
+
+    def __execute_auto_delete(self, file_name: str):
+        """Execute auto-delete of local file (called by Timer after delay)."""
+        # Remove from tracking dict
+        self.__pending_auto_deletes.pop(file_name, None)
+
+        # Re-check config -- user might have disabled auto-delete after timer was scheduled
+        if not self.__context.config.autodelete.enabled:
+            self.logger.info(
+                "Auto-delete skipped for '{}': feature was disabled".format(file_name)
+            )
+            return
+
+        # Check dry-run mode
+        if self.__context.config.autodelete.dry_run:
+            self.logger.info(
+                "DRY-RUN: Would delete local file '{}'".format(file_name)
+            )
+            return
+
+        # Get file from model and delete local copy
+        # SAFETY: ONLY call delete_local(), NEVER delete_remote()
+        try:
+            file = self.__model.get_file(file_name)
+            self.__file_op_manager.delete_local(file)
+            self.logger.info("Auto-deleted local file '{}'".format(file_name))
+        except ModelError:
+            self.logger.debug(
+                "File '{}' no longer in model, skipping auto-delete".format(file_name)
+            )
 
     def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """

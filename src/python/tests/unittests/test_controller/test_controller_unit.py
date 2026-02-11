@@ -46,6 +46,8 @@ class BaseControllerTestCase(unittest.TestCase):
         self.mock_sonarr_manager = self.mock_sonarr_manager_cls.return_value
         # Default: process returns empty list (no imports)
         self.mock_sonarr_manager.process.return_value = []
+        # Default: auto-delete disabled (prevents Timer with MagicMock delay)
+        self.mock_context.config.autodelete.enabled = False
 
         self.controller = Controller(context=self.mock_context, persist=self.persist)
 
