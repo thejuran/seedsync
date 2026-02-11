@@ -18,17 +18,15 @@ class BaseAutoDeleteTestCase(unittest.TestCase):
         self.mock_context.config.autodelete.enabled = True
         self.mock_context.config.autodelete.dry_run = False
         self.mock_context.config.autodelete.delay_seconds = 10
-        self.mock_context.config.sonarr.enabled = False
         self.persist = ControllerPersist(max_tracked_files=100)
 
-        # Start patches for all 7 internal dependencies
+        # Start patches for all 6 internal dependencies
         self.patcher_mb = patch('controller.controller.ModelBuilder')
         self.patcher_lftp = patch('controller.controller.LftpManager')
         self.patcher_sm = patch('controller.controller.ScanManager')
         self.patcher_fom = patch('controller.controller.FileOperationManager')
         self.patcher_mpl = patch('controller.controller.MultiprocessingLogger')
         self.patcher_mm = patch('controller.controller.MemoryMonitor')
-        self.patcher_sonarr = patch('controller.controller.SonarrManager')
 
         self.mock_model_builder_cls = self.patcher_mb.start()
         self.mock_lftp_manager_cls = self.patcher_lftp.start()
@@ -36,7 +34,6 @@ class BaseAutoDeleteTestCase(unittest.TestCase):
         self.mock_file_op_manager_cls = self.patcher_fom.start()
         self.mock_mp_logger_cls = self.patcher_mpl.start()
         self.mock_memory_monitor_cls = self.patcher_mm.start()
-        self.mock_sonarr_manager_cls = self.patcher_sonarr.start()
 
         # Get mock instances
         self.mock_model_builder = self.mock_model_builder_cls.return_value
@@ -45,10 +42,11 @@ class BaseAutoDeleteTestCase(unittest.TestCase):
         self.mock_file_op_manager = self.mock_file_op_manager_cls.return_value
         self.mock_mp_logger = self.mock_mp_logger_cls.return_value
         self.mock_memory_monitor = self.mock_memory_monitor_cls.return_value
-        self.mock_sonarr_manager = self.mock_sonarr_manager_cls.return_value
-        self.mock_sonarr_manager.process.return_value = []
+        # Create mock WebhookManager (not patched, passed as parameter)
+        self.mock_webhook_manager = MagicMock()
+        self.mock_webhook_manager.process.return_value = []
 
-        self.controller = Controller(context=self.mock_context, persist=self.persist)
+        self.controller = Controller(context=self.mock_context, persist=self.persist, webhook_manager=self.mock_webhook_manager)
 
     def tearDown(self):
         # Cancel any pending timers to prevent thread leaks
@@ -62,7 +60,6 @@ class BaseAutoDeleteTestCase(unittest.TestCase):
         self.patcher_fom.stop()
         self.patcher_mpl.stop()
         self.patcher_mm.stop()
-        self.patcher_sonarr.stop()
 
 
 class TestAutoDeleteScheduling(BaseAutoDeleteTestCase):
@@ -204,7 +201,7 @@ class TestAutoDeleteShutdown(BaseAutoDeleteTestCase):
 
 
 class TestAutoDeleteIntegration(BaseAutoDeleteTestCase):
-    """Test auto-delete scheduling triggered from check_sonarr_imports via process()."""
+    """Test auto-delete scheduling triggered from check_webhook_imports via process()."""
 
     def _make_controller_started(self):
         """Helper: set __started flag and configure no-op model update mocks."""
@@ -215,29 +212,29 @@ class TestAutoDeleteIntegration(BaseAutoDeleteTestCase):
         self.mock_file_op_manager.pop_completed_extractions.return_value = []
         self.mock_model_builder.has_changes.return_value = False
 
-    def test_sonarr_import_triggers_auto_delete_schedule(self):
-        """Verify Sonarr import detection schedules auto-delete when enabled."""
+    def test_webhook_import_triggers_auto_delete_schedule(self):
+        """Verify webhook import detection schedules auto-delete when enabled."""
         self._make_controller_started()
         # Add file to model
         f = ModelFile("test_file.mkv", False)
         f.remote_size = 1000
         self.controller._Controller__model.add_file(f)
-        # Sonarr reports import
-        self.mock_sonarr_manager.process.return_value = ["test_file.mkv"]
+        # Webhook manager reports import
+        self.mock_webhook_manager.process.return_value = ["test_file.mkv"]
 
         self.controller.process()
 
         self.assertIn("test_file.mkv", self.controller._Controller__pending_auto_deletes)
 
-    def test_sonarr_import_no_schedule_when_disabled(self):
-        """Verify Sonarr import does NOT schedule auto-delete when disabled."""
+    def test_webhook_import_no_schedule_when_disabled(self):
+        """Verify webhook import does NOT schedule auto-delete when disabled."""
         self._make_controller_started()
         self.mock_context.config.autodelete.enabled = False
         # Add file to model
         f = ModelFile("test_file.mkv", False)
         f.remote_size = 1000
         self.controller._Controller__model.add_file(f)
-        self.mock_sonarr_manager.process.return_value = ["test_file.mkv"]
+        self.mock_webhook_manager.process.return_value = ["test_file.mkv"]
 
         self.controller.process()
 

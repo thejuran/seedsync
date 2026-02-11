@@ -19,14 +19,13 @@ class BaseControllerTestCase(unittest.TestCase):
         self.mock_context.logger = MagicMock()
         self.persist = ControllerPersist(max_tracked_files=100)
 
-        # Start patches for all 7 internal dependencies
+        # Start patches for all 6 internal dependencies
         self.patcher_mb = patch('controller.controller.ModelBuilder')
         self.patcher_lftp = patch('controller.controller.LftpManager')
         self.patcher_sm = patch('controller.controller.ScanManager')
         self.patcher_fom = patch('controller.controller.FileOperationManager')
         self.patcher_mpl = patch('controller.controller.MultiprocessingLogger')
         self.patcher_mm = patch('controller.controller.MemoryMonitor')
-        self.patcher_sonarr = patch('controller.controller.SonarrManager')
 
         self.mock_model_builder_cls = self.patcher_mb.start()
         self.mock_lftp_manager_cls = self.patcher_lftp.start()
@@ -34,7 +33,6 @@ class BaseControllerTestCase(unittest.TestCase):
         self.mock_file_op_manager_cls = self.patcher_fom.start()
         self.mock_mp_logger_cls = self.patcher_mpl.start()
         self.mock_memory_monitor_cls = self.patcher_mm.start()
-        self.mock_sonarr_manager_cls = self.patcher_sonarr.start()
 
         # Get mock instances (return values of mock classes)
         self.mock_model_builder = self.mock_model_builder_cls.return_value
@@ -43,13 +41,14 @@ class BaseControllerTestCase(unittest.TestCase):
         self.mock_file_op_manager = self.mock_file_op_manager_cls.return_value
         self.mock_mp_logger = self.mock_mp_logger_cls.return_value
         self.mock_memory_monitor = self.mock_memory_monitor_cls.return_value
-        self.mock_sonarr_manager = self.mock_sonarr_manager_cls.return_value
+        # Create mock WebhookManager (not patched, passed as parameter)
+        self.mock_webhook_manager = MagicMock()
         # Default: process returns empty list (no imports)
-        self.mock_sonarr_manager.process.return_value = []
+        self.mock_webhook_manager.process.return_value = []
         # Default: auto-delete disabled (prevents Timer with MagicMock delay)
         self.mock_context.config.autodelete.enabled = False
 
-        self.controller = Controller(context=self.mock_context, persist=self.persist)
+        self.controller = Controller(context=self.mock_context, persist=self.persist, webhook_manager=self.mock_webhook_manager)
 
     def tearDown(self):
         self.patcher_mb.stop()
@@ -58,7 +57,6 @@ class BaseControllerTestCase(unittest.TestCase):
         self.patcher_fom.stop()
         self.patcher_mpl.stop()
         self.patcher_mm.stop()
-        self.patcher_sonarr.stop()
 
     def _make_controller_started(self):
         """Helper: set __started flag and configure no-op model update mocks."""
@@ -1027,26 +1025,26 @@ class TestControllerPropagateExceptions(BaseControllerTestCase):
         self.mock_file_op_manager.cleanup_completed_processes.assert_called_once()
 
 
-class TestControllerSonarrIntegration(BaseControllerTestCase):
-    """Tests for Controller Sonarr integration."""
+class TestControllerWebhookIntegration(BaseControllerTestCase):
+    """Tests for Controller webhook integration."""
 
     def setUp(self):
         super().setUp()
         self._make_controller_started()
 
-    def test_process_calls_sonarr_manager(self):
+    def test_process_calls_webhook_manager(self):
         self.controller.process()
-        self.assertTrue(self.mock_sonarr_manager.process.called)
+        self.assertTrue(self.mock_webhook_manager.process.called)
 
-    def test_sonarr_imports_added_to_persist(self):
+    def test_webhook_imports_added_to_persist(self):
         self._add_file_to_model("File.A", remote_size=5000)
         self._add_file_to_model("File.B", remote_size=3000)
-        self.mock_sonarr_manager.process.return_value = ["File.A", "File.B"]
+        self.mock_webhook_manager.process.return_value = ["File.A", "File.B"]
         self.controller.process()
         self.assertIn("File.A", self.persist.imported_file_names)
         self.assertIn("File.B", self.persist.imported_file_names)
 
-    def test_sonarr_disabled_no_imports(self):
-        self.mock_sonarr_manager.process.return_value = []
+    def test_webhook_no_imports_when_empty(self):
+        self.mock_webhook_manager.process.return_value = []
         self.controller.process()
         self.assertEqual(0, len(self.persist.imported_file_names))
