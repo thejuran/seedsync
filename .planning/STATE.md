@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Phase: 31 - Theme Toggle UI
+Phase: 32 - Cosmetic Fixes
 Plan: 01 complete (1 plan total)
 Status: Complete
-Last activity: 2026-02-12 — 31-01 Theme Toggle UI complete
+Last activity: 2026-02-12 — 32-01 Cosmetic Fixes complete
 
-Progress: [███░░░░░░░░░░░░░░░░░] 16% (Phase 31/32, Plan 1/1)
+Progress: [████████████████████] 100% (Phase 32/32, Plan 1/1)
 
 ## Milestones Shipped
 
@@ -29,6 +29,7 @@ Progress: [███░░░░░░░░░░░░░░░░░] 16% (Ph
 | v1.6 CI Cleanup | 20-21 | 2026-02-10 |
 | v1.7 Sonarr Integration | 22-25 | 2026-02-10 |
 | v1.8 Radarr + Webhooks | 26-28 | 2026-02-11 |
+| v2.0 Dark Mode & Polish | 29-32 | 2026-02-12 |
 
 ## Current Milestone: v2.0 Dark Mode & Polish
 
@@ -45,16 +46,16 @@ Progress: [███░░░░░░░░░░░░░░░░░] 16% (Ph
 ## Performance Metrics
 
 **Total Project:**
-- 9 milestones (8 shipped, 1 in progress)
-- 32 phases (31 complete, 1 pending)
-- 50 plans executed
+- 9 milestones (9 shipped)
+- 32 phases (32 complete)
+- 51 plans executed
 - 9 days total (2026-02-03 to 2026-02-12)
 
 **v2.0 Dark Mode & Polish:**
 - Started: 2026-02-11
-- Phases complete: 3/4
-- Plans complete: 5/6 (Phase 29: 2, Phase 30: 2, Phase 31: 1)
-- Current phase: 32 (pending)
+- Completed: 2026-02-12
+- Phases complete: 4/4
+- Plans complete: 6/6 (Phase 29: 2, Phase 30: 2, Phase 31: 1, Phase 32: 1)
 
 ## Accumulated Context
 
@@ -91,6 +92,11 @@ Progress: [███░░░░░░░░░░░░░░░░░] 16% (Ph
 - Responsive styling: buttons stack vertically on screens <360px
 - 8 unit tests for interaction and accessibility
 
+**32-01 Cosmetic Fixes:**
+- Toast messages remain source-agnostic - system doesn't distinguish which *arr service triggered import
+- WAITING_FOR_IMPORT added as structural placeholder only - no business logic sets this value yet
+- Updated UI text from "Sonarr" to "Sonarr/Radarr" in toast notifications and settings descriptions
+
 ### Todos
 
 - [x] Execute Phase 29 Plan 01: Theme Infrastructure
@@ -98,7 +104,7 @@ Progress: [███░░░░░░░░░░░░░░░░░] 16% (Ph
 - [x] Execute Phase 30 Plan 01: Custom CSS Variables & Theme-Aware Forms
 - [x] Execute Phase 30 Plan 02: Component SCSS Migrations
 - [x] Execute Phase 31 Plan 01: Theme Toggle UI
-- [ ] Plan Phase 32: Cosmetic Fixes
+- [x] Execute Phase 32 Plan 01: Cosmetic Fixes
 
 ### Blockers
 
@@ -112,9 +118,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 31-01-PLAN.md (Theme Toggle UI)
-Next action: Plan Phase 32 (Cosmetic Fixes)
+Stopped at: Completed 32-01-PLAN.md (Cosmetic Fixes)
+Next action: Plan next milestone (v2.0 complete)
 
 ---
-*v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
-*v2.0 started: 2026-02-11*
+*v1.0-v2.0 shipped: 2026-02-03 to 2026-02-12*
