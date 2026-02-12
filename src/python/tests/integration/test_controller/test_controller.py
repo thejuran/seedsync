@@ -18,6 +18,7 @@ import timeout_decorator
 from tests.utils import TestUtils
 from common import overrides, Context, Config, Args, AppError, Localization, Status
 from controller import Controller, ControllerPersist
+from controller.webhook_manager import WebhookManager
 from model import ModelFile, IModelListener
 
 
@@ -364,6 +365,7 @@ class TestController(unittest.TestCase):
                                args=ctx_args,
                                status=Status())
         self.controller_persist = ControllerPersist()
+        self.webhook_manager = WebhookManager(self.context)
         self.controller = None
 
     @overrides(unittest.TestCase)
@@ -389,14 +391,14 @@ class TestController(unittest.TestCase):
         self.context.config.lftp.remote_path_to_scan_script = "<bad>"
         # noinspection PyBroadException
         try:
-            self.controller = Controller(self.context, self.controller_persist)
+            self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         except Exception:
             self.fail("Controller ctor raised exception unexpectedly")
 
     @timeout_decorator.timeout(20)
     def test_bad_config_remote_address_raises_exception(self):
         self.context.config.lftp.remote_address = "<bad>"
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -415,7 +417,7 @@ class TestController(unittest.TestCase):
     @timeout_decorator.timeout(20)
     def test_bad_config_remote_username_raises_exception(self):
         self.context.config.lftp.remote_username = "<bad>"
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -434,7 +436,7 @@ class TestController(unittest.TestCase):
     @timeout_decorator.timeout(20)
     def test_bad_config_remote_path_raises_exception(self):
         self.context.config.lftp.remote_path = "<bad>"
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -449,7 +451,7 @@ class TestController(unittest.TestCase):
     @timeout_decorator.timeout(20)
     def test_bad_config_local_path_raises_exception(self):
         self.context.config.lftp.local_path = "<bad>"
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -461,7 +463,7 @@ class TestController(unittest.TestCase):
     @timeout_decorator.timeout(20)
     def test_bad_config_remote_path_to_scan_script_raises_exception(self):
         self.context.config.lftp.remote_path_to_scan_script = "<bad>"
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -481,7 +483,7 @@ class TestController(unittest.TestCase):
     def test_bad_remote_password_raises_exception(self):
         self.context.config.lftp.remote_password = "bad password"
         self.context.config.lftp.use_ssh_key = False
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnusedLocal
         with self.assertRaises(AppError) as error:
@@ -495,7 +497,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_initial_model(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -511,7 +513,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_local_file_added(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -548,7 +550,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_local_file_updated(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -587,7 +589,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_local_file_removed(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -624,7 +626,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_remote_file_added(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -654,7 +656,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_remote_file_updated(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -686,7 +688,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_remote_file_removed(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -716,7 +718,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_queue_directory(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -761,7 +763,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_queue_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -804,7 +806,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_queue_invalid(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -842,7 +844,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_queue_local_directory(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -879,7 +881,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_queue_local_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -918,7 +920,7 @@ class TestController(unittest.TestCase):
     def test_command_stop_directory(self):
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 100
@@ -982,7 +984,7 @@ class TestController(unittest.TestCase):
     def test_command_stop_file(self):
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 100
@@ -1044,7 +1046,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_stop_default(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1086,7 +1088,7 @@ class TestController(unittest.TestCase):
     def test_command_stop_queued(self):
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 100
@@ -1158,7 +1160,7 @@ class TestController(unittest.TestCase):
     def test_command_stop_wrong(self):
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 100
@@ -1218,7 +1220,7 @@ class TestController(unittest.TestCase):
     def test_command_stop_invalid(self):
         # White box hack: limit the rate of lftp so download doesn't finish
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 100
@@ -1275,7 +1277,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_extract_after_downloading_remote_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1337,7 +1339,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_extract_after_downloading_remote_directory(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1396,7 +1398,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_extract_after_downloading_remote_directory_multilevel(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1459,7 +1461,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_extract_local_directory(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1501,7 +1503,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_reextract_after_extracting_remote_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1585,7 +1587,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_extract_remote_only_fails(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1634,7 +1636,7 @@ class TestController(unittest.TestCase):
         os.mkdir(extract_path)
         self.context.config.controller.extract_path = extract_path
         self.context.config.controller.use_local_path_as_extract_path = False
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1697,7 +1699,7 @@ class TestController(unittest.TestCase):
         File is downloaded, then extracted, then deleted, then redownloaded
         Verify that final state is Downloaded and NOT Extracted
         """
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1795,7 +1797,7 @@ class TestController(unittest.TestCase):
     @timeout_decorator.timeout(20)
     def test_config_num_max_parallel_downloads(self):
         self.context.config.lftp.num_max_parallel_downloads = 2
-        self.controller = Controller(self.context, ControllerPersist())
+        self.controller = Controller(self.context, ControllerPersist(), self.webhook_manager)
         self.controller.start()
 
         # White box hack: limit the rate of lftp so download doesn't finish
@@ -1853,7 +1855,7 @@ class TestController(unittest.TestCase):
         # updates are still propagated
         self.context.config.controller.interval_ms_downloading_scan = 200
         self.context.config.controller.interval_ms_local_scan = 10000
-        self.controller = Controller(self.context, ControllerPersist())
+        self.controller = Controller(self.context, ControllerPersist(), self.webhook_manager)
         self.controller.start()
 
         # White box hack: limit the rate of lftp so download doesn't finish
@@ -1899,7 +1901,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_persist_downloaded(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -1944,7 +1946,7 @@ class TestController(unittest.TestCase):
         # Test that a previously downloaded then deleted file can be redownloaded
         # We set the downloaded state in controller persist
         self.controller_persist.downloaded_file_names.add("ra")
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
 
         # White box hack: limit the rate of lftp so download doesn't finish
@@ -1996,7 +1998,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_delete_local_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2036,7 +2038,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_delete_local_dir(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2076,7 +2078,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_delete_remote_dir(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2116,7 +2118,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_delete_local_fails_on_remote_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
 
         # wait for initial scan
@@ -2158,7 +2160,7 @@ class TestController(unittest.TestCase):
 
     @timeout_decorator.timeout(20)
     def test_command_delete_remote_fails_on_local_file(self):
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
 
         # wait for initial scan
@@ -2205,7 +2207,7 @@ class TestController(unittest.TestCase):
         # that would timeout the test if it wasn't forced
         self.context.config.controller.interval_ms_remote_scan = 90000
 
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2250,7 +2252,7 @@ class TestController(unittest.TestCase):
         # that would timeout the test if it wasn't forced
         self.context.config.controller.interval_ms_local_scan = 90000
 
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
@@ -2333,7 +2335,7 @@ class TestController(unittest.TestCase):
         self.context.config.lftp.num_max_parallel_files_per_download = 8
 
         # noinspection PyUnresolvedReferences
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # noinspection PyUnresolvedReferences
         self.controller._Controller__lftp_manager.lftp.rate_limit = 5*1024
@@ -2411,7 +2413,7 @@ class TestController(unittest.TestCase):
         # Test password-based auth by downloading a file to completion
         self.context.config.lftp.use_ssh_key = False
 
-        self.controller = Controller(self.context, self.controller_persist)
+        self.controller = Controller(self.context, self.controller_persist, self.webhook_manager)
         self.controller.start()
         # wait for initial scan
         self.__wait_for_initial_model()
