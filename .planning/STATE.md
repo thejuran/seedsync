@@ -2,25 +2,24 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-10)
+See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** For any future date, clearly show available points across all contracts and what resorts/rooms those points can actually book.
-**Current focus:** Phase 7 complete -- Seasonal Cost Heatmap
+**Current focus:** v1.1 milestone complete -- planning next milestone
 
 ## Current Position
 
-Phase: 7 of 7 (Seasonal Cost Heatmap)
-Plan: 1/1 complete
-Status: Phase complete
-Last activity: 2026-02-11 -- Completed 07-01 (seasonal cost heatmap)
+Milestone: v1.1 Share & Plan -- SHIPPED
+All phases complete (4-7), all 9 plans executed
+Last activity: 2026-02-11 -- v1.1 milestone archived
 
 Progress: [██████████] 100%
 
 ## Performance Metrics
 
-**Velocity:**
-- Total plans completed: 10 (v1.1)
-- Average duration: 3m 6s
+**Velocity (v1.1):**
+- Total plans completed: 9
+- Average duration: 3m 26s
 - Total execution time: 31m 0s
 
 **By Phase:**
@@ -32,65 +31,20 @@ Progress: [██████████] 100%
 | 6     | 3     | 8m 18s | 2m 46s  |
 | 7     | 1     | 1m 48s | 1m 48s  |
 
-*Updated after each plan completion*
-
 ## Accumulated Context
 
 ### Decisions
 
 All v1.0 decisions archived in milestones/v1.0-ROADMAP.md.
+All v1.1 decisions archived in milestones/v1.1-ROADMAP.md.
 
 Key architectural decisions carrying forward:
 - Monorepo: FastAPI backend + React/Vite frontend
 - SQLite for storage (single-user)
 - Pure-function engine layer (no DB coupling)
 - Point charts as versioned JSON data
-
-v1.1 decisions:
-- Docker for sharing (not Railway) -- open-source self-hosted tool
-- Single container: FastAPI serves React build via StaticFiles mount
-- Zustand for ephemeral scenario state (already installed, first activation)
-- Server-side computation, client-side state for scenarios
-
-Phase 4 decisions (from planning):
-- Multi-stage Dockerfile: node:22-slim builds frontend, python:3.12-slim runs everything
-- SPAStaticFiles subclass (not catch-all route) for React SPA serving
-- Shell entrypoint for Alembic migrations (not lifespan approach)
-- Pydantic BaseSettings for env configuration (not raw os.getenv)
-- Borrowing policy stored in DB app_settings table (not env var) -- UI-toggleable
-- SQLite volume: mount directory /app/data/db (not file) for WAL sidecar support
-- Key-value AppSetting model for extensible settings (not single-purpose table)
-- Settings API validates allowed values server-side (50 or 100 only)
-- Borrowing policy enforced on both create and update of borrowed balances
-- Toggle-style UI cards for policy selection (not dropdown)
-
-Phase 5 decisions:
-- DVC end-of-month roll-forward rule for booking window dates (not relativedelta clip-backward)
-- Conservative banking warning: fires when booking COULD consume bankable current-year points
-- Bundle booking impact + booking windows + banking warning in single preview endpoint
-- Inline expand/collapse via useState per card (not shadcn Collapsible)
-- Native HTML details/summary for nightly breakdown (no extra deps)
-- ChevronDown icon with CSS rotate for expand indicator
-- Dashboard booking window alerts capped at 5, sorted by soonest opening, filtered to non-open windows within 30 days
-- Blue styling for booking window alerts (distinct from amber banking and red expiration)
-- Booking window alerts load independently (supplementary, not blocking dashboard)
-
-Phase 6 decisions:
-- Use today's date as target_date for scenario evaluation (answers "how do my current points change")
-- Enforce resort eligibility validation in scenario endpoint (model reality accurately)
-- Inject all hypotheticals as confirmed reservations for cumulative impact calculation
-- Zustand curried create<T>()(...) pattern for TypeScript type inference (per v5 docs)
-- Evaluation hook strips client-only fields (id, contract_name, resort_name) before POST
-- Scenarios nav item placed between Trip Explorer and Contracts (planning tools grouped)
-- Resort dropdown filters by useAvailableCharts to prevent empty room type selectors
-- Form preserves contract selection after adding booking (likely adding multiple for same contract)
-- 10 booking cap with visual feedback at limit
-- Clear All button in page header for quick reset
-
-Phase 7 decisions:
-- Extract heatColor to shared lib/utils rather than duplicating across components
-- Client-side daily cost computation via useMemo (no new API endpoint)
-- Room key auto-resets on resort switch via useEffect watching rooms prop
+- Docker single-container: FastAPI serves React build via StaticFiles
+- Zustand for ephemeral client-side state
 
 ### Pending Todos
 
@@ -98,13 +52,11 @@ None.
 
 ### Blockers/Concerns
 
-- Docker StaticFiles mount ordering: API routes must register before SPA catch-all (RESOLVED -- SPAStaticFiles redirects /api/ paths to trailing-slash)
-- SQLite volume mount: must mount directory (not file) to include WAL/SHM sidecars (RESOLVED -- named volume mounts /app/data/db)
-- Port mapping: entrypoint uses ${PORT} but compose hardcodes container port to 8000 (RESOLVED -- entrypoint defaults to 8000, compose maps host PORT to container 8000)
+None open.
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: Completed 07-01-PLAN.md (Phase 7 complete -- all phases done)
+Stopped at: v1.1 milestone completed and archived
 Resume file: None
-Next: /gsd:new-milestone for v2.0 or v1.3
+Next: /gsd:new-milestone for next version
