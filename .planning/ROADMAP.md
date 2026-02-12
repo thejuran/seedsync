@@ -122,10 +122,10 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
   Plans:
   - [x] 29-01-PLAN.md — ThemeService + FOUC prevention + app registration
   - [x] 29-02-PLAN.md — ThemeService unit tests
-- [ ] Phase 30: SCSS Audit & Color Fixes (2 plans)
+- [x] Phase 30: SCSS Audit & Color Fixes (2/2 plans) - completed 2026-02-12
   Plans:
-  - [ ] 30-01-PLAN.md — Custom CSS variables + theme-aware forms + dropdown fix
-  - [ ] 30-02-PLAN.md — Migrate all component SCSS hardcoded colors
+  - [x] 30-01-PLAN.md — Custom CSS variables + theme-aware forms + dropdown fix
+  - [x] 30-02-PLAN.md — Migrate all component SCSS hardcoded colors
 - [ ] Phase 31: Theme Toggle UI (0 plans)
 - [ ] Phase 32: Cosmetic Fixes (0 plans)
 
@@ -135,5 +135,5 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 ---
 
-*Last updated: 2026-02-11 (Phase 30 planned)*
-*9 milestones (8 shipped, 1 in progress), 32 phases (29 complete, 3 pending), 47 plans completed*
+*Last updated: 2026-02-12 (Phase 30 complete)*
+*9 milestones (8 shipped, 1 in progress), 32 phases (30 complete, 2 pending), 49 plans completed*
