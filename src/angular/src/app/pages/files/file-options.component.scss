@@ -3,7 +3,7 @@
 #file-options {
     position: static;
     z-index: $zindex-file-options;
-    background-color: $header-color;
+    background-color: var(--app-header-bg);
     padding: 0 8px 8px 8px;
 
     display: flex;

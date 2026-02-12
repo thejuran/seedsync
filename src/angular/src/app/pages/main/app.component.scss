@@ -43,7 +43,7 @@
 }
 
 #top-sidebar {
-    background-color: $primary-light-color;
+    background-color: var(--app-top-header-bg);
     width: $sidebar-width;
     height: calc(100% - 8px);
     position: fixed;
@@ -88,10 +88,6 @@
             }
         }
     }
-}
-
-[data-bs-theme="dark"] #top-sidebar {
-    background-color: #1e2125;
 }
 
 @keyframes animateleft {

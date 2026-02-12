@@ -6,8 +6,8 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 15px;
-    background-color: $secondary-color;
-    border-bottom: 1px solid $secondary-dark-color;
+    background-color: var(--app-selection-bg);
+    border-bottom: 1px solid var(--app-selection-border);
     gap: 10px;
 }
 

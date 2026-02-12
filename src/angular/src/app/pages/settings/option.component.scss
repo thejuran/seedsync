@@ -21,7 +21,7 @@ label {
 }
 
 span.description {
-    color: #9a9a9a;  // Lighter gray for better contrast on dark theme
+    color: var(--app-muted-text);
     font-size: 80%;
     line-height: initial;
     width: 100%;

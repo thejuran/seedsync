@@ -30,17 +30,17 @@
 
 /* selected file (details panel selection) */
 .file.selected {
-    background-color: $secondary-color;
+    background-color: var(--app-selection-bg);
 }
 
 /* bulk-selected file (checkbox selection) */
 .file.bulk-selected {
-    background-color: rgba($secondary-color, 0.3);
+    background-color: var(--app-selection-bg-alpha);
 }
 
 /* both selected and bulk-selected */
 .file.selected.bulk-selected {
-    background-color: $secondary-color;
+    background-color: var(--app-selection-bg);
 }
 
 /* content */
@@ -75,7 +75,7 @@
         width: 18px;
         height: 18px;
         cursor: pointer;
-        accent-color: $secondary-dark-color;
+        accent-color: var(--app-selection-border);
         /* Disable default browser transition to make checkbox state changes appear instant */
         transition: none;
     }
@@ -237,7 +237,7 @@
 @media only screen and (min-width: $medium-min-width) {
     /* enable row hover */
     .file:not(.selected):not(.bulk-selected):hover {
-        background-color: $secondary-light-color;
+        background-color: var(--app-selection-bg-subtle);
         transition: background-color 0.1s ease;
     }
 

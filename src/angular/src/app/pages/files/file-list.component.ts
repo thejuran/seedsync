@@ -131,10 +131,13 @@ export class FileListComponent {
                     return;
                 }
 
-                // Check for new imports
+                // Check for new imports (only toast when we've seen the file before
+                // with a non-IMPORTED status — files appearing for the first time
+                // as IMPORTED are persisted from a previous session, not new events)
                 files.forEach(file => {
                     const prevStatus = this._prevImportStatuses.get(file.name);
                     if (file.importStatus === ViewFile.ImportStatus.IMPORTED &&
+                        prevStatus !== undefined &&
                         prevStatus !== ViewFile.ImportStatus.IMPORTED) {
                         this._toastService.success("Sonarr/Radarr imported: " + file.name);
                     }

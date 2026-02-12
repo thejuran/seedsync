@@ -111,6 +111,13 @@ html, body {
 
   // Accents
   --app-accent-teal-border: #6ac19e;
+
+  // Selection/accent (teal) - used for selected rows, action bars, banners
+  --app-selection-bg: #79DFB6;
+  --app-selection-bg-subtle: #C5F0DE;
+  --app-selection-bg-alpha: rgba(121, 223, 182, 0.3);
+  --app-selection-border: #32AD7B;
+  --app-selection-text-emphasis: #077F4F;
 }
 
 [data-bs-theme="dark"] {
@@ -133,6 +140,13 @@ html, body {
 
   // Accents
   --app-accent-teal-border: #4ac98f;
+
+  // Selection/accent (teal) - muted for dark backgrounds
+  --app-selection-bg: #1f5c42;
+  --app-selection-bg-subtle: #2a3e35;
+  --app-selection-bg-alpha: rgba(74, 201, 143, 0.15);
+  --app-selection-border: #4ac98f;
+  --app-selection-text-emphasis: #4ac98f;
 }
 
 /* show the input search cancel button */
