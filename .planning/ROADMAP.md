@@ -17,7 +17,7 @@ Build on the shipped v1.0 dashboard in four phases: first package the app for se
 - [x] **Phase 4: Docker Packaging + Settings** - One-command self-hosting with persistent data and configurable borrowing policy
 - [x] **Phase 5: Booking Impact + Booking Windows** - See how a potential booking affects your points and when booking windows open
 - [x] **Phase 6: What-If Scenarios** - Model multiple hypothetical bookings and compare against reality
-- [ ] **Phase 7: Seasonal Cost Heatmap** - Visual full-year calendar showing point costs by resort and room type
+- [x] **Phase 7: Seasonal Cost Heatmap** - Visual full-year calendar showing point costs by resort and room type
 
 ### Phase Details
 
@@ -79,7 +79,7 @@ Plans:
 **Plans:** 1 plan
 
 Plans:
-- [ ] 07-01-PLAN.md -- Cost heatmap component + Point Charts page tab integration (CostHeatmap, heatColor extraction, 4th tab)
+- [x] 07-01-PLAN.md -- Cost heatmap component + Point Charts page tab integration (CostHeatmap, heatColor extraction, 4th tab)
 
 ### Progress
 
@@ -88,4 +88,4 @@ Plans:
 | 4. Docker + Settings | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 5. Impact + Windows | v1.1 | 3/3 | ✓ Complete | 2026-02-10 |
 | 6. Scenarios | v1.1 | 3/3 | ✓ Complete | 2026-02-11 |
-| 7. Heatmap | v1.1 | 0/1 | Not started | - |
+| 7. Heatmap | v1.1 | 1/1 | ✓ Complete | 2026-02-11 |
