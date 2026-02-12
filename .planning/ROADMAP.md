@@ -16,7 +16,7 @@ Build on the shipped v1.0 dashboard in four phases: first package the app for se
 
 - [x] **Phase 4: Docker Packaging + Settings** - One-command self-hosting with persistent data and configurable borrowing policy
 - [x] **Phase 5: Booking Impact + Booking Windows** - See how a potential booking affects your points and when booking windows open
-- [ ] **Phase 6: What-If Scenarios** - Model multiple hypothetical bookings and compare against reality
+- [x] **Phase 6: What-If Scenarios** - Model multiple hypothetical bookings and compare against reality
 - [ ] **Phase 7: Seasonal Cost Heatmap** - Visual full-year calendar showing point costs by resort and room type
 
 ### Phase Details
@@ -64,9 +64,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 06-01-PLAN.md -- Scenario engine + evaluation endpoint (compute_scenario_impact, POST /api/scenarios/evaluate, schemas, tests)
-- [ ] 06-02-PLAN.md -- Frontend infrastructure (scenario types, Zustand store, evaluation hook, route, nav item)
-- [ ] 06-03-PLAN.md -- Scenario workspace UI (booking form, booking list, comparison table, full page composition)
+- [x] 06-01-PLAN.md -- Scenario engine + evaluation endpoint (compute_scenario_impact, POST /api/scenarios/evaluate, schemas, tests)
+- [x] 06-02-PLAN.md -- Frontend infrastructure (scenario types, Zustand store, evaluation hook, route, nav item)
+- [x] 06-03-PLAN.md -- Scenario workspace UI (booking form, booking list, comparison table, full page composition)
 
 #### Phase 7: Seasonal Cost Heatmap
 **Goal**: User can visually compare point costs across an entire year for any resort and room type
@@ -88,5 +88,5 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 4. Docker + Settings | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 5. Impact + Windows | v1.1 | 3/3 | ✓ Complete | 2026-02-10 |
-| 6. Scenarios | v1.1 | 0/3 | Planned | - |
+| 6. Scenarios | v1.1 | 3/3 | ✓ Complete | 2026-02-11 |
 | 7. Heatmap | v1.1 | 0/TBD | Not started | - |
