@@ -13,8 +13,8 @@
     word-break: break-word;
 }
 
-// Dark dropdown theme (for file options dropdowns)
-// Uses CSS variables so components only need data-bs-theme="dark" attribute
+// Custom dropdown theme colors for dark mode
+// Applied when global data-bs-theme="dark" is set on documentElement by ThemeService
 [data-bs-theme="dark"] {
   .dropdown-menu {
     // Background and border
