@@ -55,7 +55,8 @@ class BaseTestWebApp(unittest.TestCase):
         # noinspection PyTypeChecker
         self.web_app_builder = WebAppBuilder(self.context,
                                              self.controller,
-                                             self.auto_queue_persist)
+                                             self.auto_queue_persist,
+                                             MagicMock())
         self.web_app = self.web_app_builder.build()
         self.test_app = TestApp(self.web_app)
 
