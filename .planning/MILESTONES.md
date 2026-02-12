@@ -1,5 +1,33 @@
 # Project Milestones: SeedSync
 
+## v1.8 Radarr + Webhooks (Shipped: 2026-02-11)
+
+**Delivered:** Radarr integration alongside Sonarr with shared *arr Settings UI, webhook-based import detection replacing polling, and all pre-existing test failures resolved.
+
+**Phases completed:** 26-28 (5 plans total)
+
+**Key accomplishments:**
+
+- Radarr config (URL, API key, enable toggle, test connection) mirroring Sonarr pattern
+- Shared *arr Integration Settings UI with independent Sonarr and Radarr subsections
+- Webhook POST endpoints replacing 60s polling for instant import detection
+- WebhookManager with thread-safe Queue for cross-thread communication (web → controller)
+- SonarrManager polling code removed entirely (webhook-only architecture)
+- Webhook URL display in Settings for easy Sonarr/Radarr configuration
+- 23 new unit tests (10 WebhookManager + 13 WebhookHandler), 381/381 Angular tests passing
+
+**Stats:**
+
+- 21 code files changed (+874 lines, -493 lines)
+- 3 phases, 5 plans
+- Same-day completion (2026-02-11)
+
+**Git range:** `c5b71a9` → `6c1d514`
+
+**What's next:** Run `/gsd:new-milestone` to start next milestone (dark mode, Lidarr/Readarr, or other features).
+
+---
+
 ## v1.7 Sonarr Integration (Shipped: 2026-02-10)
 
 **Delivered:** Sonarr integration for automated post-download workflow — import detection via queue polling, status badges and toast notifications in UI, and auto-delete of local files with 6-layer safety system.

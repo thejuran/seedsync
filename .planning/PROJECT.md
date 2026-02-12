@@ -2,21 +2,27 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 adds Radarr support and replaces polling with webhooks.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 shipped Radarr support and webhook-based import detection.
 
 ## Core Value
 
 Reliable file sync from seedbox to local with automated media library integration.
 
-## Current Milestone: v1.8 Radarr + Webhooks
+## Current State
 
-**Goal:** Add Radarr support alongside Sonarr, replace polling with webhook-based import detection, and fix pre-existing test failures.
+All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. All 381 Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
 
-**Target features:**
-- Radarr config and test connection (mirror of Sonarr)
+<details>
+<summary>v1.8 Radarr + Webhooks (Shipped 2026-02-11)</summary>
+
+- Radarr config and test connection (mirror of Sonarr pattern)
 - Shared *arr Integration section in Settings UI (Sonarr + Radarr subsections)
-- Webhook endpoints replacing polling for both Sonarr and Radarr
-- Fix 3 pre-existing model-file.service.spec.ts test failures
+- Webhook POST endpoints replacing polling for instant import detection
+- WebhookManager with thread-safe Queue (web → controller thread)
+- SonarrManager polling code removed (webhook-only architecture)
+- 23 new unit tests, 381/381 Angular tests passing
+
+</details>
 
 <details>
 <summary>v1.7 Sonarr Integration (Shipped 2026-02-10)</summary>
@@ -28,10 +34,6 @@ Reliable file sync from seedbox to local with automated media library integratio
 - 6-layer safety system for auto-delete (local-only, dry-run, hot-toggle, etc.)
 
 </details>
-
-## Current State
-
-952 Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. All 381 Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
 
 ## Requirements
 
@@ -157,14 +159,15 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Project Status
 
-**Status:** v1.8 in progress
+**Status:** v1.8 shipped — all milestones complete
 
-Quality project (v1.0-v1.6) and Sonarr integration (v1.7) shipped. Now adding Radarr and webhooks.
+Quality project (v1.0-v1.6), Sonarr integration (v1.7), and Radarr + webhooks (v1.8) all shipped.
 
 **Future work (if desired):**
 - Dark mode toggle feature
 - WAITING_FOR_IMPORT enum value
 - Lidarr/Readarr support (same *arr pattern)
+- Cosmetic: Toast/auto-delete descriptions reference "Sonarr" only (should say "Sonarr/Radarr")
 
 ---
-*Last updated: 2026-02-11 after starting v1.8 milestone*
+*Last updated: 2026-02-11 after shipping v1.8 milestone*
