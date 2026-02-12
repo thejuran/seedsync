@@ -1,762 +1,584 @@
-# Architecture Research: Sonarr Integration
+# Architecture Research: Dark Mode + Theme System
 
-**Domain:** Media automation integration (Sonarr API)
-**Researched:** 2026-02-10
-**Confidence:** MEDIUM
+**Domain:** Bootstrap 5.3 Dark Mode Integration with Angular 19
+**Researched:** 2026-02-11
+**Confidence:** HIGH
 
-## Integration Overview
+## Standard Architecture
 
-SeedSync v1.7 adds Sonarr integration to auto-delete local files after confirmed import. The integration follows existing Manager pattern and Model listener architecture.
+### System Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  Controller (Main Loop)                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ ScanManager  │  │LftpManager   │  │FileOpManager │       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│                    Angular Components                        │
+│  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐        │
+│  │ Header  │  │ Sidebar │  │  Files  │  │Settings │        │
+│  └────┬────┘  └────┬────┘  └────┬────┘  └────┬────┘        │
+│       │ inject     │ inject     │            │              │
+│       └────────────┴────────────┴────────────┘              │
+├─────────────────────────────────────────────────────────────┤
+│                      Theme Service                           │
+│  ┌────────────────────────────────────────────────────┐     │
+│  │  • Detect OS preference (matchMedia)               │     │
+│  │  • Manage theme signal (light/dark/auto)           │     │
+│  │  • Apply data-bs-theme to <html>                   │     │
+│  │  • Persist to localStorage                         │     │
+│  └────────────────────────────────────────────────────┘     │
+├─────────────────────────────────────────────────────────────┤
+│                  Bootstrap 5.3 CSS Layer                     │
 │  ┌──────────────────────────────────────────────────┐       │
-│  │         SonarrManager (NEW)                      │       │
-│  │  - Polls Sonarr API for import status           │       │
-│  │  - Detects when files are imported               │       │
-│  │  - Triggers auto-delete commands                 │       │
+│  │  [data-bs-theme="light"] { CSS vars }            │       │
+│  │  [data-bs-theme="dark"]  { CSS vars }            │       │
+│  │  .form-control, .dropdown-menu, etc.             │       │
 │  └──────────────────────────────────────────────────┘       │
 ├─────────────────────────────────────────────────────────────┤
-│                        Model Layer                           │
-│  ┌─────────────────────────────────────────────────────┐    │
-│  │  ModelFile (State Machine)                          │    │
-│  │  States: DEFAULT → DOWNLOADING → DOWNLOADED         │    │
-│  │          EXTRACTED → DELETED                        │    │
-│  │  NEW: sonarr_imported timestamp (optional)          │    │
-│  └─────────────────────────────────────────────────────┘    │
-├─────────────────────────────────────────────────────────────┤
-│                    Persistence Layer                         │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
-│  │ Downloaded   │  │ Extracted    │  │ Sonarr       │       │
-│  │ Files (BOS)  │  │ Files (BOS)  │  │ Imports (NEW)│       │
-│  └──────────────┘  └──────────────┘  └──────────────┘       │
+│                         SCSS Layer                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐      │
+│  │ _bootstrap-  │  │ _bootstrap-  │  │  styles.scss │      │
+│  │  variables   │  │  overrides   │  │   (imports)  │      │
+│  └──────────────┘  └──────────────┘  └──────────────┘      │
 └─────────────────────────────────────────────────────────────┘
-                           │
-                           │ External API
-                           ↓
-                   ┌──────────────┐
-                   │ Sonarr v3/v5 │
-                   │   REST API   │
-                   └──────────────┘
 ```
 
-## New Components
+### Component Responsibilities
 
-### 1. SonarrManager (Controller Layer)
+| Component | Responsibility | Typical Implementation |
+|-----------|----------------|------------------------|
+| **ThemeService** | Detect OS preference, manage theme state, apply to DOM | Angular service with signals, localStorage, matchMedia |
+| **Theme Toggle Component** | UI control for theme switching | Standalone component with icon/dropdown in header/settings |
+| **Bootstrap CSS** | Provide color mode CSS variables | Compiled from SCSS with `variables-dark.scss` |
+| **SCSS Overrides** | Customize dark mode colors | `[data-bs-theme="dark"]` selectors in `_bootstrap-overrides.scss` |
 
-**Responsibility:** Poll Sonarr API to detect imports and trigger auto-delete
+## Integration with Existing SeedSync Architecture
 
-| Method | Purpose | When Called |
-|--------|---------|-------------|
-| `process()` | Main polling loop iteration | From Controller.process() |
-| `poll_sonarr()` | Query Sonarr API for import status | Each process() cycle |
-| `check_for_imports()` | Map Sonarr queue/history to ModelFiles | After poll |
-| `trigger_auto_delete()` | Send DELETE_LOCAL command to Controller | When import detected |
+### Current SCSS System (Two-Layer Customization)
 
-**Lifecycle:**
-- `__init__()`: Create SonarrAPI client, load config
-- `start()`: Begin polling (if enabled)
-- `stop()`: Clean shutdown
-- `propagate_exception()`: Re-raise API errors
+**Existing files:**
+- `src/angular/src/styles.scss` - Main entry point (uses @import for Bootstrap, @use for app modules)
+- `src/angular/src/app/common/_bootstrap-variables.scss` - Pre-compilation variable overrides
+- `src/angular/src/app/common/_bootstrap-overrides.scss` - Post-compilation CSS overrides
+- `src/angular/src/app/common/_common.scss` - Re-exports variables via @forward
 
-**Integration Points:**
-- **Controller**: Receives DELETE_LOCAL commands via queue_command()
-- **Model**: Read-only access to check file states
-- **Config**: SonarrConfig section (host, port, API key, poll interval, auto-delete enabled)
-- **ControllerPersist**: Track imported files to avoid re-deleting
+**Current customization points:**
+1. **Pre-compilation variables** (`_bootstrap-variables.scss`): Sets $primary, $secondary, form colors BEFORE Bootstrap compiles
+2. **Post-compilation overrides** (`_bootstrap-overrides.scss`): Already has dark dropdown theme, dark form inputs
 
-### 2. SonarrPersist (Persistence Layer)
-
-**Responsibility:** Track which files were confirmed imported to prevent duplicate deletions
-
-```python
-class SonarrPersist(Persist):
-    def __init__(self, max_tracked_files: Optional[int] = None):
-        self.imported_file_names: BoundedOrderedSet[str] = BoundedOrderedSet(
-            maxlen=max_tracked_files or 10000
-        )
-
-    # Serialize to JSON alongside ControllerPersist
+**Bootstrap 5.3 dark mode files already imported:**
+```scss
+// In styles.scss (line 25)
+@import '../node_modules/bootstrap/scss/variables-dark';
 ```
+This file defines `$body-color-dark`, `$body-bg-dark`, and other dark-specific SCSS variables that Bootstrap converts to CSS custom properties scoped to `[data-bs-theme="dark"]`.
 
-**Why separate from downloaded_file_names:**
-- Downloaded = "file finished syncing from seedbox"
-- Imported = "Sonarr confirmed import, safe to delete"
-- Different lifecycles: download persists across restarts, import is one-time check
+### How data-bs-theme Integrates with SCSS Variables
 
-### 3. SonarrConfig (Config Layer)
+Bootstrap 5.3 uses a **two-step compilation process**:
 
-**Location:** `common/config.py` - new `[Sonarr]` section
+1. **Compile-time (SCSS)**: Sass variables in `_variables-dark.scss` define dark mode colors
+   ```scss
+   // Bootstrap's _variables-dark.scss
+   $body-color-dark: $gray-300;
+   $body-bg-dark: $gray-900;
+   $link-color-dark: tint-color($primary, 40%);
+   ```
 
-| Property | Type | Default | Purpose |
-|----------|------|---------|---------|
-| `enabled` | bool | False | Enable Sonarr integration |
-| `host` | str | "localhost" | Sonarr hostname/IP |
-| `port` | int | 8989 | Sonarr port |
-| `api_key` | str | "" | API authentication key |
-| `use_ssl` | bool | False | HTTPS vs HTTP |
-| `poll_interval_sec` | int | 60 | Seconds between API polls |
-| `auto_delete_enabled` | bool | True | Auto-delete after import |
-| `verify_ssl` | bool | True | Verify SSL certificates |
+2. **Runtime (CSS)**: These compile to CSS custom properties scoped to `[data-bs-theme="dark"]`
+   ```css
+   [data-bs-theme="dark"] {
+     --bs-body-color: #adb5bd;
+     --bs-body-bg: #212529;
+     --bs-link-color: #6ea8fe;
+   }
+   ```
 
-### 4. SonarrService (API Client Layer)
-
-**Responsibility:** Thin wrapper around pyarr for API communication
-
-```python
-class SonarrService:
-    def __init__(self, host, port, api_key, use_ssl, verify_ssl):
-        from pyarr import SonarrAPI
-        protocol = "https" if use_ssl else "http"
-        self.client = SonarrAPI(
-            f"{protocol}://{host}:{port}",
-            api_key=api_key,
-            verify_ssl=verify_ssl
-        )
-
-    def get_queue(self) -> List[Dict]:
-        """Returns Sonarr queue records"""
-        return self.client.get_queue()
-
-    def get_history(self, event_type="downloadFolderImported") -> List[Dict]:
-        """Returns recent import history"""
-        return self.client.get_history(event_type=event_type)
-```
-
-**Why pyarr:**
-- Mature Python wrapper (5.2.0, production/stable)
-- Handles authentication, retries, error mapping
-- Returns JSON dicts (easy to work with, version-resilient)
-- MIT licensed, well-maintained
-
-## Integration with Existing Architecture
-
-### Manager Pattern
-
-**Existing Pattern:**
-```python
-# Controller owns managers
-self.__scan_manager = ScanManager(context, mp_logger)
-self.__lftp_manager = LftpManager(context)
-self.__file_op_manager = FileOperationManager(context, mp_logger, callbacks)
-
-# Controller.process() calls each manager
-self.__scan_manager.pop_latest_results()
-self.__lftp_manager.status()
-self.__file_op_manager.cleanup_completed_processes()
-```
-
-**Sonarr Integration:**
-```python
-# Add to Controller.__init__()
-self.__sonarr_manager = SonarrManager(
-    context=self.__context,
-    controller=self,  # For queue_command() and model access
-    persist=self.__sonarr_persist
-)
-
-# Add to Controller.process() main loop
-if self.__context.config.sonarr.enabled:
-    self.__sonarr_manager.process()
-```
-
-### Model Listener Pattern
-
-**DON'T use Model listeners for Sonarr.**
-
-**Rationale:**
-- Listeners notify on file state changes (DOWNLOADING → DOWNLOADED)
-- Sonarr import happens EXTERNALLY (Sonarr moves/renames file)
-- No SeedSync state change triggers import detection
-- Import detection must be POLL-BASED from Sonarr API
-
-**AutoQueue uses listeners because:**
-- Files are added/updated by SeedSync's own scanners
-- State changes are internal (remote scan finds new file → queue it)
-
-**Sonarr is different:**
-- State change happens in external system
-- Must actively query to discover
-
-### Command Pattern for Delete
-
-**Existing Pattern:**
-```python
-# Web handler creates command
-command = Controller.Command(Controller.Command.Action.DELETE_LOCAL, filename)
-controller.queue_command(command)
-
-# Controller processes commands in main loop
-command = self.__command_queue.get_nowait()
-if command.action == Controller.Command.Action.DELETE_LOCAL:
-    self.__file_op_manager.delete_local(file)
-```
-
-**Sonarr Auto-Delete:**
-```python
-# SonarrManager detects import
-if file_imported and auto_delete_enabled:
-    command = Controller.Command(
-        Controller.Command.Action.DELETE_LOCAL,
-        filename
-    )
-    self.__controller.queue_command(command)
-```
-
-**Why NOT direct call to FileOperationManager:**
-- Violates Manager encapsulation (Controller owns FileOpManager)
-- Command pattern provides unified queueing, callbacks, error handling
-- Consistent with existing architecture
-
-## Data Flow: Import Detection → Auto-Delete
-
-### Polling-Based Detection (RECOMMENDED)
-
-**Flow:**
-```
-1. Controller.process() calls SonarrManager.process()
-   ↓
-2. SonarrManager.poll_sonarr() → SonarrService.get_queue()
-   ↓
-3. Check queue records for trackedDownloadStatus changes
-   - IF record.status == "completed" AND record.trackedDownloadState == "importPending"
-     → Import in progress, wait
-   - IF record disappears from queue (was present, now missing)
-     → Import complete
-   ↓
-4. Cross-reference with Model.get_file(filename)
-   - Check: file.state == DOWNLOADED or EXTRACTED
-   - Check: file.local_size > 0
-   ↓
-5. IF all checks pass AND filename not in sonarr_persist.imported_file_names:
-   - Add to imported_file_names (prevent re-delete)
-   - Queue DELETE_LOCAL command
-   - Log: "Sonarr imported [filename], queueing auto-delete"
-   ↓
-6. Controller processes DELETE_LOCAL command normally
-   - FileOperationManager.delete_local(file)
-   - Force local scan to update model
-```
-
-**Poll Strategy:**
-- Default interval: 60 seconds (configurable)
-- On each poll: GET /api/v3/queue
-- Track queue record IDs in memory: `prev_queue_ids` → `current_queue_ids`
-- Detect completion: ID was in prev, not in current, filename matches ModelFile
-
-**Why queue, not history:**
-- Queue shows active downloads + imports in progress
-- History requires filtering, pagination, timestamp comparisons
-- Queue disappearance = definitive "import complete" signal
-- Simpler logic, fewer edge cases
-
-### Alternative: Webhook-Based Detection (Future Enhancement)
-
-**Not recommended for v1.7:**
-- Requires inbound HTTP endpoint (complicates deployment)
-- Network restrictions (Docker, NAT, firewall)
-- Webhook reliability issues (delivery guarantees, retries)
-- Polling is simpler, more reliable for single-user use case
-
-**If implemented later:**
-```
-Sonarr OnDownload webhook → SeedSync /webhook/sonarr endpoint
-    ↓
-SonarrWebhookHandler validates payload
-    ↓
-SonarrManager.handle_import_event(filename, series, episode)
-    ↓
-Queue DELETE_LOCAL command (same as polling path)
-```
-
-## Mapping Sonarr Queue to ModelFile
-
-### Queue Record Structure
-
-Based on Go package documentation and issue discussions:
-
-```json
-{
-  "id": 12345,
-  "seriesId": 123,
-  "episodeId": 456,
-  "title": "Series.Name.S01E01.1080p.WEB.H264-GROUP",
-  "size": 1234567890,
-  "status": "completed",
-  "trackedDownloadStatus": "ok",
-  "trackedDownloadState": "importPending",
-  "statusMessages": [
-    {
-      "title": "Import pending",
-      "messages": ["Waiting for download client"]
-    }
-  ],
-  "downloadId": "abc123",
-  "protocol": "torrent",
-  "downloadClient": "qBittorrent",
-  "outputPath": "/downloads/Series.Name.S01E01.1080p.WEB.H264-GROUP"
+**Key integration point:** The existing `_bootstrap-overrides.scss` already demonstrates this pattern:
+```scss
+// Lines 18-39 in _bootstrap-overrides.scss
+[data-bs-theme="dark"] {
+  .dropdown-menu {
+    --bs-dropdown-bg: #{bv.$primary-color};
+    --bs-dropdown-border-color: #{bv.$primary-dark-color};
+    // ... more overrides
+  }
 }
 ```
 
-### Key Fields for Import Detection
+This means:
+- **No changes needed** to the @import/@use hybrid approach
+- **Extend the pattern** in `_bootstrap-overrides.scss` to override dark mode CSS variables
+- **Bootstrap automatically** applies these when `data-bs-theme="dark"` is on `<html>` or specific elements
 
-| Field | Purpose | Values |
-|-------|---------|--------|
-| `title` | Match to ModelFile.name | Exact string match (case-sensitive) |
-| `trackedDownloadState` | Import lifecycle | "downloading", "importPending", "importing", "imported" |
-| `status` | Download completion | "downloading", "completed", "failed" |
-| `outputPath` | Verify path match | Must contain local_path from config |
-| `statusMessages` | Error detection | Check for "No files eligible for import" |
+### Existing Dark Form Inputs Behavior
 
-### Matching Logic
-
-```python
-def find_matching_model_file(queue_record: Dict) -> Optional[ModelFile]:
-    """
-    Map Sonarr queue record to SeedSync ModelFile.
-
-    Returns:
-        ModelFile if match found, None otherwise
-    """
-    # Strategy 1: Direct name match
-    # Sonarr title is usually the folder/file name
-    title = queue_record.get("title", "")
-    model_file = self.__controller.get_model().get_file(title)
-    if model_file:
-        return model_file
-
-    # Strategy 2: Extract base name from outputPath
-    # outputPath = "/downloads/Series.Name.S01E01.1080p.WEB.H264-GROUP"
-    # base_name = "Series.Name.S01E01.1080p.WEB.H264-GROUP"
-    output_path = queue_record.get("outputPath", "")
-    if output_path:
-        base_name = os.path.basename(output_path)
-        model_file = self.__controller.get_model().get_file(base_name)
-        if model_file:
-            return model_file
-
-    # No match found
-    return None
+**Current implementation** (lines 61-84 in `_bootstrap-overrides.scss`):
+```scss
+.form-control {
+  background-color: #212529;  // Dark theme appearance
+  color: #dee2e6;
+  border-color: #495057;
+}
 ```
 
-**Edge Cases:**
-- **Sonarr renames files:** outputPath changes after import, title stays same
-- **Multiple episodes in one download:** Sonarr may have multiple queue records for same ModelFile
-- **Partial imports:** Some files fail, others succeed (check statusMessages)
+**Problem:** These styles apply ALWAYS, not just in dark mode.
 
-### Import Completion Detection
+**When global dark mode is applied:**
+- `<html data-bs-theme="dark">` sets `--bs-body-bg: #212529` (Bootstrap's dark background)
+- Form inputs remain `#212529` background
+- **Result:** Dark inputs on dark background = good contrast maintained
 
-**Method 1: Queue Disappearance (RECOMMENDED)**
-```python
-prev_queue_ids = {record["id"] for record in prev_queue}
-current_queue_ids = {record["id"] for record in current_queue}
-completed_ids = prev_queue_ids - current_queue_ids
+**When light mode is active:**
+- `<html>` has no `data-bs-theme` or `data-bs-theme="light"`
+- Bootstrap sets `--bs-body-bg: #fff` (light background)
+- Form inputs remain `#212529` background
+- **Result:** Dark inputs on light background = current design (intentional for SeedSync's aesthetic)
 
-for record in prev_queue:
-    if record["id"] in completed_ids:
-        # This record disappeared → import complete
-        model_file = find_matching_model_file(record)
-        if model_file:
-            trigger_auto_delete(model_file)
+**Recommendation:** Existing dark inputs are already theme-aware by accident. To make them explicit:
+
+**Option 1: Keep current behavior (dark inputs in both modes)**
+- No changes needed
+- Maintains existing visual identity
+
+**Option 2: Adaptive inputs (dark in dark mode, light in light mode)**
+- Move form-control styles inside `[data-bs-theme="dark"]` selector
+- Let Bootstrap's default light mode styles handle light theme
+
+### Where Theme Service Should Live
+
+**Location:** `src/angular/src/app/services/utils/theme.service.ts`
+
+**Rationale:**
+- Lives alongside other utility services (LoggerService, NotificationService, ConnectedService)
+- Theme is a cross-cutting concern like logging/notifications
+- Not domain-specific (settings, files, etc.)
+
+**Service pattern:**
+```typescript
+// Similar to ConnectedService pattern
+@Injectable({providedIn: 'root'})
+export class ThemeService implements OnInit, OnDestroy {
+  private _theme: WritableSignal<'light' | 'dark' | 'auto'>;
+  private _effectiveTheme: Signal<'light' | 'dark'>;  // Computed from _theme + OS preference
+  // ...
+}
 ```
 
-**Method 2: History API (Alternative)**
-```python
-# Query history for recent imports (last 5 minutes)
-history = sonarr_service.get_history(event_type="downloadFolderImported")
-for record in history:
-    if record["eventType"] == "downloadFolderImported":
-        source_path = record["data"]["droppedPath"]
-        base_name = os.path.basename(source_path)
-        model_file = find_matching_model_file({"title": base_name})
-        if model_file:
-            trigger_auto_delete(model_file)
+**Why signals:**
+- Angular 19's reactivity model
+- Components can read signals without manual subscriptions
+- Automatic change detection when theme changes
+
+### Theme Preference Persistence Strategy
+
+**Recommendation: localStorage (not backend config)**
+
+**Rationale:**
+
+| Consideration | localStorage | Backend Config |
+|---------------|--------------|----------------|
+| **User expectation** | Theme is per-device/browser | Theme syncs across devices |
+| **Performance** | Instant (no API call) | Requires config fetch + save |
+| **Privacy** | No server tracking | Server knows user preference |
+| **Offline support** | Works offline | Requires connection |
+| **Existing pattern** | New pattern | Fits Settings page pattern |
+
+**Analysis:**
+1. **SeedSync's config pattern** (from ConfigService): Backend stores operational config (server paths, LFTP settings, *arr integration). These are functional, not cosmetic.
+2. **Theme is cosmetic**: Doesn't affect backend behavior, only UI rendering
+3. **Similar apps**: Most web apps store theme in localStorage (GitHub, Gmail, VS Code web)
+4. **Settings page integration**: Could still show theme toggle in Settings for discoverability, but persist locally
+
+**Implementation:**
+```typescript
+// ThemeService
+private readonly STORAGE_KEY = 'seedsync-theme';
+
+saveTheme(theme: 'light' | 'dark' | 'auto'): void {
+  try {
+    localStorage.setItem(this.STORAGE_KEY, theme);
+  } catch (error) {
+    // Private browsing or quota exceeded
+    this._logger.warn('Could not save theme preference', error);
+  }
+}
+
+loadTheme(): 'light' | 'dark' | 'auto' {
+  try {
+    return localStorage.getItem(this.STORAGE_KEY) as 'light' | 'dark' | 'auto' || 'auto';
+  } catch {
+    return 'auto';  // Fallback to OS preference
+  }
+}
 ```
 
-**Recommendation:** Use Method 1 (queue disappearance) for v1.7. Simpler, fewer API calls, no timestamp math.
+**Alternative (hybrid approach):**
+- Store in localStorage for instant apply
+- Also save to backend config for cross-device sync (future enhancement)
+- localStorage takes precedence for immediate UX
 
-## State Tracking: Do We Need a New ModelFile State?
+For the initial milestone, **localStorage-only is sufficient**.
 
-**Question:** Should we add `SONARR_IMPORTED` state?
+## Recommended Project Structure
 
-**Answer:** NO. Use status field instead.
-
-### Why NOT a new state:
-
-**ModelFile.State is a LIFECYCLE state machine:**
 ```
-DEFAULT → QUEUED → DOWNLOADING → DOWNLOADED → EXTRACTED → DELETED
-```
-
-Each state represents SeedSync's own operations. Sonarr import is an EXTERNAL event, not part of SeedSync's sync lifecycle.
-
-**Adding SONARR_IMPORTED would:**
-- Break existing state machine logic (what comes after EXTRACTED?)
-- Confuse users (UI shows file as "imported" but it's still locally present)
-- Complicate ModelBuilder (how to infer this state from scans?)
-
-### Alternative: Add `sonarr_imported_timestamp` Field
-
-**Proposal:**
-```python
-class ModelFile:
-    def __init__(self, name: str, is_dir: bool):
-        # ... existing fields ...
-        self.__sonarr_imported_timestamp = None  # Optional[datetime]
-
-    @property
-    def sonarr_imported_timestamp(self) -> Optional[datetime]:
-        return self.__sonarr_imported_timestamp
-
-    @sonarr_imported_timestamp.setter
-    def sonarr_imported_timestamp(self, timestamp: datetime):
-        self._check_frozen()
-        self.__sonarr_imported_timestamp = timestamp
+src/angular/src/
+├── app/
+│   ├── services/
+│   │   └── utils/
+│   │       └── theme.service.ts              # NEW: Theme management service
+│   ├── common/
+│   │   └── _bootstrap-overrides.scss         # MODIFY: Add light mode overrides
+│   └── pages/
+│       ├── main/
+│       │   ├── header.component.ts           # MODIFY: Add theme toggle
+│       │   ├── header.component.html         # MODIFY: Theme toggle UI
+│       │   └── header.component.scss         # MODIFY: Toggle styling
+│       └── settings/
+│           ├── settings-page.component.html  # OPTIONAL: Add theme section
+│           └── options-list.ts               # OPTIONAL: Theme option
+└── styles.scss                               # NO CHANGE: Already imports variables-dark
 ```
 
-**Benefits:**
-- Non-invasive (doesn't affect state machine)
-- Supports UI display ("Imported by Sonarr at [time]")
-- Enables notifications ("File X was imported")
-- Optional (None if Sonarr integration disabled)
+### Structure Rationale
 
-**BUT:** May be overkill for v1.7. The imported_file_names BoundedOrderedSet in SonarrPersist is sufficient for auto-delete logic.
-
-**Recommendation for v1.7:** Skip the ModelFile field. Use SonarrPersist tracking only. Add field later if UI needs it.
-
-## Configuration Integration
-
-### Config File Structure
-
-```ini
-[Sonarr]
-# Enable Sonarr integration
-enabled = False
-
-# Sonarr server details
-host = localhost
-port = 8989
-api_key =
-
-# Connection settings
-use_ssl = False
-verify_ssl = True
-
-# Polling interval (seconds)
-poll_interval_sec = 60
-
-# Auto-delete after import
-auto_delete_enabled = True
-```
-
-### Config Class Implementation
-
-**Location:** `src/python/common/config.py`
-
-```python
-class SonarrConfig(Config.Section):
-    _SECTION_NAME = "Sonarr"
-
-    enabled = Config.PROP(
-        Config.Checkers.boolean(),
-        Config.Converters.boolean(),
-        default="False"
-    )
-
-    host = Config.PROP(
-        Config.Checkers.string(),
-        Config.Converters.string(),
-        default="localhost"
-    )
-
-    port = Config.PROP(
-        Config.Checkers.integer(min_value=1, max_value=65535),
-        Config.Converters.integer(),
-        default="8989"
-    )
-
-    api_key = Config.PROP(
-        Config.Checkers.string(),
-        Config.Converters.string(),
-        default=""
-    )
-
-    use_ssl = Config.PROP(
-        Config.Checkers.boolean(),
-        Config.Converters.boolean(),
-        default="False"
-    )
-
-    verify_ssl = Config.PROP(
-        Config.Checkers.boolean(),
-        Config.Converters.boolean(),
-        default="True"
-    )
-
-    poll_interval_sec = Config.PROP(
-        Config.Checkers.integer(min_value=10, max_value=3600),
-        Config.Converters.integer(),
-        default="60"
-    )
-
-    auto_delete_enabled = Config.PROP(
-        Config.Checkers.boolean(),
-        Config.Converters.boolean(),
-        default="True"
-    )
-
-# Add to Config.InnerConfig
-class InnerConfig(Config):
-    def __init__(self):
-        # ... existing sections ...
-        self.sonarr = SonarrConfig(self)
-```
+- **theme.service.ts in utils/:** Cross-cutting concern alongside logging, notifications
+- **Bootstrap overrides modification:** Extends existing pattern of `[data-bs-theme]` selectors
+- **Header component for toggle:** Most visible location, consistent with common UI patterns
+- **Settings page optional:** Could add for discoverability, but header toggle is primary UX
 
 ## Architectural Patterns
 
-### Pattern 1: Manager with External API Client
+### Pattern 1: Signal-Based Theme State
 
-**What:** SonarrManager owns SonarrService, calls from process() loop
+**What:** Use Angular signals for reactive theme state management without explicit subscriptions
 
-**When to use:** External API integration with polling
+**When to use:** Angular 19+ projects needing reactive UI updates
 
 **Trade-offs:**
-- **Pro:** Encapsulation (API details hidden from Controller)
-- **Pro:** Testable (mock SonarrService in tests)
-- **Pro:** Error isolation (API exceptions caught in manager)
-- **Con:** Adds layer (could call pyarr directly, but less testable)
+- **Pro:** Automatic change detection, no manual unsubscribe
+- **Pro:** Computed signals for derived state (effectiveTheme from theme + OS preference)
+- **Con:** Requires Angular 19+ (not an issue for SeedSync)
 
 **Example:**
-```python
-class SonarrManager:
-    def __init__(self, context, controller, persist):
-        self.__sonarr_service = SonarrService(
-            host=context.config.sonarr.host,
-            port=context.config.sonarr.port,
-            api_key=context.config.sonarr.api_key,
-            use_ssl=context.config.sonarr.use_ssl,
-            verify_ssl=context.config.sonarr.verify_ssl
-        )
-        self.__prev_queue_ids = set()
+```typescript
+@Injectable({providedIn: 'root'})
+export class ThemeService {
+  // User preference signal
+  private _theme = signal<'light' | 'dark' | 'auto'>('auto');
 
-    def process(self):
-        try:
-            queue = self.__sonarr_service.get_queue()
-            self.__check_for_imports(queue)
-        except Exception as e:
-            self.logger.warning(f"Sonarr API error: {e}")
+  // OS preference signal
+  private _osPrefersDark = signal<boolean>(false);
+
+  // Computed effective theme (auto resolves to light/dark based on OS)
+  readonly effectiveTheme = computed(() => {
+    const theme = this._theme();
+    if (theme === 'auto') {
+      return this._osPrefersDark() ? 'dark' : 'light';
+    }
+    return theme;
+  });
+
+  // Public read-only signal
+  readonly theme = this._theme.asReadonly();
+}
 ```
 
-### Pattern 2: BoundedOrderedSet for Tracking
+### Pattern 2: matchMedia + Effect for OS Preference Detection
 
-**What:** Use existing BoundedOrderedSet for imported file tracking
+**What:** Use window.matchMedia to detect OS color scheme and Angular effects to apply changes
 
-**When to use:** Need to remember past events without unbounded growth
-
-**Trade-offs:**
-- **Pro:** Prevents memory leak (auto-evicts old entries)
-- **Pro:** Consistent with downloaded_file_names, extracted_file_names
-- **Pro:** LRU eviction prevents re-deleting very old files
-- **Con:** If limit exceeded, oldest imports forgotten (could re-delete if file re-appears)
-
-**Mitigation:** Set maxlen high (10000 default, configurable). Average user won't hit this in practice.
-
-### Pattern 3: Polling with State Diffing
-
-**What:** Track prev_queue_ids, compare to current_queue_ids, detect disappearances
-
-**When to use:** Detecting external events via polling
+**When to use:** When supporting "auto" theme mode that respects OS preference
 
 **Trade-offs:**
-- **Pro:** Reliable (no missed events if poll interval reasonable)
-- **Pro:** Simple (no webhook infrastructure)
-- **Con:** Latency (import → delete has poll_interval delay)
-- **Con:** API load (polls even when idle)
+- **Pro:** Respects user's system-wide preference
+- **Pro:** Automatically updates when user changes OS theme
+- **Con:** Requires cleanup of event listeners
 
-**Optimization:** Exponential backoff if queue empty for N consecutive polls (future enhancement).
+**Example:**
+```typescript
+export class ThemeService implements OnDestroy {
+  private darkModeQuery: MediaQueryList;
+  private mediaQueryListener: (e: MediaQueryListEvent) => void;
+
+  constructor() {
+    // Detect initial OS preference
+    this.darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    this._osPrefersDark.set(this.darkModeQuery.matches);
+
+    // Listen for OS theme changes
+    this.mediaQueryListener = (e) => this._osPrefersDark.set(e.matches);
+    this.darkModeQuery.addEventListener('change', this.mediaQueryListener);
+
+    // Apply theme whenever effectiveTheme changes
+    effect(() => {
+      const theme = this.effectiveTheme();
+      document.documentElement.setAttribute('data-bs-theme', theme);
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.darkModeQuery.removeEventListener('change', this.mediaQueryListener);
+  }
+}
+```
+
+### Pattern 3: Bootstrap CSS Variable Overrides in SCSS
+
+**What:** Override Bootstrap's dark mode CSS variables using `[data-bs-theme="dark"]` selectors
+
+**When to use:** When customizing Bootstrap's default dark mode colors
+
+**Trade-offs:**
+- **Pro:** Works with Bootstrap's built-in color mode system
+- **Pro:** No need to redefine all component styles
+- **Con:** Need to use `#{}` interpolation for SCSS variables in CSS custom properties
+
+**Example:**
+```scss
+// In _bootstrap-overrides.scss
+@use 'bootstrap-variables' as bv;
+
+[data-bs-theme="dark"] {
+  // Override global dark mode colors
+  --bs-body-bg: #1a1a1a;          // Darker background
+  --bs-body-color: #e0e0e0;       // Lighter text
+
+  // Component-specific overrides
+  .form-control {
+    --bs-form-control-bg: #2a2a2a;
+    --bs-form-control-color: #e0e0e0;
+    --bs-border-color: #{bv.$input-border-color};
+  }
+
+  .card {
+    --bs-card-bg: #252525;
+  }
+}
+
+// Light mode overrides (if needed)
+[data-bs-theme="light"] {
+  // Override global light mode colors if defaults don't work
+  --bs-body-bg: #f5f5f5;  // Current body background in styles.scss
+}
+```
+
+## Data Flow
+
+### Theme Selection Flow
+
+```
+[User clicks theme toggle]
+    ↓
+[Theme Toggle Component] → emit theme ('light'|'dark'|'auto')
+    ↓
+[ThemeService.setTheme()] → update _theme signal
+    ↓
+[Computed effectiveTheme] → resolves 'auto' → checks _osPrefersDark signal
+    ↓
+[Angular effect] → applies data-bs-theme to <html>
+    ↓
+[localStorage] ← save preference
+    ↓
+[Bootstrap CSS] → applies theme via [data-bs-theme] selector
+    ↓
+[All components] → re-render with new theme (automatic via CSS)
+```
+
+### Initialization Flow
+
+```
+[App Bootstrap]
+    ↓
+[ThemeService constructor] → initialize matchMedia listener
+    ↓
+[loadTheme()] → check localStorage → fallback to 'auto'
+    ↓
+[_osPrefersDark.set()] → read matchMedia.matches
+    ↓
+[effectiveTheme computed] → determine initial theme
+    ↓
+[Angular effect] → apply to <html> BEFORE first render
+    ↓
+[No flash of wrong theme]
+```
+
+### Key Data Flows
+
+1. **OS preference change:** matchMedia listener → _osPrefersDark signal → effectiveTheme computed → effect applies to DOM
+2. **User manual change:** Toggle component → ThemeService.setTheme() → _theme signal → effectiveTheme computed → effect + localStorage
+3. **Page load:** ThemeService constructor → localStorage → _theme signal → matchMedia → _osPrefersDark → effectiveTheme → DOM
+
+## Integration Points
+
+### New Components
+
+| Component | Type | Purpose | Integration |
+|-----------|------|---------|-------------|
+| **ThemeService** | Angular service | Theme state management | Injected into components needing theme info |
+| **Theme Toggle** | Standalone component | UI for theme switching | Lives in Header or Settings page |
+
+### Modified Components
+
+| Component | Change | Reason |
+|-----------|--------|--------|
+| **Header** | Add theme toggle | Primary location for theme control |
+| **Settings page** | Optional theme section | Alternative/additional theme control |
+| **_bootstrap-overrides.scss** | Add light mode overrides | Make dark inputs adaptive (optional) |
+
+### SCSS File Changes
+
+| File | Change | Impact |
+|------|--------|--------|
+| **styles.scss** | NO CHANGE | Already imports variables-dark |
+| **_bootstrap-variables.scss** | NO CHANGE | Pre-compilation variables unaffected |
+| **_bootstrap-overrides.scss** | Add `[data-bs-theme="light"]` overrides | Make existing dark form inputs theme-aware (optional) |
+| **_common.scss** | NO CHANGE | Just re-exports variables |
+
+### External Dependencies
+
+| Dependency | Current | Notes |
+|------------|---------|-------|
+| Bootstrap | 5.3.x | Already includes dark mode support via variables-dark.scss |
+| Angular | 19.x | Signals API available |
+| Browser APIs | window.matchMedia | Supported in all modern browsers |
+
+## Build Order Recommendations
+
+**Phase 1: Foundation (Theme Service + Detection)**
+1. Create ThemeService with signals
+2. Implement matchMedia detection
+3. Implement localStorage persistence
+4. Add effect to apply data-bs-theme to DOM
+5. Test: Can manually call setTheme() in console, DOM updates
+
+**Phase 2: UI Control (Theme Toggle)**
+6. Create theme toggle component (3 states: light/dark/auto)
+7. Integrate into header component
+8. Test: Clicking toggle changes theme, persists across reload
+
+**Phase 3: SCSS Refinement (Optional)**
+9. Add `[data-bs-theme="light"]` overrides for form inputs if adaptive inputs desired
+10. Test dark form inputs in both light/dark mode
+11. Adjust any component-specific dark mode colors
+
+**Phase 4: Settings Integration (Optional)**
+12. Add theme option to Settings page
+13. Test both header toggle and settings option work together
+
+**Rationale:**
+- **Phase 1 builds infrastructure** before UI concerns
+- **Phase 2 delivers user-visible feature** (can stop here for MVP)
+- **Phase 3 is polish** (only if design calls for adaptive inputs)
+- **Phase 4 is discoverability** (if users struggle to find header toggle)
 
 ## Anti-Patterns
 
-### Anti-Pattern 1: Adding SONARR_IMPORTED State
+### Anti-Pattern 1: Applying Dark Mode Classes Manually
 
-**What people might do:** Add new state to ModelFile.State enum
-
-**Why it's wrong:**
-- Breaks state machine semantics (EXTRACTED → SONARR_IMPORTED → DELETED is illogical)
-- External event shouldn't be part of internal lifecycle
-- Complicates ModelBuilder (can't infer from filesystem scans)
-
-**Do this instead:** Use optional timestamp field OR persist-only tracking
-
-### Anti-Pattern 2: Direct FileOperationManager Calls
-
-**What people might do:**
-```python
-# In SonarrManager.process()
-self.__file_op_manager.delete_local(file)  # WRONG
+**What people do:** Add/remove CSS classes to switch themes instead of using data-bs-theme
+```typescript
+// DON'T DO THIS
+document.body.classList.add('dark-mode');
 ```
 
 **Why it's wrong:**
-- Violates encapsulation (Controller owns FileOpManager)
-- Bypasses command queue (no callback support)
-- Breaks testability (can't mock command execution)
+- Breaks Bootstrap's built-in color mode system
+- Requires manual CSS for every component
+- Doesn't leverage Bootstrap's CSS variables
 
-**Do this instead:** Use Controller.queue_command()
-```python
-command = Controller.Command(Action.DELETE_LOCAL, filename)
-self.__controller.queue_command(command)
+**Do this instead:**
+```typescript
+// DO THIS
+document.documentElement.setAttribute('data-bs-theme', 'dark');
 ```
 
-### Anti-Pattern 3: Synchronous API Calls in Critical Path
+### Anti-Pattern 2: Duplicating Entire Stylesheets for Dark Mode
 
-**What people might do:** Poll Sonarr in Controller.get_model_files() (request path)
+**What people do:** Create separate `styles-dark.scss` and swap stylesheet href
+```typescript
+// DON'T DO THIS
+<link rel="stylesheet" [href]="theme === 'dark' ? 'dark.css' : 'light.css'">
+```
 
 **Why it's wrong:**
-- Blocks web responses (Sonarr API could take 1-5 seconds)
-- DoS risk (slow API cascades to all clients)
-- Violates separation (request handling should be fast)
+- Large file size (duplicate CSS)
+- Flash during stylesheet swap
+- Difficult to maintain consistency
 
-**Do this instead:** Poll in Controller.process() background loop, not request path
+**Do this instead:** Use `[data-bs-theme]` selectors and CSS custom properties (already in Bootstrap 5.3)
 
-## Build Order (Dependency-Driven)
+### Anti-Pattern 3: Not Handling "auto" Mode
 
-Based on component dependencies, suggested implementation order:
-
-### Phase 1: Configuration & Persistence (No Dependencies)
-1. **SonarrConfig** (config.py)
-   - Add [Sonarr] section with properties
-   - No dependencies, pure data structure
-   - Test: Config parsing from .ini file
-
-2. **SonarrPersist** (controller_persist.py or new sonarr_persist.py)
-   - BoundedOrderedSet for imported_file_names
-   - JSON serialization/deserialization
-   - Test: Save/load persistence
-
-### Phase 2: API Client (External Dependency)
-3. **Add pyarr dependency** (pyproject.toml)
-   - `poetry add pyarr`
-   - Pin version (5.2.0 or later)
-
-4. **SonarrService** (new file: controller/sonarr_service.py)
-   - Wrap pyarr.SonarrAPI
-   - get_queue(), get_history() methods
-   - Error handling for API failures
-   - Test: Mock pyarr, verify error handling
-
-### Phase 3: Manager Logic (Depends on Phase 1 & 2)
-5. **SonarrManager** (new file: controller/sonarr_manager.py)
-   - process() polling loop
-   - find_matching_model_file() mapping logic
-   - check_for_imports() with queue diffing
-   - trigger_auto_delete() command queueing
-   - Test: Mock SonarrService, verify command generation
-
-### Phase 4: Controller Integration (Depends on Phase 3)
-6. **Controller modifications** (controller.py)
-   - Add sonarr_manager initialization
-   - Call sonarr_manager.process() in main loop
-   - Add sonarr_persist to ControllerPersist
-   - Test: Integration test with mock Sonarr API
-
-### Phase 5: Web API (Depends on Phase 3)
-7. **REST endpoints** (web layer)
-   - GET /api/sonarr/config → Current settings
-   - POST /api/sonarr/config → Update settings
-   - GET /api/sonarr/status → Connection test, last poll time
-   - Test: API contract tests
-
-### Phase 6: Frontend (Depends on Phase 5)
-8. **Settings UI** (Angular)
-   - Sonarr config form (host, port, API key)
-   - Connection test button
-   - Enable/disable toggle
-   - Test: E2E settings page
-
-9. **Status Display** (Angular)
-   - File list shows import status (optional)
-   - Notifications for imports (optional)
-   - Test: E2E file operations
-
-### Dependency Graph
-```
-Config ─┐
-        ├─→ SonarrService ─→ SonarrManager ─→ Controller ─→ Web API ─→ Frontend
-Persist ┘                                   ↗
-                                      pyarr ┘
+**What people do:** Only support explicit light/dark, ignore OS preference
+```typescript
+// DON'T DO THIS
+theme: 'light' | 'dark';  // No 'auto' option
 ```
 
-**Critical Path:** Config → pyarr → SonarrService → SonarrManager → Controller
+**Why it's wrong:**
+- User expects app to respect system preference
+- Forces manual theme selection
+- Poor UX compared to modern apps
 
-**Parallel Work:** Frontend UI can be built against mocked API while backend is in progress.
+**Do this instead:** Support 'auto' mode that detects OS preference via matchMedia
 
-## Testing Strategy
+### Anti-Pattern 4: Applying Theme After First Render
 
-### Unit Tests
+**What people do:** Load theme in ngOnInit, causing flash of wrong theme
+```typescript
+// DON'T DO THIS
+ngOnInit() {
+  this.themeService.loadTheme();  // Too late, already rendered
+}
+```
 
-| Component | Mock Dependencies | Key Test Cases |
-|-----------|-------------------|----------------|
-| SonarrService | pyarr.SonarrAPI | API errors, response parsing |
-| SonarrManager | SonarrService, Controller | Queue diffing, file matching, command generation |
-| SonarrPersist | None | Serialization, eviction, bounds |
-| SonarrConfig | None | Validation, defaults |
+**Why it's wrong:**
+- Flash of light theme before dark mode applies
+- Poor user experience
 
-### Integration Tests
+**Do this instead:** Apply theme in service constructor or APP_INITIALIZER before first render
 
-1. **Mock Sonarr API Server**
-   - Flask server returning fake queue/history responses
-   - Test full poll → detect → delete flow
-   - Verify no duplicate deletes
+### Anti-Pattern 5: Storing Theme in Backend Config
 
-2. **E2E with Real Sonarr (Optional)**
-   - Docker Compose: SeedSync + Sonarr + qBittorrent
-   - Download file → Sonarr imports → SeedSync deletes
-   - Manual verification
+**What people do:** Save theme to server like operational settings
+```typescript
+// DON'T DO THIS (for theme)
+this._configService.set('ui', 'theme', 'dark');
+```
+
+**Why it's wrong (for theme):**
+- Adds latency (API call to change theme)
+- Doesn't work offline
+- User expects per-device preference (work laptop vs personal laptop)
+- Overkill for cosmetic setting
+
+**Do this instead:** Use localStorage for instant, device-specific persistence
 
 ## Scaling Considerations
 
-| Scale | Considerations |
-|-------|----------------|
-| Single user (v1.7 target) | Polling every 60s is fine, minimal API load |
-| Multiple instances | Each instance polls independently (no coordination needed) |
-| High file volume (1000+ files/day) | BoundedOrderedSet eviction may need higher limit |
-| Sonarr API rate limits | Add exponential backoff on errors, respect retry-after headers |
+| Scale | Architecture Adjustments |
+|-------|--------------------------|
+| 0-10k users | localStorage + single theme service = sufficient |
+| 10k-100k users | No changes needed (theme is client-side only) |
+| 100k+ users | Still no changes (localStorage scales infinitely per client) |
 
-**Not a scaling concern:** Sonarr integration is single-user, local network use case. Not designed for multi-tenant or high-throughput scenarios.
+**Key insight:** Theme switching is entirely client-side. Server never involved. No scaling concerns.
 
 ## Sources
 
-### Sonarr API Documentation
-- [Sonarr API Docs](https://sonarr.tv/docs/api/) - Official API reference (MEDIUM confidence - landing page only)
-- [GET /api/v3/queue · Issue #7422](https://github.com/Sonarr/Sonarr/issues/7422) - Queue endpoint discussion
-- [sonarr package - golift.io/starr/sonarr](https://pkg.go.dev/golift.io/starr/sonarr) - Go API wrapper (shows response schemas)
+**Bootstrap 5.3 Dark Mode:**
+- [Color modes · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/customize/color-modes/) - Official dark mode documentation
+- [bootstrap/scss/_variables-dark.scss at v5.3.5](https://github.com/twbs/bootstrap/blob/v5.3.5/scss/_variables-dark.scss) - Dark mode SCSS variables
+- [Bootstrap 5.3.0 Release](https://blog.getbootstrap.com/2023/05/30/bootstrap-5-3-0/) - Dark mode feature announcement
 
-### Webhook vs Polling
-- [Webhooks vs. Polling](https://medium.com/@nile.bits/webhooks-vs-polling-431294f5af8a) - General comparison
-- [Polling vs Webhooks: When to Use One Over the Other](https://unified.to/blog/polling_vs_webhooks_when_to_use_one_over_the_other) - Decision framework
-- [Webhook vs. API Polling in System Design](https://www.geeksforgeeks.org/system-design/webhook-vs-api-polling-in-system-design/) - Tradeoffs
+**Angular Dark Mode Patterns:**
+- [prefers-color-scheme - CSS | MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme) - OS preference detection
+- [Implementing Dark Mode in Angular Applications](https://www.sparkcodehub.com/angular/ui/implement-dark-mode-in-app) - Angular-specific patterns
+- [LocalStorage in Angular 19: Signal‑Based Approaches](https://medium.com/@MichaelVD/localstorage-in-angular-19-clean-reactive-and-signal-based-approaches-b0be8adfd1e8) - Modern Angular storage patterns
 
-### Python Libraries
-- [pyarr · PyPI](https://pypi.org/project/pyarr/) - Python Sonarr API wrapper
-- [GitHub - totaldebug/pyarr](https://github.com/totaldebug/pyarr) - Source repository
-- [pyarr documentation](https://docs.totaldebug.uk/pyarr/) - API reference
-
-### Sonarr Queue/History Details
-- [Sonarr Troubleshooting | Servarr Wiki](https://wiki.servarr.com/sonarr/troubleshooting) - Queue status explanations
-- [Question about latest changes in queue api · Issue #7663](https://github.com/Sonarr/Sonarr/issues/7663) - statusMessages field
-- [GET Queue API 'status' filter does not work · Issue #7389](https://github.com/Sonarr/Sonarr/issues/7389) - Queue filtering
-
-### SeedSync Codebase
-- Analyzed: controller.py, scan_manager.py, lftp_manager.py, file_operation_manager.py
-- Analyzed: model/file.py (ModelFile.State)
-- Analyzed: controller_persist.py (BoundedOrderedSet pattern)
-- Analyzed: auto_queue.py (Listener pattern)
-- Analyzed: CLAUDE.md (architecture overview)
+**Best Practices:**
+- [Best Practices for Persisting State in Frontend Applications](https://blog.pixelfreestudio.com/best-practices-for-persisting-state-in-frontend-applications/) - localStorage vs backend
+- [How to store theme color preferences using the Local Storage API](https://codyhouse.co/blog/post/store-theme-color-preferences-with-localstorage) - Theme persistence patterns
 
 ---
-*Architecture research for: Sonarr Integration in SeedSync*
-*Researched: 2026-02-10*
+*Architecture research for: SeedSync Dark Mode Integration*
+*Researched: 2026-02-11*

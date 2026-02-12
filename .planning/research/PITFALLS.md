@@ -1,218 +1,270 @@
 # Pitfalls Research
 
-**Domain:** Sonarr API Integration for Download Managers
-**Researched:** 2026-02-10
-**Confidence:** MEDIUM
+**Domain:** Adding dark mode to existing Bootstrap 5.3 Angular app
+**Researched:** 2026-02-11
+**Confidence:** HIGH
 
 ## Critical Pitfalls
 
-### Pitfall 1: Delete-Before-Import Race Condition
+### Pitfall 1: Theme Flicker on Page Load (FOUC)
 
 **What goes wrong:**
-Files are deleted from local storage before Sonarr completes the import process, resulting in import failures and lost media. This is the most common and severe integration mistake.
+Flash of Unstyled Content (FOUC) occurs when the page briefly renders in the wrong theme before JavaScript applies the user's preference. Users see a jarring white flash when they've selected dark mode, or vice versa.
 
 **Why it happens:**
-Developers poll the queue API and see status changes (like `importPending` or completion) and assume the import is done. However, Sonarr's import is asynchronous - the queue status may update before file operations complete, especially for large files or season packs.
+Angular's server-side rendering doesn't know the user's theme preference stored in localStorage. The initial HTML renders with default styles, and dark mode is only applied after hydration when JavaScript reads localStorage. This creates a visible delay between page load and theme application.
 
 **How to avoid:**
-1. Never rely solely on queue status for deletion decisions
-2. Use webhook notifications (OnImport event) as the definitive signal
-3. If polling only: Check BOTH queue removal AND history API for import confirmation
-4. Add a configurable safety delay (default 30-60 seconds) after import signal before deletion
-5. Verify file still exists in Sonarr's library via /api/v3/episodefile before deletion
+1. **Inline theme script in index.html**: Add a blocking script in `<head>` that reads localStorage and sets `data-bs-theme` attribute BEFORE Angular bootstraps
+2. **Use hidden HTML**: Add `<html hidden>` attribute and remove it after theme is applied
+3. **CSS-based hiding**: Use CSS to hide body until theme class is applied
+
+```html
+<!-- In index.html <head> BEFORE any stylesheets -->
+<script>
+  (function() {
+    const theme = localStorage.getItem('theme') ||
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-bs-theme', theme);
+  })();
+</script>
+```
 
 **Warning signs:**
-- User reports of "Import Failed: File not found" in Sonarr logs
-- Files disappearing from download folder while queue shows "Importing"
-- Sonarr repeatedly re-grabbing already downloaded episodes
-- Import success notifications but episodes still marked as missing
+- Visual flash when refreshing page with hard reload
+- Different theme appears for 100-300ms on navigation
+- Users report "flickering" when opening app
 
 **Phase to address:**
-Phase 2 (Core API Integration) - implement webhook-based import detection with safety delay
+Phase 1 (Theme Infrastructure) — Must be solved before any theme toggle implementation. Testing should include hard refresh, cache clearing, and incognito mode.
 
 ---
 
-### Pitfall 2: Season Pack Partial Import Deletion
+### Pitfall 2: Hardcoded Colors Breaking Dark Mode
 
 **What goes wrong:**
-When importing season packs, Sonarr may import only some episodes while the download manager deletes the entire folder, losing episodes that haven't been processed yet. This leads to incomplete seasons and user frustration.
+Components with hardcoded hex colors in SCSS files don't adapt to theme changes. Specific example: form inputs already styled with dark backgrounds (`#2c3e50` type values) will look wrong in actual dark mode, creating double-dark or invisible text situations.
 
 **Why it happens:**
-Sonarr's season pack import is multi-step: it processes episodes sequentially, and timing issues can cause some episodes to remain unprocessed. The download manager sees the first import event and assumes the entire pack is complete. Additionally, Sonarr has a documented bug where async methods are called without await, causing unpredictable deletion timing.
+Bootstrap 5.3's dark mode relies on CSS variables, but many components use direct Sass variables or hardcoded hex values. The project context notes "hardcoded hex colors in some component SCSS files" — these bypass the theme system entirely. Bootstrap's own architecture is inconsistent: some components use theme-aware CSS variables while others use color SCSS variables directly.
 
 **How to avoid:**
-1. Track import completion per-file, not per-torrent/download
-2. For multi-file downloads, wait for ALL expected episodes to appear in history API
-3. Parse release name to detect season packs (S01, Season.01, Complete.Series patterns)
-4. For season packs: require explicit user confirmation before auto-delete OR wait 24 hours
-5. Check queue for "remaining episodes" - don't delete if importPending items remain for same series
+1. **Audit all SCSS files** for hardcoded colors: `grep -r "#[0-9a-fA-F]\{6\}" src/**/*.scss`
+2. **Replace with CSS variables**: Convert `color: #2c3e50` → `color: var(--bs-body-color)`
+3. **Use color-mode mixin** for dual values:
+```scss
+.my-component {
+  background-color: #f8f9fa; // light mode default
+
+  @include color-mode(dark) {
+    background-color: #212529; // dark mode override
+  }
+}
+```
+4. **Special attention to existing dark form inputs**: These need to be INVERTED for dark mode, not doubled-down
 
 **Warning signs:**
-- Season pack shows in queue with some episodes imported, some missing
-- User reports "Only got 8 of 12 episodes, rest disappeared"
-- Sonarr Activity shows import failures for episodes after successful ones
-- Multi-episode files (S01E01-E02) only import first episode
+- Text becomes invisible in one theme
+- Form inputs look odd in dark mode (too dark or too light)
+- Teal accent colors lose contrast in one theme
+- Borders disappear or become too prominent
 
 **Phase to address:**
-Phase 3 (Import Detection Logic) - implement multi-file tracking with season pack detection
+Phase 2 (Component Audit & Remediation) — Systematic review of every component SCSS file. Create a checklist of files with hardcoded colors. Priority: forms, buttons, cards, navigation.
 
 ---
 
-### Pitfall 3: File Name Mismatch (Download Name vs Sonarr Queue)
+### Pitfall 3: SCSS Variable Override Scope Issues
 
 **What goes wrong:**
-Unable to correlate files in download folder with Sonarr queue items because release names don't match. Download manager can't determine which files Sonarr has imported, leading to orphaned files or premature deletion.
+Variable overrides set before importing Bootstrap don't apply to dark mode. Dark mode CSS variables ignore your custom Sass variable values. Example: You override `$primary` in your SCSS, but dark mode uses Bootstrap's default primary color instead.
 
 **Why it happens:**
-Torrent clients may rename files, LFTP might preserve original seedbox names that differ from Sonarr's grabbed release name, or scene numbering doesn't match TVDB numbering. Sonarr's parser uses TheXEM for mapping, but external tools don't have access to this.
+Bootstrap 5.3 introduced a breaking architectural change. CSS variables for dark mode are partially generated from `_variables-dark.scss`, NOT from your custom Sass variable overrides. The two-layer SCSS customization in SeedSync (variable overrides + post-compilation overrides) adds complexity. Additionally, the project uses `@use/@forward` for app SCSS but `@import` for Bootstrap, creating module scope conflicts.
+
+Per Bootstrap issue #39379: "CSS variables not adopting default overrides" — overriding base colors in 5.3 doesn't work like it did in 5.2.x. You must now use `@include color-mode(dark)` with explicit CSS variable overrides.
 
 **How to avoid:**
-1. Don't rely on exact filename matching between local files and Sonarr queue
-2. Use Sonarr's history API with `eventType=downloadFolderImported` to get actual imported paths
-3. Store mapping between local paths and download IDs when files arrive
-4. Query /api/v3/parse with your filename to see if Sonarr recognizes it
-5. For absolute numbering (anime): expect mismatches, require manual user mapping
+1. **Override CSS variables, not just Sass variables**:
+```scss
+// This alone won't work for dark mode:
+$primary: #17a2b8;
+
+// You need BOTH:
+$primary: #17a2b8;
+
+@include color-mode(dark) {
+  --bs-primary: #20c997; // adjusted for dark mode contrast
+  --bs-primary-rgb: 32, 201, 151;
+}
+```
+
+2. **Be explicit with teal accent colors**: Define both light and dark variants
+3. **Test contrast ratios**: WCAG requires 4.5:1 for text, 3:1 for UI components
+4. **Document the migration path**: @import → @use for Bootstrap requires namespace handling
 
 **Warning signs:**
-- Files remain in download folder despite Sonarr showing "imported"
-- Auto-delete never triggers even though episodes are in library
-- User has to manually delete files that Sonarr already imported
-- Logs show "Could not match file [X] to any queue item"
+- Custom colors work in light mode but not dark mode
+- Console warnings about CSS variable undefined
+- Sass compilation errors about undefined variables
+- Theme toggle changes Bootstrap defaults but not custom colors
 
 **Phase to address:**
-Phase 3 (Import Detection Logic) - implement history API correlation instead of name matching
+Phase 2 (Component Audit & Remediation) — After identifying all custom colors, create dark mode variants. Phase 3 (SCSS Architecture Cleanup) — Migrate from @import to @use if needed, unify the two-layer customization approach.
 
 ---
 
-### Pitfall 4: Sonarr Import While File is Transferring
+### Pitfall 4: data-bs-theme Inheritance Conflicts
 
 **What goes wrong:**
-Sonarr detects and starts importing a file while LFTP is still transferring it, resulting in corrupted imports, incomplete files in library, or Sonarr errors about files changing during import.
+Conflicting `data-bs-theme` attributes on nested elements create visual inconsistencies. Project context mentions "uses data-bs-theme='dark' on some dropdown menus" — these will conflict with global theme toggle. Dropdowns, modals, and tooltips appear in wrong theme.
 
 **Why it happens:**
-Sonarr monitors download folders for new files. If it sees a growing file, it may attempt import before transfer completes. This is common when Sonarr's download client category points to the same folder where LFTP is writing files.
+`data-bs-theme` attribute cascades but can be overridden at any level. If a dropdown has `data-bs-theme="dark"` hardcoded but the page is in light mode, that specific dropdown will be dark. Bootstrap's own documentation is unclear about precedence rules. The attribute was designed for per-component theming but creates maintenance burden when implementing global themes.
+
+Per Bootstrap issue #38973: `data-bs-theme="dark"` behaves differently than the old `.navbar-dark` class, and there's currently no way to make dropdowns use default colors while keeping the navbar dark.
 
 **How to avoid:**
-1. LFTP should transfer to a staging directory, THEN move to Sonarr's watched folder atomically
-2. Use temp file extension (.part, .!sync) during transfer, rename on completion
-3. Configure Sonarr's "Completed Download Handling" with appropriate delay
-4. Verify file size stability before allowing Sonarr to see it (check size twice with delay)
-5. Use file locks if filesystem supports them
+1. **Audit for hardcoded data-bs-theme**: `grep -r "data-bs-theme" src/`
+2. **Remove component-level attributes**: Let theme cascade from root `<html>` element
+3. **Use CSS classes instead** for permanent dark components (if needed):
+```typescript
+// Instead of template: <div data-bs-theme="dark">
+// Use class binding: <div [class.always-dark]="true">
+```
+4. **Document exceptions**: If any component MUST be dark regardless of theme, document why
+5. **Test inheritance**: Parent light → child unset (should be light), Parent dark → child unset (should be dark)
 
 **Warning signs:**
-- Import errors: "File changed while importing"
-- Imported episodes have wrong duration or are corrupted
-- Sonarr queue shows "Import failed: file in use"
-- Random import failures that succeed on retry
+- Dropdowns don't change with global theme toggle
+- Modals appear in wrong theme
+- Tooltips/popovers have mismatched colors
+- Form controls inside themed containers look wrong
 
 **Phase to address:**
-Phase 1 (Foundation) - LFTP integration must use atomic moves to watched directory
+Phase 2 (Component Audit & Remediation) — Search and replace hardcoded attributes. Phase 4 (Integration Testing) — Test every dropdown, modal, tooltip in both themes.
 
 ---
 
-### Pitfall 5: Ignoring Import Failures (Silent Data Loss)
+### Pitfall 5: Color Contrast Failures in Dark Mode
 
 **What goes wrong:**
-Sonarr fails to import a file (wrong quality, naming issue, disk full), but the download manager sees queue removal and deletes the file anyway. User loses the download with no recovery path.
+Teal accent colors that look perfect in light mode fail WCAG contrast requirements in dark mode. Text becomes unreadable, focus indicators disappear, disabled states are invisible. 83.9% of websites have detectable color contrast issues (WebAIM 2022), and dark mode often makes this worse.
 
 **Why it happens:**
-Queue item removal doesn't distinguish between successful import and failed import - both remove from queue. Developers check queue.length === 0 and assume success.
+Simply inverting colors fails to meet WCAG standards. The project uses "teal accent colors that need to work in both light and dark" — teal (#17a2b8 type values) has specific contrast challenges. Pure black (#000000) in dark mode causes halation effect and eye strain. Developers test dark mode visually but don't run automated contrast checkers.
+
+Common mistakes:
+- Forcing brand colors onto critical UI elements regardless of contrast
+- Using subtle color changes for focus that blend into dark backgrounds
+- Ignoring non-text elements (icons, borders) which need 3:1 ratio since WCAG 2.1
+- Extreme contrast (pure black bg with pure white text) causing strain
 
 **How to avoid:**
-1. Check history API for import events, not just queue removal
-2. Look for `eventType: 'downloadFailed'` or `eventType: 'downloadFolderImported'`
-3. Parse queue item status messages for failure indicators ("rejected", "failed", "ignored")
-4. Never auto-delete if Sonarr's queue status is "Warning" (orange icon in UI)
-5. Require positive confirmation of import, not just absence from queue
+1. **Define separate teal variants** for light and dark:
+```scss
+$teal-light-mode: #17a2b8; // Good contrast on white
+$teal-dark-mode: #4dd4ac;  // Good contrast on dark gray
+
+@include color-mode(dark) {
+  --bs-teal: #{$teal-dark-mode};
+}
+```
+
+2. **Use softer blacks**: `#1a1a1a` or `#212529` instead of `#000000`
+3. **Test with tools**:
+   - Chrome DevTools color picker shows contrast ratio
+   - axe DevTools automated scanning
+   - WAVE browser extension
+4. **WCAG targets**: 4.5:1 for small text, 3:1 for large text and UI components
+5. **Test focus indicators**: Must be visible in both themes, ideally 3:1+ contrast
 
 **Warning signs:**
-- Files deleted but episodes still show as missing in Sonarr
-- Sonarr Activity shows import failure but file is gone
-- User reports: "Downloaded but Sonarr says not imported, file disappeared"
-- Logs show queue item removed but no corresponding history import event
+- Text is hard to read in one theme
+- Focus indicators invisible when tabbing
+- Disabled buttons look identical to enabled
+- Error messages don't stand out
+- Link colors too similar to body text
 
 **Phase to address:**
-Phase 3 (Import Detection Logic) - implement import failure detection and retry handling
+Phase 2 (Component Audit & Remediation) — Define contrast-safe color pairs. Phase 4 (Integration Testing) — Run automated accessibility scans. Phase 5 (Polish & Refinement) — Manual testing with screen readers, keyboard navigation.
 
 ---
 
-### Pitfall 6: Webhook Endpoint Not Hardened
+### Pitfall 6: Multi-Tab Synchronization Missing
 
 **What goes wrong:**
-Sonarr webhook endpoint crashes the application, misses events, or creates race conditions because it's not designed for unreliable network delivery, duplicate events, or concurrent requests.
+User changes theme in Tab A, switches to Tab B, sees old theme. Theme preference updates in localStorage but other open tabs don't react. Leads to confusion and "theme toggle doesn't work" bug reports.
 
 **Why it happens:**
-Webhooks are fire-and-forget from Sonarr's perspective. No guarantee of delivery, ordering, or uniqueness. Network issues can cause retries, duplicate events, or out-of-order delivery.
+The `storage` event fires when localStorage changes, but only in OTHER tabs, not the tab that made the change. Developers implement theme toggle but forget cross-tab sync. Angular change detection doesn't automatically track localStorage changes from external sources.
 
 **How to avoid:**
-1. Webhook handler must be idempotent - processing same event twice is safe
-2. Use event IDs to deduplicate (episode ID + timestamp + event type)
-3. Handler should return 200 OK immediately, queue work asynchronously
-4. Implement timeout on webhook handler (max 5 seconds)
-5. Log all webhook payloads for debugging
-6. Handle missing fields gracefully - Sonarr's webhook schema can change
+1. **Listen to storage event**:
+```typescript
+// In theme service
+@HostListener('window:storage', ['$event'])
+onStorageChange(event: StorageEvent) {
+  if (event.key === 'theme' && event.newValue) {
+    this.applyTheme(event.newValue);
+    this.cdr.detectChanges(); // Trigger Angular change detection
+  }
+}
+```
+
+2. **Broadcast theme changes**: In Angular service, emit when theme changes
+3. **Test multi-tab**: Open 2+ tabs, toggle in one, verify others update
+4. **Use RxJS**: Create observable from storage event for reactive updates
 
 **Warning signs:**
-- Application hangs when Sonarr sends webhook
-- Same episode marked for deletion multiple times
-- Events processed out of order (delete before import)
-- Webhook endpoint returns 500, Sonarr stops sending events
+- Theme toggle works but only in current tab
+- Refreshing page shows correct theme but switching tabs doesn't
+- Users report "inconsistent theme behavior"
 
 **Phase to address:**
-Phase 2 (Core API Integration) - webhook endpoint implementation with queuing
+Phase 1 (Theme Infrastructure) — Build storage listener into theme service from the start. Phase 4 (Integration Testing) — Explicit multi-tab testing.
 
 ---
 
-### Pitfall 7: No Retry Logic for Sonarr API Failures
+### Pitfall 7: Existing Dark Form Inputs in Light Mode
 
 **What goes wrong:**
-Temporary Sonarr downtime or network blip causes API request to fail, application assumes import failed or file doesn't exist, deletes the file prematurely.
+The project context states "form inputs already styled with dark backgrounds." When implementing dark mode, these inputs will be TOO dark in actual dark mode, or clash visually in light mode when compared to Bootstrap's native form styling.
 
 **Why it happens:**
-Sonarr restarts during updates, can be unresponsive during heavy imports, or network issues cause temporary failures. Single-attempt API calls treat temporary failures as permanent.
+Previous design decisions made form inputs dark (possibly for aesthetic reasons or to match a specific design). Now adding a proper theme system creates conflict: do dark inputs represent "always dark" or were they the proto-dark-mode? If inputs are dark in light mode, they'll need to be light in dark mode (inverted logic).
 
 **How to avoid:**
-1. Implement exponential backoff retry for all Sonarr API calls (3-5 attempts)
-2. Distinguish between client errors (4xx - don't retry) and server errors (5xx - retry)
-3. Use timeout per attempt (5-10 seconds), not just total timeout
-4. Add jitter to backoff to avoid thundering herd
-5. Respect Retry-After header if Sonarr returns 429
-6. Fail safe: if API unreachable, don't delete anything
+1. **Audit current form input styles**: Identify all custom background colors
+2. **Decide on strategy**:
+   - **Option A**: Make inputs theme-aware (light in light mode, dark in dark mode)
+   - **Option B**: Keep inputs consistently styled but adjust contrast
+   - **Option C**: Remove custom dark styling, use Bootstrap defaults
+3. **Update selectively**:
+```scss
+.form-control {
+  // Remove: background-color: #2c3e50;
+
+  // Light mode uses Bootstrap default
+  background-color: var(--bs-body-bg);
+  color: var(--bs-body-color);
+
+  @include color-mode(dark) {
+    background-color: var(--bs-dark);
+    color: var(--bs-light);
+  }
+}
+```
 
 **Warning signs:**
-- Logs show "Connection refused" or "Timeout" then file deleted
-- Auto-delete triggers during Sonarr maintenance windows
-- Sonarr updates break integration until manual intervention
-- Error spikes at specific times (when Sonarr performs background tasks)
+- Form inputs invisible or very low contrast in one theme
+- Input text disappears when typing
+- Placeholder text unreadable
+- Focus states don't show clearly
+- Autofill styles clash with theme
 
 **Phase to address:**
-Phase 2 (Core API Integration) - API client with retry/backoff
-
----
-
-### Pitfall 8: Assuming Queue Depth is Unlimited
-
-**What goes wrong:**
-During bulk imports or large backlogs, Sonarr's queue API only returns the most recent 60 items. Import detection misses older downloads, files pile up in download folder.
-
-**Why it happens:**
-Sonarr explicitly limits queue depth to 60 items for performance reasons (documented in Servarr Wiki). Developers assume if queue doesn't contain their file, it hasn't been grabbed.
-
-**How to avoid:**
-1. Never rely solely on queue API for import detection
-2. Use history API which has pagination and full records
-3. If using queue: check queue depth, warn user if at/near 60 limit
-4. Implement file age-based cleanup as fallback (delete files older than X days if queue full)
-5. Monitor queue depth, alert user to "queue overflow" condition
-
-**Warning signs:**
-- Queue always shows exactly 60 items
-- Older downloads never trigger import detection
-- Files accumulate in download folder despite Sonarr importing them
-- User has large backlog and integration stops working
-
-**Phase to address:**
-Phase 3 (Import Detection Logic) - implement history API fallback
+Phase 2 (Component Audit & Remediation) — Early priority due to existing customization. Create before/after comparison, test all form states (empty, filled, focused, disabled, error, success).
 
 ---
 
@@ -222,27 +274,25 @@ Shortcuts that seem reasonable but create long-term problems.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Poll queue every 10 seconds instead of webhooks | Easier to implement, no endpoint needed | Delays import detection, misses events if queue > 60 items, API rate limiting risk | MVP only - must migrate to webhooks by v1.0 |
-| Delete immediately on import signal without delay | Faster cleanup, simpler logic | Race condition causes failed imports, user data loss | Never - always use safety delay |
-| Match files by name instead of history API | Works for simple cases, less API calls | Breaks on scene releases, renamed files, anime | Never - history API is canonical source |
-| Store Sonarr API key in plaintext config | Simple configuration | Security risk if config exposed | Acceptable if config file has proper permissions (600) |
-| No retry on API failures | Simpler error handling | Temporary network issues cause permanent failures | Never - retry is essential |
-| Assume all imports are single-episode | Simpler tracking logic | Season packs lose episodes | Never - must handle multi-file downloads |
+| Using CSS `filter: invert(1)` globally for dark mode | Works in 5 minutes | Inverts images/logos, bad performance, accessibility issues, tints colors oddly | Never for production; OK for quick prototype |
+| Hardcoding `data-bs-theme="dark"` in templates | Quick visual fix for one component | Prevents global theme toggle, creates maintenance burden | Only if component MUST always be dark regardless of theme (rare) |
+| Skipping contrast ratio testing | Faster development | Accessibility failures, WCAG violations, unusable for low vision users | Never — automated tools run in seconds |
+| Using only light mode colors in dark mode | No extra color definitions needed | Poor UX, contrast failures, unprofessional appearance | Never — define proper dark variants |
+| Putting theme script at end of body | Simpler HTML structure | Guarantees FOUC, bad first impression | Never — theme must apply before render |
+| Testing in only one browser | Faster QA process | Misses browser-specific color rendering, prefers-color-scheme bugs | Never — test Chrome, Firefox, Safari minimum |
 
 ## Integration Gotchas
 
-Common mistakes when connecting to Sonarr API.
+Common mistakes when connecting to external services or existing systems.
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Queue API | Polling /api/v3/queue every few seconds | Use webhooks for events, poll queue only for UI display |
-| Import detection | Check if queue item disappeared | Check history API for downloadFolderImported event with matching download ID |
-| File correlation | Match filenames exactly | Use history API to get actual imported paths, match by parsed episode info |
-| API authentication | Send API key in query string | Send API key in X-Api-Key header |
-| Webhook events | Trust eventType alone | Check both eventType and importSuccess/failureReason fields |
-| Season packs | Treat as single import event | Track per-episode import, wait for all episodes before cleanup |
-| Connection errors | Fail fast on timeout | Retry with exponential backoff, respect Retry-After header |
-| Rate limiting | Send requests as fast as possible | Batch requests, use 1-2 second delay between non-critical calls |
+| Bootstrap SCSS Import | Using `@import "bootstrap"` then switching to `@use` breaks variable overrides | Keep `@import` OR migrate fully to `@use` with namespaces, don't mix |
+| Angular Component Tests | Not setting `data-bs-theme` in TestBed, tests pass but theme is broken | Add `data-bs-theme` to test fixture: `fixture.nativeElement.setAttribute('data-bs-theme', 'dark')` |
+| prefers-color-scheme | Assuming it works in all browsers | Check browser support (IE11 doesn't support), provide fallback |
+| localStorage Theme | Directly reading/writing without service | Use Angular service with RxJS for reactive updates, proper encapsulation |
+| SVG Icons | Expecting icons to auto-adapt with theme change | Use `currentColor` in SVGs or provide theme-specific icon variants |
+| Third-party Components | Assuming they respect Bootstrap theme | Many don't — may need custom CSS or wait for library updates |
 
 ## Performance Traps
 
@@ -250,55 +300,42 @@ Patterns that work at small scale but fail as usage grows.
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Polling queue every 1 second | High CPU on Sonarr, rate limiting | Use 30-60 second intervals or webhooks | >10 active downloads |
-| Loading entire history on every check | API timeouts, slow responses | Use pageSize parameter, filter by eventType | >500 history items |
-| No caching of episode metadata | Repeated API calls for same data | Cache episode info for 5-10 minutes | >50 episodes tracked |
-| Synchronous file deletion | UI freezes during cleanup | Delete files in background thread/async | >100 files to delete |
-| Storing all history in memory | Memory bloat, crashes | Use LRU cache with eviction (existing BoundedOrderedSet pattern) | >1000 tracked items |
-| No pagination on history API | Timeouts, incomplete data | Use pageSize=50, fetch multiple pages | >100 imports |
-
-## Security Mistakes
-
-Domain-specific security issues beyond general web security.
-
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| API key in URL query strings | Logs expose key, proxy caches leak key | Always use X-Api-Key header |
-| No webhook signature validation | Anyone can trigger imports/deletes | Use webhook authentication if Sonarr supports it, validate source IP |
-| Trusting webhook eventType without verification | Malicious requests could trigger deletion | Re-verify via API before destructive operations |
-| API key visible in settings UI | Shoulder-surfing, screenshots leak key | Show masked value with reveal button |
-| No rate limiting on webhook endpoint | DoS via webhook spam | Implement rate limiting (max 10/second) |
-| Allowing Sonarr API calls from frontend | Key exposure in browser, XSS risks | All Sonarr API calls must be backend only |
+| Using CSS filter on large containers | Jank on scroll, slow animations | Apply filters to small elements only, prefer CSS variables | 100+ filtered elements on page |
+| Re-rendering all components on theme change | UI freezes for 200-500ms when toggling theme | Use OnPush change detection, CSS-only theme switching | 50+ components re-render |
+| Loading duplicate CSS for each theme | Large bundle size, slow initial load | Use CSS variables, single stylesheet, runtime theme switching | 200kb+ unused CSS loaded |
+| Storing theme state in multiple places | Sync issues, stale data | Single source of truth (localStorage + service) | 5+ components tracking theme independently |
+| Not debouncing theme toggle | Rapid clicks cause multiple localStorage writes, change detection cycles | Debounce toggle function 100-200ms | Users double-click theme toggle |
 
 ## UX Pitfalls
 
-Common user experience mistakes when adding Sonarr integration.
+Common user experience mistakes in this domain.
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| No visibility into import status | User doesn't know if auto-delete will work | Show import detection status per file in UI |
-| Auto-delete enabled by default | User loses files unexpectedly | Require explicit opt-in with warning dialog |
-| No notification when import fails | User assumes everything is working | In-app notification + log entry for failed imports |
-| Deleting files immediately on import | No recovery if import was corrupted | Add configurable safety delay (default 60 seconds) |
-| No way to disable auto-delete per file | User wants manual control for some downloads | Add per-file override toggle in UI |
-| No indication of season pack detection | User confused why file not deleted | Badge/icon showing "Season pack - waiting for all episodes" |
-| Error messages show API errors directly | "404 Not Found" confuses users | Translate to user-friendly: "Could not find episode in Sonarr" |
-| No Sonarr connection test | User configures wrong API key, nothing works | "Test Connection" button in settings that validates API key and connectivity |
+| No visual feedback on theme toggle | User clicks, nothing happens (async), clicks again | Show loading state, animate transition, immediate feedback |
+| Theme toggle buried in settings | Users don't discover dark mode, prefer OS setting | Prominent toggle in header/nav, respect prefers-color-scheme default |
+| Abrupt theme transition | Jarring visual change, feels broken | CSS transition on theme change (100-200ms ease) |
+| Not respecting OS preference on first visit | User has dark OS, app loads light | Check `prefers-color-scheme`, use as default if no localStorage value |
+| Forgetting print styles | Dark mode prints black pages (wastes ink) | `@media print` always uses light theme |
+| Pure black dark mode | Eye strain, halation effect, harder to read | Use dark gray (#1a1a1a or #212529) |
+| Ignoring reduced-motion preference | Theme transitions trigger motion sensitivity | Check `prefers-reduced-motion`, skip animations if set |
 
 ## "Looks Done But Isn't" Checklist
 
 Things that appear complete but are missing critical pieces.
 
-- [ ] **Import Detection:** Often missing handling for import failures - verify failure events logged and files preserved
-- [ ] **Season Packs:** Often missing per-episode tracking - verify partial imports don't trigger deletion
-- [ ] **Webhook Handler:** Often missing idempotency - verify duplicate events don't cause issues
-- [ ] **API Client:** Often missing retry logic - verify temporary network failures don't cause data loss
-- [ ] **File Matching:** Often missing scene numbering handling - verify anime imports correlate correctly
-- [ ] **Connection Errors:** Often missing graceful degradation - verify Sonarr downtime doesn't delete files
-- [ ] **Queue Overflow:** Often missing queue depth check - verify works when queue has >60 items
-- [ ] **Safety Delays:** Often missing configurable timing - verify users can adjust delay for slow NAS
-- [ ] **Hardlink Detection:** Often missing Sonarr import mode check - verify doesn't delete seeding torrents when Sonarr uses hardlinks
-- [ ] **Multi-Episode Files:** Often missing detection of S01E01E02 patterns - verify single file with multiple episodes tracked correctly
+- [ ] **Dark mode toggle:** Often missing localStorage persistence — verify theme survives page refresh
+- [ ] **Color contrast:** Often missing automated checks — verify WCAG AA compliance with axe DevTools
+- [ ] **Multi-tab sync:** Often missing storage event listener — verify theme updates across tabs
+- [ ] **FOUC prevention:** Often missing inline script — verify no flash on hard refresh
+- [ ] **SVG icons:** Often missing currentColor or theme variants — verify icons visible in both themes
+- [ ] **Form validation:** Often missing dark mode error state styles — verify error/success states visible
+- [ ] **Focus indicators:** Often missing dark mode adjustments — verify keyboard navigation visible
+- [ ] **Third-party components:** Often missing theme integration — verify modals, datepickers, charts themed
+- [ ] **Print styles:** Often missing light theme override — verify dark mode doesn't print
+- [ ] **Tooltips/popovers:** Often missing theme styles — verify all overlays match theme
+- [ ] **Loading states:** Often missing dark mode spinners/skeletons — verify loading UI themed
+- [ ] **Email templates:** Often missing (emails don't use web CSS) — verify email notifications readable
 
 ## Recovery Strategies
 
@@ -306,14 +343,16 @@ When pitfalls occur despite prevention, how to recover.
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Deleted before import | HIGH | 1. Re-download from seedbox if still there 2. Search indexers again 3. User must manually locate file |
-| Season pack partial deletion | MEDIUM | 1. Check if remaining files on seedbox 2. Re-sync missing episodes 3. Manual import in Sonarr |
-| File name mismatch | LOW | 1. Implement manual mapping UI 2. User maps local files to Sonarr episodes 3. Resume auto-delete |
-| Import during transfer | MEDIUM | 1. Re-transfer file 2. Sonarr re-import 3. Fix staging directory config |
-| Webhook endpoint crash | LOW | 1. Restart application 2. Poll queue/history to catch up on missed events 3. Fix webhook handler bug |
-| API retry exhausted | MEDIUM | 1. Queue for manual review 2. User confirms Sonarr status 3. Retry or delete manually |
-| Queue overflow missed | LOW | 1. Periodic full history scan 2. Correlate untracked files 3. Offer manual import/delete |
-| Deleted seeding torrent | HIGH | 1. Check seedbox for original 2. Re-download 3. Add hardlink detection to prevent recurrence |
+| FOUC discovered after launch | LOW | Add inline script to index.html, deploy, clear CDN cache |
+| Hardcoded colors throughout codebase | HIGH | Systematic SCSS audit (2-4 hours), replace with variables, full regression test |
+| Contrast failures reported | MEDIUM | Run axe scan, fix flagged elements, define compliant color pairs (1-2 hours) |
+| Theme doesn't persist | LOW | Add localStorage write to toggle function, test (30 min) |
+| Multi-tab sync missing | LOW | Add storage event listener to service (15 min), test |
+| Existing dark form inputs clash | MEDIUM | Decide on strategy, update form SCSS, test all form states (1-2 hours) |
+| data-bs-theme conflicts | MEDIUM | Search & replace in templates, test dropdowns/modals (1-2 hours) |
+| SCSS variable overrides don't work | HIGH | Migrate to CSS variable overrides, test all colors (2-3 hours) |
+| SVG icons invisible | MEDIUM | Convert to currentColor or provide variants (30 min per icon set) |
+| Print styles missing | LOW | Add `@media print` with light theme override (15 min) |
 
 ## Pitfall-to-Phase Mapping
 
@@ -321,63 +360,74 @@ How roadmap phases should address these pitfalls.
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Delete-Before-Import Race | Phase 2 - Webhook implementation with safety delay | Test: Start import, trigger delete immediately, verify file preserved |
-| Season Pack Partial Import | Phase 3 - Multi-file tracking | Test: Import season pack, stop Sonarr mid-import, verify no deletion |
-| File Name Mismatch | Phase 3 - History API correlation | Test: Rename file after download, verify import still detected |
-| Import While Transferring | Phase 1 - LFTP atomic moves | Test: Monitor directory while transfer in progress, verify Sonarr doesn't see file until complete |
-| Ignored Import Failures | Phase 3 - Failure detection | Test: Force import failure (wrong quality), verify file not deleted |
-| Webhook Not Hardened | Phase 2 - Async webhook handler | Test: Send duplicate webhooks, verify idempotency; send 100 concurrent webhooks, verify no crash |
-| No API Retry Logic | Phase 2 - API client with backoff | Test: Stop Sonarr, make API call, verify retries; restart Sonarr mid-retry, verify success |
-| Queue Depth Assumption | Phase 3 - History API fallback | Test: Create 65 queue items, verify oldest imports still detected |
+| Theme Flicker (FOUC) | Phase 1: Theme Infrastructure | Hard refresh test, incognito mode, cache cleared |
+| Hardcoded Colors | Phase 2: Component Audit | Grep for hex colors returns zero or documented exceptions |
+| SCSS Variable Scope | Phase 2: Component Audit | Custom colors work in both themes |
+| data-bs-theme Conflicts | Phase 2: Component Audit | Grep finds zero hardcoded attributes (or documented ones) |
+| Color Contrast Failures | Phase 2 & 4: Audit & Testing | axe DevTools scan shows zero contrast issues |
+| Multi-Tab Sync | Phase 1: Theme Infrastructure | Two tabs open, toggle in one, other updates |
+| Existing Dark Forms | Phase 2: Component Audit | Form inputs visible and usable in both themes |
+| Missing Test Coverage | Phase 3: Unit Test Updates | 381 existing tests pass, theme service has 90%+ coverage |
+| SVG Icon Issues | Phase 5: Polish & Refinement | All icons visible and contrast-safe in both themes |
+| Print Styles | Phase 5: Polish & Refinement | Print preview always shows light theme |
+| Third-party Components | Phase 4: Integration Testing | All libraries respect theme or have custom overrides |
+| Performance Issues | Phase 5: Polish & Refinement | Theme toggle < 100ms, no scroll jank, bundle size acceptable |
 
 ## Sources
 
-### Official Documentation
-- [Sonarr API Docs](https://sonarr.tv/docs/api/)
-- [Sonarr Troubleshooting - Servarr Wiki](https://wiki.servarr.com/sonarr/troubleshooting)
-- [Sonarr Activity - Servarr Wiki](https://wiki.servarr.com/sonarr/activity)
-- [Hardlinks and Instant Moves - TRaSH Guides](https://trash-guides.info/File-and-Folder-Structure/Hardlinks-and-Instant-Moves/)
-- [Remote Path Mappings - TRaSH Guides](https://trash-guides.info/Sonarr/Tips/Sonarr-remote-path-mapping/)
+**Bootstrap 5.3 Official Documentation:**
+- [Color modes · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/customize/color-modes/)
+- [Bootstrap 5.3.0 Release Announcement](https://blog.getbootstrap.com/2023/05/30/bootstrap-5-3-0/)
+- [Sass · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/customize/sass/)
+- [Dropdowns · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/components/dropdowns/)
 
-### GitHub Issues (Race Conditions & Import Problems)
-- [Race condition during episode import - Issue #5475](https://github.com/Sonarr/Sonarr/issues/5475)
-- [Import Season Deletes Episodes before Importing - Issue #5949](https://github.com/Sonarr/Sonarr/issues/5949)
-- [Partial import of season pack for cross-seeded torrent - Issue #5625](https://github.com/Sonarr/Sonarr/issues/5625)
-- [Failed import does not properly fail - Issue #6873](https://github.com/Sonarr/Sonarr/issues/6873)
-- [Pending Import still in import queue after removed from download client - Issue #3557](https://github.com/Sonarr/Sonarr/issues/3557)
-- [Files/Folders no longer being deleted after import - Issue #7043](https://github.com/Sonarr/Sonarr/issues/7043)
-- [Sonarr deletes files before importing them - Issue #3131](https://github.com/Sonarr/Sonarr/issues/3131)
+**Bootstrap Issues & Discussions:**
+- [Most components don't support theme/dark mode · Issue #37976](https://github.com/twbs/bootstrap/issues/37976)
+- [Dark mode's derived variables should reference the variables they are based on · Issue #37949](https://github.com/twbs/bootstrap/issues/37949)
+- [CSS variables not adopting default overrides · Issue #39379](https://github.com/twbs/bootstrap/issues/39379)
+- [data-bs-theme="dark" behaves differently compared to CSS class `navbar-dark` · Issue #38973](https://github.com/twbs/bootstrap/issues/38973)
+- [How To Change Custom Color Created In SASS For Dark Mode · Discussion #37838](https://github.com/orgs/twbs/discussions/37838)
 
-### GitHub Issues (File Matching & Parsing)
-- [Matching issue with files names containing 'Part.1', 'Part.2' - Issue #7826](https://github.com/Sonarr/Sonarr/issues/7826)
-- [Prefer Standard over Absolute Numbering - Issue #7246](https://github.com/Sonarr/Sonarr/issues/7246)
-- [Sonarr retries download if it exists in qBitTorrent with different name - Issue #5336](https://github.com/Sonarr/Sonarr/issues/5336)
+**FOUC & Theme Flicker:**
+- [Fixing Dark Mode Flickering (FOUC) in React and Next.js](https://notanumber.in/blog/fixing-react-dark-mode-flickering)
+- [FOUC on angular.io (possibly related to the dark theme) · Issue #42460](https://github.com/angular/angular/issues/42460)
+- [Preventing flash of unstyled content - Master CSS](https://rc.css.master.co/guide/flash-of-unstyled-content)
 
-### GitHub Issues (Queue & Status)
-- [GET Queue API 'status' filter does not work - Issue #7389](https://github.com/Sonarr/Sonarr/issues/7389)
-- [Importer sometimes fails to remove folder, gets stuck in activity queue - Issue #5937](https://github.com/Sonarr/Sonarr/issues/5937)
-- [If download completes but files aren't present immediately - Issue #4811](https://github.com/Sonarr/Sonarr/issues/4811)
+**Color Contrast & Accessibility:**
+- [Offering a Dark Mode Doesn't Satisfy WCAG Color Contrast Requirements](https://www.boia.org/blog/offering-a-dark-mode-doesnt-satisfy-wcag-color-contrast-requirements)
+- [The Designer's Guide to Dark Mode Accessibility](https://www.accessibilitychecker.org/blog/dark-mode-accessibility/)
+- [Color Contrast for Accessibility: WCAG Guide (2026)](https://www.webability.io/blog/color-contrast-for-accessibility)
+- [WebAIM: Contrast and Color Accessibility](https://webaim.org/articles/contrast/)
 
-### GitHub Issues (API & Integration)
-- [Improved Indexer Backoff and Status handling logic - Issue #3132](https://github.com/Sonarr/Sonarr/issues/3132)
-- [Filter eventType option in history API - Issue #3587](https://github.com/Sonarr/Sonarr/issues/3587)
-- [On Download Webhook Fails - Issue #7149](https://github.com/Sonarr/Sonarr/issues/7149)
-- [Download Client Settings - Category Bug - Issue #5510](https://github.com/Sonarr/Sonarr/issues/5510)
+**Multi-Tab Synchronization:**
+- [Cross-Tab State Synchronization in React Using the Browser storage Event](https://medium.com/@vinaykumarbr07/cross-tab-state-synchronization-in-react-using-the-browser-storage-event-14b6f1a97ea6)
+- [Synchronizing LocalStorage Across Multiple Tabs Using JavaScript](https://medium.com/@behzadsoleimani97/synchronizing-localstorage-across-multiple-tabs-using-javascrip-f683cc8d0907)
+- [Use localStorage for Tab Synchronization](https://nabeelvalley.co.za/blog/2024/07-03/localstorage-based-sync/)
 
-### Community Forums
-- [Import race condition? - sonarr forums](https://forums.sonarr.tv/t/import-race-condition/39676)
-- [Can Sonarr Delete Files after Import? - sonarr forums](https://forums.sonarr.tv/t/can-sonarr-delete-files-after-import/32432)
-- [Downloads get stuck in queue at 100% progress - sonarr forums](https://forums.sonarr.tv/t/downloads-get-stuck-in-queue-at-100-progress-import-failed-but-import-does-not-fail-and-sonarr-has-already-moved-and-renamed-the-files/30458)
-- [Download clients unavailable due to failures - sonarr forums](https://forums.sonarr.tv/t/download-clients-unavailable-due-to-failures-qbittorrent-and-sabnzbd/15374)
-- [Too many API Hits on indexer - sonarr forums](https://forums.sonarr.tv/t/too-many-api-hits-on-indexer/17466)
+**SCSS @use vs @import:**
+- [Sass: @use](https://sass-lang.com/documentation/at-rules/use/)
+- [Sass: Breaking Change: @import and global built-in functions](https://sass-lang.com/documentation/breaking-changes/import/)
+- [Problems Importing Bootstrap into SCSS with @use Instead of @import](https://www.codegenes.net/blog/importing-bootstrap-into-my-scss-via-use-instead-of-import-causes-problems/)
+- [How to Customize Bootstrap with Sass Update in Angular 19? · Discussion #41260](https://github.com/orgs/twbs/discussions/41260)
 
-### Source Code
-- [Webhook.cs - Sonarr GitHub](https://github.com/Sonarr/Sonarr/blob/develop/src/NzbDrone.Core/Notifications/Webhook/Webhook.cs)
+**SVG Icons & Dark Mode:**
+- [Making single color SVG icons work in dark mode](https://hidde.blog/making-single-color-svg-icons-work-in-dark-mode/)
+- [The best method for embedding dark-mode friendly SVG in HTML](https://www.ctrl.blog/entry/svg-embed-dark-mode.html)
+- [Optimizing SVG Images for Dark Mode: Inverting Colors with CSS and JavaScript](https://cherniaev.com/optimizing-svg-for-dark-mode)
 
-### API Documentation & Libraries
-- [sonarr package - golift.io/starr/sonarr](https://pkg.go.dev/golift.io/starr/sonarr)
-- [SonarrAPI - pyarr documentation](https://docs.totaldebug.uk/pyarr/modules/sonarr.html)
+**Teal Color Trends 2026:**
+- [Colour of the Year 2026 - Transformative Teal in the IT world](https://railsformers.com/colour-of-the-year-2026-transformative-teal-in-the-it-world)
+- [Midnight Teal: The Deep Digital Luxe Color Transforming Design Trends in 2026](https://zeenesia.com/2025/12/02/midnight-teal-the-deep-digital-luxe-color-transforming-design-trends-in-2026/)
+
+**Angular Testing:**
+- [Basics of testing components · Angular](https://angular.dev/guide/testing/components-basics)
+- [Component testing scenarios · Angular](https://angular.dev/guide/testing/components-scenarios)
+
+**Browser Support:**
+- [prefers-color-scheme media query | Can I use](https://caniuse.com/prefers-color-scheme)
+- [prefers-color-scheme - CSS | MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme)
 
 ---
-*Pitfalls research for: Sonarr Integration for Download Managers*
-*Researched: 2026-02-10*
+*Pitfalls research for: Adding dark mode to existing Bootstrap 5.3 Angular app*
+*Researched: 2026-02-11*
+*Confidence: HIGH — Based on official Bootstrap docs, GitHub issues, accessibility guidelines, and 2026 best practices*
