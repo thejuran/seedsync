@@ -126,9 +126,9 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
   Plans:
   - [x] 30-01-PLAN.md — Custom CSS variables + theme-aware forms + dropdown fix
   - [x] 30-02-PLAN.md — Migrate all component SCSS hardcoded colors
-- [ ] Phase 31: Theme Toggle UI (1 plan)
+- [x] Phase 31: Theme Toggle UI (1/1 plans) - completed 2026-02-12
   Plans:
-  - [ ] 31-01-PLAN.md — Appearance section with theme toggle + unit tests
+  - [x] 31-01-PLAN.md — Appearance section with theme toggle + unit tests
 - [ ] Phase 32: Cosmetic Fixes (0 plans)
 
 See `.planning/milestones/v2.0-ROADMAP.md` for full details.
@@ -137,5 +137,5 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 ---
 
-*Last updated: 2026-02-12 (Phase 31 planned)*
-*9 milestones (8 shipped, 1 in progress), 32 phases (30 complete, 2 pending), 49 plans completed*
+*Last updated: 2026-02-12 (Phase 31 complete)*
+*9 milestones (8 shipped, 1 in progress), 32 phases (31 complete, 1 pending), 50 plans completed*
