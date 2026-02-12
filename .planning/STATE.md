@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Phase: 30 - SCSS Audit & Color Fixes
-Plan: 02 complete (2 plans total)
+Phase: 31 - Theme Toggle UI
+Plan: 01 complete (1 plan total)
 Status: Complete
-Last activity: 2026-02-12 — 30-02 Component SCSS Migrations complete
+Last activity: 2026-02-12 — 31-01 Theme Toggle UI complete
 
-Progress: [███░░░░░░░░░░░░░░░░░] 12% (Phase 30/32, Plan 2/2)
+Progress: [███░░░░░░░░░░░░░░░░░] 16% (Phase 31/32, Plan 1/1)
 
 ## Milestones Shipped
 
@@ -46,15 +46,15 @@ Progress: [███░░░░░░░░░░░░░░░░░] 12% (Ph
 
 **Total Project:**
 - 9 milestones (8 shipped, 1 in progress)
-- 32 phases (30 complete, 2 pending)
-- 49 plans executed
+- 32 phases (31 complete, 1 pending)
+- 50 plans executed
 - 9 days total (2026-02-03 to 2026-02-12)
 
 **v2.0 Dark Mode & Polish:**
 - Started: 2026-02-11
-- Phases complete: 2/4
-- Plans complete: 4/6 (Phase 29: 2, Phase 30: 2)
-- Current phase: 31 (pending)
+- Phases complete: 3/4
+- Plans complete: 5/6 (Phase 29: 2, Phase 30: 2, Phase 31: 1)
+- Current phase: 32 (pending)
 
 ## Accumulated Context
 
@@ -83,13 +83,21 @@ Progress: [███░░░░░░░░░░░░░░░░░] 12% (Ph
 - Dark mode scoped override for sidebar background (#1e2125) since source is compile-time SCSS variable
 - All 25 hardcoded colors replaced across 7 component SCSS files
 
+**31-01 Theme Toggle UI:**
+- Added Appearance section to Settings page with Light/Dark/Auto button group
+- Signal binding in templates (`theme()`, `resolvedTheme()`) for reactive UI
+- Full ARIA accessibility: role="group", aria-pressed, aria-hidden on decorative icons
+- Status text shows current theme and resolves auto to system preference
+- Responsive styling: buttons stack vertically on screens <360px
+- 8 unit tests for interaction and accessibility
+
 ### Todos
 
 - [x] Execute Phase 29 Plan 01: Theme Infrastructure
 - [x] Execute Phase 29 Plan 02: ThemeService Unit Tests
 - [x] Execute Phase 30 Plan 01: Custom CSS Variables & Theme-Aware Forms
 - [x] Execute Phase 30 Plan 02: Component SCSS Migrations
-- [ ] Plan Phase 31: Theme Toggle UI
+- [x] Execute Phase 31 Plan 01: Theme Toggle UI
 - [ ] Plan Phase 32: Cosmetic Fixes
 
 ### Blockers
@@ -104,8 +112,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 30-02-PLAN.md (Component SCSS Migrations)
-Next action: Plan Phase 31 (Theme Toggle UI)
+Stopped at: Completed 31-01-PLAN.md (Theme Toggle UI)
+Next action: Plan Phase 32 (Cosmetic Fixes)
 
 ---
 *v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
