@@ -23,6 +23,7 @@ import {AutoQueueServiceProvider} from "./services/autoqueue/autoqueue.service";
 import {ConfigServiceProvider} from "./services/settings/config.service";
 import {ServerCommandServiceProvider} from "./services/server/server-command.service";
 import {LOCAL_STORAGE, LocalStorageService} from "./services/utils/local-storage.service";
+import {ThemeService} from "./services/theme/theme.service";
 
 // noinspection JSUnusedLocalSymbols
 function dummyFactory(_s: unknown): () => null {
@@ -89,6 +90,12 @@ export const appConfig: ApplicationConfig = {
             provide: APP_INITIALIZER,
             useFactory: dummyFactory,
             deps: [VersionCheckService],
+            multi: true
+        },
+        {
+            provide: APP_INITIALIZER,
+            useFactory: dummyFactory,
+            deps: [ThemeService],
             multi: true
         },
     ]

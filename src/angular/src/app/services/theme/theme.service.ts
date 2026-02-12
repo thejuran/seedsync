@@ -47,7 +47,7 @@ export class ThemeService implements OnDestroy {
     });
 
     // 3. Set up multi-tab synchronization via storage events
-    this._storageListener = (event: StorageEvent) => {
+    this._storageListener = (event: StorageEvent): void => {
       if (event.key === THEME_STORAGE_KEY && event.newValue) {
         const newValue = event.newValue as ThemeMode;
         // Validate the value before applying
@@ -60,7 +60,7 @@ export class ThemeService implements OnDestroy {
 
     // 4. Set up OS preference change listener
     this._mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    this._mediaQueryListener = () => {
+    this._mediaQueryListener = (): void => {
       // Only react if we're in 'auto' mode
       if (this._theme() === "auto") {
         // Force re-evaluation of the computed signal by setting to same value

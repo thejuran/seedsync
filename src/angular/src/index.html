@@ -5,7 +5,31 @@
     <title>SeedSync</title>
     <base href="/">
 
+    <!-- Theme: Apply before render to prevent FOUC -->
+    <script>
+    (function() {
+        var stored = null;
+        try {
+            stored = localStorage.getItem('theme');
+        } catch(e) {
+            // localStorage may throw in private browsing mode
+        }
+
+        var resolved;
+        if (stored === 'light' || stored === 'dark') {
+            resolved = stored;
+        } else {
+            // stored is 'auto', null, or invalid - check OS preference
+            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            resolved = prefersDark ? 'dark' : 'light';
+        }
+
+        document.documentElement.setAttribute('data-bs-theme', resolved);
+    })();
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- TODO: Phase 31 will update theme-color dynamically via ThemeService -->
     <meta name="theme-color" content="#f5f5f5">
     <link rel="icon" type="image/png" href="assets/favicon.png">
 </head>
