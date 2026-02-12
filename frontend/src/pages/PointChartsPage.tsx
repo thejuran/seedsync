@@ -16,13 +16,15 @@ import {
 import PointChartTable from "../components/PointChartTable";
 import SeasonCalendar from "../components/SeasonCalendar";
 import StayCostCalculator from "../components/StayCostCalculator";
+import CostHeatmap from "../components/CostHeatmap";
 
-type TabId = "chart" | "calendar" | "calculator";
+type TabId = "chart" | "calendar" | "calculator" | "heatmap";
 
 const TABS: { id: TabId; label: string }[] = [
   { id: "chart", label: "Point Chart" },
   { id: "calendar", label: "Season Calendar" },
   { id: "calculator", label: "Cost Calculator" },
+  { id: "heatmap", label: "Cost Heatmap" },
 ];
 
 export default function PointChartsPage() {
@@ -186,6 +188,10 @@ export default function PointChartsPage() {
           year={year}
           rooms={roomsData.rooms}
         />
+      )}
+
+      {activeTab === "heatmap" && chart && roomsData && (
+        <CostHeatmap chart={chart} rooms={roomsData.rooms} />
       )}
     </div>
   );
