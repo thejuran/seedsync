@@ -10,18 +10,18 @@ See: .planning/PROJECT.md (updated 2026-02-10)
 ## Current Position
 
 Phase: 6 of 7 (What-If Scenarios)
-Plan: 2/3 complete
-Status: Executing
-Last activity: 2026-02-10 -- Completed 06-02 (scenario frontend infrastructure)
+Plan: 3/3 complete
+Status: Phase complete
+Last activity: 2026-02-11 -- Completed 06-03 (scenario UI workspace)
 
-Progress: [██████░░░░] 60%
+Progress: [███████░░░] 70%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 8 (v1.1)
-- Average duration: 3m 32s
-- Total execution time: 28m 12s
+- Total plans completed: 9 (v1.1)
+- Average duration: 3m 16s
+- Total execution time: 29m 12s
 
 **By Phase:**
 
@@ -29,7 +29,7 @@ Progress: [██████░░░░] 60%
 |-------|-------|-------|----------|
 | 4     | 2     | 9m 48s | 4m 54s |
 | 5     | 3     | 11m 6s | 3m 42s  |
-| 6     | 3     | 7m 18s | 2m 26s  |
+| 6     | 3     | 8m 18s | 2m 46s  |
 
 *Updated after each plan completion*
 
@@ -81,6 +81,10 @@ Phase 6 decisions:
 - Zustand curried create<T>()(...) pattern for TypeScript type inference (per v5 docs)
 - Evaluation hook strips client-only fields (id, contract_name, resort_name) before POST
 - Scenarios nav item placed between Trip Explorer and Contracts (planning tools grouped)
+- Resort dropdown filters by useAvailableCharts to prevent empty room type selectors
+- Form preserves contract selection after adding booking (likely adding multiple for same contract)
+- 10 booking cap with visual feedback at limit
+- Clear All button in page header for quick reset
 
 ### Pending Todos
 
@@ -94,7 +98,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-10
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-02-11
+Stopped at: Completed 06-03-PLAN.md (Phase 6 complete)
 Resume file: None
-Next: Execute 06-03-PLAN.md
+Next: Phase 7 planning or next milestone
