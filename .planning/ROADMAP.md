@@ -118,10 +118,10 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
 <details open>
 <summary>🚧 v2.0 Dark Mode & Polish (Phases 29-32) - IN PROGRESS</summary>
 
-- [ ] Phase 29: Theme Infrastructure (2 plans)
+- [x] Phase 29: Theme Infrastructure (2/2 plans) - completed 2026-02-11
   Plans:
-  - [ ] 29-01-PLAN.md — ThemeService + FOUC prevention + app registration
-  - [ ] 29-02-PLAN.md — ThemeService unit tests
+  - [x] 29-01-PLAN.md — ThemeService + FOUC prevention + app registration
+  - [x] 29-02-PLAN.md — ThemeService unit tests
 - [ ] Phase 30: SCSS Audit & Color Fixes (0 plans)
 - [ ] Phase 31: Theme Toggle UI (0 plans)
 - [ ] Phase 32: Cosmetic Fixes (0 plans)
@@ -132,5 +132,5 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 ---
 
-*Last updated: 2026-02-11 (Phase 29 planned)*
-*9 milestones (8 shipped, 1 in progress), 32 phases (28 complete, 4 pending), 45 plans completed*
+*Last updated: 2026-02-11 (Phase 29 complete)*
+*9 milestones (8 shipped, 1 in progress), 32 phases (29 complete, 3 pending), 47 plans completed*
