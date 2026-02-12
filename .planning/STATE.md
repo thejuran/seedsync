@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 30 - SCSS Audit & Color Fixes
-Plan: 01 complete (2 plans total)
-Status: In Progress
-Last activity: 2026-02-12 — 30-01 Custom CSS Variables & Theme-Aware Forms complete
+Plan: 02 complete (2 plans total)
+Status: Complete
+Last activity: 2026-02-12 — 30-02 Component SCSS Migrations complete
 
-Progress: [██░░░░░░░░░░░░░░░░░░] 9% (Phase 30/32, Plan 1/2)
+Progress: [███░░░░░░░░░░░░░░░░░] 12% (Phase 30/32, Plan 2/2)
 
 ## Milestones Shipped
 
@@ -46,15 +46,15 @@ Progress: [██░░░░░░░░░░░░░░░░░░] 9% (Pha
 
 **Total Project:**
 - 9 milestones (8 shipped, 1 in progress)
-- 32 phases (29 complete, 3 pending)
-- 48 plans executed
+- 32 phases (30 complete, 2 pending)
+- 49 plans executed
 - 9 days total (2026-02-03 to 2026-02-12)
 
 **v2.0 Dark Mode & Polish:**
 - Started: 2026-02-11
-- Phases complete: 1/4
-- Plans complete: 3/6 (Phase 29: 2, Phase 30: 1)
-- Current phase: 30 (in progress)
+- Phases complete: 2/4
+- Plans complete: 4/6 (Phase 29: 2, Phase 30: 2)
+- Current phase: 31 (pending)
 
 ## Accumulated Context
 
@@ -78,12 +78,17 @@ Progress: [██░░░░░░░░░░░░░░░░░░] 9% (Pha
 - Without this, same-value assignment (_theme.set("auto") when already "auto") wouldn't trigger computed re-evaluation
 - OS preference change detection now works correctly
 
+**30-02 Component SCSS Migrations:**
+- Use Bootstrap CSS variables (--bs-warning-text-emphasis, etc.) for log level colors instead of SCSS variables for runtime theme adaptation
+- Dark mode scoped override for sidebar background (#1e2125) since source is compile-time SCSS variable
+- All 25 hardcoded colors replaced across 7 component SCSS files
+
 ### Todos
 
 - [x] Execute Phase 29 Plan 01: Theme Infrastructure
 - [x] Execute Phase 29 Plan 02: ThemeService Unit Tests
 - [x] Execute Phase 30 Plan 01: Custom CSS Variables & Theme-Aware Forms
-- [ ] Execute Phase 30 Plan 02: Component SCSS Migrations
+- [x] Execute Phase 30 Plan 02: Component SCSS Migrations
 - [ ] Plan Phase 31: Theme Toggle UI
 - [ ] Plan Phase 32: Cosmetic Fixes
 
@@ -99,8 +104,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 30-01-PLAN.md (Custom CSS Variables & Theme-Aware Forms)
-Next action: Execute Phase 30 Plan 02 (Component SCSS Migrations)
+Stopped at: Completed 30-02-PLAN.md (Component SCSS Migrations)
+Next action: Plan Phase 31 (Theme Toggle UI)
 
 ---
 *v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
