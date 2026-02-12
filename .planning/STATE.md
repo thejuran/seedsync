@@ -9,12 +9,12 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 
 ## Current Position
 
-Phase: 27 of 28 (Webhook Import Detection) -- IN PROGRESS
-Plan: 01 of 02 incomplete (27-02 complete, 27-01 pending)
-Status: Phase 27 in progress. Webhook URL display (27-02) complete. Backend webhook endpoints (27-01) pending.
-Last activity: 2026-02-11 — Completed 27-02 (Webhook URL display in Settings page)
+Phase: 27 of 28 (Webhook Import Detection) -- COMPLETE
+Plan: 02 of 02 complete
+Status: Phase 27 complete. Backend webhooks (27-01) and frontend URL display (27-02) both done.
+Last activity: 2026-02-11 — Completed 27-01 (Backend webhook endpoints and WebhookManager)
 
-Progress: [####░░░░░░░░░] 33% (1/3 phases complete, 1 plan in current phase)
+Progress: [#####░░░░░░░░] 38% (2/3 phases complete)
 
 ## Milestones Shipped
 
@@ -33,14 +33,17 @@ Progress: [####░░░░░░░░░] 33% (1/3 phases complete, 1 plan in 
 
 **Total Project:**
 - 8 milestones shipped
-- 25 phases completed
-- 42 plans executed (27-02 just completed)
+- 27 phases completed
+- 43 plans executed
 - 8 days total (2026-02-03 to 2026-02-11)
 
 **Phase 27 Metrics:**
 - Started: 2026-02-11
-- Plans completed: 1 of 2
+- Completed: 2026-02-11
+- Plans completed: 2 of 2
+- Duration (27-01): 6 minutes
 - Duration (27-02): 65 seconds
+- Total phase duration: ~7 minutes
 
 ## Accumulated Context
 
@@ -63,6 +66,9 @@ From research/v1.8-SUMMARY.md:
 - Independent test connection state per *arr service (4 properties total)
 - Webhook URLs always visible (not gated by enable toggles) - webhooks work regardless of enable state
 - Manual address replacement (<seedsync-address> placeholder) to avoid auto-detection pitfalls
+- Thread-safe Queue for webhook events (web thread -> controller thread)
+- Always return 200 for valid webhook events to prevent retries
+- WebhookManager created in seedsync.py, shared by Controller and WebAppBuilder
 
 ### Tech Debt
 
@@ -72,9 +78,9 @@ From research/v1.8-SUMMARY.md:
 
 ## Session Continuity
 
-Last session: 2026-02-11T23:53:13Z
-Stopped at: Completed 27-02-PLAN.md (Webhook URL display in Settings page)
-Next action: Execute 27-01-PLAN.md (Backend webhook endpoints and processing)
+Last session: 2026-02-11T23:58:08Z
+Stopped at: Completed 27-01-PLAN.md (Backend webhook endpoints and WebhookManager)
+Next action: Execute phase 28 (Test fixes for pre-existing model-file.service.spec.ts failures)
 
 ---
 *v1.0-v1.7 shipped: 2026-02-03 to 2026-02-10*
