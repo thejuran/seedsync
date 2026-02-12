@@ -10,7 +10,7 @@
 - ✅ **v1.5 Backend Testing** - Phases 15-19 (shipped 2026-02-08)
 - ✅ **v1.6 CI Cleanup** - Phases 20-21 (shipped 2026-02-10)
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
-- **v1.8 Radarr + Webhooks** - Phases 26-28 (in progress)
+- ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
 
 ## Phases
 
@@ -103,7 +103,7 @@ See `.planning/milestones/v1.7-ROADMAP.md` for full details.
 
 </details>
 
-### v1.8 Radarr + Webhooks (In Progress)
+### v1.8 Radarr + Webhooks (Complete)
 
 **Milestone Goal:** Add Radarr support, replace polling with webhook-based import detection, and fix pre-existing test failures.
 
@@ -152,7 +152,7 @@ Plans:
 **Plans**: 1
 
 Plans:
-- [ ] 28-01: Verify model-file.service.spec.ts fixes and confirm all tests passing
+- [x] 28-01: Verify model-file.service.spec.ts fixes and confirm all tests passing
 
 ## Progress
 
@@ -164,10 +164,10 @@ Phases execute in numeric order: 26 → 27 → 28
 | 1-25. Previous | v1.0-v1.7 | All | Complete | 2026-02-10 |
 | 26. Radarr Config & Shared Settings UI | v1.8 | 2/2 | Complete | 2026-02-11 |
 | 27. Webhook Import Detection | v1.8 | 2/2 | Complete | 2026-02-11 |
-| 28. Fix Pre-existing Test Failures | v1.8 | 0/1 | Pending | - |
+| 28. Fix Pre-existing Test Failures | v1.8 | 1/1 | Complete | 2026-02-11 |
 
 ---
 
-*Last updated: 2026-02-11 (Phase 27 complete)*
+*Last updated: 2026-02-11 (Phase 28 complete — v1.8 shipped)*
 *v1.8 roadmap created: 2026-02-11*
 *3 phases (26-28), 12 requirements mapped*
