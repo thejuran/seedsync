@@ -24,7 +24,7 @@
         &.selected {
             background-color: $secondary-color;
             color: white;
-            border-color: #6ac19e;
+            border-color: var(--app-accent-teal-border);
 
             img {
                 filter: invert(1.0);
@@ -47,6 +47,6 @@
     hr {
         margin-top: 3px;
         margin-bottom: 3px;
-        border: 1px solid $header-dark-color;
+        border: 1px solid var(--bs-border-color);
     }
 }

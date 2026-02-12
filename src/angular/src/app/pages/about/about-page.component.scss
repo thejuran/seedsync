@@ -20,7 +20,7 @@
             }
             span {
                 margin-left: 10px;
-                color: $logo-color;
+                color: var(--app-logo-color);
                 font-family: $logo-font;
                 font-size: 300%;
                 cursor: default;
@@ -57,7 +57,7 @@
                     padding: 4px 0;
                     &::before {
                         content: "\2022";
-                        color: $logo-color;
+                        color: var(--app-logo-color);
                         font-weight: bold;
                         display: inline-block;
                         width: 1em;
@@ -72,7 +72,7 @@
 
             .separator {
                 margin: 0 10px;
-                color: #999;
+                color: var(--app-separator-color);
             }
         }
 
@@ -87,12 +87,12 @@
         #fork-note {
             font-size: 90%;
             margin-bottom: 15px;
-            color: #666;
+            color: var(--app-muted-text);
         }
 
         #icons {
             font-size: 80%;
-            color: #999;
+            color: var(--app-separator-color);
         }
     }
 }

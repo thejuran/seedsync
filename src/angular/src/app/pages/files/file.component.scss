@@ -8,7 +8,7 @@
     min-height: 82px;
     max-height: 82px;
     overflow: hidden;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--app-file-border-color);
 
     /* content-visibility: auto skips rendering of off-screen elements */
     /* This improves performance for long lists without requiring CDK virtual scrolling */
@@ -21,7 +21,7 @@
 }
 
 :host.even-row {
-    background-color: $primary-lighter-color;
+    background-color: var(--app-file-row-even);
 }
 
 .file {
