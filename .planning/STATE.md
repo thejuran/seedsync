@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 29 - Theme Infrastructure
-Plan: Not started
-Status: Ready to plan
-Last activity: 2026-02-11 — v2.0 roadmap created
+Plan: 01 complete, 02 pending
+Status: In progress
+Last activity: 2026-02-12 — 29-01 theme infrastructure complete
 
-Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (Phase 29/32)
+Progress: [█░░░░░░░░░░░░░░░░░░░] 3% (Phase 29/32, Plan 1/2)
 
 ## Milestones Shipped
 
@@ -47,13 +47,13 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (Pha
 **Total Project:**
 - 9 milestones (8 shipped, 1 in progress)
 - 32 phases (28 complete, 4 pending)
-- 45 plans executed
-- 9 days total (2026-02-03 to 2026-02-11)
+- 46 plans executed
+- 9 days total (2026-02-03 to 2026-02-12)
 
 **v2.0 Dark Mode & Polish:**
 - Started: 2026-02-11
 - Phases complete: 0/4
-- Plans complete: 0/0
+- Plans complete: 1/2 (Phase 29)
 - Current phase: 29
 
 ## Accumulated Context
@@ -68,9 +68,15 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (Pha
 - Three-state toggle: light/dark/auto (respects OS preference)
 - Multi-tab synchronization via storage event listener
 
+**29-01 Implementation Details:**
+- Plain addEventListener for storage events (not RxJS) to match signal architecture
+- Same-value signal assignment pattern for forcing computed re-evaluation on OS changes
+- Silent console.warn fallback for localStorage in private browsing mode
+
 ### Todos
 
-- [ ] Plan Phase 29: Theme Infrastructure
+- [x] Execute Phase 29 Plan 01: Theme Infrastructure
+- [ ] Execute Phase 29 Plan 02: (if exists)
 - [ ] Plan Phase 30: SCSS Audit & Color Fixes
 - [ ] Plan Phase 31: Theme Toggle UI
 - [ ] Plan Phase 32: Cosmetic Fixes
@@ -86,9 +92,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-11
-Stopped at: v2.0 roadmap created, ready to plan phase 29
-Next action: /gsd:plan-phase 29
+Last session: 2026-02-12
+Stopped at: Completed 29-01-PLAN.md (Theme Infrastructure)
+Next action: Execute 29-02-PLAN.md or plan next phase
 
 ---
 *v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
