@@ -453,6 +453,8 @@ export class ViewFileService implements OnDestroy {
         switch (status) {
             case ModelFile.ImportStatus.IMPORTED:
                 return ViewFile.ImportStatus.IMPORTED;
+            case ModelFile.ImportStatus.WAITING_FOR_IMPORT:
+                return ViewFile.ImportStatus.WAITING_FOR_IMPORT;
             default:
                 return ViewFile.ImportStatus.NONE;
         }

@@ -155,6 +155,7 @@ export namespace ModelFile {
 
     export enum ImportStatus {
         NONE            = "none",
-        IMPORTED        = "imported"
+        IMPORTED        = "imported",
+        WAITING_FOR_IMPORT = "waiting_for_import"
     }
 }
