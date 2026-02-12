@@ -2,7 +2,20 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 shipped Radarr support and webhook-based import detection.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 shipped Radarr support and webhook-based import detection. v2.0 adds dark/light theme system with OS preference detection and cosmetic polish.
+
+## Current Milestone: v2.0 Dark Mode & Polish
+
+**Goal:** Add a true dark theme with light/dark toggle in Settings, auto-detect OS color scheme preference, and fix cosmetic issues from the *arr integration work.
+
+**Target features:**
+- Dark theme (true dark mode for the entire UI)
+- Light theme preserved (current styling)
+- OS `prefers-color-scheme` auto-detection
+- Manual dark/light toggle in Settings page
+- Toast text updated to say "Sonarr/Radarr" instead of just "Sonarr"
+- Auto-delete description updated to reference both Sonarr and Radarr
+- WAITING_FOR_IMPORT enum value added
 
 ## Core Value
 
@@ -110,14 +123,25 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 - pytest cache warnings suppressed in Docker test runner - v1.6
 - webob cgi deprecation warnings filtered from test output - v1.6
 
+### Active
+
+**v2.0 (In progress):**
+
+- Dark theme for entire UI (backgrounds, text, components)
+- Light theme preserved as current default
+- OS `prefers-color-scheme` auto-detection
+- Manual dark/light toggle in Settings page (Appearance section)
+- Toast/notification text references both Sonarr and Radarr
+- Auto-delete description references both Sonarr and Radarr
+- WAITING_FOR_IMPORT enum value for file status
+
 ### Out of Scope
 
 - E2E tests (Playwright) — separate concern
-- Angular unit tests — frontend, not backend
 - Performance/load testing
 - Refactoring production code to improve testability
 - CI/CD coverage gates (GitHub Actions changes)
-- Dark mode toggle
+- Lidarr/Readarr support — defer to future milestone
 
 ## Context
 
@@ -159,15 +183,12 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 
 ## Project Status
 
-**Status:** v1.8 shipped — all milestones complete
+**Status:** v2.0 in progress — Dark Mode & Polish
 
-Quality project (v1.0-v1.6), Sonarr integration (v1.7), and Radarr + webhooks (v1.8) all shipped.
+Quality project (v1.0-v1.6), Sonarr integration (v1.7), and Radarr + webhooks (v1.8) all shipped. Now adding dark mode and cosmetic fixes.
 
 **Future work (if desired):**
-- Dark mode toggle feature
-- WAITING_FOR_IMPORT enum value
 - Lidarr/Readarr support (same *arr pattern)
-- Cosmetic: Toast/auto-delete descriptions reference "Sonarr" only (should say "Sonarr/Radarr")
 
 ---
-*Last updated: 2026-02-11 after shipping v1.8 milestone*
+*Last updated: 2026-02-11 after starting v2.0 milestone*

@@ -5,12 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-11)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** All milestones complete (v1.0-v1.8). Ready for next milestone.
+**Current focus:** v2.0 Dark Mode & Polish — dark/light theme system + cosmetic fixes
 
 ## Current Position
 
-Status: All milestones shipped. No active phase.
-Last activity: 2026-02-11 — v1.8 milestone archived
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-11 — Milestone v2.0 started
 
 ## Milestones Shipped
 
@@ -38,14 +40,15 @@ Last activity: 2026-02-11 — v1.8 milestone archived
 
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
 - `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected.
-- Toast message hardcodes "Sonarr imported" for Radarr imports too (cosmetic)
-- Auto-delete description mentions only Sonarr (cosmetic)
+- Toast message hardcodes "Sonarr imported" for Radarr imports too (cosmetic) — **addressing in v2.0**
+- Auto-delete description mentions only Sonarr (cosmetic) — **addressing in v2.0**
 
 ## Session Continuity
 
 Last session: 2026-02-11
-Stopped at: v1.8 milestone archived
-Next action: Run `/gsd:new-milestone` to start next milestone
+Stopped at: v2.0 milestone started, defining requirements
+Next action: Complete requirements and roadmap
 
 ---
 *v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
+*v2.0 started: 2026-02-11*
