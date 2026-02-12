@@ -136,7 +136,7 @@ export class FileListComponent {
                     const prevStatus = this._prevImportStatuses.get(file.name);
                     if (file.importStatus === ViewFile.ImportStatus.IMPORTED &&
                         prevStatus !== ViewFile.ImportStatus.IMPORTED) {
-                        this._toastService.success("Sonarr imported: " + file.name);
+                        this._toastService.success("Sonarr/Radarr imported: " + file.name);
                     }
                     // Update tracked status
                     if (file.importStatus) {

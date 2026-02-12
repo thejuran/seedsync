@@ -192,7 +192,7 @@ export const OPTIONS_CONTEXT_AUTODELETE: IOptionsContext = {
             type: OptionType.Checkbox,
             label: "Enable auto-delete",
             valuePath: ["autodelete", "enabled"],
-            description: "Automatically delete local files after Sonarr import"
+            description: "Automatically delete local files after Sonarr/Radarr import"
         },
         {
             type: OptionType.Checkbox,
