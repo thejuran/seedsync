@@ -76,11 +76,10 @@ Plans:
   1. User can view a full-year calendar heatmap where each day is color-coded by point cost tier
   2. User can switch between resorts and room types to compare cost patterns
   3. User can distinguish weekday vs weekend cost differences visually and see exact details (date, season, cost) on hover
-**Plans**: TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md -- Cost heatmap component + Point Charts page tab integration (CostHeatmap, heatColor extraction, 4th tab)
 
 ### Progress
 
@@ -89,4 +88,4 @@ Plans:
 | 4. Docker + Settings | v1.1 | 2/2 | ✓ Complete | 2026-02-10 |
 | 5. Impact + Windows | v1.1 | 3/3 | ✓ Complete | 2026-02-10 |
 | 6. Scenarios | v1.1 | 3/3 | ✓ Complete | 2026-02-11 |
-| 7. Heatmap | v1.1 | 0/TBD | Not started | - |
+| 7. Heatmap | v1.1 | 0/1 | Not started | - |
