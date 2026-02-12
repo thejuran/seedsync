@@ -57,27 +57,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| THEME-01 | — | Pending |
-| THEME-02 | — | Pending |
-| THEME-03 | — | Pending |
-| THEME-04 | — | Pending |
-| THEME-05 | — | Pending |
-| THEME-06 | — | Pending |
-| UI-01 | — | Pending |
-| UI-02 | — | Pending |
-| STYLE-01 | — | Pending |
-| STYLE-02 | — | Pending |
-| STYLE-03 | — | Pending |
-| STYLE-04 | — | Pending |
-| COSM-01 | — | Pending |
-| COSM-02 | — | Pending |
-| COSM-03 | — | Pending |
+| THEME-01 | Phase 29 | Pending |
+| THEME-02 | Phase 29 | Pending |
+| THEME-03 | Phase 29 | Pending |
+| THEME-04 | Phase 29 | Pending |
+| THEME-05 | Phase 29 | Pending |
+| THEME-06 | Phase 29 | Pending |
+| UI-01 | Phase 31 | Pending |
+| UI-02 | Phase 31 | Pending |
+| STYLE-01 | Phase 30 | Pending |
+| STYLE-02 | Phase 30 | Pending |
+| STYLE-03 | Phase 30 | Pending |
+| STYLE-04 | Phase 30 | Pending |
+| COSM-01 | Phase 32 | Pending |
+| COSM-02 | Phase 32 | Pending |
+| COSM-03 | Phase 32 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15 (pending roadmap creation)
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-11*
-*Last updated: 2026-02-11 after initial definition*
+*Last updated: 2026-02-11 after roadmap creation*

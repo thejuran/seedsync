@@ -11,6 +11,7 @@
 - ✅ **v1.6 CI Cleanup** - Phases 20-21 (shipped 2026-02-10)
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
 - ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
+- 🚧 **v2.0 Dark Mode & Polish** - Phases 29-32 (in progress)
 
 ## Phases
 
@@ -114,7 +115,19 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
 
 </details>
 
+<details open>
+<summary>🚧 v2.0 Dark Mode & Polish (Phases 29-32) - IN PROGRESS</summary>
+
+- [ ] Phase 29: Theme Infrastructure (0 plans)
+- [ ] Phase 30: SCSS Audit & Color Fixes (0 plans)
+- [ ] Phase 31: Theme Toggle UI (0 plans)
+- [ ] Phase 32: Cosmetic Fixes (0 plans)
+
+See `.planning/milestones/v2.0-ROADMAP.md` for full details.
+
+</details>
+
 ---
 
-*Last updated: 2026-02-11 (v1.8 archived)*
-*9 milestones shipped, 28 phases, 45 plans completed*
+*Last updated: 2026-02-11 (v2.0 roadmap created)*
+*9 milestones (8 shipped, 1 in progress), 32 phases (28 complete, 4 pending), 45 plans completed*
