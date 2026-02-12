@@ -11,7 +11,7 @@
 - ✅ **v1.6 CI Cleanup** - Phases 20-21 (shipped 2026-02-10)
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
 - ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
-- 🚧 **v2.0 Dark Mode & Polish** - Phases 29-32 (in progress)
+- ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
 
 ## Phases
 
@@ -115,8 +115,8 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
 
 </details>
 
-<details open>
-<summary>🚧 v2.0 Dark Mode & Polish (Phases 29-32) - IN PROGRESS</summary>
+<details>
+<summary>✅ v2.0 Dark Mode & Polish (Phases 29-32) - SHIPPED 2026-02-12</summary>
 
 - [x] Phase 29: Theme Infrastructure (2/2 plans) - completed 2026-02-11
   Plans:
@@ -129,9 +129,9 @@ See `.planning/milestones/v1.8-ROADMAP.md` for full details.
 - [x] Phase 31: Theme Toggle UI (1/1 plans) - completed 2026-02-12
   Plans:
   - [x] 31-01-PLAN.md — Appearance section with theme toggle + unit tests
-- [ ] Phase 32: Cosmetic Fixes (1 plan)
+- [x] Phase 32: Cosmetic Fixes (1/1 plans) - completed 2026-02-12
   Plans:
-  - [ ] 32-01-PLAN.md — Update *arr text references + WAITING_FOR_IMPORT enum
+  - [x] 32-01-PLAN.md — Update *arr text references + WAITING_FOR_IMPORT enum
 
 See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
@@ -139,5 +139,5 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 ---
 
-*Last updated: 2026-02-12 (Phase 32 planned)*
-*9 milestones (8 shipped, 1 in progress), 32 phases (31 complete, 1 planned), 50 plans completed*
+*Last updated: 2026-02-12 (Phase 32 complete)*
+*10 milestones (10 shipped), 32 phases (32 complete), 51 plans completed*
