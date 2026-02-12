@@ -54,50 +54,42 @@
 }
 
 // ============================================================================
-// Dark Theme Form Styling
+// Theme-Aware Form Styling
 // ============================================================================
-// Ensures form inputs are visible and styled appropriately for dark backgrounds
+// Form inputs adapt to the active theme. Light mode uses Bootstrap defaults
+// (no overrides needed). Dark mode needs explicit dark backgrounds.
 
-.form-control {
-  // Dark theme appearance
-  background-color: #212529;               // Slightly lighter than page background
-  color: #dee2e6;                          // Light text for readability
-  border-color: #495057;                   // Visible border definition
+[data-bs-theme="dark"] {
+  .form-control {
+    background-color: #212529;
+    color: #dee2e6;
+    border-color: #495057;
 
-  // Placeholder text (appropriate contrast for dark theme)
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.5);       // 50% white for sufficient contrast
+    &::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    &:focus {
+      background-color: #212529;
+      color: #dee2e6;
+    }
+
+    &:disabled {
+      background-color: #1a1a1a;
+      opacity: 0.65;
+    }
   }
 
-  // Focus state (teal ring from variable cascade)
-  &:focus {
-    background-color: #212529;             // Maintain dark background on focus
-    color: #dee2e6;                        // Maintain light text
-    // border-color and box-shadow are set by Bootstrap via $component-active-bg
-  }
+  .form-check-input {
+    background-color: #212529;
+    border-color: #495057;
 
-  // Disabled state
-  &:disabled {
-    background-color: #1a1a1a;             // Darker than normal
-    opacity: 0.65;                         // Reduced opacity
-  }
-}
+    &:focus {
+      border-color: fn.tint-color(bv.$secondary, 50%);
+    }
 
-// Checkbox dark theme styling
-.form-check-input {
-  background-color: #212529;               // Dark background for unchecked
-  border-color: #495057;                   // Visible border
-
-  // Checked state uses teal from $component-active-bg automatically
-
-  // Focus state (teal ring)
-  &:focus {
-    border-color: fn.tint-color(bv.$secondary, 50%);  // Light teal border
-    // box-shadow is set by Bootstrap via focus ring variables
-  }
-
-  // Disabled state
-  &:disabled {
-    opacity: 0.5;                          // Matches $form-check-input-disabled-opacity
+    &:disabled {
+      opacity: 0.5;
+    }
   }
 }
