@@ -98,6 +98,49 @@
                         }
                     }
                 }
+
+                .theme-description {
+                    font-size: 85%;
+                    color: var(--bs-secondary);
+                    margin: 0 20px 10px;
+                }
+
+                .theme-toggle {
+                    margin: 0 20px;
+
+                    .btn {
+                        min-width: 90px;
+
+                        svg {
+                            vertical-align: text-bottom;
+                        }
+                    }
+
+                    .btn.active {
+                        font-weight: 500;
+                    }
+                }
+
+                .theme-status {
+                    font-size: 0.875rem;
+                    margin: 0 20px;
+
+                    strong {
+                        text-transform: capitalize;
+                    }
+                }
+
+                @media (max-width: 360px) {
+                    .theme-toggle {
+                        flex-direction: column;
+                        width: 100%;
+
+                        .btn {
+                            width: 100%;
+                            text-align: left;
+                        }
+                    }
+                }
             }
         }
 

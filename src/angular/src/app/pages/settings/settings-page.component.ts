@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject} from "@angular/core";
 import {NgFor, NgIf, NgTemplateOutlet, AsyncPipe} from "@angular/common";
 import {Observable} from "rxjs";
 
@@ -18,6 +18,8 @@ import {
 } from "./options-list";
 import {ConnectedService} from "../../services/utils/connected.service";
 import {StreamServiceRegistry} from "../../services/base/stream-service.registry";
+import {ThemeService} from "../../services/theme/theme.service";
+import {ThemeMode} from "../../services/theme/theme.types";
 
 @Component({
     selector: "app-settings-page",
@@ -53,6 +55,10 @@ export class SettingsPageComponent implements OnInit {
 
     public testRadarrConnectionLoading = false;
     public testRadarrConnectionResult: {success: boolean; message: string} = null;
+
+    private _themeService = inject(ThemeService);
+    public theme = this._themeService.theme;
+    public resolvedTheme = this._themeService.resolvedTheme;
 
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
@@ -207,5 +213,9 @@ export class SettingsPageComponent implements OnInit {
                 this._cdr.markForCheck();
             }
         });
+    }
+
+    onSetTheme(mode: ThemeMode): void {
+        this._themeService.setTheme(mode);
     }
 }
