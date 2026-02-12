@@ -2,19 +2,18 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-11)
+See: .planning/PROJECT.md (updated 2026-02-12)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v2.0 Dark Mode & Polish — dark/light theme system + cosmetic fixes
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 32 - Cosmetic Fixes
-Plan: 01 complete (1 plan total)
-Status: Complete
-Last activity: 2026-02-12 — 32-01 Cosmetic Fixes complete
+Phase: None (between milestones)
+Status: All milestones shipped
+Last activity: 2026-02-12 — v2.0 Dark Mode & Polish milestone complete
 
-Progress: [████████████████████] 100% (Phase 32/32, Plan 1/1)
+Progress: [████████████████████] 100% (All 32 phases complete)
 
 ## Milestones Shipped
 
@@ -31,80 +30,23 @@ Progress: [████████████████████] 100% (P
 | v1.8 Radarr + Webhooks | 26-28 | 2026-02-11 |
 | v2.0 Dark Mode & Polish | 29-32 | 2026-02-12 |
 
-## Current Milestone: v2.0 Dark Mode & Polish
-
-**Goal:** Add true dark/light theme system with OS preference detection and cosmetic fixes
-
-**Phases:**
-- Phase 29: Theme Infrastructure (6 requirements: THEME-01 to THEME-06)
-- Phase 30: SCSS Audit & Color Fixes (4 requirements: STYLE-01 to STYLE-04)
-- Phase 31: Theme Toggle UI (2 requirements: UI-01 to UI-02)
-- Phase 32: Cosmetic Fixes (3 requirements: COSM-01 to COSM-03)
-
-**Coverage:** 15/15 requirements mapped (100%)
-
 ## Performance Metrics
 
 **Total Project:**
-- 9 milestones (9 shipped)
+- 10 milestones (10 shipped)
 - 32 phases (32 complete)
 - 51 plans executed
-- 9 days total (2026-02-03 to 2026-02-12)
-
-**v2.0 Dark Mode & Polish:**
-- Started: 2026-02-11
-- Completed: 2026-02-12
-- Phases complete: 4/4
-- Plans complete: 6/6 (Phase 29: 2, Phase 30: 2, Phase 31: 1, Phase 32: 1)
+- 10 days total (2026-02-03 to 2026-02-12)
 
 ## Accumulated Context
 
 ### Decisions Made
 
-**v2.0 Theme Architecture:**
-- Use Bootstrap 5.3 native dark mode (data-bs-theme attribute)
-- Signal-based ThemeService for reactive state (Angular 19 patterns)
-- localStorage for persistence (client-side only, no backend)
-- Inline script in index.html for FOUC prevention
-- Three-state toggle: light/dark/auto (respects OS preference)
-- Multi-tab synchronization via storage event listener
-
-**29-01 Implementation Details:**
-- Plain addEventListener for storage events (not RxJS) to match signal architecture
-- Same-value signal assignment pattern for forcing computed re-evaluation on OS changes
-- Silent console.warn fallback for localStorage in private browsing mode
-
-**29-02 Bug Fix:**
-- Fixed signal equality checking by adding {equal: () => false} option
-- Without this, same-value assignment (_theme.set("auto") when already "auto") wouldn't trigger computed re-evaluation
-- OS preference change detection now works correctly
-
-**30-02 Component SCSS Migrations:**
-- Use Bootstrap CSS variables (--bs-warning-text-emphasis, etc.) for log level colors instead of SCSS variables for runtime theme adaptation
-- Dark mode scoped override for sidebar background (#1e2125) since source is compile-time SCSS variable
-- All 25 hardcoded colors replaced across 7 component SCSS files
-
-**31-01 Theme Toggle UI:**
-- Added Appearance section to Settings page with Light/Dark/Auto button group
-- Signal binding in templates (`theme()`, `resolvedTheme()`) for reactive UI
-- Full ARIA accessibility: role="group", aria-pressed, aria-hidden on decorative icons
-- Status text shows current theme and resolves auto to system preference
-- Responsive styling: buttons stack vertically on screens <360px
-- 8 unit tests for interaction and accessibility
-
-**32-01 Cosmetic Fixes:**
-- Toast messages remain source-agnostic - system doesn't distinguish which *arr service triggered import
-- WAITING_FOR_IMPORT added as structural placeholder only - no business logic sets this value yet
-- Updated UI text from "Sonarr" to "Sonarr/Radarr" in toast notifications and settings descriptions
+(Archived to PROJECT.md Key Decisions table)
 
 ### Todos
 
-- [x] Execute Phase 29 Plan 01: Theme Infrastructure
-- [x] Execute Phase 29 Plan 02: ThemeService Unit Tests
-- [x] Execute Phase 30 Plan 01: Custom CSS Variables & Theme-Aware Forms
-- [x] Execute Phase 30 Plan 02: Component SCSS Migrations
-- [x] Execute Phase 31 Plan 01: Theme Toggle UI
-- [x] Execute Phase 32 Plan 01: Cosmetic Fixes
+(None — between milestones)
 
 ### Blockers
 
@@ -114,12 +56,13 @@ None.
 
 - Bootstrap 5.3 still uses @import internally (blocked until Bootstrap 6)
 - `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected.
+- WAITING_FOR_IMPORT enum exists as structural placeholder (no business logic sets it yet)
 
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 32-01-PLAN.md (Cosmetic Fixes)
-Next action: Plan next milestone (v2.0 complete)
+Stopped at: v2.0 milestone complete
+Next action: /gsd:new-milestone for next version
 
 ---
 *v1.0-v2.0 shipped: 2026-02-03 to 2026-02-12*

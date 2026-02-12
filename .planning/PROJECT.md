@@ -2,20 +2,7 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. v1.0-v1.6 focused on quality (UI polish, backend testing, CI cleanup). v1.7 shipped Sonarr integration. v1.8 shipped Radarr support and webhook-based import detection. v2.0 adds dark/light theme system with OS preference detection and cosmetic polish.
-
-## Current Milestone: v2.0 Dark Mode & Polish
-
-**Goal:** Add a true dark theme with light/dark toggle in Settings, auto-detect OS color scheme preference, and fix cosmetic issues from the *arr integration work.
-
-**Target features:**
-- Dark theme (true dark mode for the entire UI)
-- Light theme preserved (current styling)
-- OS `prefers-color-scheme` auto-detection
-- Manual dark/light toggle in Settings page
-- Toast text updated to say "Sonarr/Radarr" instead of just "Sonarr"
-- Auto-delete description updated to reference both Sonarr and Radarr
-- WAITING_FOR_IMPORT enum value added
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. Features a web UI with dark/light theme, Sonarr/Radarr integration for automated post-download workflows, and real-time transfer status via SSE.
 
 ## Core Value
 
@@ -23,7 +10,19 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Current State
 
-All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. All 381 Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
+All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing. Dark/light theme with OS preference detection and Settings toggle.
+
+<details>
+<summary>v2.0 Dark Mode & Polish (Shipped 2026-02-12)</summary>
+
+- Signal-based ThemeService with localStorage persistence and multi-tab sync
+- FOUC prevention via inline script in `<head>`
+- Custom CSS variables for light/dark themes with Bootstrap 5.3 data-bs-theme
+- All SCSS hardcoded colors migrated to theme-aware CSS variables
+- Appearance section in Settings with Light/Dark/Auto toggle
+- *arr text updated to "Sonarr/Radarr" + WAITING_FOR_IMPORT enum
+
+</details>
 
 <details>
 <summary>v1.8 Radarr + Webhooks (Shipped 2026-02-11)</summary>
@@ -123,17 +122,21 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 - pytest cache warnings suppressed in Docker test runner - v1.6
 - webob cgi deprecation warnings filtered from test output - v1.6
 
+### Validated
+
+**v2.0 (Shipped 2026-02-12):**
+
+- ✓ Dark theme for entire UI (backgrounds, text, components) — v2.0
+- ✓ Light theme preserved as current default — v2.0
+- ✓ OS `prefers-color-scheme` auto-detection — v2.0
+- ✓ Manual dark/light toggle in Settings page (Appearance section) — v2.0
+- ✓ Toast/notification text references both Sonarr and Radarr — v2.0
+- ✓ Auto-delete description references both Sonarr and Radarr — v2.0
+- ✓ WAITING_FOR_IMPORT enum value for file status — v2.0
+
 ### Active
 
-**v2.0 (In progress):**
-
-- Dark theme for entire UI (backgrounds, text, components)
-- Light theme preserved as current default
-- OS `prefers-color-scheme` auto-detection
-- Manual dark/light toggle in Settings page (Appearance section)
-- Toast/notification text references both Sonarr and Radarr
-- Auto-delete description references both Sonarr and Radarr
-- WAITING_FOR_IMPORT enum value for file status
+(None — all milestones shipped. Run `/gsd:new-milestone` for next.)
 
 ### Out of Scope
 
@@ -142,6 +145,7 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 - Refactoring production code to improve testability
 - CI/CD coverage gates (GitHub Actions changes)
 - Lidarr/Readarr support — defer to future milestone
+- Bootstrap @import → @use migration — blocked until Bootstrap 6
 
 ## Context
 
@@ -149,6 +153,9 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 - Application SCSS uses @use/@forward; Bootstrap remains on @import (required by Bootstrap 5.3)
 - Bootstrap subtle variables re-exported via @forward in _common.scss for component module access
 - Third-party deprecation warnings (Bootstrap, Font-Awesome) accepted as noise
+- Theme system uses Bootstrap 5.3 native data-bs-theme with custom --app-* CSS variables
+- ThemeService uses Angular 19 signals for reactive state management
+- WAITING_FOR_IMPORT enum exists as structural placeholder (no business logic sets it yet)
 - ~~Sass @import deprecation~~ Resolved in v1.4
 - ~~Backend test coverage gaps~~ Resolved in v1.5 (84% coverage, fail_under enforced)
 
@@ -180,15 +187,24 @@ All milestones shipped (v1.0-v1.8). 952+ Python tests, 84% coverage with fail_un
 | Optional chaining in tests instead of `!` | Tests fail on undefined anyway, avoids lint errors | Good |
 | Counts refresh on dropdown open | Performance: avoid continuous computation | Good |
 | Single-pass count computation | Efficiency: O(n) forEach instead of multiple passes | Good |
+| Bootstrap 5.3 data-bs-theme for dark mode | Native framework support, minimal custom CSS | Good |
+| Signal-based ThemeService (Angular 19) | Reactive state without RxJS overhead | Good |
+| Inline script FOUC prevention | Applies theme before first paint, no flicker | Good |
+| Three-state toggle: light/dark/auto | Respects OS preference while allowing manual override | Good |
+| Plain addEventListener for storage events | Matches signal architecture, avoids RxJS for simple events | Good |
+| {equal: () => false} for signal re-evaluation | Forces computed recalculation on same-value assignment | Good |
+| Bootstrap CSS variables for log level colors | Runtime theme adaptation without SCSS recompilation | Good |
+| Source-agnostic toast text ("Sonarr/Radarr") | System doesn't distinguish which *arr triggered import | Good |
 
 ## Project Status
 
-**Status:** v2.0 in progress — Dark Mode & Polish
+**Status:** All milestones shipped (v1.0 through v2.0)
 
-Quality project (v1.0-v1.6), Sonarr integration (v1.7), and Radarr + webhooks (v1.8) all shipped. Now adding dark mode and cosmetic fixes.
+10 milestones, 32 phases, 51 plans completed over 10 days (2026-02-03 to 2026-02-12). Full UI polish, backend testing, CI cleanup, Sonarr/Radarr integration, and dark mode all shipped.
 
 **Future work (if desired):**
 - Lidarr/Readarr support (same *arr pattern)
+- E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-11 after starting v2.0 milestone*
+*Last updated: 2026-02-12 after v2.0 milestone*

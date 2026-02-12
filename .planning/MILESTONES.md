@@ -1,5 +1,32 @@
 # Project Milestones: SeedSync
 
+## v2.0 Dark Mode & Polish (Shipped: 2026-02-12)
+
+**Delivered:** True dark/light theme system with OS preference detection, FOUC prevention, theme toggle UI in Settings, and cosmetic fixes for *arr text references.
+
+**Phases completed:** 29-32 (6 plans total)
+
+**Key accomplishments:**
+
+- Signal-based ThemeService with localStorage persistence, multi-tab sync, and OS prefers-color-scheme detection
+- FOUC prevention via inline script in `<head>` applying saved theme before first paint
+- Custom CSS variables (`--app-*`) for light/dark themes with Bootstrap 5.3 `data-bs-theme` integration
+- All 25 hardcoded SCSS colors migrated to runtime theme-aware CSS variables across 7 components
+- Appearance section in Settings with Light/Dark/Auto button group (full ARIA accessibility, responsive layout)
+- Updated *arr text to "Sonarr/Radarr" and added WAITING_FOR_IMPORT enum across full serialization pipeline
+
+**Stats:**
+
+- 44 files changed (+4,902 lines, -113 lines)
+- 4 phases, 6 plans
+- 2 days (2026-02-11 to 2026-02-12)
+
+**Git range:** `ad35d2e` → `db1115c`
+
+**What's next:** Run `/gsd:new-milestone` to start next milestone (Lidarr/Readarr support, or other features).
+
+---
+
 ## v1.8 Radarr + Webhooks (Shipped: 2026-02-11)
 
 **Delivered:** Radarr integration alongside Sonarr with shared *arr Settings UI, webhook-based import detection replacing polling, and all pre-existing test failures resolved.
@@ -244,3 +271,4 @@
 **What's next:** v1.1 Dropdown & Form Migration
 
 ---
+
