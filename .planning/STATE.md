@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-11)
 ## Current Position
 
 Phase: 29 - Theme Infrastructure
-Plan: 01 complete, 02 pending
-Status: In progress
-Last activity: 2026-02-12 — 29-01 theme infrastructure complete
+Plan: 02 complete (all plans complete)
+Status: Complete
+Last activity: 2026-02-12 — 29-02 ThemeService unit tests complete
 
-Progress: [█░░░░░░░░░░░░░░░░░░░] 3% (Phase 29/32, Plan 1/2)
+Progress: [██░░░░░░░░░░░░░░░░░░] 6% (Phase 29/32, Plan 2/2)
 
 ## Milestones Shipped
 
@@ -46,15 +46,15 @@ Progress: [█░░░░░░░░░░░░░░░░░░░] 3% (Pha
 
 **Total Project:**
 - 9 milestones (8 shipped, 1 in progress)
-- 32 phases (28 complete, 4 pending)
-- 46 plans executed
+- 32 phases (29 complete, 3 pending)
+- 47 plans executed
 - 9 days total (2026-02-03 to 2026-02-12)
 
 **v2.0 Dark Mode & Polish:**
 - Started: 2026-02-11
-- Phases complete: 0/4
-- Plans complete: 1/2 (Phase 29)
-- Current phase: 29
+- Phases complete: 1/4
+- Plans complete: 2/2 (Phase 29)
+- Current phase: 30 (next)
 
 ## Accumulated Context
 
@@ -73,10 +73,15 @@ Progress: [█░░░░░░░░░░░░░░░░░░░] 3% (Pha
 - Same-value signal assignment pattern for forcing computed re-evaluation on OS changes
 - Silent console.warn fallback for localStorage in private browsing mode
 
+**29-02 Bug Fix:**
+- Fixed signal equality checking by adding {equal: () => false} option
+- Without this, same-value assignment (_theme.set("auto") when already "auto") wouldn't trigger computed re-evaluation
+- OS preference change detection now works correctly
+
 ### Todos
 
 - [x] Execute Phase 29 Plan 01: Theme Infrastructure
-- [ ] Execute Phase 29 Plan 02: (if exists)
+- [x] Execute Phase 29 Plan 02: ThemeService Unit Tests
 - [ ] Plan Phase 30: SCSS Audit & Color Fixes
 - [ ] Plan Phase 31: Theme Toggle UI
 - [ ] Plan Phase 32: Cosmetic Fixes
@@ -93,8 +98,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-12
-Stopped at: Completed 29-01-PLAN.md (Theme Infrastructure)
-Next action: Execute 29-02-PLAN.md or plan next phase
+Stopped at: Completed 29-02-PLAN.md (ThemeService Unit Tests) - Phase 29 complete
+Next action: Plan Phase 30 (SCSS Audit & Color Fixes)
 
 ---
 *v1.0-v1.8 shipped: 2026-02-03 to 2026-02-11*
