@@ -121,8 +121,8 @@ See `.planning/milestones/v1.7-ROADMAP.md` for full details.
 **Plans**: 2
 
 Plans:
-- [ ] 26-01: Backend Config.Radarr InnerConfig + test connection endpoint
-- [ ] 26-02: Frontend shared *arr Integration UI with Sonarr + Radarr subsections
+- [x] 26-01: Backend Config.Radarr InnerConfig + test connection endpoint
+- [x] 26-02: Frontend shared *arr Integration UI with Sonarr + Radarr subsections
 
 #### Phase 27: Webhook Import Detection
 **Goal**: Webhook endpoints replace polling for both Sonarr and Radarr import detection
@@ -138,8 +138,8 @@ Plans:
 **Plans**: 2
 
 Plans:
-- [ ] 27-01: WebhookManager + POST handlers + Controller integration (replace SonarrManager)
-- [ ] 27-02: Webhook URL display in Settings UI + unit tests
+- [x] 27-01: WebhookManager + POST handlers + Controller integration (replace SonarrManager)
+- [x] 27-02: Webhook URL display in Settings UI + unit tests
 
 #### Phase 28: Fix Pre-existing Test Failures
 **Goal**: All Angular unit tests passing with zero failures
@@ -162,12 +162,12 @@ Phases execute in numeric order: 26 → 27 → 28
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 1-25. Previous | v1.0-v1.7 | All | Complete | 2026-02-10 |
-| 26. Radarr Config & Shared Settings UI | v1.8 | 0/2 | Pending | - |
-| 27. Webhook Import Detection | v1.8 | 0/2 | Pending | - |
+| 26. Radarr Config & Shared Settings UI | v1.8 | 2/2 | Complete | 2026-02-11 |
+| 27. Webhook Import Detection | v1.8 | 2/2 | Complete | 2026-02-11 |
 | 28. Fix Pre-existing Test Failures | v1.8 | 0/1 | Pending | - |
 
 ---
 
-*Last updated: 2026-02-11*
+*Last updated: 2026-02-11 (Phase 27 complete)*
 *v1.8 roadmap created: 2026-02-11*
 *3 phases (26-28), 12 requirements mapped*
