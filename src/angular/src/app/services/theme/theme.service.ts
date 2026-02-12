@@ -16,7 +16,8 @@ import {ThemeMode, ResolvedTheme, THEME_STORAGE_KEY} from "./theme.types";
 @Injectable({providedIn: "root"})
 export class ThemeService implements OnDestroy {
   // Private writable signal for user's theme preference
-  private _theme = signal<ThemeMode>("auto");
+  // Disable equality checking to allow same-value assignment to trigger re-computation
+  private _theme = signal<ThemeMode>("auto", {equal: () => false});
 
   // Public readonly signal exposing the theme preference
   public readonly theme = this._theme.asReadonly();
