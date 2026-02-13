@@ -1048,3 +1048,55 @@ class TestControllerWebhookIntegration(BaseControllerTestCase):
         self.mock_webhook_manager.process.return_value = []
         self.controller.process()
         self.assertEqual(0, len(self.persist.imported_file_names))
+
+    def test_webhook_name_lookup_includes_root_names(self):
+        """Verify name_to_root dict passed to webhook_manager includes root file names."""
+        self._add_file_to_model("File.A", remote_size=5000)
+        self._add_file_to_model("File.B", remote_size=3000)
+        self.controller.process()
+        call_args = self.mock_webhook_manager.process.call_args[0][0]
+        self.assertIn("file.a", call_args)
+        self.assertEqual("File.A", call_args["file.a"])
+        self.assertIn("file.b", call_args)
+        self.assertEqual("File.B", call_args["file.b"])
+
+    def test_webhook_name_lookup_includes_child_names(self):
+        """Verify name_to_root dict includes child file names mapped to root."""
+        # Create a directory with children
+        root_dir = ModelFile("ShowDir", True)
+        root_dir.remote_size = 5000
+        child1 = ModelFile("Episode.S01E01.mkv", False)
+        child1.remote_size = 2000
+        child2 = ModelFile("Episode.S01E02.mkv", False)
+        child2.remote_size = 3000
+        root_dir.add_child(child1)
+        root_dir.add_child(child2)
+        self.controller._Controller__model.add_file(root_dir)
+        self.controller.process()
+        call_args = self.mock_webhook_manager.process.call_args[0][0]
+        # Root name should be in the lookup
+        self.assertIn("showdir", call_args)
+        self.assertEqual("ShowDir", call_args["showdir"])
+        # Child names should map back to root name
+        self.assertIn("episode.s01e01.mkv", call_args)
+        self.assertEqual("ShowDir", call_args["episode.s01e01.mkv"])
+        self.assertIn("episode.s01e02.mkv", call_args)
+        self.assertEqual("ShowDir", call_args["episode.s01e02.mkv"])
+
+    def test_webhook_name_lookup_includes_nested_child_names(self):
+        """Verify name_to_root dict includes deeply nested child names."""
+        root_dir = ModelFile("ShowDir", True)
+        root_dir.remote_size = 5000
+        sub_dir = ModelFile("Season 1", True)
+        root_dir.add_child(sub_dir)
+        child = ModelFile("Episode.S01E01.mkv", False)
+        child.remote_size = 2000
+        sub_dir.add_child(child)
+        self.controller._Controller__model.add_file(root_dir)
+        self.controller.process()
+        call_args = self.mock_webhook_manager.process.call_args[0][0]
+        self.assertIn("showdir", call_args)
+        self.assertIn("season 1", call_args)
+        self.assertEqual("ShowDir", call_args["season 1"])
+        self.assertIn("episode.s01e01.mkv", call_args)
+        self.assertEqual("ShowDir", call_args["episode.s01e01.mkv"])

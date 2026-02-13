@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from queue import Queue
-from typing import List, Set
+from typing import Dict, List, Set
 
 from common import Context
 
@@ -37,20 +37,23 @@ class WebhookManager:
         self.__import_queue.put((source, file_name))
         self.logger.info("{} webhook import enqueued: '{}'".format(source, file_name))
 
-    def process(self, model_file_names: Set[str]) -> List[str]:
+    def process(self, name_to_root: Dict[str, str]) -> List[str]:
         """
         Process queued import events and match against SeedSync model.
         Called from controller thread each cycle.
 
+        Matching is case-insensitive. The lookup dict maps lowercased file names
+        (both root-level and child files) to their root-level model file name.
+        This allows matching when Sonarr/Radarr reports a child file name
+        (e.g., an episode inside a downloaded directory).
+
         Args:
-            model_file_names: Set of ModelFile.name values currently in the model
+            name_to_root: Dict mapping lowercased file names to their root-level
+                model file name. Includes both root names and child file names.
 
         Returns:
-            List of SeedSync model file names that were imported
+            List of root-level SeedSync model file names that were imported
         """
-        # Build case-insensitive lookup dict
-        model_file_names_lower = {name.lower(): name for name in model_file_names}
-
         newly_imported = []
 
         # Drain queue
@@ -61,19 +64,20 @@ class WebhookManager:
                 # Queue empty (race condition between empty() and get_nowait())
                 break
 
-            # Case-insensitive matching
-            original_name = model_file_names_lower.get(file_name.lower())
-            if original_name is not None:
-                newly_imported.append(original_name)
+            # Case-insensitive matching against root and child names
+            root_name = name_to_root.get(file_name.lower())
+            if root_name is not None:
+                newly_imported.append(root_name)
                 self.logger.info(
                     "{} import detected: '{}' (matched SeedSync file '{}')".format(
-                        source, file_name, original_name
+                        source, file_name, root_name
                     )
                 )
             else:
-                self.logger.debug(
-                    "{} webhook file '{}' not in SeedSync model".format(
-                        source, file_name
+                self.logger.warning(
+                    "{} webhook file '{}' not found in SeedSync model "
+                    "(checked {} names including children)".format(
+                        source, file_name, len(name_to_root)
                     )
                 )
 

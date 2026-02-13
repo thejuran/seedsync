@@ -669,11 +669,30 @@ class Controller:
         """
         Process webhook import events and update persist state.
         Also sets import_status on model files for UI badge display.
-        """
-        # Get current model file names for matching
-        model_file_names = set(self.__model.get_file_names())
 
-        newly_imported = self.__webhook_manager.process(model_file_names)
+        Builds a comprehensive name lookup that includes both root-level
+        model file names and child file names (mapped back to their root
+        parent). This allows matching when Sonarr/Radarr reports a child
+        file name (e.g., an episode file inside a downloaded directory).
+        """
+        # Build name-to-root lookup: lowercased name -> root model file name
+        # Includes both root names and all child file names
+        name_to_root = {}
+        for root_name in self.__model.get_file_names():
+            name_to_root[root_name.lower()] = root_name
+            try:
+                root_file = self.__model.get_file(root_name)
+                if root_file.is_dir:
+                    # BFS over children to collect all child names
+                    frontier = list(root_file.get_children())
+                    while frontier:
+                        child = frontier.pop(0)
+                        name_to_root[child.name.lower()] = root_name
+                        frontier.extend(child.get_children())
+            except ModelError:
+                pass
+
+        newly_imported = self.__webhook_manager.process(name_to_root)
 
         for file_name in newly_imported:
             self.__persist.imported_file_names.add(file_name)
