@@ -4,6 +4,14 @@ All notable changes to SeedSync are documented here.
 
 ---
 
+## [2.0.1] - 2026-02-12
+
+### Fixed
+- Webhook import matching now works for child files (e.g., an episode inside a show directory) — previously only matched root-level model names
+- No-match webhook log upgraded from DEBUG to WARNING for better visibility when imports fail to match
+
+---
+
 ## [1.3.1] - 2026-02-08
 
 ### Fixed
