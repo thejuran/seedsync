@@ -1,5 +1,27 @@
 # Project Milestones: SeedSync
 
+## v2.0.1 Hotfix: Webhook Child File Matching (Shipped: 2026-02-14)
+
+**Delivered:** Fixed webhook import matching to work with child files (episodes inside show directories), not just root-level model names.
+
+**Key accomplishments:**
+
+- BFS traversal of model file tree to build comprehensive name-to-root lookup for webhook matching
+- Child file names (e.g., episode files) now correctly map back to their root directory for import tagging and auto-delete
+- No-match webhook log upgraded from DEBUG to WARNING for visibility when imports fail to match
+- 5 new unit tests covering child file matching at WebhookManager and Controller levels (545 total passing)
+
+**Stats:**
+
+- 4 files changed (+135 lines, -32 lines)
+- UAT: 2 passed, 1 skipped (not practical to trigger no-match in production)
+- 2 days (debug 2026-02-12, UAT 2026-02-14)
+
+**Git range:** `4a83863` → `066c405`
+**Tag:** v2.0.1
+
+---
+
 ## v2.0 Dark Mode & Polish (Shipped: 2026-02-12)
 
 **Delivered:** True dark/light theme system with OS preference detection, FOUC prevention, theme toggle UI in Settings, and cosmetic fixes for *arr text references.

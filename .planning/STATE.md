@@ -11,7 +11,7 @@ See: .planning/PROJECT.md (updated 2026-02-12)
 
 Phase: None (between milestones)
 Status: All milestones shipped
-Last activity: 2026-02-12 — v2.0 Dark Mode & Polish milestone complete
+Last activity: 2026-02-14 — v2.0.1 hotfix shipped (webhook child file matching)
 
 Progress: [████████████████████] 100% (All 32 phases complete)
 
@@ -29,6 +29,7 @@ Progress: [████████████████████] 100% (A
 | v1.7 Sonarr Integration | 22-25 | 2026-02-10 |
 | v1.8 Radarr + Webhooks | 26-28 | 2026-02-11 |
 | v2.0 Dark Mode & Polish | 29-32 | 2026-02-12 |
+| v2.0.1 Hotfix: Webhook Child Matching | — | 2026-02-14 |
 
 ## Performance Metrics
 
@@ -60,9 +61,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-12
-Stopped at: v2.0 milestone complete
+Last session: 2026-02-14
+Stopped at: v2.0.1 hotfix archived
 Next action: /gsd:new-milestone for next version
 
 ---
-*v1.0-v2.0 shipped: 2026-02-03 to 2026-02-12*
+*v1.0-v2.0.1 shipped: 2026-02-03 to 2026-02-14*
