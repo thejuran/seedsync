@@ -1,3 +1,10 @@
+seedsync (2.0.1) stable; urgency=low
+
+  * Fix webhook import matching for child files (episode inside show directory)
+  * Upgrade no-match webhook log from DEBUG to WARNING for visibility
+
+ -- thejuran <thejuran@users.noreply.github.com>  Thu, 12 Feb 2026 00:00:00 +0000
+
 seedsync (1.3.1) stable; urgency=low
 
   * Fixed integration test failures caused by unpatched created timestamps
