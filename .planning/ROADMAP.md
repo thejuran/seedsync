@@ -170,7 +170,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   Plans:
   - [ ] 36-01-PLAN.md — Terminal Settings headers + remove Appearance card + AutoQueue ghost buttons (PAGE-01, PAGE-02)
   - [ ] 36-02-PLAN.md — Terminal log level colors + ASCII art About page (PAGE-03, PAGE-04)
-- [ ] Phase 37: Theme Cleanup — Remove light/auto theme system, simplify to dark-only
+- [x] Phase 37: Theme Cleanup — Remove light/auto theme system, simplify to dark-only (completed 2026-02-17)
   - Requirements: CLEAN-01, CLEAN-02
   - Key files: `theme.service.ts`, `theme.types.ts`, `settings-page.component.ts`
   - **Plans:** 1 plan
