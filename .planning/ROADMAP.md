@@ -155,7 +155,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   Plans:
   - [ ] 34-01-PLAN.md — Icon-rail sidebar restructure + mobile preservation (NAV-01, NAV-04)
   - [ ] 34-02-PLAN.md — Prompt indicator + version footer + visual verification (NAV-02, NAV-03)
-- [ ] Phase 35: Dashboard — Redesign file list with ASCII progress, status dots, colored borders, glow effects
+- [x] Phase 35: Dashboard — Redesign file list with ASCII progress, status dots, colored borders, glow effects (completed 2026-02-17)
   - Requirements: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06
   - Key files: `file.component.*`, `file-list.component.*`, `file-options.component.*`, `file-actions-bar.component.*`, `bulk-actions-bar.component.*`, `selection-banner.component.*`
   - **Plans:** 3 plans
