@@ -163,7 +163,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   - [ ] 35-01-PLAN.md — Terminal prompt in search input (DASH-01)
   - [ ] 35-02-PLAN.md — Status borders, glow animation, status dots (DASH-02, DASH-04, DASH-05)
   - [ ] 35-03-PLAN.md — ASCII progress bars + ghost action buttons (DASH-03, DASH-06)
-- [ ] Phase 36: Secondary Pages — Apply terminal aesthetic to Settings, AutoQueue, Logs, About
+- [x] Phase 36: Secondary Pages — Apply terminal aesthetic to Settings, AutoQueue, Logs, About (completed 2026-02-17)
   - Requirements: PAGE-01, PAGE-02, PAGE-03, PAGE-04
   - Key files: `settings-page.component.*`, `autoqueue-page.component.*`, `logs-page.component.*`, `about-page.component.*`
   - **Plans:** 2 plans
