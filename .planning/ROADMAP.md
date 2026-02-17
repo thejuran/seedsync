@@ -12,7 +12,7 @@
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
 - ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
 - ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
-- 🔄 **v3.0 Terminal UI Overhaul** - Phases 33-37 (in progress)
+- 🔄 **v3.0 Terminal UI Overhaul** - Phases 33-38 (in progress)
 
 ## Phases
 
@@ -138,7 +138,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 </details>
 
-### 🔄 v3.0 Terminal UI Overhaul (Phases 33-37)
+### 🔄 v3.0 Terminal UI Overhaul (Phases 33-38)
 
 - [x] Phase 33: Foundation — Replace color system, typography, CSS variables with Terminal/Hacker palette (completed 2026-02-17)
   - Requirements: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
@@ -177,9 +177,15 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   Plans:
   - [ ] 37-01-PLAN.md — Delete ThemeService, types, specs; remove from app.config.ts (CLEAN-01, CLEAN-02)
 
+- [ ] Phase 38: Terminal Polish & Traceability — Fix CSS variable typo, update requirements checkboxes (gap closure)
+  - Requirements: NAV-03 (cosmetic fix)
+  - Key files: `sidebar.component.scss`, `REQUIREMENTS.md`
+  - **Gap Closure:** Closes integration gap from v3.0 audit
+  - **Plans:** TBD
+
 See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 
 ---
 
-*Last updated: 2026-02-16 (v3.0 roadmap defined)*
-*11 milestones (10 shipped, 1 in progress), 37 phases (32 complete, 5 planned), 51 plans completed*
+*Last updated: 2026-02-17 (gap closure phase 38 added)*
+*11 milestones (10 shipped, 1 in progress), 38 phases (37 complete, 1 planned), 62 plans completed*
