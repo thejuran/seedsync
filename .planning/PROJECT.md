@@ -10,7 +10,9 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Current State
 
-All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing. Dark/light theme with OS preference detection and Settings toggle.
+**Current Milestone: v3.0 Terminal UI Overhaul** — Transform SeedSync's UI from generic Bootstrap/Verdana to a distinctive Terminal/Hacker aesthetic. Dark-only, Fira Code + IBM Plex Sans fonts, matrix-green accents, ASCII progress bars, collapsible sidebar, CRT scan-line overlay.
+
+952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
 
 <details>
 <summary>v2.0 Dark Mode & Polish (Shipped 2026-02-12)</summary>
@@ -136,7 +138,38 @@ All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_un
 
 ### Active
 
-(None — all milestones shipped. Run `/gsd:new-milestone` for next.)
+**v3.0 Terminal UI Overhaul (In Progress):**
+
+Visual Identity:
+- [ ] **VIS-01**: Fira Code font for all data displays (filenames, speeds, sizes, progress)
+- [ ] **VIS-02**: IBM Plex Sans for UI labels, buttons, and navigation
+- [ ] **VIS-03**: Deep dark backgrounds (#0d1117 base) with green accent palette
+- [ ] **VIS-04**: CRT scan-line overlay effect (subtle, low opacity)
+- [ ] **VIS-05**: Custom dark scrollbar styling
+
+Navigation:
+- [ ] **NAV-01**: Sidebar as 56px icon rail, expands to 200px on hover
+- [ ] **NAV-02**: `>` prompt indicator on active route in sidebar
+- [ ] **NAV-03**: App version at bottom of sidebar
+- [ ] **NAV-04**: Mobile hamburger menu preserved
+
+File Dashboard:
+- [ ] **DASH-01**: Search input with terminal prompt `>` prefix
+- [ ] **DASH-02**: Colored left border on file rows by status
+- [ ] **DASH-03**: ASCII-style block progress bars (`[████░░░░] 67%`)
+- [ ] **DASH-04**: Green glow effect on actively downloading rows
+- [ ] **DASH-05**: Colored dot + text for file status (no SVG icons)
+- [ ] **DASH-06**: Ghost-style action buttons with glow on hover
+
+Secondary Pages:
+- [ ] **PAGE-01**: Terminal-style section headers in Settings (`--- Server ---`)
+- [ ] **PAGE-02**: Monospace patterns in AutoQueue with green/red buttons
+- [ ] **PAGE-03**: True terminal-style Logs (monospace, colored by level, no background blocks)
+- [ ] **PAGE-04**: ASCII-art inspired About page with monospace version display
+
+Theme Cleanup:
+- [ ] **CLEAN-01**: Theme toggle removed from Settings page
+- [ ] **CLEAN-02**: ThemeService simplified to dark-only (no light/auto modes)
 
 ### Out of Scope
 
@@ -146,6 +179,7 @@ All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_un
 - CI/CD coverage gates (GitHub Actions changes)
 - Lidarr/Readarr support — defer to future milestone
 - Bootstrap @import → @use migration — blocked until Bootstrap 6
+- Terminal/Hacker redesign specification — see `~/.claude/plans/sparkling-inventing-llama.md`
 
 ## Context
 
@@ -163,6 +197,7 @@ All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_un
 
 - **No functional regressions**: All existing features must continue working
 - **Bootstrap 5 patterns**: Leverage Bootstrap classes where possible
+- **Dark-only**: v3.0 removes light/auto modes — Terminal/Hacker is inherently dark
 - **Incremental lint fixes**: Fix errors without major refactoring
 
 ## Key Decisions
@@ -198,13 +233,13 @@ All milestones shipped (v1.0-v2.0). 952+ Python tests, 84% coverage with fail_un
 
 ## Project Status
 
-**Status:** All milestones shipped (v1.0 through v2.0)
+**Status:** v3.0 Terminal UI Overhaul in progress
 
-10 milestones, 32 phases, 51 plans completed over 10 days (2026-02-03 to 2026-02-12). Full UI polish, backend testing, CI cleanup, Sonarr/Radarr integration, and dark mode all shipped.
+10 milestones shipped (v1.0 through v2.0.1), 32 phases, 51 plans completed. Now working on v3.0: complete Terminal/Hacker aesthetic redesign with 5 phases (33-37), 22 requirements.
 
 **Future work (if desired):**
 - Lidarr/Readarr support (same *arr pattern)
 - E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-12 after v2.0 milestone*
+*Last updated: 2026-02-16 — v3.0 milestone started*
