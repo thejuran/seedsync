@@ -148,9 +148,13 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   - [ ] 33-01-PLAN.md — Font loading + SCSS foundation (index.html, _bootstrap-variables.scss, _common.scss)
   - [ ] 33-02-PLAN.md — CSS custom properties + CRT overlay + scrollbars (_bootstrap-overrides.scss, styles.scss)
   - [ ] 33-03-PLAN.md — Visual verification checkpoint
-- [ ] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, restyle header
+- [ ] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, add prompt indicator and version display
   - Requirements: NAV-01, NAV-02, NAV-03, NAV-04
-  - Key files: `app.component.*`, `sidebar.component.*`, `header.component.*`
+  - Key files: `app.component.*`, `sidebar.component.*`, `_common.scss`
+  - **Plans:** 2 plans
+  Plans:
+  - [ ] 34-01-PLAN.md — Icon-rail sidebar restructure + mobile preservation (NAV-01, NAV-04)
+  - [ ] 34-02-PLAN.md — Prompt indicator + version footer + visual verification (NAV-02, NAV-03)
 - [ ] Phase 35: Dashboard — Redesign file list with ASCII progress, status dots, colored borders, glow effects
   - Requirements: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06
   - Key files: `file.component.*`, `file-list.component.*`, `file-options.component.*`, `file-actions-bar.component.*`, `bulk-actions-bar.component.*`, `selection-banner.component.*`
