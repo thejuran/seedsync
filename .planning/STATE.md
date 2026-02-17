@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 34 - Shell (complete, pending verification)
-Status: Phase 34 Plan 2/2 complete
-Last activity: 2026-02-17 — Phase 34 Plan 02 executed (prompt indicator + version footer)
+Phase: 35 - Dashboard (in progress)
+Status: Phase 35 Plan 1/3 complete
+Last activity: 2026-02-17 — Phase 35 Plan 01 executed (terminal prompt in search input)
 
-Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases)
+Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases complete, 35 in progress)
 
 ## v3.0 Phases
 
@@ -21,7 +21,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 |-------|------|--------|
 | 33 | Foundation | Complete |
 | 34 | Shell | Complete (pending verification) |
-| 35 | Dashboard | Pending |
+| 35 | Dashboard | In Progress (1/3 plans done) |
 | 36 | Secondary Pages | Pending |
 | 37 | Theme Cleanup | Pending |
 
@@ -46,7 +46,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 56 plans executed (34-02 complete)
+- 57 plans executed (35-01 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -67,6 +67,8 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 - [34-02] Add filter: invert(1) to all sidebar icons — SVGs are black by default, invisible on dark background
 - [34-02] Move hover .sidebar-label rule to sidebar.component.scss — Angular ViewEncapsulation prevents parent CSS from reaching child component DOM
 - [34-02] Add mobile media query for sidebar-label opacity:1 — labels must be visible when overlay sidebar is open
+- [35-01] Padding-left reduced from 30px to 24px for search input — > character narrower than 20px SVG icon, less padding needed
+- [35-01] Placeholder text lowercased to "filter by name..." — terminal aesthetic consistency
 
 ### Todos
 
@@ -85,8 +87,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 34-02-PLAN.md (Phase 34 Shell, Plan 2/2) — phase execution complete
-Next action: Verify Phase 34 goal achievement
+Stopped at: Completed 35-01-PLAN.md (Phase 35 Dashboard, Plan 1/3) — terminal prompt in search input
+Next action: Execute Phase 35 Plan 02
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
