@@ -140,7 +140,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 ### 🔄 v3.0 Terminal UI Overhaul (Phases 33-37)
 
-- [ ] Phase 33: Foundation — Replace color system, typography, CSS variables with Terminal/Hacker palette
+- [x] Phase 33: Foundation — Replace color system, typography, CSS variables with Terminal/Hacker palette (completed 2026-02-17)
   - Requirements: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
   - Key files: `styles.scss`, `_bootstrap-variables.scss`, `_common.scss`, `_bootstrap-overrides.scss`, `index.html`
   - **Plans:** 3 plans
