@@ -173,6 +173,9 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 - [ ] Phase 37: Theme Cleanup — Remove light/auto theme system, simplify to dark-only
   - Requirements: CLEAN-01, CLEAN-02
   - Key files: `theme.service.ts`, `theme.types.ts`, `settings-page.component.ts`
+  - **Plans:** 1 plan
+  Plans:
+  - [ ] 37-01-PLAN.md — Delete ThemeService, types, specs; remove from app.config.ts (CLEAN-01, CLEAN-02)
 
 See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 
