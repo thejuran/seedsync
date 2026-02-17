@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 - v3.0 requirements: 21 total
 - Mapped to phases: 21
 - Unmapped: 0
-- Satisfied: 21 (1 with cosmetic fix pending in Phase 38)
+- Satisfied: 21
 
 ---
 *Requirements defined: 2026-02-16*
