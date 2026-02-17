@@ -13,29 +13,34 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 10px;
 
-            img {
-                max-width: 80px;
-                max-height: 80px;
-            }
-            span {
-                margin-left: 10px;
-                color: var(--app-logo-color);
-                font-family: $logo-font;
-                font-size: 300%;
-                cursor: default;
+            .ascii-logo {
+                font-family: var(--bs-font-monospace);
+                color: #3fb950;
+                font-size: 0.5rem;
+                line-height: 1.2;
+                text-align: left;
+                display: inline-block;
+                margin: 0;
                 user-select: none;
+                white-space: pre;
+                overflow: hidden;
             }
         }
 
         #version {
             font-size: 150%;
             margin-bottom: 15px;
+            font-family: var(--bs-font-monospace);
+            color: #3fb950;
         }
 
         #description {
             margin-bottom: 20px;
             line-height: 1.5;
+            font-family: var(--bs-font-monospace);
+            color: #8b949e;
         }
 
         #features, #platforms {
@@ -46,6 +51,11 @@
                 font-weight: bold;
                 margin-bottom: 8px;
                 text-align: center;
+                font-family: var(--bs-font-monospace);
+                color: #3fb950;
+
+                &::before { content: '--- '; }
+                &::after  { content: ' ---'; }
             }
 
             ul {
@@ -56,9 +66,10 @@
                 li {
                     padding: 4px 0;
                     &::before {
-                        content: "\2022";
-                        color: var(--app-logo-color);
-                        font-weight: bold;
+                        content: '>';
+                        color: #3fb950;
+                        font-family: var(--bs-font-monospace);
+                        font-weight: normal;
                         display: inline-block;
                         width: 1em;
                         margin-left: 1em;
