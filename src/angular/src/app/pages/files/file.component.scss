@@ -9,6 +9,7 @@
     max-height: 82px;
     overflow: hidden;
     border-bottom: 1px solid var(--app-file-border-color);
+    border-left: 3px solid transparent;
 
     /* content-visibility: auto skips rendering of off-screen elements */
     /* This improves performance for long lists without requiring CDK virtual scrolling */
@@ -22,6 +23,22 @@
 
 :host.even-row {
     background-color: var(--app-file-row-even);
+}
+
+/* Status-colored left borders (DASH-02) */
+:host.status-downloading { border-left-color: #3fb950; }  // green
+:host.status-downloaded  { border-left-color: #238636; }  // teal
+:host.status-queued      { border-left-color: #f0883e; }  // amber
+:host.status-stopped     { border-left-color: #f85149; }  // red
+:host.status-extracting  { border-left-color: #58a6ff; }  // blue
+:host.status-extracted   { border-left-color: #58a6ff; }  // blue
+:host.status-default     { border-left-color: transparent; }
+:host.status-deleted     { border-left-color: transparent; }
+
+/* Pulsing glow for actively downloading rows (DASH-04) */
+/* green-pulse keyframe is defined in styles.scss */
+:host.downloading-active {
+    animation: green-pulse 2s ease-in-out infinite;
 }
 
 .file {
@@ -125,21 +142,23 @@
     height: 62px;
     max-height: 62px;
 
-    img {
-        height: 35px;
-        width: 35px;
-    }
+    /* Status dot (DASH-05): replaces 8 SVG status icons */
+    .status-dot {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-bottom: 4px;
+        flex-shrink: 0;
 
-    // Optical weighting
-    img#downloading, img#downloaded {
-        width: 45px;
-    }
-    img#default-remote {
-        width: 45px;
-        height: 45px;
-    }
-    img#stopped {
-        width: 30px;
+        &.dot-downloading { background-color: #3fb950; box-shadow: 0 0 6px rgba(63, 185, 80, 0.6); }
+        &.dot-downloaded  { background-color: #238636; }
+        &.dot-queued      { background-color: #f0883e; }
+        &.dot-stopped     { background-color: #f85149; }
+        &.dot-extracting  { background-color: #58a6ff; }
+        &.dot-extracted   { background-color: #58a6ff; }
+        &.dot-deleted     { background-color: #8b949e; }
+        &.dot-default     { background-color: transparent; }
     }
 
     .text {

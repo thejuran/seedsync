@@ -53,6 +53,10 @@
         display: flex;
     }
 
+    #file-list #header {
+        border-left: 3px solid transparent;
+    }
+
     /* width */
     /* NOTE: make sure this is in-sync with ".file .content" */
     #header .checkbox   {width: 40px; min-width: 40px;}
