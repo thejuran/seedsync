@@ -50,22 +50,9 @@
             </span>
         </div>
         <div class="size">
-            <div class="progress">
-                <div class="progress-bar" role="progressbar"
-                     [class.progress-bar-animated]="
-                        file.status === ViewFile.Status.DOWNLOADING ||
-                        file.status === ViewFile.Status.EXTRACTING
-                     "
-                     [class.progress-bar-striped]="
-                        file.status === ViewFile.Status.DOWNLOADING ||
-                        file.status === ViewFile.Status.EXTRACTING
-                     "
-                     [attr.aria-valuenow]="file.percentDownloaded" aria-valuemin="0" aria-valuemax="100"
-                     [style.width]="
-                        min(file.percentDownloaded,100) + '%'
-                     ">
-                    {{file.percentDownloaded}}%
-                </div>
+            <div class="ascii-bar"
+                 [class.active]="file.status === ViewFile.Status.DOWNLOADING">
+                {{getAsciiBar()}}
             </div>
             <div class="size_info">
                 {{file.localSize | fileSize:3}} of {{file.remoteSize | fileSize:3}}

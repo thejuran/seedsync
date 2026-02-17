@@ -48,6 +48,9 @@ export class FileComponent implements OnChanges, AfterViewInit {
     // Expose min function for template
     min = Math.min;
 
+    // Width (in characters) of the ASCII progress bar
+    readonly BAR_WIDTH = 10;
+
     // Entire div element
     @ViewChild("fileElement", {static: false}) fileElement!: ElementRef<HTMLDivElement>;
 
@@ -112,6 +115,20 @@ export class FileComponent implements OnChanges, AfterViewInit {
      */
     get statusDotClass(): string {
         return `status-dot dot-${this.file?.status ?? 'default'}`;
+    }
+
+    /**
+     * Returns an ASCII block progress bar string (DASH-03).
+     * Example: "[████░░░░░░] 67%"
+     *
+     * OnPush safety: file is an Immutable.js Record — new reference on every update —
+     * so this method only re-evaluates when the input changes.
+     */
+    getAsciiBar(): string {
+        const pct = Math.min(Math.max(this.file?.percentDownloaded ?? 0, 0), 100);
+        const filled = Math.round((pct / 100) * this.BAR_WIDTH);
+        const empty = this.BAR_WIDTH - filled;
+        return '[' + '\u2588'.repeat(filled) + '\u2591'.repeat(empty) + '] ' + pct + '%';
     }
 
     constructor(private confirmModal: ConfirmModalService) {}

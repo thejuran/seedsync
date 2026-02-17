@@ -179,13 +179,20 @@
     font-size: 90%;
 }
 
-/* Progress bar */
-.content .progress-bar {
-    min-width: 2em;
-}
-.content .progress {
+/* ASCII progress bar (DASH-03) */
+.content .ascii-bar {
+    font-family: var(--bs-font-monospace);  // Fira Code
+    font-size: 85%;
+    color: var(--bs-body-color);
+    letter-spacing: 0;
     margin-bottom: 5px;
-    height: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+
+    &.active {
+        color: #3fb950;  // green when downloading
+    }
 }
 .content .size_info {
     font-size: 80%;
