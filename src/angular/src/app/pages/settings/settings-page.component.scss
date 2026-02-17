@@ -23,7 +23,9 @@
                 .card-header {
                     margin-bottom: 0;
 
-                    .btn {
+                    .btn.terminal-header {
+                        font-family: var(--bs-font-monospace);
+                        color: #3fb950;
                         font-size: 80%;
                         cursor: default;
 
@@ -40,7 +42,8 @@
                         font-size: 100%;
                         font-weight: 600;
                         margin: 20px 20px 10px;
-                        color: var(--bs-secondary);
+                        color: #8b949e;
+                        font-family: var(--bs-font-monospace);
 
                         &:first-child {
                             margin-top: 0;
@@ -99,48 +102,6 @@
                     }
                 }
 
-                .theme-description {
-                    font-size: 85%;
-                    color: var(--bs-secondary);
-                    margin: 0 20px 10px;
-                }
-
-                .theme-toggle {
-                    margin: 0 20px;
-
-                    .btn {
-                        min-width: 90px;
-
-                        svg {
-                            vertical-align: text-bottom;
-                        }
-                    }
-
-                    .btn.active {
-                        font-weight: 500;
-                    }
-                }
-
-                .theme-status {
-                    font-size: 0.875rem;
-                    margin: 0 20px;
-
-                    strong {
-                        text-transform: capitalize;
-                    }
-                }
-
-                @media (max-width: 360px) {
-                    .theme-toggle {
-                        flex-direction: column;
-                        width: 100%;
-
-                        .btn {
-                            width: 100%;
-                            text-align: left;
-                        }
-                    }
-                }
             }
         }
 
