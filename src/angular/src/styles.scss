@@ -77,76 +77,46 @@ html {
 }
 
 html, body {
-    font-family: Verdana,sans-serif;
+    font-family: 'IBM Plex Sans', var(--bs-font-sans-serif);
     font-size: 15px;
     line-height: 1.5;
     margin: 0;
-    // Uses Bootstrap's body-bg CSS variable which updates with data-bs-theme
-    background-color: var(--bs-body-bg, #f5f5f5);
+    background-color: var(--bs-body-bg, #0d1117);
 }
 
 // ============================================================================
-// SECTION 5: Custom Theme Variables
+// SECTION 5: App CSS Custom Properties — Terminal/Hacker Palette (dark-only)
 // ============================================================================
-// App-specific CSS variables that adapt to Bootstrap's data-bs-theme system.
 // Components use var(--app-*) for colors that Bootstrap doesn't provide.
+// Single palette — no light/dark switching. Phase 37 removes ThemeService.
 
-:root, [data-bs-theme="light"] {
+:root {
   // Layout backgrounds
-  --app-header-bg: #DDDDDD;
-  --app-top-header-bg: #f5f5f5;
-  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.25);
+  --app-header-bg: #161b22;
+  --app-top-header-bg: #0d1117;
+  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.7);
 
   // File list
-  --app-file-header-bg: #212529;
-  --app-file-header-color: #ffffff;
-  --app-file-row-even: #F6F6F6;
-  --app-file-border-color: #ddd;
-  --app-bulk-overlay-bg: rgba(255, 255, 255, 0.8);
+  --app-file-header-bg: #161b22;
+  --app-file-header-color: #3fb950;
+  --app-file-row-even: #161b22;
+  --app-file-border-color: #30363d;
+  --app-bulk-overlay-bg: rgba(13, 17, 23, 0.85);
 
   // Text
-  --app-logo-color: #118247;
-  --app-muted-text: #666;
-  --app-separator-color: #999;
+  --app-logo-color: #3fb950;
+  --app-muted-text: #8b949e;
+  --app-separator-color: #484f58;
 
   // Accents
-  --app-accent-teal-border: #6ac19e;
+  --app-accent-teal-border: #238636;
 
-  // Selection/accent (teal) - used for selected rows, action bars, banners
-  --app-selection-bg: #79DFB6;
-  --app-selection-bg-subtle: #C5F0DE;
-  --app-selection-bg-alpha: rgba(121, 223, 182, 0.3);
-  --app-selection-border: #32AD7B;
-  --app-selection-text-emphasis: #077F4F;
-}
-
-[data-bs-theme="dark"] {
-  // Layout backgrounds
-  --app-header-bg: #343a40;
-  --app-top-header-bg: #1a1d20;
-  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.5);
-
-  // File list
-  --app-file-header-bg: #1a1d20;
-  --app-file-header-color: #f8f9fa;
-  --app-file-row-even: #2b3035;
-  --app-file-border-color: #495057;
-  --app-bulk-overlay-bg: rgba(33, 37, 41, 0.8);
-
-  // Text
-  --app-logo-color: #4ac98f;
-  --app-muted-text: #adb5bd;
-  --app-separator-color: #6c757d;
-
-  // Accents
-  --app-accent-teal-border: #4ac98f;
-
-  // Selection/accent (teal) - muted for dark backgrounds
-  --app-selection-bg: #1f5c42;
-  --app-selection-bg-subtle: #2a3e35;
-  --app-selection-bg-alpha: rgba(74, 201, 143, 0.15);
-  --app-selection-border: #4ac98f;
-  --app-selection-text-emphasis: #4ac98f;
+  // Selection/accent (green) — used for selected rows, action bars, banners
+  --app-selection-bg: #238636;
+  --app-selection-bg-subtle: rgba(63, 185, 80, 0.1);
+  --app-selection-bg-alpha: rgba(63, 185, 80, 0.15);
+  --app-selection-border: #3fb950;
+  --app-selection-text-emphasis: #3fb950;
 }
 
 /* show the input search cancel button */
@@ -158,4 +128,53 @@ div {
     /*border: 1px solid black;*/
     /* make padding and border inside box */
     box-sizing: border-box;
+}
+
+// ============================================================================
+// SECTION 6: Terminal Effects — CRT Overlay, Animations, Utility Classes
+// ============================================================================
+
+// CRT scan-line overlay — subtle horizontal lines across entire viewport
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.03) 0px,
+    rgba(0, 0, 0, 0.03) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+// Keyframe animations (used by Phases 34-36 for terminal effects)
+@keyframes cursor-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+@keyframes green-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 65, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(0, 255, 65, 0.6); }
+}
+
+// Utility classes (used by Phases 34-36 for terminal styling)
+.glow-green {
+  box-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+.text-terminal {
+  font-family: var(--bs-font-monospace);
+  color: #3fb950;
+}
+
+.cursor-blink::after {
+  content: '_';
+  animation: cursor-blink 1s step-end infinite;
 }
