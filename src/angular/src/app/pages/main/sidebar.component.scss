@@ -1,14 +1,19 @@
 @use '../../common/common' as *;
 
 #sidebar {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
     .button {
         background-color: inherit;
         color: inherit;
         text-decoration: none;
         font-weight: bolder;
-        display: block;
-        width: 100%;
-        padding: 8px 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
         text-align: left;
         border: none;
         outline: none;
@@ -26,7 +31,7 @@
             color: white;
             border-color: var(--app-accent-teal-border);
 
-            img {
+            .sidebar-icon {
                 filter: invert(1.0);
             }
         }
@@ -35,13 +40,26 @@
             opacity: .65;
             background-color: inherit;
         }
+    }
 
-        img {
-            width: 18px;
-            height: 18px;
-            margin-right: 4px;
-            margin-bottom: 2px;
-        }
+    .sidebar-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    .sidebar-label {
+        opacity: 0;
+        max-width: 0;
+        overflow: hidden;
+        transition: opacity 0.2s ease, max-width 0.25s ease;
+        display: inline-block;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    .sidebar-spacer {
+        flex-grow: 1;
     }
 
     hr {
