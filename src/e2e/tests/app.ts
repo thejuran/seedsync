@@ -12,7 +12,7 @@ export class App {
     }
 
     async getSidebarItems(): Promise<string[]> {
-        const items = await this.page.locator('#sidebar a span.text').all();
+        const items = await this.page.locator('#sidebar a span.sidebar-label').all();
         return Promise.all(items.map(item => item.innerHTML()));
     }
 
