@@ -9,9 +9,9 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 34 - Shell (next up)
-Status: Phase 33 complete, ready for Phase 34 planning
-Last activity: 2026-02-17 — Phase 33 Foundation verified and complete
+Phase: 34 - Shell (in progress)
+Status: Phase 34 Plan 1/2 complete
+Last activity: 2026-02-17 — Phase 34 Plan 01 executed (icon-rail sidebar)
 
 Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases)
 
@@ -46,7 +46,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 54 plans executed (33-03 complete)
+- 55 plans executed (34-01 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -61,6 +61,9 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 - [33-02] CRT scan-line overlay uses z-index 9999 with pointer-events:none — floats above all content without blocking interaction
 - [33-03] ThemeService forced dark-only by hardcoding applyTheme('dark') on init — eliminates localStorage override; app is dark-only by design
 - [33-03] $input-btn-font-family set to IBM Plex Sans — Bootstrap defaults to null (browser font), all interactive elements now consistently use the UI font
+- [34-01] Keep $sidebar-width: 170px for mobile overlay animation — add $sidebar-collapsed-width (56px) and $sidebar-expanded-width (200px) alongside it
+- [34-01] Content margin-left stays fixed at 56px — sidebar overlays content on hover (no margin-left animation, matches VS Code/terminal UX)
+- [34-01] Logo block (#logo) hidden via CSS on large screens, kept in HTML for mobile overlay close button
 
 ### Todos
 
@@ -79,8 +82,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 33-03-PLAN.md (Phase 33 Foundation, Plan 3/3) — phase complete
-Next action: Execute Phase 34 (Shell)
+Stopped at: Completed 34-01-PLAN.md (Phase 34 Shell, Plan 1/2)
+Next action: Execute Phase 34 Plan 02
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
