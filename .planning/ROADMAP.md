@@ -177,7 +177,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   Plans:
   - [ ] 37-01-PLAN.md — Delete ThemeService, types, specs; remove from app.config.ts (CLEAN-01, CLEAN-02)
 
-- [ ] Phase 38: Terminal Polish & Traceability — Fix CSS variable typo, update requirements traceability (gap closure)
+- [x] Phase 38: Terminal Polish & Traceability — Fix CSS variable typo, update requirements traceability (gap closure) (completed 2026-02-17)
   - Requirements: NAV-03 (cosmetic fix)
   - Key files: `sidebar.component.scss`, `REQUIREMENTS.md`
   - **Gap Closure:** Closes integration gap from v3.0 audit
