@@ -143,6 +143,11 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 - [ ] Phase 33: Foundation — Replace color system, typography, CSS variables with Terminal/Hacker palette
   - Requirements: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
   - Key files: `styles.scss`, `_bootstrap-variables.scss`, `_common.scss`, `_bootstrap-overrides.scss`, `index.html`
+  - **Plans:** 3 plans
+  Plans:
+  - [ ] 33-01-PLAN.md — Font loading + SCSS foundation (index.html, _bootstrap-variables.scss, _common.scss)
+  - [ ] 33-02-PLAN.md — CSS custom properties + CRT overlay + scrollbars (_bootstrap-overrides.scss, styles.scss)
+  - [ ] 33-03-PLAN.md — Visual verification checkpoint
 - [ ] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, restyle header
   - Requirements: NAV-01, NAV-02, NAV-03, NAV-04
   - Key files: `app.component.*`, `sidebar.component.*`, `header.component.*`
