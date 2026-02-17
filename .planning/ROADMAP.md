@@ -148,7 +148,7 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
   - [ ] 33-01-PLAN.md — Font loading + SCSS foundation (index.html, _bootstrap-variables.scss, _common.scss)
   - [ ] 33-02-PLAN.md — CSS custom properties + CRT overlay + scrollbars (_bootstrap-overrides.scss, styles.scss)
   - [ ] 33-03-PLAN.md — Visual verification checkpoint
-- [ ] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, add prompt indicator and version display
+- [x] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, add prompt indicator and version display (completed 2026-02-17)
   - Requirements: NAV-01, NAV-02, NAV-03, NAV-04
   - Key files: `app.component.*`, `sidebar.component.*`, `_common.scss`
   - **Plans:** 2 plans
