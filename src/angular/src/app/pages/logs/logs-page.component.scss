@@ -2,7 +2,7 @@
 
 #logs {
     padding: 5px 15px;
-    font-family: monospace;
+    font-family: var(--bs-font-monospace);
     font-size: 70%;
 
     display: flex;
@@ -12,8 +12,14 @@
     .status-message {
         padding: 20px;
         text-align: center;
-        color: $secondary;
+        color: #8b949e;
         font-size: 14px;
+        font-family: var(--bs-font-monospace);
+
+        &::before {
+            content: '> ';
+            color: #3fb950;
+        }
     }
 
     .log-marker {
@@ -46,23 +52,19 @@
         word-break: break-all;
 
         &.debug {
-            color: var(--bs-secondary-color);
+            color: #8b949e;
         }
 
         &.info {
-            color: var(--bs-body-color);
+            color: #e6edf3;
         }
 
         &.warning {
-            color: var(--bs-warning-text-emphasis);
-            background-color: var(--bs-warning-bg-subtle);
-            border-color: var(--bs-warning-border-subtle);
+            color: #f0883e;
         }
 
         &.error, &.critical {
-            color: var(--bs-danger-text-emphasis);
-            background-color: var(--bs-danger-bg-subtle);
-            border-color: var(--bs-danger-border-subtle);
+            color: #f85149;
         }
 
         span.traceback {
