@@ -4,9 +4,6 @@
 // Local access to Bootstrap variables with namespace
 @use 'bootstrap-variables' as bv;
 
-// Bootstrap functions (shade-color, tint-color)
-@use 'bootstrap/scss/functions' as fn;
-
 // ============================================================================
 // Bootstrap Semantic Color Variables (for component use)
 // ============================================================================
@@ -18,18 +15,21 @@
 // These are available, but listing them here for documentation
 // $primary, $secondary, $success, $danger, $warning, $info
 
-// Bootstrap 5.3 subtle alert color variables (generated from theme colors)
-$warning-text-emphasis: fn.shade-color(bv.$warning, 60%);
-$danger-text-emphasis: fn.shade-color(bv.$danger, 60%);
-$warning-bg-subtle: fn.tint-color(bv.$warning, 80%);
-$danger-bg-subtle: fn.tint-color(bv.$danger, 80%);
-$warning-border-subtle: fn.tint-color(bv.$warning, 60%);
-$danger-border-subtle: fn.tint-color(bv.$danger, 60%);
+// Dark-mode semantic colors (static values replacing light-mode tint/shade)
+// Previously used fn.shade-color/fn.tint-color which produce light-mode-appropriate values.
+// Since we're dark-only now, use direct RGBA values that work on dark backgrounds.
+// These variables are consumed by file list status badges (autoqueue, logs components).
+$warning-text-emphasis: #f0883e;                    // Amber on dark
+$danger-text-emphasis: #f85149;                     // Red on dark
+$warning-bg-subtle: rgba(240, 136, 62, 0.15);       // Subtle amber
+$danger-bg-subtle: rgba(248, 81, 73, 0.15);         // Subtle red
+$warning-border-subtle: rgba(240, 136, 62, 0.4);    // Amber border
+$danger-border-subtle: rgba(248, 81, 73, 0.4);      // Red border
 
-// Bootstrap gray scale (commonly used for borders, backgrounds)
-$gray-100: #f8f9fa;
-$gray-300: #dee2e6;
-$gray-800: #343a40;
+// Bootstrap gray scale — dark-only values
+$gray-100: #161b22;   // Surface (dark mode elevated surface)
+$gray-300: #30363d;   // Border (dark mode border)
+$gray-800: #c9d1d9;   // Text (dark mode secondary text)
 
 // ============================================================================
 // Layout Variables
@@ -48,4 +48,3 @@ $zindex-sidebar: 300;
 $zindex-top-header: 200;
 $zindex-file-options: 201;
 $zindex-file-search: 100;
-

@@ -3,50 +3,55 @@
 // These are imported after functions but before variables in styles.scss
 
 // ============================================================================
-// Bootstrap Theme Colors (override Bootstrap defaults)
+// Font Family Overrides
 // ============================================================================
-$primary: #337BB7;    // Existing app primary blue
-$secondary: #79DFB6;  // Existing app teal
-$success: #198754;    // Bootstrap default green - semantic "add" actions
-$danger: #dc3545;     // Bootstrap default red - semantic "remove" actions
-$warning: #ffc107;    // Bootstrap default yellow
-$info: #0dcaf0;       // Bootstrap default cyan
+// Override Bootstrap defaults to use Terminal/Hacker palette fonts
+// Bootstrap's _root.scss emits these as --bs-font-sans-serif and --bs-font-monospace
+$font-family-sans-serif: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+$font-family-monospace: 'Fira Code', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+// ============================================================================
+// Dark Body Colors
+// ============================================================================
+// Override Bootstrap's _variables-dark.scss defaults (#212529 bg, #dee2e6 text)
+$body-bg-dark: #0d1117;       // Terminal deep background
+$body-color-dark: #e6edf3;    // Terminal primary text
+
+// ============================================================================
+// Bootstrap Theme Colors (Terminal/Hacker palette)
+// ============================================================================
+$primary: #3fb950;    // GitHub green (readable)
+$secondary: #8b949e;  // Muted gray
+$success: #238636;    // Muted green
+$danger: #f85149;     // GitHub red
+$warning: #f0883e;    // Amber
+$info: #58a6ff;       // Blue accent
 
 // ============================================================================
 // Application-specific color variables
 // ============================================================================
-// Note: These derive from the Bootstrap theme colors defined above
-// Eventually these could use Bootstrap's color functions, but for now
-// we maintain the existing hardcoded values for backward compatibility
-
 $primary-color: $primary;
-$primary-dark-color: #2e6da4;
-$primary-light-color: #D7E7F4;
-$primary-lighter-color: #F6F6F6;
+$primary-dark-color: #238636;       // Muted green
 
 $secondary-color: $secondary;
-$secondary-light-color: #C5F0DE;
-$secondary-dark-color: #32AD7B;
-$secondary-darker-color: #077F4F;
+$secondary-dark-color: #6e7681;     // Darker gray
+$secondary-darker-color: #484f58;   // Even darker
 
-$header-color: #DDDDDD;
-$header-dark-color: #D3D3D3;
-
-$logo-color: #118247;
-$logo-font: 'Arial Black', Gadget, sans-serif;
+$logo-color: #3fb950;
+$logo-font: 'Fira Code', monospace;
 
 // ============================================================================
 // Component Active States (forms, checkboxes, buttons)
 // ============================================================================
-// Override to use teal for active/focused/checked states
-$component-active-bg: $secondary;          // Teal for active/focused/checked
-$component-active-color: #fff;             // White text/icons on teal
+// Green active state for Terminal palette
+$component-active-bg: #3fb950;       // Green
+$component-active-color: #0d1117;    // Dark text on green
 
 // ============================================================================
 // Form Input Styling
 // ============================================================================
-// Border styling (visible but not prominent)
-$input-border-color: #495057;              // Medium gray for dark theme visibility
+// Terminal border color
+$input-border-color: #30363d;        // Terminal border
 
 // Focus states (uses component-active via cascade)
 // These inherit from $component-active-bg automatically:
