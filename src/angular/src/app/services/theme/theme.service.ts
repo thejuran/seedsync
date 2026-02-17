@@ -38,10 +38,10 @@ export class ThemeService implements OnDestroy {
   private _storageListener: (event: StorageEvent) => void;
 
   constructor() {
-    // 1. Initialize from localStorage
-    this._initializeFromStorage();
+    // Force dark mode — Phase 33 hardcodes dark-only, Phase 37 removes ThemeService entirely
+    this._theme.set("dark");
 
-    // 2. Apply theme to DOM whenever resolvedTheme changes
+    // Apply theme to DOM whenever resolvedTheme changes
     effect(() => {
       const resolved = this.resolvedTheme();
       document.documentElement.setAttribute("data-bs-theme", resolved);
