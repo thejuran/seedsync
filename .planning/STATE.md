@@ -9,9 +9,9 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 33 - Foundation (Plan 1/3 complete)
+Phase: 33 - Foundation (Plan 2/3 complete)
 Status: In progress
-Last activity: 2026-02-17 — 33-01 complete
+Last activity: 2026-02-17 — 33-02 complete
 
 Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/5 phases)
 
@@ -46,7 +46,7 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/5
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 52 plans executed (33-01 complete)
+- 53 plans executed (33-02 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -57,6 +57,8 @@ Progress: [░░░░░░░░░░░░░░░░░░░░] 0% (0/5
 - [33-01] Use Google Fonts CDN for Fira Code + IBM Plex Sans — zero build-time cost, graceful fallback
 - [33-01] Replace fn.shade-color/fn.tint-color with direct RGBA values in _common.scss — tint/shade produce light-mode colors
 - [33-01] Remove $primary-light-color, $primary-lighter-color, $secondary-light-color, $header-color, $header-dark-color — light-mode only, unused by components
+- [33-02] Use hardcoded hex in _bootstrap-overrides.scss for dropdown/form instead of SCSS variable interpolation — old variables don't map to new Terminal palette semantics
+- [33-02] CRT scan-line overlay uses z-index 9999 with pointer-events:none — floats above all content without blocking interaction
 
 ### Todos
 
@@ -75,8 +77,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 33-01-PLAN.md (Phase 33 Foundation, Plan 1/3)
-Next action: Execute 33-02-PLAN.md
+Stopped at: Completed 33-02-PLAN.md (Phase 33 Foundation, Plan 2/3)
+Next action: Execute 33-03-PLAN.md
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
