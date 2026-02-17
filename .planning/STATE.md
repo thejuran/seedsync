@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 37 - Theme Cleanup (complete)
-Status: Phase 37 Plan 1/1 complete — phase done
-Last activity: 2026-02-17 — Phase 37 Plan 01 executed (deleted ThemeService, theme types, and theme test files)
+Phase: 38 - Terminal Polish & Traceability (complete)
+Status: Phase 38 Plan 1/1 complete — phase done, all v3.0 phases complete
+Last activity: 2026-02-17 — Phase 38 Plan 01 executed (fixed CSS variable typo in sidebar version text, updated REQUIREMENTS.md traceability)
 
-Progress: [█████░░░░░░░░░░░░░░░] 100% (5/5 phases complete)
+Progress: [██████░░░░░░░░░░░░░░] 100% (6/6 phases complete)
 
 ## v3.0 Phases
 
@@ -24,6 +24,7 @@ Progress: [█████░░░░░░░░░░░░░░░] 100% (5
 | 35 | Dashboard | Complete (3/3 plans done) |
 | 36 | Secondary Pages | Complete (2/2 plans done) |
 | 37 | Theme Cleanup | Complete (1/1 plans done) |
+| 38 | Terminal Polish & Traceability | Complete (1/1 plans done) |
 
 ## Milestones Shipped
 
@@ -45,8 +46,8 @@ Progress: [█████░░░░░░░░░░░░░░░] 100% (5
 
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
-- 37 phases complete, 0 planned
-- 62 plans executed (37-01 complete)
+- 38 phases complete, 0 planned
+- 63 plans executed (38-01 complete)
 - 14 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -82,6 +83,7 @@ Progress: [█████░░░░░░░░░░░░░░░] 100% (5
 - [36-02] ASCII art font-size 0.5rem with white-space:pre and overflow:hidden — compact but readable rendering without layout overflow
 - [36-02] margin-bottom: 10px added to #banner in About SCSS — ASCII art needed explicit separation from version line that image banner did not
 - [37-01] Deleted ThemeService, theme.types.ts, and all theme test files — dead code since Phase 33 hardcoded dark-only via HTML attribute
+- [38-01] Fix call site only for CSS variable typo (var(--app-muted-text)) — canonical variable already defined in styles.scss :root, no new variable needed
 
 ### Todos
 
@@ -100,8 +102,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 37-01-PLAN.md (Phase 37 Theme Cleanup, Plan 1/1) — deleted ThemeService, theme types, and theme test files — Phase 37 complete
-Next action: All v3.0 Terminal UI Overhaul phases complete
+Stopped at: Completed 38-01-PLAN.md (Phase 38 Terminal Polish & Traceability, Plan 1/1) — fixed CSS variable typo in sidebar version text, updated REQUIREMENTS.md — Phase 38 complete
+Next action: v3.0 Terminal UI Overhaul milestone complete — all 38 phases done, all 21 requirements satisfied
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
