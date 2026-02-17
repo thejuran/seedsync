@@ -1,4 +1,4 @@
-# Roadmap: SeedSync UI Polish & *arr Integration
+# Roadmap: SeedSync
 
 ## Milestones
 
@@ -12,6 +12,7 @@
 - ✅ **v1.7 Sonarr Integration** - Phases 22-25 (shipped 2026-02-10)
 - ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
 - ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
+- 🔄 **v3.0 Terminal UI Overhaul** - Phases 33-37 (in progress)
 
 ## Phases
 
@@ -137,7 +138,27 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 
 </details>
 
+### 🔄 v3.0 Terminal UI Overhaul (Phases 33-37)
+
+- [ ] Phase 33: Foundation — Replace color system, typography, CSS variables with Terminal/Hacker palette
+  - Requirements: VIS-01, VIS-02, VIS-03, VIS-04, VIS-05
+  - Key files: `styles.scss`, `_bootstrap-variables.scss`, `_common.scss`, `_bootstrap-overrides.scss`, `index.html`
+- [ ] Phase 34: Shell — Restructure sidebar to collapsible icon-rail, restyle header
+  - Requirements: NAV-01, NAV-02, NAV-03, NAV-04
+  - Key files: `app.component.*`, `sidebar.component.*`, `header.component.*`
+- [ ] Phase 35: Dashboard — Redesign file list with ASCII progress, status dots, colored borders, glow effects
+  - Requirements: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06
+  - Key files: `file.component.*`, `file-list.component.*`, `file-options.component.*`, `file-actions-bar.component.*`, `bulk-actions-bar.component.*`, `selection-banner.component.*`
+- [ ] Phase 36: Secondary Pages — Apply terminal aesthetic to Settings, AutoQueue, Logs, About
+  - Requirements: PAGE-01, PAGE-02, PAGE-03, PAGE-04
+  - Key files: `settings-page.component.*`, `autoqueue-page.component.*`, `logs-page.component.*`, `about-page.component.*`
+- [ ] Phase 37: Theme Cleanup — Remove light/auto theme system, simplify to dark-only
+  - Requirements: CLEAN-01, CLEAN-02
+  - Key files: `theme.service.ts`, `theme.types.ts`, `settings-page.component.ts`
+
+See `.planning/milestones/v3.0-ROADMAP.md` for full details.
+
 ---
 
-*Last updated: 2026-02-12 (Phase 32 complete)*
-*10 milestones (10 shipped), 32 phases (32 complete), 51 plans completed*
+*Last updated: 2026-02-16 (v3.0 roadmap defined)*
+*11 milestones (10 shipped, 1 in progress), 37 phases (32 complete, 5 planned), 51 plans completed*
