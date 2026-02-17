@@ -172,11 +172,6 @@
             width: $sidebar-expanded-width;
         }
 
-        &:hover .sidebar-label {
-            opacity: 1;
-            max-width: 150px;
-        }
-
         // Hide logo block on large screens (not needed in icon rail)
         #logo {
             display: none;
