@@ -5,6 +5,13 @@
 
     #description {
         font-size: 100%;
+        font-family: var(--bs-font-monospace);
+        color: #8b949e;
+
+        &::before {
+            content: '> ';
+            color: #3fb950;
+        }
     }
 
     #controls {
@@ -38,10 +45,21 @@
             }
         }
 
+        .ghost-btn {
+            transition: box-shadow 0.15s ease;
+
+            &.btn-outline-success:hover:not(:disabled) {
+                box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);
+            }
+            &.btn-outline-danger:hover:not(:disabled) {
+                box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+            }
+        }
+
         .pattern {
             .text {
                 font-size: 100%;
-                font-family: monospace;
+                font-family: var(--bs-font-monospace);
                 white-space: pre-wrap;
 
                 /* break up long text */

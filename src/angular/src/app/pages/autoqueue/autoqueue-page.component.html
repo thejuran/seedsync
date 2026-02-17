@@ -20,7 +20,7 @@
     <div id="controls" [class.controls-disabled]="!(enabled && patternsOnly)">
         <div *ngFor="let pattern of patterns | async"
              class="pattern">
-            <button class="btn btn-danger" type="button"
+            <button class="btn btn-outline-danger ghost-btn" type="button"
                     [disabled]="!(enabled && patternsOnly)"
                     (click)="onRemovePattern(pattern)">
                 <span>&#8722;</span>
@@ -28,7 +28,7 @@
             <span class="text">{{pattern.pattern}}</span>
         </div>
         <div id="add-pattern">
-            <button class="btn btn-success" type="button"
+            <button class="btn btn-outline-success ghost-btn" type="button"
                     [disabled]="!(newPattern && enabled && patternsOnly)"
                     (click)="onAddPattern()">
                 <span>&#43;</span>
