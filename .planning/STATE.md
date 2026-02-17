@@ -9,9 +9,9 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 35 - Dashboard (in progress)
-Status: Phase 35 Plan 2/3 complete
-Last activity: 2026-02-17 — Phase 35 Plan 02 executed (status borders, glow animation, CSS dots)
+Phase: 35 - Dashboard (complete)
+Status: Phase 35 Plan 3/3 complete — phase done
+Last activity: 2026-02-17 — Phase 35 Plan 03 executed (ASCII progress bars, ghost outline buttons)
 
 Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases complete, 35 in progress)
 
@@ -21,7 +21,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 |-------|------|--------|
 | 33 | Foundation | Complete |
 | 34 | Shell | Complete (pending verification) |
-| 35 | Dashboard | In Progress (2/3 plans done) |
+| 35 | Dashboard | Complete (3/3 plans done) |
 | 36 | Secondary Pages | Pending |
 | 37 | Theme Cleanup | Pending |
 
@@ -46,7 +46,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 58 plans executed (35-02 complete)
+- 59 plans executed (35-03 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -72,6 +72,9 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 - [35-02] @HostBinding('class') getter returns status-based classes; Angular merges with parent-set [class.even-row] — even-row striping unaffected
 - [35-02] green-pulse keyframe reused from styles.scss (defined in phase 33) — no duplication needed in file.component.scss
 - [35-02] statusDotClass uses optional chaining (file?.status ?? 'default') to safely handle undefined file during initial render
+- [35-03] getAsciiBar() uses Math.min/Math.max clamp on percentDownloaded — safe against out-of-range values from backend
+- [35-03] Unicode escapes \u2588/\u2591 used in TypeScript source instead of literal block characters — avoids encoding issues
+- [35-03] Ghost button color semantics: Queue → btn-outline-success (green), Stop/Delete → btn-outline-danger (red), Extract → btn-outline-secondary (gray)
 
 ### Todos
 
@@ -90,8 +93,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 35-02-PLAN.md (Phase 35 Dashboard, Plan 2/3) — status borders, glow animation, CSS status dots
-Next action: Execute Phase 35 Plan 03
+Stopped at: Completed 35-03-PLAN.md (Phase 35 Dashboard, Plan 3/3) — ASCII progress bars, ghost outline buttons — Phase 35 complete
+Next action: Execute Phase 36 (Secondary Pages)
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
