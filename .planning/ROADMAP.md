@@ -158,6 +158,11 @@ See `.planning/milestones/v2.0-ROADMAP.md` for full details.
 - [ ] Phase 35: Dashboard — Redesign file list with ASCII progress, status dots, colored borders, glow effects
   - Requirements: DASH-01, DASH-02, DASH-03, DASH-04, DASH-05, DASH-06
   - Key files: `file.component.*`, `file-list.component.*`, `file-options.component.*`, `file-actions-bar.component.*`, `bulk-actions-bar.component.*`, `selection-banner.component.*`
+  - **Plans:** 3 plans
+  Plans:
+  - [ ] 35-01-PLAN.md — Terminal prompt in search input (DASH-01)
+  - [ ] 35-02-PLAN.md — Status borders, glow animation, status dots (DASH-02, DASH-04, DASH-05)
+  - [ ] 35-03-PLAN.md — ASCII progress bars + ghost action buttons (DASH-03, DASH-06)
 - [ ] Phase 36: Secondary Pages — Apply terminal aesthetic to Settings, AutoQueue, Logs, About
   - Requirements: PAGE-01, PAGE-02, PAGE-03, PAGE-04
   - Key files: `settings-page.component.*`, `autoqueue-page.component.*`, `logs-page.component.*`, `about-page.component.*`
