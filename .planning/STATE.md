@@ -9,9 +9,9 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 36 - Secondary Pages (in progress)
-Status: Phase 36 Plan 1/2 complete
-Last activity: 2026-02-17 — Phase 36 Plan 01 executed (terminal Settings headers, removed Appearance card, AutoQueue ghost buttons)
+Phase: 36 - Secondary Pages (complete)
+Status: Phase 36 Plan 2/2 complete — phase done
+Last activity: 2026-02-17 — Phase 36 Plan 02 executed (terminal log colors, ASCII art About banner, Fira Code markers)
 
 Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases complete, 36 in progress)
 
@@ -22,7 +22,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 | 33 | Foundation | Complete |
 | 34 | Shell | Complete (pending verification) |
 | 35 | Dashboard | Complete (3/3 plans done) |
-| 36 | Secondary Pages | In Progress (1/2 plans done) |
+| 36 | Secondary Pages | Complete (2/2 plans done) |
 | 37 | Theme Cleanup | Pending |
 
 ## Milestones Shipped
@@ -46,7 +46,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 60 plans executed (36-01 complete)
+- 61 plans executed (36-02 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -78,6 +78,9 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 - [36-01] color: #8b949e direct hex for subsection headers — consistent with Phase 33-35 terminal palette, not var(--bs-secondary) which may drift
 - [36-01] .btn.terminal-header scoped selector for card headers — prevents conflict with other .btn usages in the page (e.g. test connection buttons)
 - [36-01] ghost-btn added as sibling inside #controls block in AutoQueue SCSS — consistent with Phase 35 dashboard ghost-btn placement pattern
+- [36-02] Direct hex values for log level colors — dark-only app, Bootstrap variable indirection unnecessary, matches Terminal palette from Phase 33
+- [36-02] ASCII art font-size 0.5rem with white-space:pre and overflow:hidden — compact but readable rendering without layout overflow
+- [36-02] margin-bottom: 10px added to #banner in About SCSS — ASCII art needed explicit separation from version line that image banner did not
 
 ### Todos
 
@@ -96,8 +99,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 36-01-PLAN.md (Phase 36 Secondary Pages, Plan 1/2) — terminal Settings headers, Appearance card removal, AutoQueue ghost buttons
-Next action: Execute Phase 36 Plan 02
+Stopped at: Completed 36-02-PLAN.md (Phase 36 Secondary Pages, Plan 2/2) — terminal log colors, ASCII art About banner, Fira Code markers — Phase 36 complete
+Next action: Execute Phase 37 (Theme Cleanup)
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
