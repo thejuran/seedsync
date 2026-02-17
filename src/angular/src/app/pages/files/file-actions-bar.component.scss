@@ -59,6 +59,20 @@
     }
 }
 
+.ghost-btn {
+    transition: box-shadow 0.15s ease;
+
+    &.btn-outline-success:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);   // green glow
+    }
+    &.btn-outline-danger:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);   // red glow
+    }
+    &.btn-outline-secondary:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(139, 148, 158, 0.4); // gray glow
+    }
+}
+
 /* Mobile: stack vertically */
 @media only screen and (max-width: $medium-min-width) {
     .file-actions-bar {

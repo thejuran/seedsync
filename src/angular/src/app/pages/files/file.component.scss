@@ -259,6 +259,21 @@
 }
 
 
+.actions .ghost-btn {
+    transition: box-shadow 0.15s ease;
+
+    &.btn-outline-success:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);
+    }
+    &.btn-outline-danger:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
+    }
+    &.btn-outline-secondary:hover:not(:disabled) {
+        box-shadow: 0 0 8px rgba(139, 148, 158, 0.4);
+    }
+}
+
+
 /* Medium and large screens */
 @media only screen and (min-width: $medium-min-width) {
     /* enable row hover */
