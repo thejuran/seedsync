@@ -9,11 +9,11 @@ See: .planning/PROJECT.md (updated 2026-02-16)
 
 ## Current Position
 
-Phase: 35 - Dashboard (complete)
-Status: Phase 35 Plan 3/3 complete — phase done
-Last activity: 2026-02-17 — Phase 35 Plan 03 executed (ASCII progress bars, ghost outline buttons)
+Phase: 36 - Secondary Pages (in progress)
+Status: Phase 36 Plan 1/2 complete
+Last activity: 2026-02-17 — Phase 36 Plan 01 executed (terminal Settings headers, removed Appearance card, AutoQueue ghost buttons)
 
-Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases complete, 35 in progress)
+Progress: [████░░░░░░░░░░░░░░░░] 20% (1/5 phases complete, 36 in progress)
 
 ## v3.0 Phases
 
@@ -22,7 +22,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 | 33 | Foundation | Complete |
 | 34 | Shell | Complete (pending verification) |
 | 35 | Dashboard | Complete (3/3 plans done) |
-| 36 | Secondary Pages | Pending |
+| 36 | Secondary Pages | In Progress (1/2 plans done) |
 | 37 | Theme Cleanup | Pending |
 
 ## Milestones Shipped
@@ -46,7 +46,7 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 **Total Project:**
 - 11 milestones (10 shipped, 1 in progress)
 - 32 phases complete, 5 planned (33-37)
-- 59 plans executed (35-03 complete)
+- 60 plans executed (36-01 complete)
 - 13 days total (2026-02-03 to 2026-02-17)
 
 ## Accumulated Context
@@ -75,6 +75,9 @@ Progress: [████░░░░░░░░░░░░░░░░] 20% (1/
 - [35-03] getAsciiBar() uses Math.min/Math.max clamp on percentDownloaded — safe against out-of-range values from backend
 - [35-03] Unicode escapes \u2588/\u2591 used in TypeScript source instead of literal block characters — avoids encoding issues
 - [35-03] Ghost button color semantics: Queue → btn-outline-success (green), Stop/Delete → btn-outline-danger (red), Extract → btn-outline-secondary (gray)
+- [36-01] color: #8b949e direct hex for subsection headers — consistent with Phase 33-35 terminal palette, not var(--bs-secondary) which may drift
+- [36-01] .btn.terminal-header scoped selector for card headers — prevents conflict with other .btn usages in the page (e.g. test connection buttons)
+- [36-01] ghost-btn added as sibling inside #controls block in AutoQueue SCSS — consistent with Phase 35 dashboard ghost-btn placement pattern
 
 ### Todos
 
@@ -93,8 +96,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-17
-Stopped at: Completed 35-03-PLAN.md (Phase 35 Dashboard, Plan 3/3) — ASCII progress bars, ghost outline buttons — Phase 35 complete
-Next action: Execute Phase 36 (Secondary Pages)
+Stopped at: Completed 36-01-PLAN.md (Phase 36 Secondary Pages, Plan 1/2) — terminal Settings headers, Appearance card removal, AutoQueue ghost buttons
+Next action: Execute Phase 36 Plan 02
 
 ---
 *v3.0 Terminal UI Overhaul: started 2026-02-16*
