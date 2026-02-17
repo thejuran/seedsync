@@ -13,29 +13,24 @@
     word-break: break-word;
 }
 
-// Custom dropdown theme colors for dark mode
-// Applied when global data-bs-theme="dark" is set on documentElement by ThemeService
-[data-bs-theme="dark"] {
-  .dropdown-menu {
-    // Background and border
-    --bs-dropdown-bg: #{bv.$primary-color};
-    --bs-dropdown-border-color: #{bv.$primary-dark-color};
-    --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.3);
+// Dropdown theme — Terminal palette (dark-only, no guard needed)
+.dropdown-menu {
+  --bs-dropdown-bg: #161b22;
+  --bs-dropdown-border-color: #30363d;
+  --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
 
-    // Item colors
-    --bs-dropdown-link-color: white;
-    --bs-dropdown-link-hover-color: white;
-    --bs-dropdown-link-hover-bg: #{bv.$secondary-dark-color};
-    --bs-dropdown-link-active-color: white;
-    --bs-dropdown-link-active-bg: #{bv.$secondary-dark-color};
-    --bs-dropdown-link-disabled-color: rgba(white, 0.65);
-  }
+  --bs-dropdown-link-color: #e6edf3;
+  --bs-dropdown-link-hover-color: #e6edf3;
+  --bs-dropdown-link-hover-bg: #238636;
+  --bs-dropdown-link-active-color: #ffffff;
+  --bs-dropdown-link-active-bg: #3fb950;
+  --bs-dropdown-link-disabled-color: rgba(255, 255, 255, 0.4);
+}
 
-  // Toggle button pressed/open state
-  .dropdown-toggle.show {
-    background-color: bv.$secondary-dark-color;
-    border-color: bv.$secondary-darker-color;
-  }
+// Toggle button pressed/open state
+.dropdown-toggle.show {
+  background-color: #238636;
+  border-color: #3fb950;
 }
 
 // Dropdown fade animation (~150ms per user decision)
@@ -56,40 +51,63 @@
 // ============================================================================
 // Theme-Aware Form Styling
 // ============================================================================
-// Form inputs adapt to the active theme. Light mode uses Bootstrap defaults
-// (no overrides needed). Dark mode needs explicit dark backgrounds.
+// Form controls — Terminal palette (dark-only, no guard needed)
+.form-control {
+  background-color: #0d1117;
+  color: #e6edf3;
+  border-color: #30363d;
 
-[data-bs-theme="dark"] {
-  .form-control {
-    background-color: #212529;
-    color: #dee2e6;
-    border-color: #495057;
-
-    &::placeholder {
-      color: rgba(255, 255, 255, 0.5);
-    }
-
-    &:focus {
-      background-color: #212529;
-      color: #dee2e6;
-    }
-
-    &:disabled {
-      background-color: #1a1a1a;
-      opacity: 0.65;
-    }
+  &::placeholder {
+    color: #8b949e;
   }
 
-  .form-check-input {
-    background-color: #212529;
-    border-color: #495057;
-
-    &:focus {
-      border-color: fn.tint-color(bv.$secondary, 50%);
-    }
-
-    &:disabled {
-      opacity: 0.5;
-    }
+  &:focus {
+    background-color: #0d1117;
+    color: #e6edf3;
   }
+
+  &:disabled {
+    background-color: #161b22;
+    opacity: 0.65;
+  }
+}
+
+.form-check-input {
+  background-color: #0d1117;
+  border-color: #30363d;
+
+  &:focus {
+    border-color: #3fb950;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+// ============================================================================
+// Custom Scrollbars — Terminal Palette
+// ============================================================================
+
+// Webkit (Chrome, Safari, Edge)
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d1117;
+}
+::-webkit-scrollbar-thumb {
+  background: #30363d;
+  border-radius: 4px;
+
+  &:hover {
+    background: #3fb950;
+  }
+}
+
+// Firefox
+* {
+  scrollbar-color: #30363d #0d1117;
+  scrollbar-width: thin;
 }
