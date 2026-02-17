@@ -294,3 +294,31 @@
 
 ---
 
+
+## v3.0 Terminal UI Overhaul (Shipped: 2026-02-17)
+
+**Delivered:** Complete Terminal/Hacker aesthetic redesign — dark-only UI with Fira Code + IBM Plex Sans fonts, matrix-green accents, ASCII progress bars, collapsible icon-rail sidebar, CRT scan-line overlay, and theme system cleanup.
+
+**Phases completed:** 33-38 (12 plans total)
+
+**Key accomplishments:**
+
+- Replaced Bootstrap color system with Terminal/Hacker palette (Fira Code + IBM Plex Sans, #0d1117 dark base, #00ff41/#3fb950 green accents, CRT scan-line overlay)
+- Restructured sidebar to 56px collapsible icon-rail expanding to 200px on hover, with `>` prompt indicator on active route and version display
+- Redesigned file dashboard with ASCII progress bars (`[████░░░░] 67%`), colored status borders, green glow on downloading rows, and ghost-style action buttons
+- Applied terminal aesthetic to all secondary pages: Settings terminal headers, AutoQueue monospace patterns, colored log levels, ASCII art About page
+- Removed light/auto theme system entirely — deleted ThemeService, theme types, and all dead code for dark-only simplification
+- Fixed CSS variable typo and completed full requirements traceability (21/21 satisfied)
+
+**Stats:**
+
+- 32 files changed (+530 lines, -1,235 lines, net -705 LOC)
+- 6 phases, 12 plans, 21 requirements satisfied
+- 4 days (2026-02-14 to 2026-02-17)
+
+**Git range:** `v2.0.1` → `HEAD`
+
+**What's next:** Run `/gsd:new-milestone` to start next milestone (Lidarr/Readarr support, or other features).
+
+---
+

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. Features a web UI with dark/light theme, Sonarr/Radarr integration for automated post-download workflows, and real-time transfer status via SSE.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. Features a Terminal/Hacker-themed web UI (dark-only, Fira Code + IBM Plex Sans, matrix-green accents, ASCII progress bars), Sonarr/Radarr integration for automated post-download workflows, and real-time transfer status via SSE.
 
 ## Core Value
 
@@ -10,9 +10,21 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Current State
 
-**Current Milestone: v3.0 Terminal UI Overhaul** — Transform SeedSync's UI from generic Bootstrap/Verdana to a distinctive Terminal/Hacker aesthetic. Dark-only, Fira Code + IBM Plex Sans fonts, matrix-green accents, ASCII progress bars, collapsible sidebar, CRT scan-line overlay.
+**Latest Milestone: v3.0 Terminal UI Overhaul (shipped 2026-02-17)** — Complete visual redesign from generic Bootstrap/Verdana to distinctive Terminal/Hacker aesthetic. Dark-only with collapsible icon-rail sidebar, CRT scan-line overlay, ASCII progress bars, and colored status indicators.
 
 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
+
+<details>
+<summary>v3.0 Terminal UI Overhaul (Shipped 2026-02-17)</summary>
+
+- Replaced Bootstrap color system with Terminal/Hacker palette (Fira Code + IBM Plex Sans, #0d1117 dark base, green accents)
+- Collapsible 56px icon-rail sidebar expanding to 200px on hover, `>` prompt on active route, version display
+- ASCII progress bars (`[████░░░░] 67%`), colored status borders, green glow on downloading, ghost-style action buttons
+- Terminal-style Settings headers, AutoQueue monospace patterns, colored log levels, ASCII art About page
+- CRT scan-line overlay (z-index 9999, pointer-events:none), custom dark scrollbars
+- Removed light/auto theme system entirely — deleted ThemeService for dark-only simplification
+
+</details>
 
 <details>
 <summary>v2.0 Dark Mode & Polish (Shipped 2026-02-12)</summary>
@@ -53,78 +65,29 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ### Validated
 
-**v1.3 (Shipped 2026-02-04):**
+**v3.0 (Shipped 2026-02-17):**
 
-- Fix TypeScript strictness lint errors (62 issues) - v1.3
-- Status dropdown shows file counts per status - v1.3
-
-**v1.2 (Shipped 2026-02-04):**
-
-- Details button removed (incompatible with fixed-height virtual scroll rows) - v1.2
-- Pin button removed (unnecessary since actions bar always visible) - v1.2
-
-**v1.1 (Shipped 2026-02-04):**
-
-- File options dropdowns use Bootstrap dropdown component - v1.1
-- Custom `%dropdown` and `%toggle` placeholders removed - v1.1
-- Dropdown positioning works correctly (z-index, overflow, flip behavior) - v1.1
-- All text inputs use consistent Bootstrap form styling - v1.1
-- Checkboxes and toggles styled consistently - v1.1
-- Form focus states use app color scheme (teal) - v1.1
-- Full E2E test suite passes (387 unit tests verified) - v1.1
-- Visual QA walkthrough complete - v1.1
-- Responsive breakpoints tested (768px+) - v1.1
-- Unused CSS/SCSS removed - v1.1
-
-**v1.0 (Shipped 2026-02-03):**
-
-- Bootstrap SCSS infrastructure with customizable variables - v1.0
-- All colors consolidated to Bootstrap theme variables - v1.0
-- Selection highlighting unified with teal (secondary) palette - v1.0
-- All buttons standardized to Bootstrap semantic variants - v1.0
-- Custom %button SCSS placeholder removed - v1.0
-- 40px consistent button sizing across all pages - v1.0
-
-**Existing SeedSync functionality (not part of this work):**
-
-- File sync from remote server via LFTP - existing
-- Real-time status via SSE streaming - existing
-- Queue/stop/extract/delete file operations - existing
-- Settings configuration - existing
-- AutoQueue pattern matching - existing
-- Logs viewing - existing
-
-### Validated
-
-**v1.4 (Shipped 2026-02-08):**
-
-- Migrate all @import to @use/@forward across Angular SCSS files
-- Eliminate Sass @import deprecation warnings from build output
-- Maintain identical visual output (zero regressions)
-- All unit tests continue passing
-
-### Validated
-
-**v1.5 (Shipped 2026-02-08):**
-
-- pytest-cov integration with coverage reporting and fail_under threshold
-- Unit tests for common module gaps (5 modules, 100% coverage)
-- Unit tests for web handler gaps (7 handlers, 69 tests)
-- Unit tests for controller.py and controller_job.py (106 tests)
-- Shared fixtures via conftest.py (3 fixtures)
-- Coverage 77% → 84%, 231 new tests
-
-### Validated
-
-**v1.6 (Shipped 2026-02-10):**
-
-- `:dev` Docker image published to GHCR on every master push (multi-arch) - v1.6
-- `docker-publish.yml` removed — single CI workflow handles everything - v1.6
-- Version tag publishing continues working on tag pushes - v1.6
-- pytest cache warnings suppressed in Docker test runner - v1.6
-- webob cgi deprecation warnings filtered from test output - v1.6
-
-### Validated
+- ✓ Fira Code font for all data displays (filenames, speeds, sizes, progress) — v3.0
+- ✓ IBM Plex Sans for UI labels, buttons, and navigation — v3.0
+- ✓ Deep dark backgrounds (#0d1117 base) with green accent palette — v3.0
+- ✓ CRT scan-line overlay effect (subtle, low opacity) — v3.0
+- ✓ Custom dark scrollbar styling — v3.0
+- ✓ Sidebar as 56px icon rail, expands to 200px on hover — v3.0
+- ✓ `>` prompt indicator on active route in sidebar — v3.0
+- ✓ App version at bottom of sidebar — v3.0
+- ✓ Mobile hamburger menu preserved — v3.0
+- ✓ Search input with terminal prompt `>` prefix — v3.0
+- ✓ Colored left border on file rows by status — v3.0
+- ✓ ASCII-style block progress bars — v3.0
+- ✓ Green glow effect on actively downloading rows — v3.0
+- ✓ Colored dot + text for file status (no SVG icons) — v3.0
+- ✓ Ghost-style action buttons with glow on hover — v3.0
+- ✓ Terminal-style section headers in Settings — v3.0
+- ✓ Monospace patterns in AutoQueue with green/red buttons — v3.0
+- ✓ True terminal-style Logs (monospace, colored by level) — v3.0
+- ✓ ASCII-art inspired About page — v3.0
+- ✓ Theme toggle removed from Settings page — v3.0
+- ✓ ThemeService simplified to dark-only — v3.0
 
 **v2.0 (Shipped 2026-02-12):**
 
@@ -136,69 +99,78 @@ Reliable file sync from seedbox to local with automated media library integratio
 - ✓ Auto-delete description references both Sonarr and Radarr — v2.0
 - ✓ WAITING_FOR_IMPORT enum value for file status — v2.0
 
+**v1.6 (Shipped 2026-02-10):**
+
+- ✓ `:dev` Docker image published to GHCR on every master push (multi-arch) — v1.6
+- ✓ `docker-publish.yml` removed — single CI workflow handles everything — v1.6
+- ✓ Version tag publishing continues working on tag pushes — v1.6
+- ✓ pytest cache warnings suppressed in Docker test runner — v1.6
+- ✓ webob cgi deprecation warnings filtered from test output — v1.6
+
+**v1.5 (Shipped 2026-02-08):**
+
+- ✓ pytest-cov integration with coverage reporting and fail_under threshold — v1.5
+- ✓ Unit tests for common module gaps (5 modules, 100% coverage) — v1.5
+- ✓ Unit tests for web handler gaps (7 handlers, 69 tests) — v1.5
+- ✓ Unit tests for controller.py and controller_job.py (106 tests) — v1.5
+- ✓ Coverage 77% → 84%, 231 new tests — v1.5
+
+**v1.4 (Shipped 2026-02-08):**
+
+- ✓ Migrate all @import to @use/@forward across Angular SCSS files — v1.4
+- ✓ Eliminate Sass @import deprecation warnings from build output — v1.4
+
+**v1.3 (Shipped 2026-02-04):**
+
+- ✓ Fix TypeScript strictness lint errors (62 issues) — v1.3
+- ✓ Status dropdown shows file counts per status — v1.3
+
+**v1.2 (Shipped 2026-02-04):**
+
+- ✓ Details button removed — v1.2
+- ✓ Pin button removed — v1.2
+
+**v1.1 (Shipped 2026-02-04):**
+
+- ✓ File options dropdowns use Bootstrap dropdown component — v1.1
+- ✓ All text inputs use consistent Bootstrap form styling — v1.1
+- ✓ Form focus states use app color scheme — v1.1
+- ✓ Full E2E test suite passes — v1.1
+
+**v1.0 (Shipped 2026-02-03):**
+
+- ✓ Bootstrap SCSS infrastructure with customizable variables — v1.0
+- ✓ All colors consolidated to Bootstrap theme variables — v1.0
+- ✓ Selection highlighting unified with teal palette — v1.0
+- ✓ All buttons standardized to Bootstrap semantic variants — v1.0
+
 ### Active
 
-**v3.0 Terminal UI Overhaul (In Progress):**
-
-Visual Identity:
-- [ ] **VIS-01**: Fira Code font for all data displays (filenames, speeds, sizes, progress)
-- [ ] **VIS-02**: IBM Plex Sans for UI labels, buttons, and navigation
-- [ ] **VIS-03**: Deep dark backgrounds (#0d1117 base) with green accent palette
-- [ ] **VIS-04**: CRT scan-line overlay effect (subtle, low opacity)
-- [ ] **VIS-05**: Custom dark scrollbar styling
-
-Navigation:
-- [ ] **NAV-01**: Sidebar as 56px icon rail, expands to 200px on hover
-- [ ] **NAV-02**: `>` prompt indicator on active route in sidebar
-- [ ] **NAV-03**: App version at bottom of sidebar
-- [ ] **NAV-04**: Mobile hamburger menu preserved
-
-File Dashboard:
-- [ ] **DASH-01**: Search input with terminal prompt `>` prefix
-- [ ] **DASH-02**: Colored left border on file rows by status
-- [ ] **DASH-03**: ASCII-style block progress bars (`[████░░░░] 67%`)
-- [ ] **DASH-04**: Green glow effect on actively downloading rows
-- [ ] **DASH-05**: Colored dot + text for file status (no SVG icons)
-- [ ] **DASH-06**: Ghost-style action buttons with glow on hover
-
-Secondary Pages:
-- [ ] **PAGE-01**: Terminal-style section headers in Settings (`--- Server ---`)
-- [ ] **PAGE-02**: Monospace patterns in AutoQueue with green/red buttons
-- [ ] **PAGE-03**: True terminal-style Logs (monospace, colored by level, no background blocks)
-- [ ] **PAGE-04**: ASCII-art inspired About page with monospace version display
-
-Theme Cleanup:
-- [ ] **CLEAN-01**: Theme toggle removed from Settings page
-- [ ] **CLEAN-02**: ThemeService simplified to dark-only (no light/auto modes)
+(No active requirements — start next milestone with `/gsd:new-milestone`)
 
 ### Out of Scope
 
 - E2E tests (Playwright) — separate concern
-- Performance/load testing
-- Refactoring production code to improve testability
-- CI/CD coverage gates (GitHub Actions changes)
 - Lidarr/Readarr support — defer to future milestone
 - Bootstrap @import → @use migration — blocked until Bootstrap 6
-- Terminal/Hacker redesign specification — see `~/.claude/plans/sparkling-inventing-llama.md`
+- Light mode restoration — intentionally removed in v3.0, Terminal/Hacker is dark-only
 
 ## Context
 
 **Technical notes:**
 - Application SCSS uses @use/@forward; Bootstrap remains on @import (required by Bootstrap 5.3)
-- Bootstrap subtle variables re-exported via @forward in _common.scss for component module access
-- Third-party deprecation warnings (Bootstrap, Font-Awesome) accepted as noise
-- Theme system uses Bootstrap 5.3 native data-bs-theme with custom --app-* CSS variables
-- ThemeService uses Angular 19 signals for reactive state management
+- Dark-only via hardcoded `data-bs-theme="dark"` on HTML element (no JS theme switching)
+- Google Fonts CDN for Fira Code + IBM Plex Sans (graceful fallback)
+- CRT scan-line overlay at z-index 9999 with pointer-events:none
+- ThemeService deleted in v3.0 — was dead code after dark-only switch
 - WAITING_FOR_IMPORT enum exists as structural placeholder (no business logic sets it yet)
-- ~~Sass @import deprecation~~ Resolved in v1.4
-- ~~Backend test coverage gaps~~ Resolved in v1.5 (84% coverage, fail_under enforced)
+- `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected.
 
 ## Constraints
 
 - **No functional regressions**: All existing features must continue working
 - **Bootstrap 5 patterns**: Leverage Bootstrap classes where possible
-- **Dark-only**: v3.0 removes light/auto modes — Terminal/Hacker is inherently dark
-- **Incremental lint fixes**: Fix errors without major refactoring
+- **Dark-only**: v3.0 removed light/auto modes — Terminal/Hacker is inherently dark
 
 ## Key Decisions
 
@@ -207,39 +179,27 @@ Theme Cleanup:
 | Use teal (secondary) for all selections | Teal is more distinctive than blue, already used in bulk selection | Good |
 | Migrate to Bootstrap `btn` classes | Reduces custom CSS, leverages Bootstrap's states | Good |
 | Keep @import for Bootstrap SCSS | Mixing @use/@import creates namespace conflicts | Good |
-| Two-layer customization (variables + overrides) | Separates pre-compilation and post-compilation customization | Good |
-| Re-export Bootstrap variables in _common.scss | Bridges @import (global) and @use (module) scopes | Good |
-| 40px button sizing | Consistent touch-friendly targets across all pages | Good |
-| Button semantic mapping | danger=destructive, success=additive, primary=positive | Good |
 | CSS variables for Bootstrap theming | Easier maintenance, runtime flexibility vs SCSS overrides | Good |
-| 150ms dropdown fade animation | Smooth but not sluggish transition | Good |
-| Passive scroll listener outside Angular zone | Performance optimization for high-frequency events | Good |
-| Bootstrap variable cascade for form theming | $component-active-bg propagates teal to all form states | Good |
-| Focus ring: 0.25rem width, 25% opacity | Balances visibility with subtlety | Good |
-| Intent comment patterns for empty functions | Per typescript-eslint best practices | Good |
-| Variadic function types for logger getters | Return bound console methods or no-op functions | Good |
-| Use `as unknown as T` for test edge cases | Type-safe alternative to `as any` for invalid input tests | Good |
-| Optional chaining in tests instead of `!` | Tests fail on undefined anyway, avoids lint errors | Good |
-| Counts refresh on dropdown open | Performance: avoid continuous computation | Good |
-| Single-pass count computation | Efficiency: O(n) forEach instead of multiple passes | Good |
 | Bootstrap 5.3 data-bs-theme for dark mode | Native framework support, minimal custom CSS | Good |
-| Signal-based ThemeService (Angular 19) | Reactive state without RxJS overhead | Good |
-| Inline script FOUC prevention | Applies theme before first paint, no flicker | Good |
-| Three-state toggle: light/dark/auto | Respects OS preference while allowing manual override | Good |
-| Plain addEventListener for storage events | Matches signal architecture, avoids RxJS for simple events | Good |
-| {equal: () => false} for signal re-evaluation | Forces computed recalculation on same-value assignment | Good |
-| Bootstrap CSS variables for log level colors | Runtime theme adaptation without SCSS recompilation | Good |
+| Signal-based ThemeService (Angular 19) | Reactive state without RxJS overhead | Good (later removed in v3.0) |
+| Hardcode data-bs-theme="dark" (v3.0) | App is dark-only, no runtime JS needed for theme switching | Good |
+| Google Fonts CDN for Fira Code + IBM Plex Sans | Zero build-time cost, graceful fallback | Good |
+| CRT overlay z-index 9999 pointer-events:none | Floats above all content without blocking interaction | Good |
+| Sidebar overlays content on hover (fixed 56px margin) | Matches VS Code/terminal UX, no content reflow | Good |
+| Unicode escapes for ASCII progress bars | Avoids encoding issues in TypeScript source | Good |
+| Delete ThemeService entirely (v3.0) | Dead code since dark-only hardcoding — clean removal | Good |
+| Direct hex values for terminal palette colors | Dark-only app, Bootstrap variable indirection unnecessary | Good |
 | Source-agnostic toast text ("Sonarr/Radarr") | System doesn't distinguish which *arr triggered import | Good |
 
 ## Project Status
 
-**Status:** v3.0 Terminal UI Overhaul in progress
+**Status:** v3.0 Terminal UI Overhaul shipped
 
-10 milestones shipped (v1.0 through v2.0.1), 32 phases, 51 plans completed. Now working on v3.0: complete Terminal/Hacker aesthetic redesign with 5 phases (33-37), 22 requirements.
+12 milestones shipped (v1.0 through v3.0), 38 phases, 63 plans completed. Complete Terminal/Hacker aesthetic with distinctive visual identity.
 
 **Future work (if desired):**
 - Lidarr/Readarr support (same *arr pattern)
 - E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-16 — v3.0 milestone started*
+*Last updated: 2026-02-17 after v3.0 milestone*

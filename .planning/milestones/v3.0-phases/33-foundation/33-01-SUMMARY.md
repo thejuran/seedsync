@@ -72,7 +72,7 @@ Each task was committed atomically:
 1. **Task 1: Google Fonts + Hardcode Dark Theme in index.html** - `ef728cc` (feat)
 2. **Task 2: Terminal Palette SCSS Variables + Font Overrides** - `6865ea0` (feat)
 
-**Plan metadata:** (pending)
+**Plan metadata:** `bc9c399` (docs)
 
 ## Files Created/Modified
 - `src/angular/src/index.html` - Google Fonts loading, hardcoded dark theme, no FOUC script, #0d1117 theme-color
