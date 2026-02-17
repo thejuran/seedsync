@@ -34,6 +34,12 @@
             .sidebar-icon {
                 filter: invert(1.0);
             }
+
+            .sidebar-label::before {
+                content: '> ';
+                font-family: var(--bs-font-monospace);
+                color: #3fb950;
+            }
         }
 
         &[disabled] {
@@ -60,6 +66,14 @@
 
     .sidebar-spacer {
         flex-grow: 1;
+    }
+
+    .sidebar-version {
+        padding: 8px 12px;
+        font-family: var(--bs-font-monospace);
+        font-size: 0.75rem;
+        color: var(--app-text-muted);
+        border-top: 1px solid var(--bs-border-color);
     }
 
     hr {

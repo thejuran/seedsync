@@ -2,6 +2,9 @@ import {Component, OnInit} from "@angular/core";
 import {NgFor} from "@angular/common";
 import {RouterLink, RouterLinkActive} from "@angular/router";
 
+declare function require(moduleName: string): { version: string };
+const { version: appVersion } = require("../../../../package.json");
+
 import {ROUTE_INFOS} from "../../routes";
 import {ServerCommandService} from "../../services/server/server-command.service";
 import {LoggerService} from "../../services/utils/logger.service";
@@ -19,6 +22,7 @@ export class SidebarComponent implements OnInit {
     routeInfos = ROUTE_INFOS;
 
     public commandsEnabled: boolean;
+    public version: string;
 
     private _connectedService: ConnectedService;
 
@@ -27,6 +31,7 @@ export class SidebarComponent implements OnInit {
                 private _commandService: ServerCommandService) {
         this._connectedService = _streamServiceRegistry.connectedService;
         this.commandsEnabled = false;
+        this.version = appVersion;
     }
 
     // noinspection JSUnusedGlobalSymbols
