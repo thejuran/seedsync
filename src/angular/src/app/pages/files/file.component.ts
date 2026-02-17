@@ -1,7 +1,7 @@
 import {
     Component, Input, Output, ChangeDetectionStrategy,
     EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef,
-    inject, computed, AfterViewInit
+    inject, computed, AfterViewInit, HostBinding
 } from "@angular/core";
 import {NgIf, DatePipe} from "@angular/common";
 
@@ -87,6 +87,32 @@ export class FileComponent implements OnChanges, AfterViewInit {
         // Note: this.file may be undefined during initial render
         return this.file ? selected.has(this.file.name) : false;
     });
+
+    /**
+     * @HostBinding for status-based class on the host element.
+     * Enables colored left border (DASH-02) and glow animation (DASH-04)
+     * via CSS targeting :host.status-* and :host.downloading-active.
+     *
+     * Angular merges @HostBinding('class') with attribute-set classes
+     * (e.g., [class.even-row] from the parent), so even-row striping
+     * continues to work unaffected.
+     */
+    @HostBinding('class') get hostClass(): string {
+        if (!this.file) { return ''; }
+        const classes = [`status-${this.file.status}`];
+        if (this.file.status === ViewFile.Status.DOWNLOADING) {
+            classes.push('downloading-active');
+        }
+        return classes.join(' ');
+    }
+
+    /**
+     * Returns the CSS class string for the status dot element (DASH-05).
+     * Produces e.g. "status-dot dot-downloading" for use in [class] binding.
+     */
+    get statusDotClass(): string {
+        return `status-dot dot-${this.file?.status ?? 'default'}`;
+    }
 
     constructor(private confirmModal: ConfirmModalService) {}
 

@@ -20,19 +20,23 @@
         flex-wrap: wrap;
         position: relative;
 
-        img {
-            width: 20px;
-            height: 20px;
+        .prompt {
+            font-family: var(--bs-font-monospace);
+            color: #3fb950;
+            font-size: 1.1rem;
+            font-weight: 500;
             position: absolute;
-            left: 7px;
-            top: 7px;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
             z-index: $zindex-file-search;
-            filter: invert(0.8666);
+            pointer-events: none;
+            user-select: none;
         }
 
         input {
             border-radius: 5px;
-            padding: 3px 15px 3px 30px;
+            padding: 3px 15px 3px 24px;
             width: 100%;
         }
 

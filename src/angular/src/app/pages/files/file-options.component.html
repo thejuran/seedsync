@@ -1,9 +1,9 @@
 <div id="file-options"
      [style.top.px]="headerHeight | async">
     <div id="filter-search">
-        <img src="assets/icons/search.svg" />
+        <span class="prompt">&gt;</span>
         <div class="input-group">
-            <input class="form-control" placeholder="Filter by name..." type="search"
+            <input class="form-control" placeholder="filter by name..." type="search"
                    [ngModel]="(options | async)?.nameFilter"
                    (ngModelChange)="onFilterByName($event)">
         </div>
