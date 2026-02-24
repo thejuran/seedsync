@@ -224,7 +224,11 @@ Plans:
   2. RestService uses RxJS pipe operators throughout — no Observable constructor wraps a nested subscribe call
   3. AppComponent, SettingsPage, AutoQueuePage, and StreamServiceRegistry all unsubscribe from their subscriptions on component/service destroy — no observable or timer continues executing after the component is gone
   4. AutoQueueService.remove operates on post-request state for index resolution — removing a pattern does not corrupt the remaining list order
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 43-01-PLAN.md — XSS sanitization in ConfirmModalService + RestService pipe refactor
+- [ ] 43-02-PLAN.md — Subscription leak fixes in AppComponent, SettingsPage, AutoQueuePage
+- [ ] 43-03-PLAN.md — AutoQueue stale index, StreamDispatch timer cleanup, file-options async consolidation
 
 ### Phase 44: Code Quality
 **Goal**: The codebase runs correctly on Python 3.12+ (distutils gone), shell injection via pexpect is impossible, HTTP mutation endpoints use correct methods, type comparisons use isinstance, and all medium-severity structural findings are resolved
@@ -270,7 +274,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 40. Credential & Endpoint Security | 3/3 | Complete    | 2026-02-24 | - |
 | 41. Thread Safety | 2/2 | Complete    | 2026-02-24 | - |
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
-| 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |
+| 43. Frontend Quality | v3.1 | 0/3 | Not started | - |
 | 44. Code Quality | v3.1 | 0/TBD | Not started | - |
 | 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
 
