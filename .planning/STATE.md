@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 42: Crash Prevention
+**Current focus:** v3.1 Harden & Fix — Phase 43: Frontend Quality
 
 ## Current Position
 
-Phase: 42 of 45 (Crash Prevention)
-Plan: 4 of 4 complete in current phase
-Status: Phase 42 complete
-Last activity: 2026-02-24 — Phase 42 Plan 02 complete (Angular SSE crash prevention: unknown event guard + JSON.parse try/catch in all stream services)
+Phase: 43 of 45 (Frontend Quality)
+Plan: 2 of 3 complete in current phase
+Status: Phase 43 plan 02 complete
+Last activity: 2026-02-24 — Phase 43 Plan 02 complete (subscription leak fixes: takeUntil/destroy$ in AppComponent, SettingsPage, AutoQueuePage)
 
-Progress: [█████░░░░░] 50% (v3.1)
+Progress: [██████░░░░] 60% (v3.1)
 
 ## Milestones Shipped
 
@@ -37,11 +37,11 @@ Progress: [█████░░░░░] 50% (v3.1)
 
 **Total Project:**
 - 12 milestones shipped
-- 41 phases complete (phases 1-41)
-- 73 plans executed
+- 42 phases complete (phases 1-42)
+- 75 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 4 phases, 10 plans
+**v3.1 so far:** 4 phases complete + phase 43 in progress, 12 plans
 
 ## Accumulated Context
 
@@ -74,6 +74,9 @@ Progress: [█████░░░░░] 50% (v3.1)
 - [Phase 42-01]: propagate_exception outer raise removed (CRASH-01): exc.re_raise() raises internally; outer raise was unreachable and could produce TypeError
 - [Phase 42-01]: WebhookManager bare except replaced with except Empty (CRASH-03): bare except masks SystemExit/KeyboardInterrupt/programming errors
 - [Phase 42-01]: remote_size None guard in _estimate_root_eta (CRASH-02): guard added before subtraction to prevent TypeError when remote scanner hasn't returned size
+- [Phase 43-02]: takeUntil/destroy$ pattern (FE-03/FE-07): all three components use destroy$ = new Subject<void>() + takeUntil(this.destroy$) on subscriptions; ngOnDestroy calls destroy$.next() and destroy$.complete()
+- [Phase 43-02]: AppComponent constructor side-effect removed: router.events subscription moved from constructor into ngOnInit; constructor now has no subscription side-effects
+- [Phase 43-02]: Manual _toastSubscription removed from AppComponent: converted to takeUntil pattern for uniformity; eliminates mixed subscription management styles
 
 ### Todos
 
@@ -92,8 +95,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 42-02-PLAN.md (Angular SSE crash prevention: unknown event guard + JSON.parse try/catch)
-Next action: Execute 42-03-PLAN.md or 42-04-PLAN.md
+Stopped at: Completed 43-02-PLAN.md (subscription leak fixes: takeUntil/destroy$ in AppComponent, SettingsPage, AutoQueuePage)
+Next action: Execute 43-03-PLAN.md
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 plans 01-02 complete 2026-02-24*
