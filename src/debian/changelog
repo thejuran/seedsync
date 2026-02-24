@@ -1,3 +1,13 @@
+seedsync (3.1.2) stable; urgency=low
+
+  * Fix CSP violations blocking GitHub API and inline event handlers
+  * Replace css-element-queries with native ResizeObserver for CSP compliance
+  * Remove unused jQuery dependency
+  * Fix timestamp column breakpoint to prevent name column squeeze
+  * Fix name column min-width on medium screens
+
+ -- thejuran <thejuran@users.noreply.github.com>  Mon, 24 Feb 2026 00:00:00 +0000
+
 seedsync (2.0.1) stable; urgency=low
 
   * Fix webhook import matching for child files (episode inside show directory)

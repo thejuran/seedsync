@@ -16,6 +16,6 @@ test.describe('Testing about page', () => {
     test('should have the right version', async ({ page }) => {
         const aboutPage = new AboutPage(page);
         const version = await aboutPage.getVersion();
-        expect(version).toBe('v2.0.1');
+        expect(version).toBe('v3.1.2');
     });
 });
