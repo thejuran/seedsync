@@ -209,7 +209,11 @@ Plans:
   3. WebhookManager.process handles an empty queue without crashing — it catches queue.Empty specifically and continues normally
   4. An unknown SSE event name does not tear down the subscription — the client continues receiving subsequent events
   5. A malformed JSON payload in an SSE message does not crash the Angular observable chain — the error is caught and the stream continues
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 42-01-PLAN.md — Python crash fixes: propagate_exception, ETA None guard, WebhookManager bare except
+- [ ] 42-02-PLAN.md — Angular SSE crash fixes: unknown event guard, JSON.parse try/catch
+- [ ] 42-03-PLAN.md — Action endpoint bounded timeout
 
 ### Phase 43: Frontend Quality
 **Goal**: The Angular frontend has no XSS injection vector via innerHTML, no nested-subscribe anti-patterns in Observable constructors, no leaked router or stream subscriptions, and no stale-index bugs in AutoQueue remove operations
