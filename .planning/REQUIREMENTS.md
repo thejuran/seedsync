@@ -93,8 +93,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | SEC-02 | Phase 39 | Complete |
 | SEC-07 | Phase 39 | Complete |
 | SEC-03 | Phase 40 | Complete |
-| SEC-04 | Phase 40 | Pending |
-| SEC-05 | Phase 40 | Pending |
+| SEC-04 | Phase 40 | Complete |
+| SEC-05 | Phase 40 | Complete |
 | SEC-06 | Phase 40 | Complete |
 | SEC-08 | Phase 40 | Complete |
 | SEC-09 | Phase 40 | Complete |
