@@ -154,7 +154,9 @@ The API uses proper HTTP status codes:
 - `400 Bad Request`: Validation errors
 - `404 Not Found`: File/resource doesn't exist
 - `409 Conflict`: Resource in wrong state for operation
+- `429 Too Many Requests`: Rate limiting on bulk action endpoints (10 requests/second per client)
 - `500 Internal Server Error`: Backend errors (LFTP failures)
+- `504 Gateway Timeout`: Action endpoint timed out waiting for backend response (30-second bound)
 
 ## Key Files
 
@@ -164,7 +166,7 @@ The API uses proper HTTP status codes:
 - `src/python/controller/lftp_manager.py` - LFTP process management
 - `src/python/controller/file_operation_manager.py` - Extract/delete operations
 - `src/python/controller/model_builder.py` - Model construction logic
-- `src/angular/package.json` - Angular version and dependencies (current: 1.0.0)
+- `src/angular/package.json` - Angular version and dependencies (current: 2.0.1)
 - `src/python/pyproject.toml` - Python dependencies (Poetry)
 - `src/debian/changelog` - Version changelog for deb package
 - `Makefile` - All build and test commands
