@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 39 of 45 (Critical Security Chain)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-02-23 — v3.1 roadmap created, 44 requirements mapped across 7 phases
+Plan: 1 of 1 complete in current phase
+Status: Phase 39 complete
+Last activity: 2026-02-24 — Phase 39 Plan 01 complete (critical SSH security hardening)
 
-Progress: [░░░░░░░░░░] 0% (v3.1)
+Progress: [█░░░░░░░░░] 10% (v3.1)
 
 ## Milestones Shipped
 
@@ -37,17 +37,20 @@ Progress: [░░░░░░░░░░] 0% (v3.1)
 
 **Total Project:**
 - 12 milestones shipped
-- 38 phases complete (phases 1-38)
-- 63 plans executed
-- 15 days total (2026-02-03 to 2026-02-17)
+- 39 phases complete (phases 1-39)
+- 65 plans executed
+- 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 0 phases, 0 plans
+**v3.1 so far:** 1 phase, 1 plan
 
 ## Accumulated Context
 
 ### Decisions
 
-(Cleared at milestone boundary — see PROJECT.md Key Decisions for persistent record)
+- **SSH TOFU mode:** Use StrictHostKeyChecking=accept-new (Trust On First Use) rather than reject-all — preserves first-connect usability while blocking MITM on subsequent connections
+- **UserKnownHostsFile removed:** Removed /dev/null redirect so known_hosts persists across reconnects
+- **MITM detection:** Added REMOTE HOST IDENTIFICATION HAS CHANGED pattern in both pexpect branches (password and key-auth paths) in sshcp.py
+- **Test exception documented:** test/python/Dockerfile keeps StrictHostKeyChecking=no for ephemeral localhost test container — documented with explicit comment
 
 ### Todos
 
@@ -65,9 +68,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-23
-Stopped at: v3.1 roadmap created — 44 requirements, 7 phases (39-45), 100% coverage
-Next action: /gsd:plan-phase 39
+Last session: 2026-02-24
+Stopped at: Completed 39-01-PLAN.md (critical SSH security hardening)
+Next action: /gsd:plan-phase 40
 
 ---
-*v3.1 Harden & Fix: roadmap created 2026-02-23*
+*v3.1 Harden & Fix: phase 39 complete 2026-02-24*

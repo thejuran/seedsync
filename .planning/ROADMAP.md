@@ -147,7 +147,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 
 **Milestone Goal:** Address all findings from deep code review — close an RCE attack chain, seal credential exposure, eliminate race conditions and crash bugs, and resolve code quality issues across Python backend and Angular frontend.
 
-- [ ] **Phase 39: Critical Security Chain** - Eliminate RSA key exposure, SSH MITM vector, and pickle RCE
+- [x] **Phase 39: Critical Security Chain** - Eliminate RSA key exposure, SSH MITM vector, and pickle RCE (completed 2026-02-24)
 - [ ] **Phase 40: Credential & Endpoint Security** - Seal config API leaks, debug mode exposure, SSRF, webhook auth, and response hygiene
 - [ ] **Phase 41: Thread Safety** - Fix race conditions in auto-delete, webhook imports, and extract dispatch
 - [ ] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling
@@ -255,7 +255,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 26-28. Radarr + Webhooks | v1.8 | 5/5 | Complete | 2026-02-11 |
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
-| 39. Critical Security Chain | v3.1 | 0/2 | Not started | - |
+| 39. Critical Security Chain | 2/2 | Complete   | 2026-02-24 | - |
 | 40. Credential & Endpoint Security | v3.1 | 0/TBD | Not started | - |
 | 41. Thread Safety | v3.1 | 0/TBD | Not started | - |
 | 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |

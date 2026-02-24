@@ -9,8 +9,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 ### Security
 
-- [ ] **SEC-01**: RSA private key removed from repository and added to .gitignore (Finding 1, CWE-312)
-- [ ] **SEC-02**: SSH connections use StrictHostKeyChecking=accept-new with a known_hosts file instead of disabled verification (Finding 2, CWE-295)
+- [x] **SEC-01**: RSA private key removed from repository and added to .gitignore (Finding 1, CWE-312)
+- [x] **SEC-02**: SSH connections use StrictHostKeyChecking=accept-new with a known_hosts file instead of disabled verification (Finding 2, CWE-295)
 - [ ] **SEC-03**: Webhook endpoints verify request authenticity via configurable HMAC secret (Finding 3, CWE-306)
 - [ ] **SEC-04**: Config API redacts sensitive fields (remote_password, sonarr_api_key, radarr_api_key) from GET responses (Finding 4, CWE-200)
 - [ ] **SEC-05**: Debug/verbose mode toggle protected — LFTP passwords redacted from SSE log stream when verbose enabled (Finding 6, CWE-15)
@@ -89,8 +89,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | Phase 39 | Pending |
-| SEC-02 | Phase 39 | Pending |
+| SEC-01 | Phase 39 | Complete |
+| SEC-02 | Phase 39 | Complete |
 | SEC-07 | Phase 39 | Pending |
 | SEC-03 | Phase 40 | Pending |
 | SEC-04 | Phase 40 | Pending |
