@@ -69,6 +69,21 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 - [x] **DOCS-03**: Confirm modal has focus trap and focus restoration on close (Finding 32)
 - [x] **DOCS-04**: File rows have keyboard navigation and ARIA labels for accessibility
 
+### Code Review Fixes
+
+- [ ] **CR-01**: webhook_secret added to _SENSITIVE_FIELDS redaction list in serialize_config.py (credential leak)
+- [ ] **CR-02**: Focus trap intercepts all Tab/Shift+Tab keys, not just from specific buttons (a11y regression)
+- [ ] **CR-03**: Log redaction uses record.getMessage() instead of record.msg (password leak via format args)
+- [ ] **CR-04**: ExtractDispatch.extract() duplicate check and queue.put atomic under one mutex (TOCTOU race)
+- [ ] **CR-05**: okBtn/cancelBtn/btnClass escaped via escapeHtml() in modal innerHTML (incomplete XSS fix)
+- [ ] **CR-06**: _reconnectTimer cleared before overwrite in stream-service.registry.ts (ghost timer/duplicate SSE)
+- [ ] **CR-07**: Worker finally block wraps queue.get(block=False) in try/except Empty (worker thread death)
+- [ ] **CR-08**: Unknown-event test dispatches unregistered event and asserts warn called (zero coverage)
+- [ ] **CR-09**: LogService uses this._logger.error() instead of console.error (logging inconsistency)
+- [ ] **CR-10**: ModelFile.unfreeze() renamed to _unfreeze() to signal internal-only (freeze-on-add contract)
+- [ ] **CR-11**: RestService catchError extracted to private helper (triplicated code)
+- [ ] **CR-12**: _set_import_status narrows except ModelError to only catch get_file not-found (error scope)
+
 ## Future Requirements
 
 ### Deferred from Code Review
@@ -133,6 +148,18 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | DOCS-02 | Phase 45 | Complete |
 | DOCS-03 | Phase 45 | Complete |
 | DOCS-04 | Phase 45 | Complete |
+| CR-01 | Phase 46 | Pending |
+| CR-02 | Phase 46 | Pending |
+| CR-03 | Phase 46 | Pending |
+| CR-04 | Phase 46 | Pending |
+| CR-05 | Phase 46 | Pending |
+| CR-06 | Phase 46 | Pending |
+| CR-07 | Phase 46 | Pending |
+| CR-08 | Phase 46 | Pending |
+| CR-09 | Phase 46 | Pending |
+| CR-10 | Phase 46 | Pending |
+| CR-11 | Phase 46 | Pending |
+| CR-12 | Phase 46 | Pending |
 
 **Coverage:**
 - v3.1 requirements: 44 total

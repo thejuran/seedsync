@@ -154,6 +154,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular (completed 2026-02-24)
 - 🚧 **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns (in progress)
 - [x] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels (completed 2026-02-24)
+- [ ] **Phase 46: Code Review Fixes** - Fix 12 findings from deep code review: credential leak, focus trap escape, log redaction bypass, TOCTOU race, incomplete XSS sanitization, timer overwrite, worker thread safety, test coverage gap, logging inconsistency, API visibility, code duplication, error scope
 
 ## Phase Details
 
@@ -262,10 +263,29 @@ Plans:
 - [ ] 45-02-PLAN.md — Confirm modal focus trap and focus restoration
 - [ ] 45-03-PLAN.md — File row keyboard navigation and ARIA labels
 
+### Phase 46: Code Review Fixes
+**Goal**: All 12 findings from the deep code review are resolved — no credential leaks via config API, focus trap fully traps Tab, log redaction covers interpolated messages, no TOCTOU races, innerHTML fully sanitized, no ghost timers, worker threads resilient, test coverage real
+**Depends on**: Phase 45
+**Requirements**: CR-01, CR-02, CR-03, CR-04, CR-05, CR-06, CR-07, CR-08, CR-09, CR-10, CR-11, CR-12
+**Success Criteria** (what must be TRUE):
+  1. GET /api/config response does not contain the webhook_secret value — it is redacted like other credentials
+  2. Tab and Shift+Tab inside the confirm modal cycle only between the two buttons — focus never escapes to background content regardless of which element is active
+  3. Log record redaction runs on the fully interpolated message (getMessage()), not the format template string
+  4. ExtractDispatch.extract() performs duplicate check and queue insertion atomically under one mutex acquisition
+  5. All caller-supplied strings in confirm modal innerHTML (okBtn, cancelBtn, btnClass) are passed through escapeHtml()
+  6. Only one _reconnectTimer can be pending at a time — new assignments clear any existing timer first
+  7. Worker thread finally block handles queue.Empty gracefully without killing the thread
+  8. Unknown-event test dispatches an unregistered event name and asserts loggerService.warn was called
+  9. LogService uses this._logger.error() instead of console.error
+  10. ModelFile.unfreeze() is marked as internal-only (_unfreeze)
+  11. RestService error handling extracted to shared helper (no triplication)
+  12. _set_import_status only catches ModelError from get_file, not from update_file
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
+Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45 → 46
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
