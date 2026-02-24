@@ -32,7 +32,7 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
     public ViewFile = ViewFile;
     public ViewFileOptions = ViewFileOptions;
 
-    public options: Observable<ViewFileOptions>;
+    public latestOptions: ViewFileOptions = null;
     public headerHeight: Observable<number>;
 
     // These track which status filters are enabled
@@ -48,7 +48,6 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
     private numberFormatter = new Intl.NumberFormat();
     private _latestFiles: Immutable.List<ViewFile> = Immutable.List();
 
-    private _latestOptions: ViewFileOptions;
     private destroy$ = new Subject<void>();
 
     private scrollHandler = (): void => {
@@ -71,7 +70,6 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
                 private _viewFileService: ViewFileService,
                 private _domService: DomService,
                 private _ngZone: NgZone) {
-        this.options = this.viewFileOptionsService.options;
         this.headerHeight = this._domService.headerHeight;
     }
 
@@ -105,8 +103,11 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
             this._changeDetector.detectChanges();
         });
 
-        // Keep the latest options for toggle behaviour implementation
-        this.viewFileOptionsService.options.pipe(takeUntil(this.destroy$)).subscribe(options => this._latestOptions = options);
+        // Keep the latest options for template and toggle behaviour implementation
+        this.viewFileOptionsService.options.pipe(takeUntil(this.destroy$)).subscribe(options => {
+            this.latestOptions = options;
+            this._changeDetector.detectChanges();
+        });
 
         // Close dropdowns on scroll to prevent orphaned menus
         this._ngZone.runOutsideAngular(() => {
