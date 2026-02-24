@@ -240,7 +240,13 @@ Plans:
   3. Queue, stop, and delete actions use POST or DELETE HTTP methods — GET requests to these endpoints are rejected or have no side effect
   4. All type comparisons in the codebase use isinstance() — no type(x) == SomeType pattern remains
   5. ModelFile frozen bypass uses an explicit unfreeze method; rate limiter state is per-instance; AppProcess busy-poll has a sleep interval; controller return types are correctly annotated; __downloaded_files uses set semantics; pexpect.TIMEOUT is logged not silenced; import status has a single code path; directory DOWNLOADED edge case is handled; test credentials are parameterized or documented
-**Plans**: TBD
+**Plans**: 5 plans
+Plans:
+- [ ] 44-01-PLAN.md — distutils replacement, isinstance() migration, ModelFile unfreeze() method
+- [ ] 44-02-PLAN.md — pexpect.spawn argument list, TIMEOUT logging, AppProcess busy-poll sleep
+- [ ] 44-03-PLAN.md — POST/DELETE HTTP methods, rate limiter instance state, controller return types
+- [ ] 44-04-PLAN.md — __downloaded_files type fix, import_status consolidation, directory DOWNLOADED edge case
+- [ ] 44-05-PLAN.md — Test credential documentation
 
 ### Phase 45: Documentation & Accessibility
 **Goal**: CLAUDE.md reflects the current codebase version and documents all API response codes; the confirm modal is fully keyboard-accessible with a focus trap; file rows have keyboard navigation and ARIA labels
@@ -275,7 +281,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 41. Thread Safety | 2/2 | Complete    | 2026-02-24 | - |
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
 | 43. Frontend Quality | 3/3 | Complete    | 2026-02-24 | - |
-| 44. Code Quality | v3.1 | 0/TBD | Not started | - |
+| 44. Code Quality | v3.1 | 0/5 | Not started | - |
 | 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
 
 ---
