@@ -1100,3 +1100,54 @@ class TestControllerWebhookIntegration(BaseControllerTestCase):
         self.assertEqual("ShowDir", call_args["season 1"])
         self.assertIn("episode.s01e01.mkv", call_args)
         self.assertEqual("ShowDir", call_args["episode.s01e01.mkv"])
+
+
+class TestControllerWebhookThreadSafety(BaseControllerTestCase):
+    """Tests verifying model lock is acquired during webhook import processing."""
+
+    def setUp(self):
+        super().setUp()
+        self._make_controller_started()
+
+    def test_check_webhook_imports_acquires_model_lock_for_name_lookup(self):
+        """Verify model lock is held when iterating model file names for name_to_root."""
+        lock_was_held = []
+        original_get_file_names = self.controller._Controller__model.get_file_names
+
+        def check_lock_on_get_file_names():
+            lock_was_held.append(self.controller._Controller__model_lock.locked())
+            return original_get_file_names()
+
+        self.controller._Controller__model.get_file_names = check_lock_on_get_file_names
+        self.controller.process()
+        self.assertTrue(
+            any(lock_was_held),
+            "Model lock must be held during get_file_names in webhook import name lookup"
+        )
+
+    def test_check_webhook_imports_acquires_model_lock_for_model_mutation(self):
+        """Verify model lock is held when calling update_file for import status."""
+        lock_held_during_update = []
+        # Add a file to the model so an import can be processed
+        f = ModelFile("test_file.mkv", False)
+        f.remote_size = 1000
+        self.controller._Controller__model.add_file(f)
+        # Webhook manager reports this file was imported
+        self.mock_webhook_manager.process.return_value = ["test_file.mkv"]
+        # Intercept update_file to check lock state
+        original_update_file = self.controller._Controller__model.update_file
+
+        def check_lock_on_update(new_file):
+            lock_held_during_update.append(self.controller._Controller__model_lock.locked())
+            return original_update_file(new_file)
+
+        self.controller._Controller__model.update_file = check_lock_on_update
+        self.controller.process()
+        self.assertTrue(
+            len(lock_held_during_update) > 0,
+            "update_file must be called during webhook import"
+        )
+        self.assertTrue(
+            lock_held_during_update[0],
+            "Model lock must be held during update_file in webhook import"
+        )

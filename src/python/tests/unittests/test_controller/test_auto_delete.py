@@ -172,6 +172,34 @@ class TestAutoDeleteExecution(BaseAutoDeleteTestCase):
 
         self.assertNotIn("test_file.mkv", self.controller._Controller__pending_auto_deletes)
 
+    def test_execute_acquires_model_lock(self):
+        """Verify auto-delete callback acquires model lock before reading model."""
+        lock_was_held = []
+
+        def check_lock(name):
+            lock_was_held.append(self.controller._Controller__model_lock.locked())
+            return MagicMock(spec=ModelFile)
+
+        self.controller._Controller__model.get_file = MagicMock(side_effect=check_lock)
+        self.controller._Controller__execute_auto_delete("test_file.mkv")
+        self.assertTrue(lock_was_held[0], "Model lock must be held during get_file in auto-delete")
+
+    def test_execute_releases_lock_before_delete_local(self):
+        """Verify model lock is released before calling delete_local (avoid blocking)."""
+        lock_held_during_delete = []
+        mock_file = MagicMock(spec=ModelFile)
+        self.controller._Controller__model.get_file = MagicMock(return_value=mock_file)
+
+        def check_lock_on_delete(file):
+            lock_held_during_delete.append(self.controller._Controller__model_lock.locked())
+
+        self.mock_file_op_manager.delete_local.side_effect = check_lock_on_delete
+        self.controller._Controller__execute_auto_delete("test_file.mkv")
+        self.assertFalse(
+            lock_held_during_delete[0],
+            "Model lock must NOT be held during delete_local"
+        )
+
 
 class TestAutoDeleteShutdown(BaseAutoDeleteTestCase):
     """Test timer cleanup on controller exit."""
