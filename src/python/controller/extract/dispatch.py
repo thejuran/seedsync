@@ -110,12 +110,7 @@ class ExtractDispatch:
     def extract(self, model_file: ModelFile):
         self.logger.debug("Received extract for {}".format(model_file.name))
 
-        with self.__task_queue.mutex:
-            for task in self.__task_queue.queue:
-                if task.root_name == model_file.name:
-                    self.logger.info("Ignoring extract for {}, already exists".format(model_file.name))
-                    return
-
+        # Build the task BEFORE acquiring mutex (no shared state access needed)
         # noinspection PyProtectedMember
         task = ExtractDispatch._Task(model_file.name, model_file.is_dir)
 
@@ -139,10 +134,8 @@ class ExtractDispatch:
             # Coalesce extractions
             ExtractDispatch.__coalesce_extractions(task)
 
-            # Verify that there was at least one archive file
-            if len(task.archive_paths) > 0:
-                self.__task_queue.put(task)
-            else:
+            # Verify that there was at least one archive file (before acquiring mutex)
+            if len(task.archive_paths) == 0:
                 raise ExtractDispatchError(
                     "Directory does not contain any archives: {}".format(model_file.name)
                 )
@@ -155,7 +148,17 @@ class ExtractDispatch:
                 raise ExtractDispatchError("File is not an archive: {}".format(model_file.name))
             task.add_archive(archive_path=archive_full_path,
                              out_dir_path=self.__out_dir_path)
-            self.__task_queue.put(task)
+
+        # Atomic: duplicate check + insertion under one mutex acquisition.
+        # Use queue.append + not_empty.notify instead of queue.put() to avoid
+        # deadlock (put() would try to re-acquire the mutex we already hold).
+        with self.__task_queue.mutex:
+            for queued_task in self.__task_queue.queue:
+                if queued_task.root_name == model_file.name:
+                    self.logger.info("Ignoring extract for {}, already exists".format(model_file.name))
+                    return
+            self.__task_queue.queue.append(task)
+            self.__task_queue.not_empty.notify()
 
     def __worker(self):
         self.logger.debug("Started worker thread")
@@ -193,8 +196,12 @@ class ExtractDispatch:
                     self.logger.exception("Caught an extraction error")
                     completed = False
                 finally:
-                    # pop the task (thread-safe Queue.get)
-                    self.__task_queue.get(block=False)
+                    # Pop the task (thread-safe Queue.get).
+                    # Guard against queue.Empty in case of a race between peek and get.
+                    try:
+                        self.__task_queue.get(block=False)
+                    except queue.Empty:
+                        pass
 
                 # Send notification to listeners (copy-under-lock)
                 with self.__listeners_lock:
