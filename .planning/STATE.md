@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 41: Thread Safety
+**Current focus:** v3.1 Harden & Fix — Phase 42: Crash Prevention
 
 ## Current Position
 
-Phase: 41 of 45 (Thread Safety)
-Plan: 2 of 4 complete in current phase
-Status: Phase 41 in progress
-Last activity: 2026-02-24 — Phase 41 Plan 02 complete (ExtractDispatch queue mutex + copy-under-lock)
+Phase: 42 of 45 (Crash Prevention)
+Plan: 3 of 4 complete in current phase
+Status: Phase 42 in progress
+Last activity: 2026-02-24 — Phase 42 Plan 03 complete (bounded 30s timeout on individual action endpoint waits, HTTP 504 on timeout)
 
-Progress: [████░░░░░░] 35% (v3.1)
+Progress: [█████░░░░░] 50% (v3.1)
 
 ## Milestones Shipped
 
@@ -38,10 +38,10 @@ Progress: [████░░░░░░] 35% (v3.1)
 **Total Project:**
 - 12 milestones shipped
 - 41 phases complete (phases 1-41)
-- 70 plans executed
+- 73 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 3 phases, 7 plans
+**v3.1 so far:** 4 phases, 10 plans
 
 ## Accumulated Context
 
@@ -67,6 +67,7 @@ Progress: [████░░░░░░] 35% (v3.1)
 - [Phase 41-02]: Queue mutex pattern: all __task_queue.queue accesses wrapped in with self.__task_queue.mutex in ExtractDispatch (THRD-03)
 - [Phase 41-02]: Copy-under-lock for ExtractDispatch listeners: snapshot in with self.__listeners_lock, iterated outside — prevents RuntimeError (THRD-04)
 - [Phase 41-02]: TOCTOU window in extract() accepted: duplicate check under mutex then put() has narrow race; worst case is double extraction matching prior behavior
+- [Phase 42-03]: _ACTION_TIMEOUT = 30.0 on ControllerHandler: 30s bounds individual action endpoint waits; timed-out commands return HTTP 504; mirrors bulk endpoint pattern (CRASH-06)
 
 ### Todos
 
@@ -85,8 +86,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 41-02-PLAN.md (ExtractDispatch queue mutex + copy-under-lock)
-Next action: Execute 41-03-PLAN.md
+Stopped at: Completed 42-03-PLAN.md (bounded 30s timeout on individual action endpoint waits)
+Next action: Execute 42-04-PLAN.md
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 plans 01-03 complete 2026-02-24*

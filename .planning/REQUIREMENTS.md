@@ -34,7 +34,7 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 - [ ] **CRASH-03**: WebhookManager.process catches queue.Empty specifically instead of bare except (Finding 14)
 - [ ] **CRASH-04**: SSE notifyEvent handles unknown event names without crashing subscription (Finding 15)
 - [ ] **CRASH-05**: SSE handlers wrap JSON.parse in try/catch to prevent observable teardown (Finding 19)
-- [ ] **CRASH-06**: Action endpoint callbacks use bounded timeout instead of indefinite wait (Finding 20)
+- [x] **CRASH-06**: Action endpoint callbacks use bounded timeout instead of indefinite wait (Finding 20)
 
 ### Frontend Quality
 
@@ -108,7 +108,7 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | CRASH-03 | Phase 42 | Pending |
 | CRASH-04 | Phase 42 | Pending |
 | CRASH-05 | Phase 42 | Pending |
-| CRASH-06 | Phase 42 | Pending |
+| CRASH-06 | Phase 42 | Complete |
 | FE-01 | Phase 43 | Pending |
 | FE-02 | Phase 43 | Pending |
 | FE-03 | Phase 43 | Pending |
