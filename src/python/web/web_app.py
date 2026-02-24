@@ -72,6 +72,21 @@ class WebApp(bottle.Bottle):
         object.__setattr__(self, '_stop_flag', False)
         self._streaming_handlers = []  # list of (handler, kwargs) pairs
 
+        @self.hook('after_request')
+        def _add_security_headers():
+            bottle.response.set_header(
+                'Content-Security-Policy',
+                "default-src 'self'; "
+                "script-src 'self'; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "font-src 'self' https://fonts.gstatic.com; "
+                "connect-src 'self'; "
+                "img-src 'self' data:; "
+                "frame-ancestors 'none'"
+            )
+            bottle.response.set_header('X-Frame-Options', 'DENY')
+            bottle.response.set_header('X-Content-Type-Options', 'nosniff')
+
     def add_default_routes(self):
         """
         Add the default routes. This must be called after all the handlers have
