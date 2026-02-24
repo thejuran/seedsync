@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 43 of 45 (Frontend Quality)
-Plan: 2 of 3 complete in current phase (01 + 02)
-Status: Phase 43 plans 01 and 02 complete
-Last activity: 2026-02-24 — Phase 43 Plan 01 complete (XSS fix via escapeHtml in ConfirmModalService; RestService pipe refactor eliminating nested subscribe)
+Plan: 3 of 3 complete in current phase (01 + 02 + 03)
+Status: Phase 43 complete (all 3 plans executed)
+Last activity: 2026-02-24 — Phase 43 Plan 03 complete (stale index fix in AutoQueueService.remove, timer cleanup in StreamDispatchService, 16-to-1 async pipe consolidation in FileOptionsComponent)
 
 Progress: [██████░░░░] 60% (v3.1)
 
@@ -41,7 +41,7 @@ Progress: [██████░░░░] 60% (v3.1)
 - 76 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 4 phases complete + phase 43 in progress, 13 plans
+**v3.1 so far:** 5 phases complete (phases 39-43), 16 plans
 
 ## Accumulated Context
 
@@ -79,6 +79,9 @@ Progress: [██████░░░░] 60% (v3.1)
 - [Phase 43-02]: takeUntil/destroy$ pattern (FE-03/FE-07): all three components use destroy$ = new Subject<void>() + takeUntil(this.destroy$) on subscriptions; ngOnDestroy calls destroy$.next() and destroy$.complete()
 - [Phase 43-02]: AppComponent constructor side-effect removed: router.events subscription moved from constructor into ngOnInit; constructor now has no subscription side-effects
 - [Phase 43-02]: Manual _toastSubscription removed from AppComponent: converted to takeUntil pattern for uniformity; eliminates mixed subscription management styles
+- [Phase 43-03]: AutoQueueService.remove reads fresh patterns.findIndex inside subscribe callback (FE-04): pre-request currentPatterns snapshot cannot be used post-response — stale index could remove wrong pattern if list changed during request
+- [Phase 43-03]: StreamDispatchService implements OnDestroy with _reconnectTimer field (FE-05): both setTimeout paths (timeout-detected reconnect and error-handler reconnect) store handle in _reconnectTimer; ngOnDestroy clears interval, cancels timer, closes EventSource
+- [Phase 43-03]: latestOptions property pattern in FileOptionsComponent (FE-06): one subscription in ngOnInit writes to public latestOptions + detectChanges() replaces 16 async pipe subscriptions — same observable, zero-cost property access under OnPush
 
 ### Todos
 
@@ -97,8 +100,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 43-01-PLAN.md (XSS fix via escapeHtml in ConfirmModalService; RestService pipe refactor)
-Next action: Execute 43-03-PLAN.md
+Stopped at: Completed 43-03-PLAN.md (stale index fix, timer cleanup, async pipe consolidation)
+Next action: Execute phase 44 plans or check ROADMAP for next phase
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 plans 01-02 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24*

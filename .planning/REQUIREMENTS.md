@@ -41,9 +41,9 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 - [x] **FE-01**: ConfirmModalService sanitizes file names before innerHTML insertion (Finding 12)
 - [x] **FE-02**: RestService uses RxJS pipe operators instead of nested subscribe in Observable constructor (Finding 17)
 - [x] **FE-03**: AppComponent router subscriptions stored and unsubscribed on destroy (Finding 18)
-- [ ] **FE-04**: AutoQueueService.remove uses post-request state for index operations (Finding 25)
-- [ ] **FE-05**: StreamServiceRegistry reconnect timers cancelled on service destroy (Finding 37)
-- [ ] **FE-06**: file-options.component consolidates 16 async pipe subscriptions into single observable (Finding 38)
+- [x] **FE-04**: AutoQueueService.remove uses post-request state for index operations (Finding 25)
+- [x] **FE-05**: StreamServiceRegistry reconnect timers cancelled on service destroy (Finding 37)
+- [x] **FE-06**: file-options.component consolidates 16 async pipe subscriptions into single observable (Finding 38)
 - [x] **FE-07**: SettingsPage and AutoQueuePage observables properly unsubscribed on destroy (Finding 40)
 
 ### Code Quality
@@ -112,9 +112,9 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | FE-01 | Phase 43 | Complete |
 | FE-02 | Phase 43 | Complete |
 | FE-03 | Phase 43 | Complete |
-| FE-04 | Phase 43 | Pending |
-| FE-05 | Phase 43 | Pending |
-| FE-06 | Phase 43 | Pending |
+| FE-04 | Phase 43 | Complete |
+| FE-05 | Phase 43 | Complete |
+| FE-06 | Phase 43 | Complete |
 | FE-07 | Phase 43 | Complete |
 | CODE-01 | Phase 44 | Pending |
 | CODE-02 | Phase 44 | Pending |

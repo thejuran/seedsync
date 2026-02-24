@@ -151,7 +151,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 40: Credential & Endpoint Security** - Seal config API leaks, debug mode exposure, SSRF, webhook auth, and response hygiene (completed 2026-02-24)
 - [x] **Phase 41: Thread Safety** - Fix race conditions in auto-delete, webhook imports, and extract dispatch (completed 2026-02-24)
 - [x] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling (completed 2026-02-24)
-- [ ] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular
+- [x] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular (completed 2026-02-24)
 - [ ] **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns
 - [ ] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels
 
@@ -274,7 +274,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 40. Credential & Endpoint Security | 3/3 | Complete    | 2026-02-24 | - |
 | 41. Thread Safety | 2/2 | Complete    | 2026-02-24 | - |
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
-| 43. Frontend Quality | 2/3 | In Progress|  | - |
+| 43. Frontend Quality | 3/3 | Complete   | 2026-02-24 | - |
 | 44. Code Quality | v3.1 | 0/TBD | Not started | - |
 | 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
 
