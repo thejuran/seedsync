@@ -64,8 +64,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 ### Documentation & Accessibility
 
-- [ ] **DOCS-01**: CLAUDE.md version reference updated from 1.0.0 to current version
-- [ ] **DOCS-02**: API response codes 429 and 504 documented in CLAUDE.md
+- [x] **DOCS-01**: CLAUDE.md version reference updated from 1.0.0 to current version
+- [x] **DOCS-02**: API response codes 429 and 504 documented in CLAUDE.md
 - [ ] **DOCS-03**: Confirm modal has focus trap and focus restoration on close (Finding 32)
 - [ ] **DOCS-04**: File rows have keyboard navigation and ARIA labels for accessibility
 
@@ -129,8 +129,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | CODE-11 | Phase 44 | Complete |
 | CODE-12 | Phase 44 | Complete |
 | CODE-13 | Phase 44 | Complete |
-| DOCS-01 | Phase 45 | Pending |
-| DOCS-02 | Phase 45 | Pending |
+| DOCS-01 | Phase 45 | Complete |
+| DOCS-02 | Phase 45 | Complete |
 | DOCS-03 | Phase 45 | Pending |
 | DOCS-04 | Phase 45 | Pending |
 
