@@ -36,6 +36,51 @@ class TestWebResponseActionCallback(unittest.TestCase):
         self.assertEqual(400, callback.error_code)
 
 
+class TestControllerHandlerSingleAction(unittest.TestCase):
+    def setUp(self):
+        self.mock_controller = MagicMock(spec=Controller)
+        self.handler = ControllerHandler(self.mock_controller)
+
+    def _call_queue_handler(self, file_name: str):
+        """Call the queue action handler directly."""
+        return self.handler._ControllerHandler__handle_action_queue(file_name)
+
+    def test_action_timeout_returns_504(self):
+        """Mock the controller to NOT call any callback (simulating a stuck controller).
+        The action handler should return 504 when the callback times out."""
+        def stuck_side_effect(command):
+            # Never call the callback — simulates a controller that never processes the command
+            pass
+
+        self.mock_controller.queue_command.side_effect = stuck_side_effect
+
+        # Override the timeout to a very short value so the test doesn't wait 30 seconds
+        original_timeout = ControllerHandler._ACTION_TIMEOUT
+        ControllerHandler._ACTION_TIMEOUT = 0.1
+
+        try:
+            response = self._call_queue_handler("test_file.mkv")
+
+            self.assertEqual(504, response.status_code)
+            self.assertIn("timed out", response.body)
+        finally:
+            ControllerHandler._ACTION_TIMEOUT = original_timeout
+
+    def test_action_success_returns_200(self):
+        """Mock the controller to call on_success() synchronously.
+        The action handler should return 200 with the expected body."""
+        def success_side_effect(command):
+            for callback in command.callbacks:
+                callback.on_success()
+
+        self.mock_controller.queue_command.side_effect = success_side_effect
+
+        response = self._call_queue_handler("test_file.mkv")
+
+        self.assertEqual(200, response.status_code)
+        self.assertIn("test_file.mkv", response.body)
+
+
 class TestControllerHandlerBulkCommand(unittest.TestCase):
     def setUp(self):
         self.mock_controller = MagicMock(spec=Controller)
