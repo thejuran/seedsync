@@ -345,6 +345,25 @@ class Controller:
         latest_extracted_results = self.__file_op_manager.pop_completed_extractions()
         return latest_extract_statuses, latest_extracted_results
 
+    def _set_import_status(self, model: Model, file_name: str) -> None:
+        """
+        Set import_status to IMPORTED on a model file if not already set.
+        Creates a mutable copy, updates status, and writes back to model.
+
+        Args:
+            model: The model to update (may be the live model or a new model being built)
+            file_name: Name of the file to update
+        """
+        try:
+            file = model.get_file(file_name)
+            if file.import_status != ModelFile.ImportStatus.IMPORTED:
+                new_file = copy.copy(file)
+                new_file.unfreeze()
+                new_file.import_status = ModelFile.ImportStatus.IMPORTED
+                model.update_file(new_file)
+        except ModelError:
+            pass
+
     def _update_active_file_tracking(self,
                                      lftp_statuses: Optional[List[LftpJobStatus]],
                                      extract_statuses: Optional[object]) -> None:
@@ -586,15 +605,7 @@ class Controller:
         #   update(NONE) then update(IMPORTED), causing repeated frontend toasts.
         for file_name in new_model.get_file_names():
             if file_name in self.__persist.imported_file_names:
-                try:
-                    file = new_model.get_file(file_name)
-                    if file.import_status != ModelFile.ImportStatus.IMPORTED:
-                        new_file = copy.copy(file)
-                        new_file.unfreeze()
-                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
-                        new_model.update_file(new_file)
-                except ModelError:
-                    pass
+                self._set_import_status(new_model, file_name)
 
         # Lock the model for all modifications
         with self.__model_lock:
@@ -710,15 +721,7 @@ class Controller:
             self.logger.info("Recorded webhook import: '{}'".format(file_name))
             # Window 2: Update model file import status for UI badge under lock
             with self.__model_lock:
-                try:
-                    old_file = self.__model.get_file(file_name)
-                    if old_file.import_status != ModelFile.ImportStatus.IMPORTED:
-                        new_file = copy.copy(old_file)
-                        new_file.unfreeze()
-                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
-                        self.__model.update_file(new_file)
-                except ModelError:
-                    pass  # File no longer in model
+                self._set_import_status(self.__model, file_name)
 
             # Schedule auto-delete outside lock -- only starts a Timer, no model access
             if self.__context.config.autodelete.enabled:
