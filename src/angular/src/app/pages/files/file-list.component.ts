@@ -183,6 +183,57 @@ export class FileListComponent {
                 this._lastClickedFileName = null;
             }
         }
+
+        // Arrow Down: move focus to next file row
+        if (event.key === "ArrowDown") {
+            if (!this._isInputElement(event.target)) {
+                event.preventDefault();
+                this._moveFocusToRow(1);
+            }
+        }
+
+        // Arrow Up: move focus to previous file row
+        if (event.key === "ArrowUp") {
+            if (!this._isInputElement(event.target)) {
+                event.preventDefault();
+                this._moveFocusToRow(-1);
+            }
+        }
+
+        // Enter/Space: select the focused file row (like clicking)
+        if (event.key === "Enter" || event.key === " ") {
+            if (!this._isInputElement(event.target)) {
+                const focused = document.activeElement as HTMLElement;
+                if (focused?.closest("app-file")) {
+                    event.preventDefault();
+                    focused.closest("app-file")?.querySelector<HTMLElement>(".file")?.click();
+                }
+            }
+        }
+    }
+
+    /**
+     * Move keyboard focus to the next/previous file row.
+     * @param direction +1 for next row, -1 for previous row
+     */
+    private _moveFocusToRow(direction: number): void {
+        const rows = Array.from(document.querySelectorAll<HTMLElement>("#file-list .file[role=\"row\"]"));
+        if (rows.length === 0) return;
+
+        const currentIndex = rows.findIndex(row => row === document.activeElement || row.contains(document.activeElement as Node));
+
+        let nextIndex: number;
+        if (currentIndex === -1) {
+            // No row currently focused — focus the first (down) or last (up) row
+            nextIndex = direction > 0 ? 0 : rows.length - 1;
+        } else {
+            nextIndex = currentIndex + direction;
+        }
+
+        // Clamp to bounds (do not wrap)
+        if (nextIndex < 0 || nextIndex >= rows.length) return;
+
+        rows[nextIndex].focus();
     }
 
     /**

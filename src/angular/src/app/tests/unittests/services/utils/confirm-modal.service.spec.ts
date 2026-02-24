@@ -336,4 +336,128 @@ describe("Testing confirm modal service", () => {
         // No actual <b> element should be created inside the modal body paragraph
         expect(modalBodyP.querySelector("b")).toBeNull();
     }));
+
+    it("should focus cancel button when modal opens", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const cancelButton = document.querySelector("[data-action=\"cancel\"]") as HTMLElement;
+        expect(document.activeElement).toBe(cancelButton);
+    }));
+
+    it("should close modal on Escape key", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        let result: boolean | undefined;
+        service.confirm(options).then(r => result = r);
+        tick();
+
+        const modal = document.querySelector(".modal") as HTMLElement;
+        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+        tick();
+
+        expect(result).toBe(false);
+        expect(document.querySelector(".modal")).toBeNull();
+    }));
+
+    it("should trap Tab focus within modal", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLElement;
+        const cancelButton = document.querySelector("[data-action=\"cancel\"]") as HTMLElement;
+        const modal = document.querySelector(".modal") as HTMLElement;
+
+        // Move focus to ok button, then Tab should wrap to cancel button
+        okButton.focus();
+        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+
+        expect(document.activeElement).toBe(cancelButton);
+    }));
+
+    it("should trap Shift+Tab focus within modal", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLElement;
+        const cancelButton = document.querySelector("[data-action=\"cancel\"]") as HTMLElement;
+        const modal = document.querySelector(".modal") as HTMLElement;
+
+        // Cancel button is focused by default; Shift+Tab should wrap to ok button
+        cancelButton.focus();
+        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
+
+        expect(document.activeElement).toBe(okButton);
+    }));
+
+    it("should restore focus to previously focused element on close", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        // Create a temporary button, append to body, and focus it
+        const triggerButton = document.createElement("button");
+        document.body.appendChild(triggerButton);
+        triggerButton.focus();
+        expect(document.activeElement).toBe(triggerButton);
+
+        service.confirm(options).then(() => undefined);
+        tick();
+
+        // Focus has moved to modal cancel button
+        const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLButtonElement;
+        okButton.click();
+        tick();
+
+        expect(document.activeElement).toBe(triggerButton);
+
+        // Clean up
+        document.body.removeChild(triggerButton);
+    }));
+
+    it("should set aria-modal attribute on modal element", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const modal = document.querySelector(".modal");
+        expect(modal.getAttribute("aria-modal")).toBe("true");
+    }));
+
+    it("should set aria-labelledby on modal element", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Test",
+            body: "Test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const modal = document.querySelector(".modal");
+        expect(modal.getAttribute("aria-labelledby")).toBe("confirm-modal-title");
+        expect(modal.querySelector("#confirm-modal-title")).toBeTruthy();
+    }));
 });

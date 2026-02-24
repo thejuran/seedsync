@@ -28,8 +28,8 @@
     </div>
     <div class="progress-text">Processing files...</div>
 </div>
-<div id="file-list">
-    <div id="header">
+<div id="file-list" role="grid" aria-label="File list">
+    <div id="header" role="row" aria-label="Column headers">
         <div class="checkbox">
             <input type="checkbox"
                    [checked]="vm.state === 'all'"

@@ -60,6 +60,15 @@
     background-color: var(--app-selection-bg);
 }
 
+/* Keyboard focus indicator (DOCS-04) */
+.file:focus {
+    outline: 2px solid var(--app-selection-border);
+    outline-offset: -2px;
+}
+.file:focus:not(:focus-visible) {
+    outline: none;
+}
+
 /* content */
 .content {
     display: flex;

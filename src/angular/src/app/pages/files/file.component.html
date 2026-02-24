@@ -1,10 +1,16 @@
-<div class="file" [class.selected]="file.isSelected" [class.bulk-selected]="isSelected()" #fileElement>
+<div class="file"
+     [class.selected]="file.isSelected"
+     [class.bulk-selected]="isSelected()"
+     #fileElement
+     role="row"
+     [attr.aria-label]="file.name + ', ' + (file.status | capitalize) + (isSelected() ? ', selected' : '')"
+     tabindex="0">
     <div class="content">
         <div class="checkbox" appClickStopPropagation>
             <input type="checkbox"
                    [checked]="isSelected()"
                    (click)="onCheckboxClick($event)"
-                   aria-label="Select file" />
+                   [attr.aria-label]="'Select ' + file.name" />
         </div>
         <div class="status">
             <span [class]="statusDotClass"></span>
