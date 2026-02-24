@@ -674,41 +674,52 @@ class Controller:
         model file names and child file names (mapped back to their root
         parent). This allows matching when Sonarr/Radarr reports a child
         file name (e.g., an episode file inside a downloaded directory).
+
+        Thread safety: model reads and mutations are protected by __model_lock.
+        Two lock windows are used to keep critical sections minimal:
+          Window 1 (read): build name_to_root dict
+          Window 2 (mutate): update model import_status per imported file
+        The webhook_manager.process() call and auto-delete scheduling run
+        outside the lock (thread-safe Queue and Timer operations respectively).
         """
-        # Build name-to-root lookup: lowercased name -> root model file name
+        # Window 1: Build name-to-root lookup under lock
+        # lowercased name -> root model file name
         # Includes both root names and all child file names
         name_to_root = {}
-        for root_name in self.__model.get_file_names():
-            name_to_root[root_name.lower()] = root_name
-            try:
-                root_file = self.__model.get_file(root_name)
-                if root_file.is_dir:
-                    # BFS over children to collect all child names
-                    frontier = list(root_file.get_children())
-                    while frontier:
-                        child = frontier.pop(0)
-                        name_to_root[child.name.lower()] = root_name
-                        frontier.extend(child.get_children())
-            except ModelError:
-                pass
+        with self.__model_lock:
+            for root_name in self.__model.get_file_names():
+                name_to_root[root_name.lower()] = root_name
+                try:
+                    root_file = self.__model.get_file(root_name)
+                    if root_file.is_dir:
+                        # BFS over children to collect all child names
+                        frontier = list(root_file.get_children())
+                        while frontier:
+                            child = frontier.pop(0)
+                            name_to_root[child.name.lower()] = root_name
+                            frontier.extend(child.get_children())
+                except ModelError:
+                    pass
 
+        # Process outside lock -- webhook_manager only touches its own thread-safe Queue
         newly_imported = self.__webhook_manager.process(name_to_root)
 
         for file_name in newly_imported:
             self.__persist.imported_file_names.add(file_name)
             self.logger.info("Recorded webhook import: '{}'".format(file_name))
-            # Update model file import status for UI badge
-            try:
-                old_file = self.__model.get_file(file_name)
-                if old_file.import_status != ModelFile.ImportStatus.IMPORTED:
-                    new_file = copy.copy(old_file)
-                    new_file._ModelFile__frozen = False
-                    new_file.import_status = ModelFile.ImportStatus.IMPORTED
-                    self.__model.update_file(new_file)
-            except ModelError:
-                pass  # File no longer in model
+            # Window 2: Update model file import status for UI badge under lock
+            with self.__model_lock:
+                try:
+                    old_file = self.__model.get_file(file_name)
+                    if old_file.import_status != ModelFile.ImportStatus.IMPORTED:
+                        new_file = copy.copy(old_file)
+                        new_file._ModelFile__frozen = False
+                        new_file.import_status = ModelFile.ImportStatus.IMPORTED
+                        self.__model.update_file(new_file)
+                except ModelError:
+                    pass  # File no longer in model
 
-            # Schedule auto-delete if enabled
+            # Schedule auto-delete outside lock -- only starts a Timer, no model access
             if self.__context.config.autodelete.enabled:
                 self.__schedule_auto_delete(file_name)
 
@@ -729,7 +740,16 @@ class Controller:
         )
 
     def __execute_auto_delete(self, file_name: str):
-        """Execute auto-delete of local file (called by Timer after delay)."""
+        """Execute auto-delete of local file (called by Timer after delay).
+
+        Thread safety: the model.get_file() call is protected by __model_lock.
+        delete_local() runs OUTSIDE the lock -- it spawns a subprocess, and
+        holding the lock across a blocking subprocess call would starve model
+        updates on the controller thread.
+
+        ModelFile is frozen (immutable) after being added to the model, so
+        the `file` reference is safe to use after releasing the lock.
+        """
         # Remove from tracking dict
         self.__pending_auto_deletes.pop(file_name, None)
 
@@ -747,16 +767,21 @@ class Controller:
             )
             return
 
-        # Get file from model and delete local copy
-        # SAFETY: ONLY call delete_local(), NEVER delete_remote()
-        try:
-            file = self.__model.get_file(file_name)
-            self.__file_op_manager.delete_local(file)
-            self.logger.info("Auto-deleted local file '{}'".format(file_name))
-        except ModelError:
-            self.logger.debug(
-                "File '{}' no longer in model, skipping auto-delete".format(file_name)
-            )
+        # Get file from model under lock -- ensures file still exists in model
+        # at the moment we read it, preventing use of a stale reference.
+        with self.__model_lock:
+            try:
+                file = self.__model.get_file(file_name)
+            except ModelError:
+                self.logger.debug(
+                    "File '{}' no longer in model, skipping auto-delete".format(file_name)
+                )
+                return
+        # delete_local is safe outside lock -- it spawns a subprocess, holding
+        # the lock during a blocking subprocess call would starve model updates.
+        # ModelFile is frozen/immutable after add, so `file` reference is safe.
+        self.__file_op_manager.delete_local(file)
+        self.logger.info("Auto-deleted local file '{}'".format(file_name))
 
     def __handle_queue_command(self, file: ModelFile, command: Command) -> (bool, str, int):
         """
