@@ -68,6 +68,8 @@ export class ConfirmModalService {
         this.renderer.addClass(this.backdropElement, "modal-backdrop");
         this.renderer.addClass(this.backdropElement, "fade");
         this.renderer.addClass(this.backdropElement, "show");
+        // Explicit z-index ensures backdrop renders above all app content (sidebar z-index: 300)
+        this.renderer.setStyle(this.backdropElement, "z-index", "1050");
         this.renderer.appendChild(document.body, this.backdropElement);
 
         // Create modal
@@ -76,6 +78,8 @@ export class ConfirmModalService {
         this.renderer.addClass(this.modalElement, "fade");
         this.renderer.addClass(this.modalElement, "show");
         this.renderer.setStyle(this.modalElement, "display", "block");
+        // Explicit z-index ensures modal renders above backdrop and all app content
+        this.renderer.setStyle(this.modalElement, "z-index", "1055");
         this.renderer.setAttribute(this.modalElement, "tabindex", "-1");
         this.renderer.setAttribute(this.modalElement, "role", "dialog");
         this.renderer.setAttribute(this.modalElement, "aria-modal", "true");
