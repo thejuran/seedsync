@@ -130,6 +130,19 @@ Each task was committed atomically:
 - Shell injection vector in remote delete is closed
 - Error responses sanitized — no internal details leak
 
+## Self-Check: PASSED
+
+All created/modified files confirmed present. All commits verified in git log.
+
+- FOUND: src/python/web/handler/config.py
+- FOUND: src/python/controller/delete/delete_process.py
+- FOUND: src/python/tests/unittests/test_web/test_handler/test_config_handler.py
+- FOUND: src/python/tests/unittests/test_controller/test_file_operation_manager.py
+- FOUND: .planning/phases/40-credential-endpoint-security/40-02-SUMMARY.md
+- FOUND: commit 6e680df (Task 1)
+- FOUND: commit 492944f (Task 2)
+- FOUND: commit 03a9c08 (metadata)
+
 ---
 *Phase: 40-credential-endpoint-security*
 *Completed: 2026-02-24*

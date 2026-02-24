@@ -2,37 +2,38 @@
 
 ## What This Is
 
-SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. Features a Terminal/Hacker-themed web UI (dark-only, Fira Code + IBM Plex Sans, matrix-green accents, ASCII progress bars), Sonarr/Radarr integration for automated post-download workflows, and real-time transfer status via SSE.
+SeedSync is a file syncing tool that syncs files from a remote Linux server (like a seedbox) to a local machine using LFTP. Features a Terminal/Hacker-themed web UI (dark-only, Fira Code + IBM Plex Sans, matrix-green accents, ASCII progress bars), Sonarr/Radarr integration for automated post-download workflows, and real-time transfer status via SSE. Security-hardened with HMAC webhook auth, credential redaction, SSRF protection, and thread-safe concurrent operations.
 
 ## Core Value
 
 Reliable file sync from seedbox to local with automated media library integration.
 
-## Current Milestone: v3.1 Harden & Fix
-
-**Goal:** Address all findings from deep code review — security vulnerabilities, race conditions, crash bugs, and code quality issues across Python backend and Angular frontend.
-
-**Target features:**
-- Fix critical security chain (RSA key removal, SSH hardening, pickle RCE)
-- Seal credential exposure in config API and debug mode
-- Fix race conditions in auto-delete, webhook imports, and extract queue
-- Fix crash bugs (exception propagation, None guards, SSE handling)
-- Resolve breaking change (distutils removal for Python 3.12+)
-- Fix frontend quality issues (XSS, Observable anti-patterns, leaked subscriptions)
-- Address medium-severity code quality findings (shell injection, security headers, type patterns)
-
 ## Previous State
 
-**v3.0 Terminal UI Overhaul (shipped 2026-02-17)** — Complete visual redesign from generic Bootstrap/Verdana to distinctive Terminal/Hacker aesthetic. Dark-only with collapsible icon-rail sidebar, CRT scan-line overlay, ASCII progress bars, and colored status indicators.
+**v3.1 Harden & Fix (shipped 2026-02-24)** — Comprehensive security hardening and code quality pass addressing 68 findings from deep code review. Closed RCE attack chain (RSA key, pickle, SSH MITM), sealed credential exposure, fixed 4 race conditions, eliminated 6 crash bugs, hardened Angular frontend (XSS, subscription leaks, focus trap), Python 3.12+ compatibility.
 
 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
+
+<details>
+<summary>v3.1 Harden & Fix (Shipped 2026-02-24)</summary>
+
+- Removed committed RSA key, SSH StrictHostKeyChecking=accept-new (TOFU), pickle→JSON in remote scanner
+- Config API redacts passwords/API keys, SSE log stream scrubs LFTP credentials, HMAC webhook auth
+- SSRF protection on *arr test endpoints, security headers (CSP, X-Frame-Options, X-Content-Type-Options)
+- Thread-safe auto-delete and webhook imports under model lock, atomic ExtractDispatch queue, copy-under-lock listeners
+- Fixed propagate_exception, None guards, bare except→queue.Empty, SSE unknown event guards, JSON.parse try/catch, 30s action timeout
+- XSS sanitization in confirm modal, RxJS pipe refactor, takeUntil/destroy$ subscription cleanup, focus trap + ARIA
+- Python 3.12+ (distutils replaced), pexpect argv lists, POST/DELETE mutations, isinstance() throughout
+- 12 code review follow-up fixes (Phase 46): webhook_secret redaction, getMessage() log scrubbing, atomic extract(), full Tab interception, timer cleanup, RestService helpers
+
+</details>
 
 <details>
 <summary>v3.0 Terminal UI Overhaul (Shipped 2026-02-17)</summary>
 
 - Replaced Bootstrap color system with Terminal/Hacker palette (Fira Code + IBM Plex Sans, #0d1117 dark base, green accents)
 - Collapsible 56px icon-rail sidebar expanding to 200px on hover, `>` prompt on active route, version display
-- ASCII progress bars (`[████░░░░] 67%`), colored status borders, green glow on downloading, ghost-style action buttons
+- ASCII progress bars, colored status borders, green glow on downloading, ghost-style action buttons
 - Terminal-style Settings headers, AutoQueue monospace patterns, colored log levels, ASCII art About page
 - CRT scan-line overlay (z-index 9999, pointer-events:none), custom dark scrollbars
 - Removed light/auto theme system entirely — deleted ThemeService for dark-only simplification
@@ -77,6 +78,20 @@ Reliable file sync from seedbox to local with automated media library integratio
 ## Requirements
 
 ### Validated
+
+**v3.1 (Shipped 2026-02-24):**
+
+- ✓ RSA key removed, SSH host key verification hardened (TOFU), pickle→JSON — v3.1
+- ✓ Config API redacts credentials, LFTP passwords scrubbed from SSE logs — v3.1
+- ✓ SSRF protection on *arr test endpoints, shell metacharacter escaping — v3.1
+- ✓ HMAC webhook authentication, security headers on all responses — v3.1
+- ✓ Thread-safe auto-delete, webhook imports, and ExtractDispatch queue — v3.1
+- ✓ Crash prevention: exception propagation, None guards, SSE resilience, bounded timeouts — v3.1
+- ✓ XSS sanitization, Observable pipe refactors, subscription leak fixes — v3.1
+- ✓ Python 3.12+ compatibility (distutils replaced), pexpect argv, POST/DELETE mutations — v3.1
+- ✓ Focus trap + ARIA labels for keyboard accessibility — v3.1
+- ✓ CLAUDE.md updated, API response codes documented — v3.1
+- ✓ 12 code review follow-up fixes (credential leak, log redaction, TOCTOU, timer cleanup) — v3.1
 
 **v3.0 (Shipped 2026-02-17):**
 
@@ -159,13 +174,7 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ### Active
 
-- [ ] Fix critical security chain (RSA key, SSH MITM, pickle RCE)
-- [ ] Seal credential exposure (config API, debug mode)
-- [ ] Fix 3 race conditions (auto-delete, webhook imports, extract queue)
-- [ ] Fix crash bugs (exception propagation, None guards, SSE handling)
-- [ ] Replace distutils.strtobool (removed in Python 3.12)
-- [ ] Fix frontend security and quality (XSS, Observable anti-patterns, subscription leaks)
-- [ ] Address medium-severity findings (shell injection, security headers, type patterns)
+(None — define in next milestone)
 
 ### Out of Scope
 
@@ -176,14 +185,24 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Context
 
+**Codebase state:**
+- ~31,557 Python LOC, ~16,534 TypeScript LOC
+- 952+ Python tests, 84% coverage (fail_under enforced)
+- 420+ Angular unit tests passing
+- Zero TypeScript lint errors
+- Python 3.12+ compatible (distutils replaced)
+
 **Technical notes:**
 - Application SCSS uses @use/@forward; Bootstrap remains on @import (required by Bootstrap 5.3)
 - Dark-only via hardcoded `data-bs-theme="dark"` on HTML element (no JS theme switching)
 - Google Fonts CDN for Fira Code + IBM Plex Sans (graceful fallback)
 - CRT scan-line overlay at z-index 9999 with pointer-events:none
-- ThemeService deleted in v3.0 — was dead code after dark-only switch
 - WAITING_FOR_IMPORT enum exists as structural placeholder (no business logic sets it yet)
 - `make run-tests-python` Docker build fails on arm64 (Apple Silicon) — `rar` package only available for amd64. CI unaffected.
+- Security headers (CSP, X-Frame-Options, X-Content-Type-Options) on all API responses
+- HMAC-SHA256 webhook authentication (empty secret = skip verification for backward compat)
+- Config API redacts sensitive fields; SSE log stream scrubs passwords
+- SSH uses StrictHostKeyChecking=accept-new (TOFU) with persistent known_hosts
 
 ## Constraints
 
@@ -195,30 +214,39 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Use teal (secondary) for all selections | Teal is more distinctive than blue, already used in bulk selection | Good |
-| Migrate to Bootstrap `btn` classes | Reduces custom CSS, leverages Bootstrap's states | Good |
-| Keep @import for Bootstrap SCSS | Mixing @use/@import creates namespace conflicts | Good |
-| CSS variables for Bootstrap theming | Easier maintenance, runtime flexibility vs SCSS overrides | Good |
-| Bootstrap 5.3 data-bs-theme for dark mode | Native framework support, minimal custom CSS | Good |
-| Signal-based ThemeService (Angular 19) | Reactive state without RxJS overhead | Good (later removed in v3.0) |
-| Hardcode data-bs-theme="dark" (v3.0) | App is dark-only, no runtime JS needed for theme switching | Good |
-| Google Fonts CDN for Fira Code + IBM Plex Sans | Zero build-time cost, graceful fallback | Good |
-| CRT overlay z-index 9999 pointer-events:none | Floats above all content without blocking interaction | Good |
-| Sidebar overlays content on hover (fixed 56px margin) | Matches VS Code/terminal UX, no content reflow | Good |
-| Unicode escapes for ASCII progress bars | Avoids encoding issues in TypeScript source | Good |
-| Delete ThemeService entirely (v3.0) | Dead code since dark-only hardcoding — clean removal | Good |
-| Direct hex values for terminal palette colors | Dark-only app, Bootstrap variable indirection unnecessary | Good |
-| Source-agnostic toast text ("Sonarr/Radarr") | System doesn't distinguish which *arr triggered import | Good |
+| Use teal (secondary) for all selections | Teal is more distinctive than blue, already used in bulk selection | ✓ Good |
+| Migrate to Bootstrap `btn` classes | Reduces custom CSS, leverages Bootstrap's states | ✓ Good |
+| Keep @import for Bootstrap SCSS | Mixing @use/@import creates namespace conflicts | ✓ Good |
+| CSS variables for Bootstrap theming | Easier maintenance, runtime flexibility vs SCSS overrides | ✓ Good |
+| Bootstrap 5.3 data-bs-theme for dark mode | Native framework support, minimal custom CSS | ✓ Good |
+| Hardcode data-bs-theme="dark" (v3.0) | App is dark-only, no runtime JS needed for theme switching | ✓ Good |
+| Google Fonts CDN for Fira Code + IBM Plex Sans | Zero build-time cost, graceful fallback | ✓ Good |
+| CRT overlay z-index 9999 pointer-events:none | Floats above all content without blocking interaction | ✓ Good |
+| Sidebar overlays content on hover (fixed 56px margin) | Matches VS Code/terminal UX, no content reflow | ✓ Good |
+| Direct hex values for terminal palette colors | Dark-only app, Bootstrap variable indirection unnecessary | ✓ Good |
+| Source-agnostic toast text ("Sonarr/Radarr") | System doesn't distinguish which *arr triggered import | ✓ Good |
+| SSH TOFU (accept-new) over reject-all | Preserves first-connect usability while blocking MITM on reconnects | ✓ Good |
+| Pickle→JSON for remote scanner | Eliminates RCE vector (CWE-502), same data fidelity | ✓ Good |
+| Redact at serialization layer not storage | Internal code reads real values, API clients see **REDACTED** | ✓ Good |
+| Empty webhook_secret skips HMAC | Backward compat for existing installs; configured = strict | ✓ Good |
+| Security headers via after_request hook | Zero-touch, applies to all routes automatically | ✓ Good |
+| Model lock two-window pattern | Lock only for data access, release before subprocess spawn | ✓ Good |
+| Atomic extract() under single mutex | Eliminates TOCTOU race between duplicate check and insert | ✓ Good |
+| POST/DELETE for mutation endpoints | Prevents browser prefetch/crawler side effects | ✓ Good |
+| pexpect argv list over shell string | Eliminates shell metacharacter injection (CWE-88) | ✓ Good |
+| Inline _strtobool over distutils | Zero new dependencies, Python 3.12+ compatible | ✓ Good |
+| takeUntil/destroy$ for Angular cleanup | Uniform subscription management, no mixed patterns | ✓ Good |
+| getMessage() for log redaction | Catches format-arg passwords that record.msg misses | ✓ Good |
 
 ## Project Status
 
-**Status:** v3.1 Harden & Fix in progress
+**Status:** v3.1 Harden & Fix shipped
 
-12 milestones shipped (v1.0 through v3.0), 38 phases, 63 plans completed. Now addressing 68 findings from deep code review.
+13 milestones shipped (v1.0 through v3.1), 46 phases, 88 plans completed.
 
 **Future work (if desired):**
 - Lidarr/Readarr support (same *arr pattern)
 - E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-23 after v3.1 milestone start*
+*Last updated: 2026-02-24 after v3.1 milestone*

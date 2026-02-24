@@ -322,3 +322,33 @@
 
 ---
 
+
+## v3.1 Harden & Fix (Shipped: 2026-02-24)
+
+**Delivered:** Comprehensive security hardening, race condition fixes, crash prevention, and code quality improvements across Python backend and Angular frontend — addressing all 68 findings from deep code review.
+
+**Phases completed:** 39-46 (8 phases, 25 plans)
+
+**Key accomplishments:**
+
+- Closed critical RCE attack chain — removed committed RSA key, hardened SSH host verification (TOFU), replaced pickle with JSON deserialization
+- Sealed credential exposure — redacted secrets from config API, scrubbed passwords from SSE log stream, added SSRF protection, HMAC webhook auth, and security headers
+- Fixed 4 race conditions — model lock on auto-delete/webhook imports, atomic queue operations in ExtractDispatch with copy-under-lock pattern
+- Eliminated 6 crash bugs — exception propagation, None guards, SSE unknown event handling, bounded 30s action timeouts
+- Hardened Angular frontend — XSS sanitization, Observable pipe refactors, subscription leak fixes (takeUntil/destroy$), focus trap accessibility
+- Python 3.12+ compatibility — replaced distutils, shell injection prevention via pexpect argv, POST/DELETE for mutation endpoints
+- Code review follow-up (Phase 46) — 12 additional fixes: webhook_secret redaction, getMessage() log scrubbing, atomic extract(), focus trap full Tab interception, timer cleanup, RestService helper extraction
+
+**Stats:**
+
+- 131 files changed (+11,242 lines, -461 lines)
+- 90 commits
+- 44 requirements satisfied (10 security, 4 thread safety, 6 crash, 7 frontend, 13 code quality, 4 docs/a11y)
+- 2 days (2026-02-23 to 2026-02-24)
+
+**Git range:** `ab15f80` → `ab1759d`
+
+**What's next:** Run `/gsd:new-milestone` to start next milestone.
+
+---
+
