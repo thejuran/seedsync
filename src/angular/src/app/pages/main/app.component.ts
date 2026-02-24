@@ -5,7 +5,6 @@ import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ROUTE_INFOS, RouteInfo} from "../../routes";
 
-import {ElementQueries, ResizeSensor} from "css-element-queries";
 import {DomService} from "../../services/utils/dom.service";
 import {ToastService, Toast} from "../../services/utils/toast.service";
 import {HeaderComponent} from "./header.component";
@@ -26,6 +25,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     activeRoute: RouteInfo;
 
     private destroy$ = new Subject<void>();
+    private _resizeObserver: ResizeObserver;
 
     constructor(private router: Router,
                 private _domService: DomService,
@@ -64,15 +64,14 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngAfterViewInit(): void {
-        ElementQueries.listen();
-        ElementQueries.init();
-        // noinspection TsLint
-        new ResizeSensor(this.topHeader.nativeElement, () => {
+        this._resizeObserver = new ResizeObserver(() => {
             this._domService.setHeaderHeight(this.topHeader.nativeElement.clientHeight);
         });
+        this._resizeObserver.observe(this.topHeader.nativeElement);
     }
 
     ngOnDestroy(): void {
+        this._resizeObserver?.disconnect();
         this.destroy$.next();
         this.destroy$.complete();
     }

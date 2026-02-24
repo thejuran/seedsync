@@ -26,9 +26,7 @@
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "allowedCommonJsDependencies": [
-              "css-element-queries"
-            ],
+            "allowedCommonJsDependencies": [],
             "assets": [
               "src/assets"
             ],
