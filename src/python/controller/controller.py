@@ -356,13 +356,14 @@ class Controller:
         """
         try:
             file = model.get_file(file_name)
-            if file.import_status != ModelFile.ImportStatus.IMPORTED:
-                new_file = copy.copy(file)
-                new_file.unfreeze()
-                new_file.import_status = ModelFile.ImportStatus.IMPORTED
-                model.update_file(new_file)
         except ModelError:
-            pass
+            return
+        if file.import_status != ModelFile.ImportStatus.IMPORTED:
+            new_file = copy.copy(file)
+            # noinspection PyProtectedMember
+            new_file._unfreeze()
+            new_file.import_status = ModelFile.ImportStatus.IMPORTED
+            model.update_file(new_file)
 
     def _update_active_file_tracking(self,
                                      lftp_statuses: Optional[List[LftpJobStatus]],

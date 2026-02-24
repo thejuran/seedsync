@@ -75,8 +75,8 @@ class ModelFile:
         for child in self.__children:
             child.freeze()
 
-    def unfreeze(self):
-        """Unfreeze this file, allowing modifications. Used for copy-then-modify patterns."""
+    def _unfreeze(self):
+        """Internal: unfreeze this file for copy-then-modify patterns. Not part of the public API."""
         self.__frozen = False
 
     def _check_frozen(self):
