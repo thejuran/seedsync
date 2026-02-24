@@ -535,6 +535,19 @@ class TestModelBuilder(unittest.TestCase):
         model = self.model_builder.build_model()
         self.assertEqual(0, model.get_file("a").eta)
 
+    def test_build_estimated_eta_remote_size_none(self):
+        """_estimate_root_eta returns None (no crash) when remote_size is None (CRASH-02)."""
+        # Simulate: file is DOWNLOADING (has LFTP RUNNING status with speed) but
+        # remote scanner has not returned size info yet (remote_size stays None from ModelFile init)
+        s = LftpJobStatus(0, LftpJobStatus.Type.PGET, LftpJobStatus.State.RUNNING, "a", "")
+        s.total_transfer_state = LftpJobStatus.TransferState(None, None, None, 100, None)
+        self.model_builder.set_lftp_statuses([s])
+        self.model_builder.set_local_files([SystemFile("a", 1000, False)])
+        # No remote file set -> remote_size will be None on the ModelFile
+        model = self.model_builder.build_model()
+        # Must not crash with TypeError; eta should remain None
+        self.assertIsNone(model.get_file("a").eta)
+
     def test_build_children_names(self):
         model = self.__build_test_model_children_tree_1()
         self.assertEqual({"a", "b", "c", "d"}, model.get_file_names())

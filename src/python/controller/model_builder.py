@@ -454,6 +454,8 @@ class ModelBuilder:
             return
         if model_file.transferred_size is None:
             return
+        if model_file.remote_size is None:
+            return
 
         remaining_size = max(model_file.remote_size - model_file.transferred_size, 0)
         model_file.eta = int(math.ceil(remaining_size / model_file.downloading_speed))
