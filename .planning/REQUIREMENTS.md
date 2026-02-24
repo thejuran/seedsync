@@ -29,11 +29,11 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 ### Crash Prevention
 
-- [ ] **CRASH-01**: propagate_exception calls exc.re_raise() without redundant outer raise (Finding 5)
-- [ ] **CRASH-02**: _estimate_root_eta guards remote_size is None before arithmetic (Finding 11)
-- [ ] **CRASH-03**: WebhookManager.process catches queue.Empty specifically instead of bare except (Finding 14)
-- [ ] **CRASH-04**: SSE notifyEvent handles unknown event names without crashing subscription (Finding 15)
-- [ ] **CRASH-05**: SSE handlers wrap JSON.parse in try/catch to prevent observable teardown (Finding 19)
+- [x] **CRASH-01**: propagate_exception calls exc.re_raise() without redundant outer raise (Finding 5)
+- [x] **CRASH-02**: _estimate_root_eta guards remote_size is None before arithmetic (Finding 11)
+- [x] **CRASH-03**: WebhookManager.process catches queue.Empty specifically instead of bare except (Finding 14)
+- [x] **CRASH-04**: SSE notifyEvent handles unknown event names without crashing subscription (Finding 15)
+- [x] **CRASH-05**: SSE handlers wrap JSON.parse in try/catch to prevent observable teardown (Finding 19)
 - [x] **CRASH-06**: Action endpoint callbacks use bounded timeout instead of indefinite wait (Finding 20)
 
 ### Frontend Quality
@@ -103,11 +103,11 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | THRD-02 | Phase 41 | Complete |
 | THRD-03 | Phase 41 | Complete |
 | THRD-04 | Phase 41 | Complete |
-| CRASH-01 | Phase 42 | Pending |
-| CRASH-02 | Phase 42 | Pending |
-| CRASH-03 | Phase 42 | Pending |
-| CRASH-04 | Phase 42 | Pending |
-| CRASH-05 | Phase 42 | Pending |
+| CRASH-01 | Phase 42 | Complete |
+| CRASH-02 | Phase 42 | Complete |
+| CRASH-03 | Phase 42 | Complete |
+| CRASH-04 | Phase 42 | Complete |
+| CRASH-05 | Phase 42 | Complete |
 | CRASH-06 | Phase 42 | Complete |
 | FE-01 | Phase 43 | Pending |
 | FE-02 | Phase 43 | Pending |

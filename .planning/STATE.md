@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 42 of 45 (Crash Prevention)
-Plan: 3 of 4 complete in current phase
-Status: Phase 42 in progress
-Last activity: 2026-02-24 — Phase 42 Plan 03 complete (bounded 30s timeout on individual action endpoint waits, HTTP 504 on timeout)
+Plan: 4 of 4 complete in current phase
+Status: Phase 42 complete
+Last activity: 2026-02-24 — Phase 42 Plan 02 complete (Angular SSE crash prevention: unknown event guard + JSON.parse try/catch in all stream services)
 
 Progress: [█████░░░░░] 50% (v3.1)
 
@@ -67,7 +67,13 @@ Progress: [█████░░░░░] 50% (v3.1)
 - [Phase 41-02]: Queue mutex pattern: all __task_queue.queue accesses wrapped in with self.__task_queue.mutex in ExtractDispatch (THRD-03)
 - [Phase 41-02]: Copy-under-lock for ExtractDispatch listeners: snapshot in with self.__listeners_lock, iterated outside — prevents RuntimeError (THRD-04)
 - [Phase 41-02]: TOCTOU window in extract() accepted: duplicate check under mutex then put() has narrow race; worst case is double extraction matching prior behavior
+- [Phase 42-02]: Map.has() guard before Map.get().notifyEvent() in StreamDispatchService: unknown SSE event names log a warning instead of crashing the observable subscription (CRASH-04)
+- [Phase 42-02]: try/catch wraps JSON.parse in ModelFileService.parseEvent(), ServerStatusService.parseStatus(), LogService.onEvent() — malformed JSON logged and skipped, stream continues (CRASH-05)
+- [Phase 42-02]: LoggerService injected into ServerStatusService for consistent error logging on malformed JSON
 - [Phase 42-03]: _ACTION_TIMEOUT = 30.0 on ControllerHandler: 30s bounds individual action endpoint waits; timed-out commands return HTTP 504; mirrors bulk endpoint pattern (CRASH-06)
+- [Phase 42-01]: propagate_exception outer raise removed (CRASH-01): exc.re_raise() raises internally; outer raise was unreachable and could produce TypeError
+- [Phase 42-01]: WebhookManager bare except replaced with except Empty (CRASH-03): bare except masks SystemExit/KeyboardInterrupt/programming errors
+- [Phase 42-01]: remote_size None guard in _estimate_root_eta (CRASH-02): guard added before subtraction to prevent TypeError when remote scanner hasn't returned size
 
 ### Todos
 
@@ -85,9 +91,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Stopped at: Completed 42-03-PLAN.md (bounded 30s timeout on individual action endpoint waits)
-Next action: Execute 42-04-PLAN.md
+Last session: 2026-02-23
+Stopped at: Completed 42-01-PLAN.md (propagate_exception fix, ETA None guard, WebhookManager bare except fix)
+Next action: Execute 42-04-PLAN.md (if exists) or advance to phase 43
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 plans 01-03 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23*

@@ -150,7 +150,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 39: Critical Security Chain** - Eliminate RSA key exposure, SSH MITM vector, and pickle RCE (completed 2026-02-24)
 - [x] **Phase 40: Credential & Endpoint Security** - Seal config API leaks, debug mode exposure, SSRF, webhook auth, and response hygiene (completed 2026-02-24)
 - [x] **Phase 41: Thread Safety** - Fix race conditions in auto-delete, webhook imports, and extract dispatch (completed 2026-02-24)
-- [ ] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling
+- [x] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling (completed 2026-02-24)
 - [ ] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular
 - [ ] **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns
 - [ ] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels
@@ -269,7 +269,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 39. Critical Security Chain | v3.1 | 2/2 | Complete | 2026-02-24 |
 | 40. Credential & Endpoint Security | 3/3 | Complete    | 2026-02-24 | - |
 | 41. Thread Safety | 2/2 | Complete    | 2026-02-24 | - |
-| 42. Crash Prevention | 1/3 | In Progress|  | - |
+| 42. Crash Prevention | 3/3 | Complete   | 2026-02-24 | - |
 | 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |
 | 44. Code Quality | v3.1 | 0/TBD | Not started | - |
 | 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
