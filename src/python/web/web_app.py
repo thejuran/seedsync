@@ -80,7 +80,7 @@ class WebApp(bottle.Bottle):
                 "script-src 'self'; "
                 "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
                 "font-src 'self' https://fonts.gstatic.com; "
-                "connect-src 'self'; "
+                "connect-src 'self' https://api.github.com; "
                 "img-src 'self' data:; "
                 "frame-ancestors 'none'"
             )
