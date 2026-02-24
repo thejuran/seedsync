@@ -1,7 +1,8 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from "@angular/core";
 import {NgFor, NgIf, AsyncPipe} from "@angular/common";
 import {FormsModule} from "@angular/forms";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 import * as Immutable from "immutable";
 
@@ -25,7 +26,7 @@ import {ConfigService} from "../../services/settings/config.service";
     standalone: true,
     imports: [NgFor, NgIf, AsyncPipe, FormsModule, ClickStopPropagationDirective]
 })
-export class AutoQueuePageComponent implements OnInit {
+export class AutoQueuePageComponent implements OnInit, OnDestroy {
 
     public patterns: Observable<Immutable.List<AutoQueuePattern>>;
     public newPattern: string;
@@ -37,6 +38,8 @@ export class AutoQueuePageComponent implements OnInit {
     public patternsOnly: boolean;
 
     private _connectedService: ConnectedService;
+
+    private destroy$ = new Subject<void>();
 
     constructor(private _changeDetector: ChangeDetectorRef,
                 private _autoqueueService: AutoQueueService,
@@ -53,7 +56,7 @@ export class AutoQueuePageComponent implements OnInit {
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
-        this._connectedService.connected.subscribe({
+        this._connectedService.connected.pipe(takeUntil(this.destroy$)).subscribe({
             next: (connected: boolean) => {
                 this.connected = connected;
                 if (!this.connected) {
@@ -63,7 +66,7 @@ export class AutoQueuePageComponent implements OnInit {
             }
         });
 
-        this._configService.config.subscribe({
+        this._configService.config.pipe(takeUntil(this.destroy$)).subscribe({
             next: config => {
                 if(config != null) {
                     this.enabled = config.autoqueue.enabled;
@@ -75,6 +78,11 @@ export class AutoQueuePageComponent implements OnInit {
                 this._changeDetector.detectChanges();
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onAddPattern(): void {

@@ -1,6 +1,7 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from "@angular/core";
 import {NgFor, NgIf, NgTemplateOutlet, AsyncPipe} from "@angular/common";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 import {LoggerService} from "../../services/utils/logger.service";
 import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
@@ -28,7 +29,7 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     standalone: true,
     imports: [NgFor, NgIf, NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
 })
-export class SettingsPageComponent implements OnInit {
+export class SettingsPageComponent implements OnInit, OnDestroy {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;
     public OPTIONS_CONTEXT_DISCOVERY = OPTIONS_CONTEXT_DISCOVERY;
     public OPTIONS_CONTEXT_CONNECTIONS = OPTIONS_CONTEXT_CONNECTIONS;
@@ -44,6 +45,8 @@ export class SettingsPageComponent implements OnInit {
     public commandsEnabled: boolean;
 
     private _connectedService: ConnectedService;
+
+    private destroy$ = new Subject<void>();
 
     private _configRestartNotif: Notification;
     private _badValueNotifs: Map<string, Notification>;
@@ -72,7 +75,7 @@ export class SettingsPageComponent implements OnInit {
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
-        this._connectedService.connected.subscribe({
+        this._connectedService.connected.pipe(takeUntil(this.destroy$)).subscribe({
             next: (connected: boolean) => {
                 if (!connected) {
                     // Server went down, hide the config restart notification
@@ -83,6 +86,11 @@ export class SettingsPageComponent implements OnInit {
                 this.commandsEnabled = connected;
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onSetConfig(section: string, option: string, value: string | number | boolean): void {
