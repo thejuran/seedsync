@@ -93,12 +93,12 @@ class ExtractDispatch:
         self.__worker.join()
 
     def add_listener(self, listener: ExtractListener):
-        self.__listeners_lock.acquire()
-        self.__listeners.append(listener)
-        self.__listeners_lock.release()
+        with self.__listeners_lock:
+            self.__listeners.append(listener)
 
     def status(self) -> List[ExtractStatus]:
-        tasks = list(self.__task_queue.queue)
+        with self.__task_queue.mutex:
+            tasks = list(self.__task_queue.queue)
         statuses = []
         for task in tasks:
             status = ExtractStatus(name=task.root_name,
@@ -110,10 +110,11 @@ class ExtractDispatch:
     def extract(self, model_file: ModelFile):
         self.logger.debug("Received extract for {}".format(model_file.name))
 
-        for task in self.__task_queue.queue:
-            if task.root_name == model_file.name:
-                self.logger.info("Ignoring extract for {}, already exists".format(model_file.name))
-                return
+        with self.__task_queue.mutex:
+            for task in self.__task_queue.queue:
+                if task.root_name == model_file.name:
+                    self.logger.info("Ignoring extract for {}, already exists".format(model_file.name))
+                    return
 
         # noinspection PyProtectedMember
         task = ExtractDispatch._Task(model_file.name, model_file.is_dir)
@@ -160,11 +161,16 @@ class ExtractDispatch:
         self.logger.debug("Started worker thread")
 
         while not self.__worker_shutdown.is_set():
-            # Try to grab next task
-            # Do another check for shutdown
-            while len(self.__task_queue.queue) > 0 and not self.__worker_shutdown.is_set():
-                # peek the task
-                task = self.__task_queue.queue[0]
+            # Copy queue snapshot under mutex to check for work
+            with self.__task_queue.mutex:
+                has_tasks = len(self.__task_queue.queue) > 0
+
+            while has_tasks and not self.__worker_shutdown.is_set():
+                # Peek at first task under mutex
+                with self.__task_queue.mutex:
+                    if len(self.__task_queue.queue) == 0:
+                        break
+                    task = self.__task_queue.queue[0]
 
                 # We have a task, extract archives one by one
                 completed = True
@@ -187,17 +193,21 @@ class ExtractDispatch:
                     self.logger.exception("Caught an extraction error")
                     completed = False
                 finally:
-                    # pop the task
+                    # pop the task (thread-safe Queue.get)
                     self.__task_queue.get(block=False)
 
-                # Send notification to listeners
-                self.__listeners_lock.acquire()
-                for listener in self.__listeners:
+                # Send notification to listeners (copy-under-lock)
+                with self.__listeners_lock:
+                    listeners_snapshot = list(self.__listeners)
+                for listener in listeners_snapshot:
                     if completed:
                         listener.extract_completed(task.root_name, task.root_is_dir)
                     else:
                         listener.extract_failed(task.root_name, task.root_is_dir)
-                self.__listeners_lock.release()
+
+                # Re-check queue under mutex for next iteration
+                with self.__task_queue.mutex:
+                    has_tasks = len(self.__task_queue.queue) > 0
 
             time.sleep(ExtractDispatch.__WORKER_SLEEP_INTERVAL_IN_SECS)
 
