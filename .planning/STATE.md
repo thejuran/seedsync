@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 45 of 45 (Documentation Accessibility)
-Plan: 2 of 3 complete in current phase (01, 02)
-Status: Phase 45 in progress (plans 01-02 executed; plan 03 remains)
-Last activity: 2026-02-24 — Phase 45 Plan 02 complete (WCAG 2.1 AA keyboard focus trap in ConfirmModalService: Tab/Shift+Tab cycle, Escape dismiss, focus restoration; aria-modal + aria-labelledby; 7 new tests, 394 total pass)
+Plan: 3 of 3 complete in current phase (01, 02, 03)
+Status: Phase 45 complete (all 3 plans executed)
+Last activity: 2026-02-24 — Phase 45 Plan 03 complete (ARIA role=grid/row, dynamic aria-label with name+status+selection, tabindex=0, ArrowDown/ArrowUp focus navigation, Enter/Space row selection, visible :focus indicator on file rows)
 
 Progress: [██████████] 100% (v3.1)
 
@@ -103,6 +103,10 @@ Progress: [██████████] 100% (v3.1)
 - [Phase 45-02]: Two-element focus trap handles boundary cases only: Tab at OK wraps to Cancel, Shift+Tab at Cancel wraps to OK; middle navigation is native browser behavior (DOCS-03)
 - [Phase 45-02]: keydownHandler stored as private field for clean removeEventListener in destroyModal() (DOCS-03)
 - [Phase 45-02]: previouslyFocusedElement saved at createModal() start, restored after DOM removal in destroyModal() — not before removal to avoid focus flicker (DOCS-03)
+- [Phase 45-03]: ARIA grid/row pattern for file list: role=grid on container, role=row on file rows — matches tabular layout (DOCS-04)
+- [Phase 45-03]: Dynamic aria-label combines name + capitalize(status) + optional ', selected' for full screen reader state announcement (DOCS-04)
+- [Phase 45-03]: Clamp (no wrap) on ArrowDown/ArrowUp at list boundaries — reaching end stops, matches standard data grid behavior (DOCS-04)
+- [Phase 45-03]: :focus-visible heuristic: .file:focus shows outline, .file:focus:not(:focus-visible) suppresses for mouse clicks (DOCS-04)
 
 ### Todos
 
@@ -121,8 +125,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 45-02-PLAN.md (WCAG 2.1 AA keyboard focus trap in ConfirmModalService; 7 new accessibility tests; 394 total pass)
-Next action: Execute 45-03-PLAN.md (final plan in phase 45)
+Stopped at: Completed 45-03-PLAN.md (ARIA role=grid/row, dynamic aria-label, ArrowDown/ArrowUp navigation, :focus indicator on file rows)
+Next action: Phase 45 complete — all 3 plans executed. v3.1 milestone complete (all 45 phases done). Next: /gsd:new-milestone or tag v3.1.
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24; phase 45 plans 01-02 complete 2026-02-24 (plan 03 remains)*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24; phase 45 all 3 plans complete 2026-02-24*

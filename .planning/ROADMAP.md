@@ -153,7 +153,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling (completed 2026-02-24)
 - [x] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular (completed 2026-02-24)
 - 🚧 **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns (in progress)
-- [ ] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels
+- [x] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels (completed 2026-02-24)
 
 ## Phase Details
 
@@ -286,7 +286,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
 | 43. Frontend Quality | 3/3 | Complete    | 2026-02-24 | - |
 | 44. Code Quality | 5/5 | Complete    | 2026-02-24 | - |
-| 45. Documentation & Accessibility | 2/3 | In Progress|  | - |
+| 45. Documentation & Accessibility | 3/3 | Complete   | 2026-02-24 | - |
 
 ---
 
