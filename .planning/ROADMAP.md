@@ -165,7 +165,10 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
   1. Repository contains no RSA private key file; .gitignore prevents any future commit of key material
   2. SSH connections to the remote server require host key verification — unknown hosts are not silently accepted and MITM downgrade is not possible
   3. Remote scanner communicates scan results via JSON; pickle deserialization is not used anywhere in the scan pipeline
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — RSA key removal + SSH host key hardening
+- [ ] 39-02-PLAN.md — Pickle-to-JSON migration in remote scanner
 
 ### Phase 40: Credential & Endpoint Security
 **Goal**: Sensitive credentials are never returned to API clients, debug mode cannot leak LFTP passwords, SSRF is blocked on *arr test endpoints, webhooks require authentication, and all responses include security headers with no internal error detail leakage
@@ -252,7 +255,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 26-28. Radarr + Webhooks | v1.8 | 5/5 | Complete | 2026-02-11 |
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
-| 39. Critical Security Chain | v3.1 | 0/TBD | Not started | - |
+| 39. Critical Security Chain | v3.1 | 0/2 | Not started | - |
 | 40. Credential & Endpoint Security | v3.1 | 0/TBD | Not started | - |
 | 41. Thread Safety | v3.1 | 0/TBD | Not started | - |
 | 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |
