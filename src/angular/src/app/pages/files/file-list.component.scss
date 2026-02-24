@@ -99,8 +99,8 @@
     }
 }
 
-/* Large screens: show timestamp header columns */
-@media only screen and (min-width: $large-min-width) {
+/* XL screens: show timestamp header columns (need 1200px+ for all columns to fit) */
+@media only screen and (min-width: $xlarge-min-width) {
     #header .remote-timestamp {display: block; width: 140px; min-width: 140px;}
     #header .local-timestamp  {display: block; width: 140px; min-width: 140px;}
 }

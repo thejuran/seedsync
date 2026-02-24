@@ -324,8 +324,8 @@
     /* Timestamps stay hidden on medium — not enough room */
 }
 
-/* Large screens: show timestamp columns */
-@media only screen and (min-width: $large-min-width) {
+/* XL screens: show timestamp columns (need 1200px+ for all columns to fit) */
+@media only screen and (min-width: $xlarge-min-width) {
     .content .remote-timestamp {display: inline; width: 140px; min-width: 140px;}
     .content .local-timestamp  {display: inline; width: 140px; min-width: 140px;}
 }
