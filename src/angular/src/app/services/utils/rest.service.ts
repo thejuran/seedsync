@@ -40,20 +40,8 @@ export class RestService {
      */
     public sendRequest(url: string): Observable<WebReaction> {
         return this._http.get(url, {responseType: "text"}).pipe(
-            map(data => {
-                this._logger.debug("%s http response: %s", url, data);
-                return new WebReaction(true, data, null);
-            }),
-            catchError((err: HttpErrorResponse) => {
-                let errorMessage: string = null;
-                this._logger.debug("%s error: %O", url, err);
-                if (err.error instanceof Event) {
-                    errorMessage = err.error.type;
-                } else {
-                    errorMessage = err.error;
-                }
-                return of(new WebReaction(false, null, errorMessage));
-            }),
+            map(this.handleSuccess(url)),
+            catchError(this.handleError(url)),
             shareReplay(1)
         );
         // shareReplay is needed to:
@@ -69,20 +57,8 @@ export class RestService {
      */
     public post(url: string): Observable<WebReaction> {
         return this._http.post(url, null, {responseType: "text"}).pipe(
-            map(data => {
-                this._logger.debug("%s http response: %s", url, data);
-                return new WebReaction(true, data, null);
-            }),
-            catchError((err: HttpErrorResponse) => {
-                let errorMessage: string = null;
-                this._logger.debug("%s error: %O", url, err);
-                if (err.error instanceof Event) {
-                    errorMessage = err.error.type;
-                } else {
-                    errorMessage = err.error;
-                }
-                return of(new WebReaction(false, null, errorMessage));
-            }),
+            map(this.handleSuccess(url)),
+            catchError(this.handleError(url)),
             shareReplay(1)
         );
     }
@@ -94,21 +70,29 @@ export class RestService {
      */
     public delete(url: string): Observable<WebReaction> {
         return this._http.delete(url, {responseType: "text"}).pipe(
-            map(data => {
-                this._logger.debug("%s http response: %s", url, data);
-                return new WebReaction(true, data, null);
-            }),
-            catchError((err: HttpErrorResponse) => {
-                let errorMessage: string = null;
-                this._logger.debug("%s error: %O", url, err);
-                if (err.error instanceof Event) {
-                    errorMessage = err.error.type;
-                } else {
-                    errorMessage = err.error;
-                }
-                return of(new WebReaction(false, null, errorMessage));
-            }),
+            map(this.handleSuccess(url)),
+            catchError(this.handleError(url)),
             shareReplay(1)
         );
+    }
+
+    private handleSuccess(url: string): (data: string) => WebReaction {
+        return (data: string): WebReaction => {
+            this._logger.debug("%s http response: %s", url, data);
+            return new WebReaction(true, data, null);
+        };
+    }
+
+    private handleError(url: string): (err: HttpErrorResponse) => Observable<WebReaction> {
+        return (err: HttpErrorResponse): Observable<WebReaction> => {
+            let errorMessage: string = null;
+            this._logger.debug("%s error: %O", url, err);
+            if (err.error instanceof Event) {
+                errorMessage = err.error.type;
+            } else {
+                errorMessage = err.error;
+            }
+            return of(new WebReaction(false, null, errorMessage));
+        };
     }
 }

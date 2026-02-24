@@ -3,6 +3,7 @@ import {Observable, ReplaySubject, Subject} from "rxjs";
 
 import {BaseStreamService} from "../base/base-stream.service";
 import {LogRecord} from "./log-record";
+import {LoggerService} from "../utils/logger.service";
 
 
 // Maximum number of log records to buffer in the ReplaySubject
@@ -20,8 +21,11 @@ export class LogService extends BaseStreamService implements OnDestroy {
     // Track if we've ever received logs (persists across component navigation)
     private _hasReceivedLogs = false;
 
-    constructor() {
+    private _logger: LoggerService;
+
+    constructor(logger: LoggerService) {
         super();
+        this._logger = logger;
         this.registerEventName("log-record");
     }
 
@@ -46,7 +50,7 @@ export class LogService extends BaseStreamService implements OnDestroy {
             this._hasReceivedLogs = true;
             this._logs.next(LogRecord.fromJson(JSON.parse(data)));
         } catch (error) {
-            console.error("Failed to parse log event:", error);
+            this._logger.error("Failed to parse log event:", error);
         }
     }
 
