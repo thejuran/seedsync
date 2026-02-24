@@ -51,3 +51,39 @@ class SystemFile:
         if not self.__is_dir:
             raise TypeError("Cannot add children to a file")
         self.__children.append(file)
+
+    def to_dict(self) -> dict:
+        """Convert to JSON-serializable dictionary."""
+        d = {
+            "name": self.__name,
+            "size": self.__size,
+            "is_dir": self.__is_dir,
+        }
+        if self.__timestamp_created is not None:
+            d["time_created"] = self.__timestamp_created.isoformat()
+        if self.__timestamp_modified is not None:
+            d["time_modified"] = self.__timestamp_modified.isoformat()
+        if self.__children:
+            d["children"] = [child.to_dict() for child in self.__children]
+        return d
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "SystemFile":
+        """Reconstruct SystemFile from a dictionary."""
+        from datetime import datetime
+        time_created = None
+        time_modified = None
+        if "time_created" in data and data["time_created"] is not None:
+            time_created = datetime.fromisoformat(data["time_created"])
+        if "time_modified" in data and data["time_modified"] is not None:
+            time_modified = datetime.fromisoformat(data["time_modified"])
+        sf = cls(
+            name=data["name"],
+            size=data["size"],
+            is_dir=data.get("is_dir", False),
+            time_created=time_created,
+            time_modified=time_modified,
+        )
+        for child_data in data.get("children", []):
+            sf.add_child(cls.from_dict(child_data))
+        return sf
