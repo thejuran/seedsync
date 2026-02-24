@@ -16,7 +16,7 @@ ADD src/docker/test/python/entrypoint.sh /app/
 RUN mkdir -p /var/run/sshd
 RUN ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa && \
     cat /root/.ssh/id_rsa.pub >> /root/.ssh/authorized_keys
-# Disable the known hosts prompt
+# Test-only: disable host key checking for ephemeral test container connecting to localhost sshd
 RUN echo "StrictHostKeyChecking no\nUserKnownHostsFile /dev/null\nLogLevel=quiet" > /root/.ssh/config
 # Enable password authentication in sshd (required for OpenSSH 9.x in Debian Bookworm)
 # Also enable keyboard-interactive for compatibility

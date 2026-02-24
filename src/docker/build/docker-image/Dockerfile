@@ -124,8 +124,8 @@ COPY --from=seedsync_build_angular /build/dist /app/html
 COPY --from=seedsync_build_scanfs /build/dist/scanfs /app/scanfs
 COPY src/docker/build/docker-image/setup_default_config.sh /scripts/
 
-# Disable the known hosts prompt
-RUN mkdir -p /root/.ssh && echo "StrictHostKeyChecking no\nUserKnownHostsFile /dev/null" > /root/.ssh/config
+# Accept new host keys on first connection; reject changed keys to prevent MITM
+RUN mkdir -p /root/.ssh && echo "StrictHostKeyChecking accept-new" > /root/.ssh/config
 
 # SSH as any user fix
 # https://stackoverflow.com/a/57531352

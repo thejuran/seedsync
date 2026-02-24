@@ -50,8 +50,7 @@ class Sshcp:
 
         # Common flags
         command_args += [
-            "-o", "StrictHostKeyChecking=no",  # ignore host key changes
-            "-o", "UserKnownHostsFile=/dev/null",  # ignore known hosts file
+            "-o", "StrictHostKeyChecking=accept-new",  # accept new host keys, reject changed ones
             "-o", "LogLevel=error",  # suppress warnings
         ]
 
@@ -82,6 +81,7 @@ class Sshcp:
                     'Name or service not known',  # i=5, bad hostname (newer SSH)
                     'No route to host',  # i=6, bad host (newer SSH)
                     'Connection timed out',  # i=7, connection timeout (newer SSH)
+                    'REMOTE HOST IDENTIFICATION HAS CHANGED',  # i=8, host key changed (possible MITM)
                 ])
                 if i > 0:
                     before = sp.before.decode().strip() if sp.before != pexpect.EOF else ""
@@ -99,6 +99,8 @@ class Sshcp:
                     if sp.before.decode().strip():
                         error_msg += " - " + sp.before.decode().strip()
                     raise SshcpError(error_msg)
+                elif i == 8:
+                    raise SshcpError("Remote host key has changed. This may indicate a MITM attack. Remove the old key from ~/.ssh/known_hosts to continue.")
                 sp.sendline(self.__password)
 
             i = sp.expect(
@@ -111,6 +113,7 @@ class Sshcp:
                     'Name or service not known',  # i=5, bad hostname (newer SSH)
                     'No route to host',  # i=6, bad host (newer SSH)
                     'Connection timed out',  # i=7, connection timeout (newer SSH)
+                    'REMOTE HOST IDENTIFICATION HAS CHANGED',  # i=8, host key changed (possible MITM)
                 ],
                 timeout=self.__TIMEOUT_SECS
             )
@@ -127,6 +130,8 @@ class Sshcp:
                 if sp.before.decode().strip():
                     error_msg += " - " + sp.before.decode().strip()
                 raise SshcpError(error_msg)
+            elif i == 8:
+                raise SshcpError("Remote host key has changed. This may indicate a MITM attack. Remove the old key from ~/.ssh/known_hosts to continue.")
 
         except pexpect.exceptions.TIMEOUT:
             self.logger.exception("Timed out")
