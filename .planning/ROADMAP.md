@@ -280,7 +280,12 @@ Plans:
   10. ModelFile.unfreeze() is marked as internal-only (_unfreeze)
   11. RestService error handling extracted to shared helper (no triplication)
   12. _set_import_status only catches ModelError from get_file, not from update_file
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 46-01-PLAN.md — Config API webhook_secret redaction + log redaction getMessage()
+- [ ] 46-02-PLAN.md — Atomic extract(), worker resilience, _unfreeze rename, narrow except scope
+- [ ] 46-03-PLAN.md — Focus trap full Tab interception + escapeHtml for modal buttons
+- [ ] 46-04-PLAN.md — Stream timer cleanup, unknown-event test, LogService logger, RestService helper
 
 ## Progress
 
