@@ -50,6 +50,10 @@ export class ConfirmModalService {
 
         const safeTitle = ConfirmModalService.escapeHtml(options.title);
         const safeBody = ConfirmModalService.escapeHtml(options.body);
+        const safeOkBtn = ConfirmModalService.escapeHtml(okBtn);
+        const safeOkBtnClass = ConfirmModalService.escapeHtml(okBtnClass);
+        const safeCancelBtn = ConfirmModalService.escapeHtml(cancelBtn);
+        const safeCancelBtnClass = ConfirmModalService.escapeHtml(cancelBtnClass);
 
         // Build skip count message if provided
         let skipMessage = "";
@@ -88,8 +92,8 @@ export class ConfirmModalService {
                         ${skipMessage}
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="${cancelBtnClass}" data-action="cancel">${cancelBtn}</button>
-                        <button type="button" class="${okBtnClass}" data-action="ok">${okBtn}</button>
+                        <button type="button" class="${safeCancelBtnClass}" data-action="cancel">${safeCancelBtn}</button>
+                        <button type="button" class="${safeOkBtnClass}" data-action="ok">${safeOkBtn}</button>
                     </div>
                 </div>
             </div>
@@ -117,20 +121,27 @@ export class ConfirmModalService {
             }
         });
 
-        // Focus trap: Tab/Shift+Tab cycle between cancelButton and okButton; Escape closes modal
+        // Focus trap: Tab/Shift+Tab always cycle between cancelButton and okButton; Escape closes modal
         this.keydownHandler = (event: KeyboardEvent): void => {
             if (event.key === "Escape") {
                 event.preventDefault();
                 closeModal(false);
-            } else if (event.key === "Tab" && !event.shiftKey) {
-                if (document.activeElement === okButton) {
-                    event.preventDefault();
-                    cancelButton.focus();
-                }
-            } else if (event.key === "Tab" && event.shiftKey) {
-                if (document.activeElement === cancelButton) {
-                    event.preventDefault();
-                    okButton.focus();
+            } else if (event.key === "Tab") {
+                event.preventDefault();
+                if (event.shiftKey) {
+                    // Shift+Tab: always move to the other button
+                    if (document.activeElement === cancelButton) {
+                        okButton.focus();
+                    } else {
+                        cancelButton.focus();
+                    }
+                } else {
+                    // Tab: always move to the other button
+                    if (document.activeElement === okButton) {
+                        cancelButton.focus();
+                    } else {
+                        okButton.focus();
+                    }
                 }
             }
         };
