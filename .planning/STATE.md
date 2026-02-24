@@ -2,18 +2,17 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-17)
+See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** Planning next milestone
+**Current focus:** v3.1 Harden & Fix — addressing code review findings
 
 ## Current Position
 
-Phase: (none — between milestones)
-Status: v3.0 Terminal UI Overhaul shipped
-Last activity: 2026-02-17 — v3.0 milestone archived
-
-Progress: All milestones complete
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-02-23 — Milestone v3.1 started
 
 ## Milestones Shipped
 
@@ -62,9 +61,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-17
-Stopped at: v3.0 milestone archived
-Next action: `/gsd:new-milestone` to start next milestone
+Last session: 2026-02-23
+Stopped at: Defining v3.1 requirements
+Next action: Complete requirements and roadmap
 
 ---
-*v3.0 Terminal UI Overhaul: shipped 2026-02-17*
+*v3.1 Harden & Fix: started 2026-02-23*

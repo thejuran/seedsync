@@ -8,9 +8,22 @@ SeedSync is a file syncing tool that syncs files from a remote Linux server (lik
 
 Reliable file sync from seedbox to local with automated media library integration.
 
-## Current State
+## Current Milestone: v3.1 Harden & Fix
 
-**Latest Milestone: v3.0 Terminal UI Overhaul (shipped 2026-02-17)** — Complete visual redesign from generic Bootstrap/Verdana to distinctive Terminal/Hacker aesthetic. Dark-only with collapsible icon-rail sidebar, CRT scan-line overlay, ASCII progress bars, and colored status indicators.
+**Goal:** Address all findings from deep code review — security vulnerabilities, race conditions, crash bugs, and code quality issues across Python backend and Angular frontend.
+
+**Target features:**
+- Fix critical security chain (RSA key removal, SSH hardening, pickle RCE)
+- Seal credential exposure in config API and debug mode
+- Fix race conditions in auto-delete, webhook imports, and extract queue
+- Fix crash bugs (exception propagation, None guards, SSE handling)
+- Resolve breaking change (distutils removal for Python 3.12+)
+- Fix frontend quality issues (XSS, Observable anti-patterns, leaked subscriptions)
+- Address medium-severity code quality findings (shell injection, security headers, type patterns)
+
+## Previous State
+
+**v3.0 Terminal UI Overhaul (shipped 2026-02-17)** — Complete visual redesign from generic Bootstrap/Verdana to distinctive Terminal/Hacker aesthetic. Dark-only with collapsible icon-rail sidebar, CRT scan-line overlay, ASCII progress bars, and colored status indicators.
 
 952+ Python tests, 84% coverage with fail_under threshold. Angular 19.x with Bootstrap 5.3, SCSS uses @use/@forward. 420+ Angular unit tests passing. Zero TypeScript lint errors. Single CI workflow (master.yml) handles all Docker publishing.
 
@@ -146,7 +159,13 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ### Active
 
-(No active requirements — start next milestone with `/gsd:new-milestone`)
+- [ ] Fix critical security chain (RSA key, SSH MITM, pickle RCE)
+- [ ] Seal credential exposure (config API, debug mode)
+- [ ] Fix 3 race conditions (auto-delete, webhook imports, extract queue)
+- [ ] Fix crash bugs (exception propagation, None guards, SSE handling)
+- [ ] Replace distutils.strtobool (removed in Python 3.12)
+- [ ] Fix frontend security and quality (XSS, Observable anti-patterns, subscription leaks)
+- [ ] Address medium-severity findings (shell injection, security headers, type patterns)
 
 ### Out of Scope
 
@@ -193,13 +212,13 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Project Status
 
-**Status:** v3.0 Terminal UI Overhaul shipped
+**Status:** v3.1 Harden & Fix in progress
 
-12 milestones shipped (v1.0 through v3.0), 38 phases, 63 plans completed. Complete Terminal/Hacker aesthetic with distinctive visual identity.
+12 milestones shipped (v1.0 through v3.0), 38 phases, 63 plans completed. Now addressing 68 findings from deep code review.
 
 **Future work (if desired):**
 - Lidarr/Readarr support (same *arr pattern)
 - E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-17 after v3.0 milestone*
+*Last updated: 2026-02-23 after v3.1 milestone start*
