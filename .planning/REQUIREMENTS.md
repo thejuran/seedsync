@@ -11,13 +11,13 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 - [x] **SEC-01**: RSA private key removed from repository and added to .gitignore (Finding 1, CWE-312)
 - [x] **SEC-02**: SSH connections use StrictHostKeyChecking=accept-new with a known_hosts file instead of disabled verification (Finding 2, CWE-295)
-- [ ] **SEC-03**: Webhook endpoints verify request authenticity via configurable HMAC secret (Finding 3, CWE-306)
+- [x] **SEC-03**: Webhook endpoints verify request authenticity via configurable HMAC secret (Finding 3, CWE-306)
 - [x] **SEC-04**: Config API redacts sensitive fields (remote_password, sonarr_api_key, radarr_api_key) from GET responses (Finding 4, CWE-200)
 - [x] **SEC-05**: Debug/verbose mode toggle protected — LFTP passwords redacted from SSE log stream when verbose enabled (Finding 6, CWE-15)
 - [ ] **SEC-06**: Sonarr/Radarr test-connection endpoints validate URL scheme (http/https only) and block private IP ranges (Finding 7, CWE-918)
 - [x] **SEC-07**: Remote scanner uses JSON deserialization instead of pickle (Finding 10, CWE-502)
 - [ ] **SEC-08**: DeleteRemoteProcess escapes shell metacharacters in file paths (Finding 26)
-- [ ] **SEC-09**: Web server sets Content-Security-Policy, X-Frame-Options, and X-Content-Type-Options headers (Finding 27)
+- [x] **SEC-09**: Web server sets Content-Security-Policy, X-Frame-Options, and X-Content-Type-Options headers (Finding 27)
 - [ ] **SEC-10**: Internal error details not exposed in API responses to clients (Finding 28)
 
 ### Thread Safety
@@ -92,12 +92,12 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | SEC-01 | Phase 39 | Complete |
 | SEC-02 | Phase 39 | Complete |
 | SEC-07 | Phase 39 | Complete |
-| SEC-03 | Phase 40 | Pending |
+| SEC-03 | Phase 40 | Complete |
 | SEC-04 | Phase 40 | Pending |
 | SEC-05 | Phase 40 | Pending |
 | SEC-06 | Phase 40 | Pending |
 | SEC-08 | Phase 40 | Pending |
-| SEC-09 | Phase 40 | Pending |
+| SEC-09 | Phase 40 | Complete |
 | SEC-10 | Phase 40 | Pending |
 | THRD-01 | Phase 41 | Pending |
 | THRD-02 | Phase 41 | Pending |

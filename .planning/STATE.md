@@ -10,11 +10,11 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 40 of 45 (Credential Endpoint Security)
-Plan: 1 of 1 complete in current phase
-Status: Phase 40 Plan 01 complete
-Last activity: 2026-02-24 — Phase 40 Plan 01 complete (credential leakage prevention)
+Plan: 3 of 3 complete in current phase
+Status: Phase 40 complete
+Last activity: 2026-02-24 — Phase 40 Plan 03 complete (HMAC webhook auth + security headers)
 
-Progress: [██░░░░░░░░] 20% (v3.1)
+Progress: [███░░░░░░░] 30% (v3.1)
 
 ## Milestones Shipped
 
@@ -38,10 +38,10 @@ Progress: [██░░░░░░░░] 20% (v3.1)
 **Total Project:**
 - 12 milestones shipped
 - 40 phases complete (phases 1-40)
-- 66 plans executed
+- 68 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 2 phases, 3 plans
+**v3.1 so far:** 2 phases, 5 plans
 
 ## Accumulated Context
 
@@ -56,6 +56,9 @@ Progress: [██░░░░░░░░] 20% (v3.1)
 - **Redact at serialization layer:** Sensitive config fields (remote_password, sonarr_api_key, radarr_api_key) redacted in SerializeConfig.config() not at storage layer — internal code still reads real values
 - **Preserve field keys in API response:** Use **REDACTED** value (not omit key) so frontend knows fields exist and can render edit controls
 - **Scrub SSE at SerializeLogRecord:** Log stream password scrubbing applied in SerializeLogRecord.record() to cover both live and cached history paths
+- **webhook_secret in Config.General (shared):** Single shared webhook secret for all webhook sources (Sonarr/Radarr) placed on Config.General — simpler than per-service secrets
+- **Empty webhook_secret skips HMAC verification:** Backward compat for existing installs — no secret = no verification; configured secret = strict HMAC-SHA256 check with 401 on failure
+- **Security headers via after_request hook:** CSP, X-Frame-Options, X-Content-Type-Options injected on all Bottle responses via a single after_request hook — zero-touch, applies to all routes automatically
 
 ### Todos
 
@@ -74,8 +77,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 40-01-PLAN.md (credential leakage prevention: config GET redaction + SSE log scrubbing)
-Next action: /gsd:execute-phase 40 (if more plans) or /gsd:plan-phase 41
+Stopped at: Completed 40-03-PLAN.md (HMAC webhook authentication + security headers)
+Next action: /gsd:plan-phase 41
 
 ---
-*v3.1 Harden & Fix: phase 40 plan 01 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed)*
