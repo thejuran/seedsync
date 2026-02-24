@@ -28,11 +28,23 @@ export class ConfirmModalService {
         });
     }
 
+    private static escapeHtml(text: string): string {
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     private createModal(options: ConfirmModalOptions, resolve: (value: boolean) => void): void {
         const okBtn = options.okBtn || "OK";
         const okBtnClass = options.okBtnClass || "btn btn-primary";
         const cancelBtn = options.cancelBtn || "Cancel";
         const cancelBtnClass = options.cancelBtnClass || "btn btn-secondary";
+
+        const safeTitle = ConfirmModalService.escapeHtml(options.title);
+        const safeBody = ConfirmModalService.escapeHtml(options.body);
 
         // Build skip count message if provided
         let skipMessage = "";
@@ -62,10 +74,10 @@ export class ConfirmModalService {
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">${options.title}</h5>
+                        <h5 class="modal-title">${safeTitle}</h5>
                     </div>
                     <div class="modal-body">
-                        <p>${options.body}</p>
+                        <p>${safeBody}</p>
                         ${skipMessage}
                     </div>
                     <div class="modal-footer">

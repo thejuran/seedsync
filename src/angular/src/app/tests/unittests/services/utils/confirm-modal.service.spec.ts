@@ -296,4 +296,44 @@ describe("Testing confirm modal service", () => {
         expect(skipMessage.classList.contains("text-muted")).toBe(true);
         expect(skipMessage.classList.contains("small")).toBe(true);
     }));
+
+    it("should sanitize HTML in title and body to prevent XSS", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: '<script>alert("xss")</script>',
+            body: "<img src=x onerror=alert(1)> test"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const modal = document.querySelector(".modal");
+        const modalTitle = modal.querySelector(".modal-title");
+        const modalBodyP = modal.querySelector(".modal-body p");
+
+        // The literal tag strings should appear as text content, not as injected elements
+        expect(modalTitle.textContent).toContain("<script>");
+        expect(modalBodyP.textContent).toContain("<img src=x onerror=alert(1)>");
+
+        // No actual script or img elements should be injected inside the modal
+        expect(modal.querySelector("script")).toBeNull();
+        expect(modal.querySelector("img")).toBeNull();
+    }));
+
+    it("should render HTML entities as literal text in body", fakeAsync(() => {
+        const options: ConfirmModalOptions = {
+            title: "Confirm",
+            body: "Delete <b>file.txt</b> from server?"
+        };
+
+        service.confirm(options);
+        tick();
+
+        const modalBodyP = document.querySelector(".modal-body p");
+
+        // The <b> tags should appear as literal text, not as a bold element
+        expect(modalBodyP.textContent).toContain("<b>file.txt</b>");
+
+        // No actual <b> element should be created inside the modal body paragraph
+        expect(modalBodyP.querySelector("b")).toBeNull();
+    }));
 });
