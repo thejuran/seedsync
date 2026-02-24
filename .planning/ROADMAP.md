@@ -194,7 +194,10 @@ Plans:
   1. Auto-delete timer callback reads model state only under the model lock — no window where a stale file reference can be acted on
   2. Webhook import checks read and mutate model files only under the model lock — concurrent webhook delivery cannot corrupt model state
   3. ExtractDispatch iterates its task queue under the queue mutex and uses the copy-under-lock pattern documented in CLAUDE.md — no concurrent modification during iteration
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 41-01-PLAN.md — Controller model lock for auto-delete timer and webhook imports
+- [ ] 41-02-PLAN.md — ExtractDispatch queue mutex and copy-under-lock patterns
 
 ### Phase 42: Crash Prevention
 **Goal**: No reachable code path causes an unhandled exception from incorrect exception re-raise, None arithmetic, overly broad exception catches, unknown SSE event names, uncaught JSON parse errors, or indefinite action endpoint waits
@@ -261,7 +264,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39. Critical Security Chain | v3.1 | 2/2 | Complete | 2026-02-24 |
 | 40. Credential & Endpoint Security | 3/3 | Complete    | 2026-02-24 | - |
-| 41. Thread Safety | v3.1 | 0/TBD | Not started | - |
+| 41. Thread Safety | v3.1 | 0/2 | Not started | - |
 | 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |
 | 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |
 | 44. Code Quality | v3.1 | 0/TBD | Not started | - |
