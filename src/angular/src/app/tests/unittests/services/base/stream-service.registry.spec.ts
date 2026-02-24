@@ -133,28 +133,32 @@ describe("Testing stream dispatch service", () => {
         ]);
     }));
 
-    it("should not crash and should log a warning for unknown event names", fakeAsync(() => {
+    it("should log a warning when receiving an unregistered event name", fakeAsync(() => {
         const loggerService = TestBed.inject(LoggerService);
-        spyOn(loggerService, "warn");
+        // warn is a getter returning a function; use spyOnProperty to intercept the getter
+        // and return a jasmine spy so we can assert it was called
+        const warnFn = jasmine.createSpy("warnFn");
+        spyOnProperty(loggerService, "warn", "get").and.returnValue(warnFn);
 
-        // Deliver a known event first — verify it arrives
-        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data1a"});
+        // Remove the service mapping for event1a AFTER the EventSource listener was created.
+        // This simulates the guard path: the event arrives but no service is mapped.
+        (dispatchService as any)._eventNameToServiceMap.delete("event1a");
+
+        // Fire the event via the existing listener — it will reach the next handler
+        // but find no mapped service, triggering the warn path
+        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data-orphan"});
         tick();
-        expect(mockService1.eventList).toEqual([["event1a", "data1a"]]);
 
-        // Simulate dispatch being called with an unknown event name by removing
-        // a service from the map after the event source has been set up and
-        // triggering the observable's next handler with an unregistered name.
-        // The guard in the next handler should catch this and warn instead of throwing.
-        // We verify by triggering another known event after the unknown — the stream
-        // must still be operational.
-        mockEventSource.listeners.get("event1b")(<MessageEvent>{data: "data1b"});
+        // The warn guard should have been hit
+        expect(warnFn).toHaveBeenCalled();
+
+        // The event should NOT have been dispatched to any service
+        expect(mockService1.eventList).toEqual([]);
+
+        // Verify stream still works for other events
+        mockEventSource.listeners.get("event2a")(<MessageEvent>{data: "data2a"});
         tick();
-        expect(mockService1.eventList).toEqual([["event1a", "data1a"], ["event1b", "data1b"]]);
-        expect(mockService2.eventList).toEqual([]);
-
-        // Verify no error was thrown and the stream is still alive
-        expect(mockService1.connectedSeq).toEqual([]);
+        expect(mockService2.eventList).toEqual([["event2a", "data2a"]]);
     }));
 
     it("should call connect on open", fakeAsync(() => {

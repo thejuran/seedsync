@@ -156,6 +156,9 @@ export class StreamDispatchService implements OnDestroy {
         }
 
         // Reconnect after a short delay
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+        }
         this._reconnectTimer = setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
     }
 
@@ -248,6 +251,9 @@ export class StreamDispatchService implements OnDestroy {
                     });
                 }
 
+                if (this._reconnectTimer) {
+                    clearTimeout(this._reconnectTimer);
+                }
                 this._reconnectTimer = setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
             }
         });
