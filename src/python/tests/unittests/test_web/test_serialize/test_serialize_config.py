@@ -73,3 +73,65 @@ class TestSerializeConfig(unittest.TestCase):
         self.assertIn("autoqueue", out_dict)
         self.assertEqual(True, out_dict["autoqueue"]["enabled"])
         self.assertEqual(False, out_dict["autoqueue"]["patterns_only"])
+
+    def test_config_redacts_remote_password(self):
+        config = Config()
+        config.lftp.remote_password = "secret123"
+        config.lftp.remote_address = "server.remote.com"
+        config.lftp.remote_username = "user"
+        config.lftp.remote_port = 22
+        config.lftp.remote_path = "/remote/path"
+        config.lftp.local_path = "/local/path"
+        config.lftp.remote_path_to_scan_script = "/remote/scan"
+        config.lftp.num_max_parallel_downloads = 1
+        config.lftp.num_max_parallel_files_per_download = 1
+        config.lftp.num_max_connections_per_root_file = 1
+        config.lftp.num_max_connections_per_dir_file = 1
+        config.lftp.num_max_total_connections = 0
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_password"])
+        self.assertNotIn("secret123", out)
+
+    def test_config_redacts_sonarr_api_key(self):
+        config = Config()
+        config.sonarr.enabled = True
+        config.sonarr.sonarr_url = "http://sonarr.local"
+        config.sonarr.sonarr_api_key = "sonarr-api-key-abc123"
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["sonarr"]["sonarr_api_key"])
+        self.assertNotIn("sonarr-api-key-abc123", out)
+
+    def test_config_redacts_radarr_api_key(self):
+        config = Config()
+        config.radarr.enabled = True
+        config.radarr.radarr_url = "http://radarr.local"
+        config.radarr.radarr_api_key = "radarr-api-key-xyz789"
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["radarr"]["radarr_api_key"])
+        self.assertNotIn("radarr-api-key-xyz789", out)
+
+    def test_config_preserves_non_sensitive_fields(self):
+        config = Config()
+        config.lftp.remote_address = "seedbox.example.com"
+        config.lftp.remote_port = 2222
+        config.lftp.remote_username = "myuser"
+        config.lftp.remote_password = "should-be-redacted"
+        config.lftp.remote_path = "/remote/path"
+        config.lftp.local_path = "/local/path"
+        config.lftp.remote_path_to_scan_script = "/remote/scan"
+        config.lftp.num_max_parallel_downloads = 3
+        config.lftp.num_max_parallel_files_per_download = 2
+        config.lftp.num_max_connections_per_root_file = 1
+        config.lftp.num_max_connections_per_dir_file = 1
+        config.lftp.num_max_total_connections = 0
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        # Non-sensitive fields are preserved as-is
+        self.assertEqual("seedbox.example.com", out_dict["lftp"]["remote_address"])
+        self.assertEqual(2222, out_dict["lftp"]["remote_port"])
+        self.assertEqual("myuser", out_dict["lftp"]["remote_username"])
+        # Sensitive field is redacted
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_password"])

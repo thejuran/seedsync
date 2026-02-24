@@ -6,6 +6,17 @@ import collections
 from common import Config
 
 
+# Sensitive fields that must never be returned in API responses.
+# Keyed by section name (lowercase), values are field names to redact.
+_SENSITIVE_FIELDS = {
+    "lftp": ["remote_password"],
+    "sonarr": ["sonarr_api_key"],
+    "radarr": ["radarr_api_key"],
+}
+
+_REDACTED = "**REDACTED**"
+
+
 class SerializeConfig:
     @staticmethod
     def config(config: Config) -> str:
@@ -16,5 +27,13 @@ class SerializeConfig:
         config_dict_lowercase = collections.OrderedDict()
         for key in keys:
             config_dict_lowercase[key.lower()] = config_dict[key]
+
+        # Redact sensitive fields before serializing
+        for section, fields in _SENSITIVE_FIELDS.items():
+            if section in config_dict_lowercase:
+                section_dict = config_dict_lowercase[section]
+                for field in fields:
+                    if field in section_dict:
+                        section_dict[field] = _REDACTED
 
         return json.dumps(config_dict_lowercase)
