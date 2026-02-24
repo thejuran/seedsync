@@ -4,6 +4,7 @@ import unittest
 import logging
 import sys
 import time
+import traceback
 from multiprocessing import Value
 import threading
 
@@ -118,6 +119,21 @@ class TestAppProcess(unittest.TestCase):
         time.sleep(0.2)
         with self.assertRaises(DummyException):
             self.process.propagate_exception()
+
+    @timeout_decorator.timeout(2)
+    def test_exception_propagates_with_traceback(self):
+        """propagate_exception re-raises original type and preserves traceback (CRASH-01)."""
+        self.process = DummyProcess(fail=True)
+        self.process.start()
+        time.sleep(0.2)
+        try:
+            self.process.propagate_exception()
+            self.fail("Expected DummyException to be raised")
+        except DummyException:
+            tb_text = traceback.format_exc()
+            # Traceback should reference run_loop where the exception originated
+            self.assertIn("DummyException", tb_text)
+            self.assertIn("run_loop", tb_text)
 
     @timeout_decorator.timeout(2)
     def test_process_terminates(self):

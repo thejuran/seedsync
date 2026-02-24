@@ -121,7 +121,7 @@ class AppProcess(Process):
         """
         try:
             exc = self.__exception_queue.get(block=False)
-            raise exc.re_raise()
+            exc.re_raise()
         except queue.Empty:
             pass
 

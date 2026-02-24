@@ -1,6 +1,6 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
-from queue import Queue
+from queue import Queue, Empty
 from typing import Dict, List, Set
 
 from common import Context
@@ -60,7 +60,7 @@ class WebhookManager:
         while not self.__import_queue.empty():
             try:
                 source, file_name = self.__import_queue.get_nowait()
-            except:
+            except Empty:
                 # Queue empty (race condition between empty() and get_nowait())
                 break
 
