@@ -256,7 +256,11 @@ Plans:
   1. CLAUDE.md version reference matches the current application version and documents 429 and 504 response codes alongside existing codes
   2. Opening the confirm modal traps keyboard focus inside it — Tab does not escape to background content; closing the modal returns focus to the triggering element
   3. File rows are reachable and operable via keyboard; each row has an ARIA label sufficient for a screen reader to identify it
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 45-01-PLAN.md — CLAUDE.md version update and API response code documentation
+- [ ] 45-02-PLAN.md — Confirm modal focus trap and focus restoration
+- [ ] 45-03-PLAN.md — File row keyboard navigation and ARIA labels
 
 ## Progress
 
@@ -282,7 +286,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
 | 43. Frontend Quality | 3/3 | Complete    | 2026-02-24 | - |
 | 44. Code Quality | 5/5 | Complete    | 2026-02-24 | - |
-| 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
+| 45. Documentation & Accessibility | v3.1 | 0/3 | Not started | - |
 
 ---
 
