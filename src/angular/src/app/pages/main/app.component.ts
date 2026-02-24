@@ -1,7 +1,8 @@
 import {AfterViewInit, Component, ElementRef, OnInit, OnDestroy, ViewChild} from "@angular/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
 import {NgFor, NgIf, NgClass} from "@angular/common";
-import {Subscription} from "rxjs";
+import {Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 import {ROUTE_INFOS, RouteInfo} from "../../routes";
 
 import {ElementQueries, ResizeSensor} from "css-element-queries";
@@ -22,24 +23,26 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
 
     showSidebar = false;
     toasts: Toast[] = [];
-    private _toastSubscription: Subscription;
     activeRoute: RouteInfo;
+
+    private destroy$ = new Subject<void>();
 
     constructor(private router: Router,
                 private _domService: DomService,
                 private _toastService: ToastService) {
-        // Navigation listener
-        //    Close the sidebar
-        //    Store the active route
-        router.events.subscribe(() => {
-            this.showSidebar = false;
-            this.activeRoute = ROUTE_INFOS.find(value => "/" + value.path === router.url);
-        });
     }
 
     ngOnInit(): void {
+        // Navigation listener
+        //    Close the sidebar
+        //    Store the active route
+        this.router.events.pipe(takeUntil(this.destroy$)).subscribe(() => {
+            this.showSidebar = false;
+            this.activeRoute = ROUTE_INFOS.find(value => "/" + value.path === this.router.url);
+        });
+
         // Scroll to top on route changes
-        this.router.events.subscribe((evt) => {
+        this.router.events.pipe(takeUntil(this.destroy$)).subscribe((evt) => {
             if (!(evt instanceof NavigationEnd)) {
                 return;
             }
@@ -47,7 +50,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
         });
 
         // Subscribe to toast notifications
-        this._toastSubscription = this._toastService.toasts$.subscribe(toast => {
+        this._toastService.toasts$.pipe(takeUntil(this.destroy$)).subscribe(toast => {
             this.toasts.push(toast);
             if (toast.autohide) {
                 setTimeout(() => {
@@ -70,9 +73,8 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnDestroy(): void {
-        if (this._toastSubscription) {
-            this._toastSubscription.unsubscribe();
-        }
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     dismissToast(toast: Toast): void {
