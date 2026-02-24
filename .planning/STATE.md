@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 40: Credential Endpoint Security
+**Current focus:** v3.1 Harden & Fix — Phase 41: Thread Safety
 
 ## Current Position
 
-Phase: 40 of 45 (Credential Endpoint Security)
-Plan: 3 of 3 complete in current phase
-Status: Phase 40 complete
-Last activity: 2026-02-24 — Phase 40 Plan 03 complete (HMAC webhook auth + security headers)
+Phase: 41 of 45 (Thread Safety)
+Plan: 2 of 4 complete in current phase
+Status: Phase 41 in progress
+Last activity: 2026-02-24 — Phase 41 Plan 02 complete (ExtractDispatch queue mutex + copy-under-lock)
 
-Progress: [███░░░░░░░] 30% (v3.1)
+Progress: [████░░░░░░] 35% (v3.1)
 
 ## Milestones Shipped
 
@@ -37,11 +37,11 @@ Progress: [███░░░░░░░] 30% (v3.1)
 
 **Total Project:**
 - 12 milestones shipped
-- 40 phases complete (phases 1-40)
-- 68 plans executed
+- 41 phases complete (phases 1-41)
+- 70 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 2 phases, 5 plans
+**v3.1 so far:** 3 phases, 6 plans
 
 ## Accumulated Context
 
@@ -62,6 +62,11 @@ Progress: [███░░░░░░░] 30% (v3.1)
 - **SSRF via socket.getaddrinfo:** Hostname resolution before outbound requests catches hostnames resolving to private IPs — not just literal private IP addresses in the URL
 - **Generic except never leaks details:** Generic exception handlers return static "An unexpected error occurred" — str(e) dropped entirely to prevent internal detail exposure (SEC-10)
 - **shlex.quote over manual quoting:** `shlex.quote(file_path)` replaces `'%s'` for shell commands — handles embedded single quotes that break naive wrapping (SEC-08)
+- **delete_local outside model lock (THRD-01):** Timer callback acquires lock only for get_file, then releases before delete_local — holding lock across subprocess spawn would starve model updates; ModelFile freeze-on-add makes post-lock use safe
+- **Two-window lock in __check_webhook_imports (THRD-02):** Window 1 = name_to_root BFS build under lock; Window 2 = update_file per import under lock; webhook Queue processing and Timer scheduling outside lock
+- [Phase 41-02]: Queue mutex pattern: all __task_queue.queue accesses wrapped in with self.__task_queue.mutex in ExtractDispatch (THRD-03)
+- [Phase 41-02]: Copy-under-lock for ExtractDispatch listeners: snapshot in with self.__listeners_lock, iterated outside — prevents RuntimeError (THRD-04)
+- [Phase 41-02]: TOCTOU window in extract() accepted: duplicate check under mutex then put() has narrow race; worst case is double extraction matching prior behavior
 
 ### Todos
 
@@ -80,8 +85,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 40-03-PLAN.md (HMAC webhook authentication + security headers)
-Next action: /gsd:plan-phase 41
+Stopped at: Completed 41-01-PLAN.md (model lock for auto-delete and webhook import)
+Next action: Execute remaining plans in phase 41 or /gsd:plan-phase 42
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed)*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plan 01 complete 2026-02-24*

@@ -196,7 +196,7 @@ Plans:
   3. ExtractDispatch iterates its task queue under the queue mutex and uses the copy-under-lock pattern documented in CLAUDE.md — no concurrent modification during iteration
 **Plans**: 2 plans
 Plans:
-- [ ] 41-01-PLAN.md — Controller model lock for auto-delete timer and webhook imports
+- [x] 41-01-PLAN.md — Controller model lock for auto-delete timer and webhook imports (completed 2026-02-24)
 - [ ] 41-02-PLAN.md — ExtractDispatch queue mutex and copy-under-lock patterns
 
 ### Phase 42: Crash Prevention
@@ -264,7 +264,7 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39. Critical Security Chain | v3.1 | 2/2 | Complete | 2026-02-24 |
 | 40. Credential & Endpoint Security | 3/3 | Complete    | 2026-02-24 | - |
-| 41. Thread Safety | v3.1 | 0/2 | Not started | - |
+| 41. Thread Safety | v3.1 | 1/2 | In progress | - |
 | 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |
 | 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |
 | 44. Code Quality | v3.1 | 0/TBD | Not started | - |
@@ -272,5 +272,5 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 
 ---
 
-*Last updated: 2026-02-23 (v3.1 roadmap created)*
-*12 milestones shipped + v3.1 in progress, 45 phases total, 63 plans complete*
+*Last updated: 2026-02-24 (41-01 complete)*
+*12 milestones shipped + v3.1 in progress, 45 phases total, 69 plans complete*
