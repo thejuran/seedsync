@@ -1,12 +1,16 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import hmac
+import hashlib
 import json
 import os
 import logging
+from typing import Optional
 
 from bottle import HTTPResponse, request
 
 from common import overrides
+from common.config import Config
 from controller.webhook_manager import WebhookManager
 from ..web_app import IHandler, WebApp
 
@@ -20,8 +24,9 @@ class WebhookHandler(IHandler):
     Extracts file names from import events and enqueues them via WebhookManager.
     """
 
-    def __init__(self, webhook_manager: WebhookManager):
+    def __init__(self, webhook_manager: WebhookManager, config: Config):
         self.__webhook_manager = webhook_manager
+        self.__config = config
 
     @overrides(IHandler)
     def add_routes(self, web_app: WebApp):
@@ -37,6 +42,42 @@ class WebhookHandler(IHandler):
         """Handle Radarr webhook POST."""
         return self._handle_webhook("Radarr", WebhookHandler._extract_radarr_title)
 
+    def _verify_hmac(self) -> Optional[HTTPResponse]:
+        """
+        Verify HMAC signature on the webhook request.
+
+        If webhook_secret is empty or None, verification is skipped (backward compat).
+        Reads the raw body, computes expected HMAC-SHA256, and compares with
+        the X-Webhook-Signature header using a constant-time compare.
+
+        Returns:
+            HTTPResponse(401) if signature is missing or invalid, None on success.
+        """
+        secret = self.__config.general.webhook_secret
+        if not secret:
+            # No secret configured — skip verification for backward compatibility
+            return None
+
+        # Read raw body bytes, then reset the stream for downstream JSON parsing
+        body_bytes = request.body.read()
+        request.body.seek(0)
+
+        # Compute expected HMAC-SHA256 signature
+        expected = hmac.new(secret.encode("utf-8"), body_bytes, hashlib.sha256).hexdigest()
+
+        # Read signature from header
+        provided_signature = request.headers.get("X-Webhook-Signature", "")
+        if not provided_signature:
+            logger.warning("Webhook request missing X-Webhook-Signature header")
+            return HTTPResponse(status=401, body="Missing webhook signature")
+
+        # Constant-time comparison to prevent timing attacks
+        if not hmac.compare_digest(expected, provided_signature):
+            logger.warning("Webhook request has invalid HMAC signature")
+            return HTTPResponse(status=401, body="Invalid webhook signature")
+
+        return None
+
     def _handle_webhook(self, source: str, extract_title_fn) -> HTTPResponse:
         """
         Generic webhook handler for both Sonarr and Radarr.
@@ -48,6 +89,11 @@ class WebhookHandler(IHandler):
         Returns:
             HTTPResponse with appropriate status code
         """
+        # Verify HMAC signature when webhook_secret is configured
+        auth_error = self._verify_hmac()
+        if auth_error is not None:
+            return auth_error
+
         # Parse JSON body
         try:
             body = request.json

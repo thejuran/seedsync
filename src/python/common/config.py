@@ -219,11 +219,13 @@ class Config(Persist):
     class General(IC):
         debug = PROP("debug", Checkers.null, Converters.bool)
         verbose = PROP("verbose", Checkers.null, Converters.bool)
+        webhook_secret = PROP("webhook_secret", Checkers.null, Converters.null)
 
         def __init__(self):
             super().__init__()
             self.debug = None
             self.verbose = None
+            self.webhook_secret = None
 
     class Lftp(IC):
         remote_address = PROP("remote_address", Checkers.string_nonempty, Converters.null)
@@ -394,7 +396,11 @@ class Config(Persist):
         config_dict = dict(config_dict)  # copy that we can modify
         config = Config()
 
-        config.general = Config.General.from_dict(Config._check_section(config_dict, "General"))
+        general_dict = Config._check_section(config_dict, "General")
+        # Backward compatibility: webhook_secret added in v3.1 — default to empty string
+        if "webhook_secret" not in general_dict:
+            general_dict["webhook_secret"] = ""
+        config.general = Config.General.from_dict(general_dict)
         config.lftp = Config.Lftp.from_dict(Config._check_section(config_dict, "Lftp"))
         config.controller = Config.Controller.from_dict(Config._check_section(config_dict, "Controller"))
         config.web = Config.Web.from_dict(Config._check_section(config_dict, "Web"))

@@ -1,9 +1,24 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import hmac
+import hashlib
+import json
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, PropertyMock
 
 from web.handler.webhook import WebhookHandler
+
+
+def _make_mock_config(webhook_secret: str = "") -> MagicMock:
+    """Create a mock Config with the given webhook_secret."""
+    mock_config = MagicMock()
+    mock_config.general.webhook_secret = webhook_secret
+    return mock_config
+
+
+def _compute_hmac(secret: str, body: bytes) -> str:
+    """Compute expected HMAC-SHA256 hex digest."""
+    return hmac.new(secret.encode("utf-8"), body, hashlib.sha256).hexdigest()
 
 
 class TestWebhookHandlerExtractSonarrTitle(unittest.TestCase):
@@ -65,7 +80,8 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     def setUp(self):
         self.mock_webhook_manager = MagicMock()
-        self.handler = WebhookHandler(self.mock_webhook_manager)
+        # Default config has empty webhook_secret (backward compat — no verification)
+        self.handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(""))
 
     @patch('web.handler.webhook.request')
     def test_sonarr_download_event_enqueues(self, mock_request):
@@ -142,3 +158,91 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
         paths = [c[0][0] for c in calls]
         self.assertIn("/server/webhook/sonarr", paths)
         self.assertIn("/server/webhook/radarr", paths)
+
+
+class TestWebhookHandlerHmacVerification(unittest.TestCase):
+    """Tests for HMAC signature verification on webhook requests."""
+
+    def setUp(self):
+        self.mock_webhook_manager = MagicMock()
+
+    @patch('web.handler.webhook.request')
+    def test_webhook_without_secret_config_accepts_all(self, mock_request):
+        """When webhook_secret is empty, all requests pass regardless of headers."""
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(""))
+        mock_request.json = {"eventType": "Test"}
+        # No X-Webhook-Signature header needed
+        mock_request.headers = {}
+        mock_request.body.read.return_value = b'{"eventType": "Test"}'
+
+        response = handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(200, response.status_code)
+
+    @patch('web.handler.webhook.request')
+    def test_webhook_with_secret_rejects_missing_signature(self, mock_request):
+        """When webhook_secret is set and no signature header is sent, return 401."""
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config("testsecret"))
+        body = b'{"eventType": "Test"}'
+        mock_request.body.read.return_value = body
+        mock_request.headers.get.return_value = ""  # No header
+
+        response = handler._verify_hmac()
+        self.assertIsNotNone(response)
+        self.assertEqual(401, response.status_code)
+        self.assertIn("signature", response.body.lower())
+
+    @patch('web.handler.webhook.request')
+    def test_webhook_with_secret_rejects_invalid_signature(self, mock_request):
+        """When webhook_secret is set and signature is wrong, return 401."""
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config("testsecret"))
+        body = b'{"eventType": "Test"}'
+        mock_request.body.read.return_value = body
+        mock_request.headers.get.return_value = "invalidsignature"
+
+        response = handler._verify_hmac()
+        self.assertIsNotNone(response)
+        self.assertEqual(401, response.status_code)
+        self.assertIn("invalid", response.body.lower())
+
+    @patch('web.handler.webhook.request')
+    def test_webhook_with_secret_accepts_valid_signature(self, mock_request):
+        """When webhook_secret is set and HMAC signature is correct, return None (success)."""
+        secret = "testsecret"
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(secret))
+        body = b'{"eventType": "Test"}'
+        correct_sig = _compute_hmac(secret, body)
+
+        mock_request.body.read.return_value = body
+        mock_request.headers.get.return_value = correct_sig
+
+        response = handler._verify_hmac()
+        self.assertIsNone(response)  # None means success
+
+    @patch('web.handler.webhook.request')
+    def test_full_request_with_valid_signature_succeeds(self, mock_request):
+        """End-to-end: valid signature + valid body returns 200."""
+        secret = "testsecret"
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(secret))
+        body_dict = {"eventType": "Test"}
+        body_bytes = json.dumps(body_dict).encode("utf-8")
+        correct_sig = _compute_hmac(secret, body_bytes)
+
+        mock_request.body.read.return_value = body_bytes
+        mock_request.headers.get.return_value = correct_sig
+        mock_request.json = body_dict
+
+        response = handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(200, response.status_code)
+
+    @patch('web.handler.webhook.request')
+    def test_full_request_with_invalid_signature_returns_401(self, mock_request):
+        """End-to-end: invalid signature returns 401 regardless of body content."""
+        secret = "testsecret"
+        handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(secret))
+        body_bytes = b'{"eventType": "Download"}'
+
+        mock_request.body.read.return_value = body_bytes
+        mock_request.headers.get.return_value = "wrongsignature"
+
+        response = handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(401, response.status_code)

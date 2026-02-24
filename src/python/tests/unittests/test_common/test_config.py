@@ -195,17 +195,30 @@ class TestConfig(unittest.TestCase):
         good_dict = {
             "debug": "True",
             "verbose": "False",
+            "webhook_secret": "",
         }
         general = Config.General.from_dict(good_dict)
         self.assertEqual(True, general.debug)
         self.assertEqual(False, general.verbose)
+        self.assertEqual("", general.webhook_secret)
 
+        # webhook_secret with non-empty value
+        good_dict_with_secret = dict(good_dict)
+        good_dict_with_secret["webhook_secret"] = "mysecret"
+        general_with_secret = Config.General.from_dict(good_dict_with_secret)
+        self.assertEqual("mysecret", general_with_secret.webhook_secret)
+
+        # check_common only covers fields that raise on empty (Checkers.string_nonempty)
+        # webhook_secret uses Checkers.null so it allows empty strings — not included here
         self.check_common(Config.General,
                           good_dict,
                           {
                               "debug",
-                              "verbose"
+                              "verbose",
                           })
+
+        # webhook_secret must be present (missing key still raises)
+        self.__check_missing_error(Config.General, good_dict, "webhook_secret")
 
         # bad values
         self.check_bad_value_error(Config.General, good_dict, "debug", "SomeString")
@@ -460,6 +473,7 @@ class TestConfig(unittest.TestCase):
         config = Config()
         config.general.debug = True
         config.general.verbose = False
+        config.general.webhook_secret = ""
         config.lftp.remote_address = "server.remote.com"
         config.lftp.remote_username = "user-on-remote-server"
         config.lftp.remote_password = "pass-on-remote-server"
@@ -502,6 +516,7 @@ class TestConfig(unittest.TestCase):
         [General]
         debug = True
         verbose = False
+        webhook_secret =
 
         [Lftp]
         remote_address = server.remote.com
