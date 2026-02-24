@@ -105,10 +105,14 @@ export class AutoQueueService extends BaseWebService implements OnDestroy {
                 next: reaction => {
                     if (reaction.success) {
                         // Update our copy and notify clients
+                        // Re-read fresh state inside the callback to avoid stale index from
+                        // pre-request snapshot (patterns may have changed during the request)
                         const patterns = this._patterns.getValue();
-                        const finalIndex = currentPatterns.findIndex(pat => pat.pattern === pattern);
-                        const newPatterns = patterns.remove(finalIndex);
-                        this._patterns.next(newPatterns);
+                        const finalIndex = patterns.findIndex(pat => pat.pattern === pattern);
+                        if (finalIndex >= 0) {
+                            const newPatterns = patterns.remove(finalIndex);
+                            this._patterns.next(newPatterns);
+                        }
                     }
                 }
             });

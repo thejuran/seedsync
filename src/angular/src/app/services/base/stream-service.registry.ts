@@ -1,4 +1,4 @@
-import {Injectable, NgZone} from "@angular/core";
+import {Injectable, NgZone, OnDestroy} from "@angular/core";
 import {Observable} from "rxjs";
 
 import {ModelFileService} from "../files/model-file.service";
@@ -52,7 +52,7 @@ export interface IStreamService {
  * stale (e.g., proxy/firewall closes it) without triggering an error event.
  */
 @Injectable()
-export class StreamDispatchService {
+export class StreamDispatchService implements OnDestroy {
     private readonly STREAM_URL = "/server/stream";
 
     private readonly STREAM_RETRY_INTERVAL_MS = 3000;
@@ -74,6 +74,7 @@ export class StreamDispatchService {
     // Track last event time for idle detection
     private _lastEventTime = 0;
     private _timeoutCheckInterval: ReturnType<typeof setInterval> | null = null;
+    private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     private _currentEventSource: EventSource | null = null;
 
     constructor(private _logger: LoggerService,
@@ -86,6 +87,21 @@ export class StreamDispatchService {
     public onInit(): void {
         this.createSseObserver();
         this.startTimeoutChecker();
+    }
+
+    ngOnDestroy(): void {
+        if (this._timeoutCheckInterval) {
+            clearInterval(this._timeoutCheckInterval);
+            this._timeoutCheckInterval = null;
+        }
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+        if (this._currentEventSource) {
+            this._currentEventSource.close();
+            this._currentEventSource = null;
+        }
     }
 
     /**
@@ -140,7 +156,7 @@ export class StreamDispatchService {
         }
 
         // Reconnect after a short delay
-        setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
+        this._reconnectTimer = setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
     }
 
     /**
@@ -232,7 +248,7 @@ export class StreamDispatchService {
                     });
                 }
 
-                setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
+                this._reconnectTimer = setTimeout(() => { this.createSseObserver(); }, this.STREAM_RETRY_INTERVAL_MS);
             }
         });
     }
