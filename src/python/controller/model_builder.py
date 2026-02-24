@@ -3,13 +3,14 @@
 import os
 import logging
 import time
-from typing import List, Optional, Set
+from typing import List, Optional
 import math
 
 # my libs
 from system import SystemFile
 from lftp import LftpJobStatus
 from model import ModelFile, Model, ModelError
+from common.bounded_ordered_set import BoundedOrderedSet
 from .extract import ExtractStatus, Extract
 
 
@@ -30,7 +31,7 @@ class ModelBuilder:
         self.__local_files = dict()
         self.__remote_files = dict()
         self.__lftp_statuses = dict()
-        self.__downloaded_files = set()
+        self.__downloaded_files: Optional[BoundedOrderedSet] = None
         self.__extract_statuses = dict()
         self.__extracted_files = set()
         self.__cached_model = None
@@ -68,7 +69,7 @@ class ModelBuilder:
         if self.__lftp_statuses != prev_lftp_statuses:
             self.__cached_model = None
 
-    def set_downloaded_files(self, downloaded_files: Set[str]):
+    def set_downloaded_files(self, downloaded_files: BoundedOrderedSet):
         prev_downloaded_files = self.__downloaded_files
         self.__downloaded_files = downloaded_files
         # Invalidate the cache
@@ -82,7 +83,7 @@ class ModelBuilder:
         if self.__extract_statuses != prev_extract_statuses:
             self.__cached_model = None
 
-    def set_extracted_files(self, extracted_files: Set[str]):
+    def set_extracted_files(self, extracted_files: set):
         prev_extracted_files = self.__extracted_files
         self.__extracted_files = extracted_files
         # Invalidate the cache
@@ -93,7 +94,7 @@ class ModelBuilder:
         self.__local_files.clear()
         self.__remote_files.clear()
         self.__lftp_statuses.clear()
-        self.__downloaded_files.clear()
+        self.__downloaded_files = None
         self.__extract_statuses.clear()
         self.__extracted_files.clear()
         self.__cached_model = None
@@ -499,18 +500,22 @@ class ModelBuilder:
         Check if all remote children of a directory are downloaded.
 
         Uses BFS traversal to check all descendants.
+        Returns False if there are no downloadable (remote) children — a directory
+        with no remote files should not be marked DOWNLOADED.
         """
         frontier = list(model_file.get_children())
+        has_downloadable_children = False
 
         while frontier:
             child_file = frontier.pop(0)
             # Only check non-directory files that exist remotely
             if not child_file.is_dir and child_file.remote_size is not None:
+                has_downloadable_children = True
                 if child_file.state != ModelFile.State.DOWNLOADED:
                     return False
             frontier.extend(child_file.get_children())
 
-        return True
+        return has_downloadable_children
 
     def _check_deleted_state(self, model_file: ModelFile) -> None:
         """
@@ -522,6 +527,8 @@ class ModelBuilder:
         if model_file.state != ModelFile.State.DEFAULT:
             return
         if model_file.local_size is not None:
+            return
+        if self.__downloaded_files is None:
             return
         if model_file.name not in self.__downloaded_files:
             return
