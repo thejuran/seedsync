@@ -1,10 +1,13 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import json
+import ipaddress
+import socket
+from typing import Optional
+from urllib.parse import urlparse, unquote
 
 import requests
 from bottle import HTTPResponse
-from urllib.parse import unquote
 
 from common import overrides, Config, ConfigError
 from ..web_app import IHandler, WebApp
@@ -22,6 +25,32 @@ class ConfigHandler(IHandler):
         web_app.add_handler("/server/config/set/<section>/<key>/<value:re:.+>", self.__handle_set_config)
         web_app.add_handler("/server/config/sonarr/test-connection", self.__handle_test_sonarr_connection)
         web_app.add_handler("/server/config/radarr/test-connection", self.__handle_test_radarr_connection)
+
+    @staticmethod
+    def _validate_url(url: str) -> Optional[str]:
+        """Validate URL for SSRF protection. Returns error string or None if valid."""
+        parsed = urlparse(url)
+        if parsed.scheme not in {"http", "https"}:
+            return "Only http and https URLs are allowed"
+
+        hostname = parsed.hostname
+        if not hostname:
+            return "Invalid URL: no hostname"
+
+        try:
+            addr_infos = socket.getaddrinfo(hostname, None)
+            for addr_info in addr_infos:
+                ip_str = addr_info[4][0]
+                try:
+                    addr = ipaddress.ip_address(ip_str)
+                    if addr.is_private or addr.is_loopback or addr.is_reserved or addr.is_link_local:
+                        return "URL resolves to a private/reserved IP address"
+                except ValueError:
+                    pass
+        except socket.gaierror:
+            return "Cannot resolve hostname"
+
+        return None
 
     def __handle_get_config(self):
         out_json = SerializeConfig.config(self.__config)
@@ -54,6 +83,14 @@ class ConfigHandler(IHandler):
         if not sonarr_api_key or not sonarr_api_key.strip():
             return HTTPResponse(
                 body=json.dumps({"success": False, "error": "Sonarr API key is required"}),
+                content_type="application/json"
+            )
+
+        # SSRF protection: validate URL before making any outbound request
+        error_msg = ConfigHandler._validate_url(sonarr_url.strip())
+        if error_msg is not None:
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": error_msg}),
                 content_type="application/json"
             )
 
@@ -93,9 +130,9 @@ class ConfigHandler(IHandler):
                 body=json.dumps({"success": False, "error": "Connection timed out"}),
                 content_type="application/json"
             )
-        except Exception as e:
+        except Exception:
             return HTTPResponse(
-                body=json.dumps({"success": False, "error": str(e)}),
+                body=json.dumps({"success": False, "error": "An unexpected error occurred"}),
                 content_type="application/json"
             )
 
@@ -111,6 +148,14 @@ class ConfigHandler(IHandler):
         if not radarr_api_key or not radarr_api_key.strip():
             return HTTPResponse(
                 body=json.dumps({"success": False, "error": "Radarr API key is required"}),
+                content_type="application/json"
+            )
+
+        # SSRF protection: validate URL before making any outbound request
+        error_msg = ConfigHandler._validate_url(radarr_url.strip())
+        if error_msg is not None:
+            return HTTPResponse(
+                body=json.dumps({"success": False, "error": error_msg}),
                 content_type="application/json"
             )
 
@@ -150,8 +195,8 @@ class ConfigHandler(IHandler):
                 body=json.dumps({"success": False, "error": "Connection timed out"}),
                 content_type="application/json"
             )
-        except Exception as e:
+        except Exception:
             return HTTPResponse(
-                body=json.dumps({"success": False, "error": str(e)}),
+                body=json.dumps({"success": False, "error": "An unexpected error occurred"}),
                 content_type="application/json"
             )
