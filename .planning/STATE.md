@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 43: Frontend Quality
+**Current focus:** v3.1 Harden & Fix — Phase 44: Code Quality
 
 ## Current Position
 
-Phase: 43 of 45 (Frontend Quality)
-Plan: 3 of 3 complete in current phase (01 + 02 + 03)
-Status: Phase 43 complete (all 3 plans executed)
-Last activity: 2026-02-24 — Phase 43 Plan 03 complete (stale index fix in AutoQueueService.remove, timer cleanup in StreamDispatchService, 16-to-1 async pipe consolidation in FileOptionsComponent)
+Phase: 44 of 45 (Code Quality)
+Plan: 5 of 5 complete in current phase (01 + 02 + 03 + 04 + 05)
+Status: Phase 44 complete (all 5 plans executed)
+Last activity: 2026-02-24 — Phase 44 Plan 05 complete (test credential strings documented as intentional test-only values via module-level constants and inline comments across 7 test files)
 
-Progress: [██████░░░░] 60% (v3.1)
+Progress: [███████░░░] 70% (v3.1)
 
 ## Milestones Shipped
 
@@ -41,7 +41,7 @@ Progress: [██████░░░░] 60% (v3.1)
 - 76 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 5 phases complete (phases 39-43), 16 plans
+**v3.1 so far:** 6 phases complete (phases 39-44), 21 plans
 
 ## Accumulated Context
 
@@ -82,6 +82,13 @@ Progress: [██████░░░░] 60% (v3.1)
 - [Phase 43-03]: AutoQueueService.remove reads fresh patterns.findIndex inside subscribe callback (FE-04): pre-request currentPatterns snapshot cannot be used post-response — stale index could remove wrong pattern if list changed during request
 - [Phase 43-03]: StreamDispatchService implements OnDestroy with _reconnectTimer field (FE-05): both setTimeout paths (timeout-detected reconnect and error-handler reconnect) store handle in _reconnectTimer; ngOnDestroy clears interval, cancels timer, closes EventSource
 - [Phase 43-03]: latestOptions property pattern in FileOptionsComponent (FE-06): one subscription in ngOnInit writes to public latestOptions + detectChanges() replaces 16 async pipe subscriptions — same observable, zero-cost property access under OnPush
+- [Phase 44-01]: Inline _strtobool replaces distutils.util.strtobool (CODE-04): distutils removed in Python 3.12; inline function with identical boolean-string-to-int behavior; no new dependencies
+- [Phase 44-01]: ModelFile.unfreeze() public method (CODE-11): eliminates name-mangling bypass pattern (_ModelFile__frozen = False) — clear intent, survives refactoring, symmetric with freeze()
+- [Phase 44-01]: isinstance() over type() == (CODE-01): isinstance correctly handles subclasses, is idiomatic Python; replaced 12 instances across 7 setters in ModelFile
+- [Phase 44-05]: Docker test credential constants over inline strings (CODE-13): _TEST_USER/_TEST_PASSWORD module-level constants with documentation comment in integration test files; inline comments for mock unit test fake passwords — documentation not parameterization, since Docker test containers use intentionally fixed credentials
+- [Phase 44-code-quality]: POST for queue/stop/extract (CODE-09): GET requests can be unintentionally triggered by browser prefetch and crawlers; POST prevents unintended side effects
+- [Phase 44-code-quality]: Instance-level _bulk_request_times and _bulk_rate_lock (CODE-03): class-level state is shared across all handler instances; per-instance rate limiting is the correct semantics
+- [Phase 44-code-quality]: ScannerResult/ExtractStatusResult/ExtractCompletedResult type annotations (CODE-06): replaces opaque Optional[object] with domain-specific types in controller _collect_scan_results and _collect_extract_results
 
 ### Todos
 
@@ -100,8 +107,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 43-03-PLAN.md (stale index fix, timer cleanup, async pipe consolidation)
-Next action: Execute phase 44 plans or check ROADMAP for next phase
+Stopped at: Completed 44-05-PLAN.md (test credential documentation — _TEST_USER/_TEST_PASSWORD constants and inline comments)
+Next action: Execute phase 45 plans or check ROADMAP for next phase
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24*

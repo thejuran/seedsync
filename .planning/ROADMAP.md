@@ -152,7 +152,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 41: Thread Safety** - Fix race conditions in auto-delete, webhook imports, and extract dispatch (completed 2026-02-24)
 - [x] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling (completed 2026-02-24)
 - [x] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular (completed 2026-02-24)
-- [ ] **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns
+- 🚧 **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns (in progress)
 - [ ] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels
 
 ## Phase Details
@@ -242,7 +242,7 @@ Plans:
   5. ModelFile frozen bypass uses an explicit unfreeze method; rate limiter state is per-instance; AppProcess busy-poll has a sleep interval; controller return types are correctly annotated; __downloaded_files uses set semantics; pexpect.TIMEOUT is logged not silenced; import status has a single code path; directory DOWNLOADED edge case is handled; test credentials are parameterized or documented
 **Plans**: 5 plans
 Plans:
-- [ ] 44-01-PLAN.md — distutils replacement, isinstance() migration, ModelFile unfreeze() method
+- [x] 44-01-PLAN.md — distutils replacement, isinstance() migration, ModelFile unfreeze() method (completed 2026-02-24)
 - [ ] 44-02-PLAN.md — pexpect.spawn argument list, TIMEOUT logging, AppProcess busy-poll sleep
 - [ ] 44-03-PLAN.md — POST/DELETE HTTP methods, rate limiter instance state, controller return types
 - [ ] 44-04-PLAN.md — __downloaded_files type fix, import_status consolidation, directory DOWNLOADED edge case
@@ -281,10 +281,10 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 41. Thread Safety | 2/2 | Complete    | 2026-02-24 | - |
 | 42. Crash Prevention | 3/3 | Complete    | 2026-02-24 | - |
 | 43. Frontend Quality | 3/3 | Complete    | 2026-02-24 | - |
-| 44. Code Quality | v3.1 | 0/5 | Not started | - |
+| 44. Code Quality | 4/5 | In Progress|  | - |
 | 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
 
 ---
 
-*Last updated: 2026-02-24 (41-01 complete)*
-*12 milestones shipped + v3.1 in progress, 45 phases total, 69 plans complete*
+*Last updated: 2026-02-24 (44-01 complete)*
+*12 milestones shipped + v3.1 in progress, 45 phases total, 70 plans complete*
