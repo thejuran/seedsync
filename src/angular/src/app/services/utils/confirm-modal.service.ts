@@ -68,7 +68,12 @@ export class ConfirmModalService {
         this.renderer.addClass(this.backdropElement, "modal-backdrop");
         this.renderer.addClass(this.backdropElement, "fade");
         this.renderer.addClass(this.backdropElement, "show");
-        // Explicit z-index ensures backdrop renders above all app content (sidebar z-index: 300)
+        // Explicit positioning ensures backdrop covers viewport and stacks above sidebar (z-index: 300)
+        this.renderer.setStyle(this.backdropElement, "position", "fixed");
+        this.renderer.setStyle(this.backdropElement, "top", "0");
+        this.renderer.setStyle(this.backdropElement, "left", "0");
+        this.renderer.setStyle(this.backdropElement, "width", "100%");
+        this.renderer.setStyle(this.backdropElement, "height", "100%");
         this.renderer.setStyle(this.backdropElement, "z-index", "1050");
         this.renderer.appendChild(document.body, this.backdropElement);
 
@@ -77,9 +82,16 @@ export class ConfirmModalService {
         this.renderer.addClass(this.modalElement, "modal");
         this.renderer.addClass(this.modalElement, "fade");
         this.renderer.addClass(this.modalElement, "show");
+        // Explicit positioning ensures modal covers viewport and stacks above sidebar (z-index: 300)
+        // without relying on Bootstrap's .modal CSS which may not be applied
+        this.renderer.setStyle(this.modalElement, "position", "fixed");
+        this.renderer.setStyle(this.modalElement, "top", "0");
+        this.renderer.setStyle(this.modalElement, "left", "0");
+        this.renderer.setStyle(this.modalElement, "width", "100%");
+        this.renderer.setStyle(this.modalElement, "height", "100%");
         this.renderer.setStyle(this.modalElement, "display", "block");
-        // Explicit z-index ensures modal renders above backdrop and all app content
         this.renderer.setStyle(this.modalElement, "z-index", "1055");
+        this.renderer.setStyle(this.modalElement, "overflow-y", "auto");
         this.renderer.setAttribute(this.modalElement, "tabindex", "-1");
         this.renderer.setAttribute(this.modalElement, "role", "dialog");
         this.renderer.setAttribute(this.modalElement, "aria-modal", "true");
