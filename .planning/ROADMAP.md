@@ -182,7 +182,7 @@ Plans:
   5. All API responses include Content-Security-Policy, X-Frame-Options, and X-Content-Type-Options headers; internal exception details are not present in error response bodies
 **Plans**: 3 plans
 Plans:
-- [ ] 40-01-PLAN.md — Config API redaction + LFTP password log scrubbing
+- [x] 40-01-PLAN.md — Config API redaction + LFTP password log scrubbing (completed 2026-02-24)
 - [ ] 40-02-PLAN.md — SSRF protection, shell escape, error sanitization
 - [ ] 40-03-PLAN.md — Webhook HMAC auth + security headers
 
@@ -259,8 +259,8 @@ Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
 | 26-28. Radarr + Webhooks | v1.8 | 5/5 | Complete | 2026-02-11 |
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
-| 39. Critical Security Chain | 2/2 | Complete    | 2026-02-24 | - |
-| 40. Credential & Endpoint Security | v3.1 | 0/3 | Not started | - |
+| 39. Critical Security Chain | v3.1 | 2/2 | Complete | 2026-02-24 |
+| 40. Credential & Endpoint Security | v3.1 | 1/3 | In progress | - |
 | 41. Thread Safety | v3.1 | 0/TBD | Not started | - |
 | 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |
 | 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |

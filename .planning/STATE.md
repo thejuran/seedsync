@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 39: Critical Security Chain
+**Current focus:** v3.1 Harden & Fix — Phase 40: Credential Endpoint Security
 
 ## Current Position
 
-Phase: 39 of 45 (Critical Security Chain)
-Plan: 2 of 2 complete in current phase
-Status: Phase 39 complete
-Last activity: 2026-02-24 — Phase 39 Plan 02 complete (JSON migration: pickle RCE elimination)
+Phase: 40 of 45 (Credential Endpoint Security)
+Plan: 1 of 1 complete in current phase
+Status: Phase 40 Plan 01 complete
+Last activity: 2026-02-24 — Phase 40 Plan 01 complete (credential leakage prevention)
 
-Progress: [█░░░░░░░░░] 10% (v3.1)
+Progress: [██░░░░░░░░] 20% (v3.1)
 
 ## Milestones Shipped
 
@@ -37,11 +37,11 @@ Progress: [█░░░░░░░░░] 10% (v3.1)
 
 **Total Project:**
 - 12 milestones shipped
-- 39 phases complete (phases 1-39)
-- 65 plans executed
+- 40 phases complete (phases 1-40)
+- 66 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 1 phase, 2 plans
+**v3.1 so far:** 2 phases, 3 plans
 
 ## Accumulated Context
 
@@ -53,6 +53,9 @@ Progress: [█░░░░░░░░░] 10% (v3.1)
 - **Test exception documented:** test/python/Dockerfile keeps StrictHostKeyChecking=no for ephemeral localhost test container — documented with explicit comment
 - **Pickle replaced with JSON (CWE-502):** SystemFile uses to_dict/from_dict; scan_fs outputs json.dumps; remote_scanner uses json.loads — eliminates RCE vector from untrusted SSH stdout
 - **Error message format-agnostic:** Changed "Invalid pickled data" to "Invalid scan data" to avoid leaking transport format details
+- **Redact at serialization layer:** Sensitive config fields (remote_password, sonarr_api_key, radarr_api_key) redacted in SerializeConfig.config() not at storage layer — internal code still reads real values
+- **Preserve field keys in API response:** Use **REDACTED** value (not omit key) so frontend knows fields exist and can render edit controls
+- **Scrub SSE at SerializeLogRecord:** Log stream password scrubbing applied in SerializeLogRecord.record() to cover both live and cached history paths
 
 ### Todos
 
@@ -71,8 +74,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 39-02-PLAN.md (JSON migration: pickle RCE elimination)
-Next action: /gsd:execute-phase 39 (if more plans) or /gsd:plan-phase 40
+Stopped at: Completed 40-01-PLAN.md (credential leakage prevention: config GET redaction + SSE log scrubbing)
+Next action: /gsd:execute-phase 40 (if more plans) or /gsd:plan-phase 41
 
 ---
-*v3.1 Harden & Fix: phase 39 plan 02 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 plan 01 complete 2026-02-24*
