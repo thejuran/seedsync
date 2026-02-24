@@ -59,6 +59,9 @@ Progress: [███░░░░░░░] 30% (v3.1)
 - **webhook_secret in Config.General (shared):** Single shared webhook secret for all webhook sources (Sonarr/Radarr) placed on Config.General — simpler than per-service secrets
 - **Empty webhook_secret skips HMAC verification:** Backward compat for existing installs — no secret = no verification; configured secret = strict HMAC-SHA256 check with 401 on failure
 - **Security headers via after_request hook:** CSP, X-Frame-Options, X-Content-Type-Options injected on all Bottle responses via a single after_request hook — zero-touch, applies to all routes automatically
+- **SSRF via socket.getaddrinfo:** Hostname resolution before outbound requests catches hostnames resolving to private IPs — not just literal private IP addresses in the URL
+- **Generic except never leaks details:** Generic exception handlers return static "An unexpected error occurred" — str(e) dropped entirely to prevent internal detail exposure (SEC-10)
+- **shlex.quote over manual quoting:** `shlex.quote(file_path)` replaces `'%s'` for shell commands — handles embedded single quotes that break naive wrapping (SEC-08)
 
 ### Todos
 
