@@ -7,3 +7,7 @@ src/python/build
 src/python/site
 htmlcov/
 .coverage
+
+# SSH private keys
+id_rsa
+*.pem

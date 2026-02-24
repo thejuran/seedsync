@@ -22,10 +22,12 @@ RUN mkdir /downloads && \
 
 USER user
 
-# Add ssh keys for user, as user
+# Add public key for user, as user
 ADD --chown=user:user src/docker/stage/deb/id_rsa.pub /home/user/.ssh/
-ADD --chown=user:user src/docker/stage/deb/id_rsa /home/user/.ssh/
-RUN chmod 600 /home/user/.ssh/id_rsa
+# Generate a fresh SSH keypair at build time (no committed private key)
+RUN mkdir -p /home/user/.ssh && \
+    ssh-keygen -t rsa -b 4096 -N "" -f /home/user/.ssh/id_rsa && \
+    chmod 600 /home/user/.ssh/id_rsa
 
 USER root
 
