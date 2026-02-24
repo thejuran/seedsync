@@ -5,14 +5,14 @@
 See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.1 Harden & Fix — Phase 45: Documentation Accessibility
+**Current focus:** v3.2 Code Review Fixes — Phase 46: Code Review Fixes
 
 ## Current Position
 
-Phase: 45 of 45 (Documentation Accessibility)
-Plan: 3 of 3 complete in current phase (01, 02, 03)
-Status: Phase 45 complete (all 3 plans executed)
-Last activity: 2026-02-24 — Phase 45 Plan 03 complete (ARIA role=grid/row, dynamic aria-label with name+status+selection, tabindex=0, ArrowDown/ArrowUp focus navigation, Enter/Space row selection, visible :focus indicator on file rows)
+Phase: 46 of 46 (Code Review Fixes)
+Plan: 1 of 1 complete in current phase (01)
+Status: Phase 46 Plan 01 complete
+Last activity: 2026-02-24 — Phase 46 Plan 01 complete (webhook_secret redacted in config API; log redaction uses getMessage() to catch format-arg passwords)
 
 Progress: [██████████] 100% (v3.1)
 
@@ -42,6 +42,8 @@ Progress: [██████████] 100% (v3.1)
 - 15 days total (2026-02-03 to 2026-02-24)
 
 **v3.1 so far:** 7 phases complete (phases 39-45), 23 plans (45-02 added)
+
+**v3.2 so far:** 1 phase complete (phase 46), 1 plan
 
 ## Accumulated Context
 
@@ -107,6 +109,8 @@ Progress: [██████████] 100% (v3.1)
 - [Phase 45-03]: Dynamic aria-label combines name + capitalize(status) + optional ', selected' for full screen reader state announcement (DOCS-04)
 - [Phase 45-03]: Clamp (no wrap) on ArrowDown/ArrowUp at list boundaries — reaching end stops, matches standard data grid behavior (DOCS-04)
 - [Phase 45-03]: :focus-visible heuristic: .file:focus shows outline, .file:focus:not(:focus-visible) suppresses for mouse clicks (DOCS-04)
+- [Phase 46-01]: webhook_secret redacted at serialization layer in _SENSITIVE_FIELDS["general"] — consistent with existing remote_password/sonarr_api_key/radarr_api_key pattern; internal code reads real value for HMAC-SHA256 (CR-01)
+- [Phase 46-01]: getMessage() replaces record.msg in SerializeLogRecord — returns fully interpolated message string so format-arg passwords (logger.info('%s', password)) are caught by regex scrubbers before hitting SSE stream (CR-03)
 
 ### Todos
 
@@ -125,8 +129,9 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 45-03-PLAN.md (ARIA role=grid/row, dynamic aria-label, ArrowDown/ArrowUp navigation, :focus indicator on file rows)
-Next action: Phase 45 complete — all 3 plans executed. v3.1 milestone complete (all 45 phases done). Next: /gsd:new-milestone or tag v3.1.
+Stopped at: Completed 46-01-PLAN.md (webhook_secret redacted in config API, getMessage() for log redaction)
+Next action: Phase 46 Plan 01 complete. Continue with next plan in phase 46 if any, or /gsd:new-milestone.
 
 ---
 *v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24; phase 45 all 3 plans complete 2026-02-24*
+*v3.2 Code Review Fixes: phase 46 plan 01 complete 2026-02-24*
