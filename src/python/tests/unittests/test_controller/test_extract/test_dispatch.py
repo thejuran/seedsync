@@ -4,6 +4,7 @@ import unittest
 import os
 from unittest.mock import patch, MagicMock, call
 import time
+import threading
 import logging
 import sys
 
@@ -736,3 +737,134 @@ class TestExtractDispatch(unittest.TestCase):
         self.listener.extract_completed.assert_called_once_with("a", False)
         self.listener.extract_failed.assert_not_called()
         self.assertEqual(1, self.mock_extract_archive.call_count)
+
+
+class TestExtractDispatchThreadSafety(unittest.TestCase):
+    def setUp(self):
+        extract_patcher = patch('controller.extract.dispatch.Extract')
+        self.addCleanup(extract_patcher.stop)
+        mock_extract_module = extract_patcher.start()
+        self.mock_is_archive = mock_extract_module.is_archive
+        self.mock_extract_archive = mock_extract_module.extract_archive
+
+        self.out_dir_path = os.path.join("out", "dir")
+        self.local_path = os.path.join("local", "path")
+        self.dispatch = ExtractDispatch(
+            out_dir_path=self.out_dir_path,
+            local_path=self.local_path
+        )
+
+        self.listener = DummyExtractListener()
+        self.listener.extract_completed = MagicMock()
+        self.listener.extract_failed = MagicMock()
+
+        logger = logging.getLogger()
+        handler = logging.StreamHandler(sys.stdout)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+        self.dispatch.start()
+
+    @timeout_decorator.timeout(2)
+    def tearDown(self):
+        if self.dispatch:
+            self.dispatch.stop()
+
+    @timeout_decorator.timeout(5)
+    def test_status_returns_consistent_snapshot(self):
+        """Verify status() returns a consistent snapshot even with concurrent modifications."""
+        self.mock_is_archive.return_value = True
+
+        # Create files and add to queue
+        files = []
+        for i in range(10):
+            mf = ModelFile("file{}".format(i), False)
+            mf.local_size = 100
+            files.append(mf)
+
+        # Block extraction so tasks stay in queue
+        barrier = threading.Event()
+
+        def _block_extract(**kwargs):
+            barrier.wait(timeout=5)
+        self.mock_extract_archive.side_effect = _block_extract
+
+        for mf in files:
+            self.dispatch.extract(mf)
+
+        # Call status multiple times - should not raise or return inconsistent data
+        for _ in range(20):
+            status = self.dispatch.status()
+            # Status should have a consistent count (may decrease as worker processes)
+            self.assertIsInstance(status, list)
+            for s in status:
+                self.assertIsInstance(s, ExtractStatus)
+
+        barrier.set()
+
+    @timeout_decorator.timeout(5)
+    def test_extract_duplicate_check_is_safe(self):
+        """Verify duplicate check in extract() does not raise under concurrent access."""
+        self.mock_is_archive.return_value = True
+
+        # Block extraction so tasks stay in queue long enough to test duplicates
+        barrier = threading.Event()
+
+        def _block_extract(**kwargs):
+            barrier.wait(timeout=5)
+        self.mock_extract_archive.side_effect = _block_extract
+
+        mf = ModelFile("aaa", False)
+        mf.local_size = 100
+
+        # Add file once to queue it
+        self.dispatch.extract(mf)
+
+        # Call extract again concurrently from multiple threads - should not raise
+        errors = []
+
+        def _try_extract():
+            try:
+                self.dispatch.extract(mf)
+            except Exception as e:
+                errors.append(e)
+
+        threads = [threading.Thread(target=_try_extract) for _ in range(5)]
+        for t in threads:
+            t.start()
+        for t in threads:
+            t.join()
+
+        # No errors should have occurred during concurrent duplicate checks
+        self.assertEqual([], errors)
+
+        barrier.set()
+
+    @timeout_decorator.timeout(5)
+    def test_listener_notification_allows_concurrent_add(self):
+        """Verify listener notification uses copy-under-lock so adding during notify is safe."""
+        self.mock_is_archive.return_value = True
+
+        second_listener = DummyExtractListener()
+        second_listener.extract_completed = MagicMock()
+        second_listener.extract_failed = MagicMock()
+
+        def _on_complete(name, is_dir):
+            # Add another listener during notification -- would fail without copy-under-lock
+            self.dispatch.add_listener(second_listener)
+        self.listener.extract_completed = MagicMock(side_effect=_on_complete)
+
+        mf = ModelFile("aaa", False)
+        mf.local_size = 100
+
+        self.dispatch.add_listener(self.listener)
+        self.dispatch.extract(mf)
+
+        # Wait for completion
+        while self.listener.extract_completed.call_count < 1:
+            pass
+        time.sleep(0.1)
+
+        self.listener.extract_completed.assert_called_once_with("aaa", False)
+        # Second listener was added during notification, should not have been called for this event
+        second_listener.extract_completed.assert_not_called()
