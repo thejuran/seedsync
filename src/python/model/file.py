@@ -75,6 +75,10 @@ class ModelFile:
         for child in self.__children:
             child.freeze()
 
+    def unfreeze(self):
+        """Unfreeze this file, allowing modifications. Used for copy-then-modify patterns."""
+        self.__frozen = False
+
     def _check_frozen(self):
         """Raises an error if the file is frozen"""
         if self.__frozen:
@@ -132,7 +136,7 @@ class ModelFile:
     @state.setter
     def state(self, state: State):
         self._check_frozen()
-        if type(state) != ModelFile.State:
+        if not isinstance(state, ModelFile.State):
             raise TypeError
         self.__state = state
 
@@ -142,7 +146,7 @@ class ModelFile:
     @remote_size.setter
     def remote_size(self, remote_size: Optional[int]):
         self._check_frozen()
-        if type(remote_size) == int:
+        if isinstance(remote_size, int):
             if remote_size < 0:
                 raise ValueError
             self.__remote_size = remote_size
@@ -157,7 +161,7 @@ class ModelFile:
     @local_size.setter
     def local_size(self, local_size: Optional[int]):
         self._check_frozen()
-        if type(local_size) == int:
+        if isinstance(local_size, int):
             if local_size < 0:
                 raise ValueError
             self.__local_size = local_size
@@ -172,7 +176,7 @@ class ModelFile:
     @transferred_size.setter
     def transferred_size(self, transferred_size: Optional[int]):
         self._check_frozen()
-        if type(transferred_size) == int:
+        if isinstance(transferred_size, int):
             if transferred_size < 0:
                 raise ValueError
             self.__transferred_size = transferred_size
@@ -187,7 +191,7 @@ class ModelFile:
     @downloading_speed.setter
     def downloading_speed(self, downloading_speed: Optional[int]):
         self._check_frozen()
-        if type(downloading_speed) == int:
+        if isinstance(downloading_speed, int):
             if downloading_speed < 0:
                 raise ValueError
             self.__downloading_speed = downloading_speed
@@ -202,7 +206,7 @@ class ModelFile:
     @update_timestamp.setter
     def update_timestamp(self, update_timestamp: datetime):
         self._check_frozen()
-        if type(update_timestamp) != datetime:
+        if not isinstance(update_timestamp, datetime):
             raise TypeError
         self.__update_timestamp = update_timestamp
 
@@ -212,7 +216,7 @@ class ModelFile:
     @eta.setter
     def eta(self, eta: Optional[int]):
         self._check_frozen()
-        if type(eta) == int:
+        if isinstance(eta, int):
             if eta < 0:
                 raise ValueError
             self.__eta = eta
@@ -236,7 +240,7 @@ class ModelFile:
     @import_status.setter
     def import_status(self, import_status: "ModelFile.ImportStatus"):
         self._check_frozen()
-        if type(import_status) != ModelFile.ImportStatus:
+        if not isinstance(import_status, ModelFile.ImportStatus):
             raise TypeError
         self.__import_status = import_status
 
@@ -246,7 +250,7 @@ class ModelFile:
     @local_created_timestamp.setter
     def local_created_timestamp(self, local_created_timestamp: datetime):
         self._check_frozen()
-        if type(local_created_timestamp) != datetime:
+        if not isinstance(local_created_timestamp, datetime):
             raise TypeError
         self.__local_created_timestamp = local_created_timestamp
 
@@ -256,7 +260,7 @@ class ModelFile:
     @local_modified_timestamp.setter
     def local_modified_timestamp(self, local_modified_timestamp: datetime):
         self._check_frozen()
-        if type(local_modified_timestamp) != datetime:
+        if not isinstance(local_modified_timestamp, datetime):
             raise TypeError
         self.__local_modified_timestamp = local_modified_timestamp
 
@@ -266,7 +270,7 @@ class ModelFile:
     @remote_created_timestamp.setter
     def remote_created_timestamp(self, remote_created_timestamp: datetime):
         self._check_frozen()
-        if type(remote_created_timestamp) != datetime:
+        if not isinstance(remote_created_timestamp, datetime):
             raise TypeError
         self.__remote_created_timestamp = remote_created_timestamp
 
@@ -276,7 +280,7 @@ class ModelFile:
     @remote_modified_timestamp.setter
     def remote_modified_timestamp(self, remote_modified_timestamp: datetime):
         self._check_frozen()
-        if type(remote_modified_timestamp) != datetime:
+        if not isinstance(remote_modified_timestamp, datetime):
             raise TypeError
         self.__remote_modified_timestamp = remote_modified_timestamp
 

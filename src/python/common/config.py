@@ -4,13 +4,29 @@ import configparser
 from typing import Dict
 from io import StringIO
 import collections
-from distutils.util import strtobool
 from abc import ABC
 from typing import Type, TypeVar, Callable, Any
 
 from .error import AppError
 from .persist import Persist, PersistError
 from .types import overrides
+
+
+def _strtobool(value: str) -> int:
+    """Convert a string representation of a boolean to 1 or 0.
+
+    Replacement for the removed distutils.util.strtobool (removed in Python 3.12).
+    Returns 1 for: 'y', 'yes', 't', 'true', 'on', '1' (case-insensitive).
+    Returns 0 for: 'n', 'no', 'f', 'false', 'off', '0' (case-insensitive).
+    Raises ValueError for any other value.
+    """
+    lower = value.lower()
+    if lower in ('y', 'yes', 't', 'true', 'on', '1'):
+        return 1
+    elif lower in ('n', 'no', 'f', 'false', 'off', '0'):
+        return 0
+    else:
+        raise ValueError("Invalid truth value: {!r}".format(value))
 
 
 class ConfigError(AppError):
@@ -54,7 +70,7 @@ class Converters:
                 cls.__name__, name
             ))
         try:
-            val = bool(strtobool(value))
+            val = bool(_strtobool(value))
         except ValueError:
             raise ConfigError("Bad config: {}.{} ({}) must be a boolean value".format(
                 cls.__name__, name, value

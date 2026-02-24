@@ -40,13 +40,11 @@ class Sshcp:
 
     def __run_command(self,
                       command: str,
-                      flags: str,
-                      args: str) -> bytes:
+                      flags: list,
+                      args: list) -> bytes:
 
-        command_args = [
-            command,
-            flags
-        ]
+        command_args = [command]
+        command_args += flags
 
         # Common flags
         command_args += [
@@ -63,13 +61,12 @@ class Sshcp:
                 "-o", "PubkeyAuthentication=no"  # don't use key authentication
             ]
 
-        command_args.append(args)
+        command_args += args
 
-        command = " ".join(command_args)
-        self.logger.debug("Command: {}".format(command))
+        self.logger.debug("Command: {}".format(command_args))
 
         start_time = time.time()
-        sp = pexpect.spawn(command)
+        sp = pexpect.spawn(command_args[0], command_args[1:])
         try:
             if self.__password is not None:
                 i = sp.expect([
@@ -159,17 +156,14 @@ class Sshcp:
         if not command:
             raise ValueError("Command cannot be empty")
 
-        # escape the command
+        # Reject commands with both quote types (preserved for API compatibility)
         if "'" in command and '"' in command:
             # I don't know how to handle this yet...
             raise ValueError("Command cannot contain both single and double quotes")
-        elif '"' in command:
-            # double quote in command, cover with single quotes
-            command = "'{}'".format(command)
-        else:
-            # no double quote in command, cover with double quotes
-            command = '"{}"'.format(command)
 
+        # No local-shell quoting needed: pexpect.spawn passes args directly to
+        # the ssh process (no shell interpolation), so the command string is
+        # forwarded as-is to the remote shell which handles quoting correctly.
         flags = [
             "-p", str(self.__port),  # port
         ]
@@ -179,8 +173,8 @@ class Sshcp:
         ]
         return self.__run_command(
             command="ssh",
-            flags=" ".join(flags),
-            args=" ".join(args)
+            flags=flags,
+            args=args
         )
 
     def copy(self, local_path: str, remote_path: str):
@@ -205,6 +199,6 @@ class Sshcp:
         ]
         self.__run_command(
             command="scp",
-            flags=" ".join(flags),
-            args=" ".join(args)
+            flags=flags,
+            args=args
         )
