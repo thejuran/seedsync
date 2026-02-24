@@ -68,7 +68,11 @@ Progress: [██████████] 100% (v3.1)
 - **Two-window lock in __check_webhook_imports (THRD-02):** Window 1 = name_to_root BFS build under lock; Window 2 = update_file per import under lock; webhook Queue processing and Timer scheduling outside lock
 - [Phase 41-02]: Queue mutex pattern: all __task_queue.queue accesses wrapped in with self.__task_queue.mutex in ExtractDispatch (THRD-03)
 - [Phase 41-02]: Copy-under-lock for ExtractDispatch listeners: snapshot in with self.__listeners_lock, iterated outside — prevents RuntimeError (THRD-04)
-- [Phase 41-02]: TOCTOU window in extract() accepted: duplicate check under mutex then put() has narrow race; worst case is double extraction matching prior behavior
+- [Phase 41-02]: TOCTOU window in extract() accepted: duplicate check under mutex then put() has narrow race; worst case is double extraction matching prior behavior (fixed in Phase 46-02: now atomic via queue.append+notify under single mutex)
+- [Phase 46-02]: Atomic extract() in ExtractDispatch: task built before mutex; deque.append+not_empty.notify under one mutex acquisition eliminates TOCTOU (CR-04)
+- [Phase 46-02]: queue.Empty guard in worker finally: try/except around queue.get(block=False) prevents worker thread death on empty-queue edge case (CR-07)
+- [Phase 46-02]: ModelFile._unfreeze() uses single underscore (not double) to signal internal/protected API — name mangling avoided (CR-10)
+- [Phase 46-02]: except ModelError wraps only get_file in _set_import_status; update_file errors now propagate (CR-12)
 - [Phase 42-02]: Map.has() guard before Map.get().notifyEvent() in StreamDispatchService: unknown SSE event names log a warning instead of crashing the observable subscription (CRASH-04)
 - [Phase 42-02]: try/catch wraps JSON.parse in ModelFileService.parseEvent(), ServerStatusService.parseStatus(), LogService.onEvent() — malformed JSON logged and skipped, stream continues (CRASH-05)
 - [Phase 42-02]: LoggerService injected into ServerStatusService for consistent error logging on malformed JSON
@@ -134,10 +138,10 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-24
-Stopped at: Completed 46-04-PLAN.md (clearTimeout guards CR-06; real unknown-event test with spyOnProperty CR-08; LogService LoggerService injection CR-09; RestService handleSuccess/handleError helpers CR-11)
-Next action: Phase 46 Plan 04 complete. Check if remaining Phase 46 plans exist, or if phase is done.
+Last session: 2026-02-23
+Stopped at: Completed 46-02-PLAN.md (atomic extract() duplicate-check+insert CR-04; worker finally queue.Empty guard CR-07; ModelFile._unfreeze() CR-10; narrow except scope in _set_import_status CR-12)
+Next action: Phase 46 all 4 plans complete. v3.2 milestone ready for tagging.
 
 ---
 *v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24; phase 45 all 3 plans complete 2026-02-24*
-*v3.2 Code Review Fixes: phase 46 all 3 plans complete 2026-02-24*
+*v3.2 Code Review Fixes: phase 46 all 4 plans complete (01 webhook_secret/log scrub, 02 atomic extract/unfreeze, 03 focus-trap/XSS, 04 clearTimeout/log/rest helpers)*

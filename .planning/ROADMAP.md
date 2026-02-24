@@ -154,7 +154,7 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 - [x] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular (completed 2026-02-24)
 - 🚧 **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns (in progress)
 - [x] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels (completed 2026-02-24)
-- [ ] **Phase 46: Code Review Fixes** - Fix 12 findings from deep code review: credential leak, focus trap escape, log redaction bypass, TOCTOU race, incomplete XSS sanitization, timer overwrite, worker thread safety, test coverage gap, logging inconsistency, API visibility, code duplication, error scope
+- [x] **Phase 46: Code Review Fixes** - Fix 12 findings from deep code review: credential leak, focus trap escape, log redaction bypass, TOCTOU race, incomplete XSS sanitization, timer overwrite, worker thread safety, test coverage gap, logging inconsistency, API visibility, code duplication, error scope (completed 2026-02-23)
 
 ## Phase Details
 
@@ -282,10 +282,10 @@ Plans:
   12. _set_import_status only catches ModelError from get_file, not from update_file
 **Plans**: 4 plans
 Plans:
-- [ ] 46-01-PLAN.md — Config API webhook_secret redaction + log redaction getMessage()
-- [ ] 46-02-PLAN.md — Atomic extract(), worker resilience, _unfreeze rename, narrow except scope
-- [ ] 46-03-PLAN.md — Focus trap full Tab interception + escapeHtml for modal buttons
-- [ ] 46-04-PLAN.md — Stream timer cleanup, unknown-event test, LogService logger, RestService helper
+- [x] 46-01-PLAN.md — Config API webhook_secret redaction + log redaction getMessage()
+- [x] 46-02-PLAN.md — Atomic extract(), worker resilience, _unfreeze rename, narrow except scope
+- [x] 46-03-PLAN.md — Focus trap full Tab interception + escapeHtml for modal buttons
+- [x] 46-04-PLAN.md — Stream timer cleanup, unknown-event test, LogService logger, RestService helper
 
 ## Progress
 
