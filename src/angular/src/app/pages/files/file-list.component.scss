@@ -61,12 +61,14 @@
     /* NOTE: make sure this is in-sync with ".file .content" */
     #header .checkbox   {width: 40px; min-width: 40px;}
     #header .status     {width: 100px; min-width: 100px;}
-    #header .name       {flex-grow: 1;}
+    #header .name       {flex-grow: 1; min-width: 120px;}
     #header .speed      {width: 100px; min-width: 100px;}
     #header .eta        {width: 100px; min-width: 100px;}
-    #header .remote-timestamp {width: 140px; min-width: 140px;}
-    #header .local-timestamp  {width: 140px; min-width: 140px;}
     #header .size       {width: 20%; min-width: 20%;}
+
+    /* Timestamp headers hidden on medium — shown on large */
+    #header .remote-timestamp {display: none;}
+    #header .local-timestamp  {display: none;}
 
     /* header and content elements */
     #header > div, .content > div {
@@ -95,4 +97,10 @@
         color: var(--app-file-header-color);
         background-color: var(--app-file-header-bg);
     }
+}
+
+/* Large screens: show timestamp header columns */
+@media only screen and (min-width: $large-min-width) {
+    #header .remote-timestamp {display: block; width: 140px; min-width: 140px;}
+    #header .local-timestamp  {display: block; width: 140px; min-width: 140px;}
 }

@@ -295,11 +295,9 @@
     /* NOTE: make sure this is in-sync with "#file-list #header" */
     .content .checkbox  {width: 40px; min-width: 40px;}
     .content .status    {width: 100px; min-width: 100px;}
-    .content .name      {flex-grow: 1;}
+    .content .name      {flex-grow: 1; flex-basis: 0; min-width: 120px;}
     .content .speed     {width: 100px; min-width: 100px;}
     .content .eta       {width: 100px; min-width: 100px;}
-    .content .remote-timestamp {width: 140px; min-width: 140px;}
-    .content .local-timestamp  {width: 140px; min-width: 140px;}
     .content .size      {width: 20%; min-width: 20%;}
 
     .content {
@@ -319,9 +317,15 @@
     .content .local-timestamp {order: 6;}
     .content .size {order: 7;}
 
-    /* Hide the inner eta, show outer eta and timestamps */
+    /* Show eta, hide inner speed-eta on desktop */
     .content .eta {display: inline;}
-    .content .remote-timestamp {display: inline;}
-    .content .local-timestamp {display: inline;}
     .content .speed .speed-eta {display: none;}
+
+    /* Timestamps stay hidden on medium — not enough room */
+}
+
+/* Large screens: show timestamp columns */
+@media only screen and (min-width: $large-min-width) {
+    .content .remote-timestamp {display: inline; width: 140px; min-width: 140px;}
+    .content .local-timestamp  {display: inline; width: 140px; min-width: 140px;}
 }
