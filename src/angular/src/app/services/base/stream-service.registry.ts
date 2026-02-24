@@ -210,9 +210,14 @@ export class StreamDispatchService {
                 const eventName = x["event"];
                 const eventData = x["data"];
                 // this._logger.debug("Received event:", eventName);
-                this._zone.run(() => {
-                    this._eventNameToServiceMap.get(eventName).notifyEvent(eventName, eventData);
-                });
+                const service = this._eventNameToServiceMap.get(eventName);
+                if (service) {
+                    this._zone.run(() => {
+                        service.notifyEvent(eventName, eventData);
+                    });
+                } else {
+                    this._logger.warn("Received unknown SSE event:", eventName);
+                }
             },
             error: err => {
                 this._logger.error("Error in stream: %O", err);

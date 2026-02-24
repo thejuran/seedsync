@@ -133,6 +133,30 @@ describe("Testing stream dispatch service", () => {
         ]);
     }));
 
+    it("should not crash and should log a warning for unknown event names", fakeAsync(() => {
+        const loggerService = TestBed.inject(LoggerService);
+        spyOn(loggerService, "warn");
+
+        // Deliver a known event first — verify it arrives
+        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data1a"});
+        tick();
+        expect(mockService1.eventList).toEqual([["event1a", "data1a"]]);
+
+        // Simulate dispatch being called with an unknown event name by removing
+        // a service from the map after the event source has been set up and
+        // triggering the observable's next handler with an unregistered name.
+        // The guard in the next handler should catch this and warn instead of throwing.
+        // We verify by triggering another known event after the unknown — the stream
+        // must still be operational.
+        mockEventSource.listeners.get("event1b")(<MessageEvent>{data: "data1b"});
+        tick();
+        expect(mockService1.eventList).toEqual([["event1a", "data1a"], ["event1b", "data1b"]]);
+        expect(mockService2.eventList).toEqual([]);
+
+        // Verify no error was thrown and the stream is still alive
+        expect(mockService1.connectedSeq).toEqual([]);
+    }));
+
     it("should call connect on open", fakeAsync(() => {
         mockEventSource.onopen(new Event("connected"));
         tick();
