@@ -1,7 +1,7 @@
 import {Injectable} from "@angular/core";
 import {HttpClient, HttpErrorResponse} from "@angular/common/http";
-import {Observable} from "rxjs";
-import {shareReplay} from "rxjs/operators";
+import {Observable, of} from "rxjs";
+import {catchError, map, shareReplay} from "rxjs/operators";
 
 import {LoggerService} from "./logger.service";
 
@@ -39,25 +39,23 @@ export class RestService {
      * @returns {Observable<WebReaction>}
      */
     public sendRequest(url: string): Observable<WebReaction> {
-        return new Observable<WebReaction>(observer => {
-            this._http.get(url, {responseType: "text"})
-                .subscribe(
-                data => {
-                    this._logger.debug("%s http response: %s", url, data);
-                    observer.next(new WebReaction(true, data, null));
-                },
-                (err: HttpErrorResponse) => {
-                    let errorMessage = null;
-                    this._logger.debug("%s error: %O", url, err);
-                    if (err.error instanceof Event) {
-                        errorMessage = err.error.type;
-                    } else {
-                        errorMessage = err.error;
-                    }
-                    observer.next(new WebReaction(false, null, errorMessage));
+        return this._http.get(url, {responseType: "text"}).pipe(
+            map(data => {
+                this._logger.debug("%s http response: %s", url, data);
+                return new WebReaction(true, data, null);
+            }),
+            catchError((err: HttpErrorResponse) => {
+                let errorMessage: string = null;
+                this._logger.debug("%s error: %O", url, err);
+                if (err.error instanceof Event) {
+                    errorMessage = err.error.type;
+                } else {
+                    errorMessage = err.error;
                 }
-            );
-        }).pipe(shareReplay(1));
+                return of(new WebReaction(false, null, errorMessage));
+            }),
+            shareReplay(1)
+        );
         // shareReplay is needed to:
         //      prevent duplicate http requests
         //      share result with those that subscribe after the value was published
