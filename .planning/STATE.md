@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 43 of 45 (Frontend Quality)
-Plan: 2 of 3 complete in current phase
-Status: Phase 43 plan 02 complete
-Last activity: 2026-02-24 — Phase 43 Plan 02 complete (subscription leak fixes: takeUntil/destroy$ in AppComponent, SettingsPage, AutoQueuePage)
+Plan: 2 of 3 complete in current phase (01 + 02)
+Status: Phase 43 plans 01 and 02 complete
+Last activity: 2026-02-24 — Phase 43 Plan 01 complete (XSS fix via escapeHtml in ConfirmModalService; RestService pipe refactor eliminating nested subscribe)
 
 Progress: [██████░░░░] 60% (v3.1)
 
@@ -38,10 +38,10 @@ Progress: [██████░░░░] 60% (v3.1)
 **Total Project:**
 - 12 milestones shipped
 - 42 phases complete (phases 1-42)
-- 75 plans executed
+- 76 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 4 phases complete + phase 43 in progress, 12 plans
+**v3.1 so far:** 4 phases complete + phase 43 in progress, 13 plans
 
 ## Accumulated Context
 
@@ -74,6 +74,8 @@ Progress: [██████░░░░] 60% (v3.1)
 - [Phase 42-01]: propagate_exception outer raise removed (CRASH-01): exc.re_raise() raises internally; outer raise was unreachable and could produce TypeError
 - [Phase 42-01]: WebhookManager bare except replaced with except Empty (CRASH-03): bare except masks SystemExit/KeyboardInterrupt/programming errors
 - [Phase 42-01]: remote_size None guard in _estimate_root_eta (CRASH-02): guard added before subtraction to prevent TypeError when remote scanner hasn't returned size
+- [Phase 43-01]: escapeHtml applied to options.title and options.body before innerHTML interpolation — file names from remote server are the XSS vector; <b> tags in localization.ts render as literal text (FE-01)
+- [Phase 43-01]: RestService.sendRequest uses pipe(map, catchError, shareReplay) directly on http.get() — eliminates Observable constructor wrapping a nested subscribe (FE-02)
 - [Phase 43-02]: takeUntil/destroy$ pattern (FE-03/FE-07): all three components use destroy$ = new Subject<void>() + takeUntil(this.destroy$) on subscriptions; ngOnDestroy calls destroy$.next() and destroy$.complete()
 - [Phase 43-02]: AppComponent constructor side-effect removed: router.events subscription moved from constructor into ngOnInit; constructor now has no subscription side-effects
 - [Phase 43-02]: Manual _toastSubscription removed from AppComponent: converted to takeUntil pattern for uniformity; eliminates mixed subscription management styles
@@ -95,7 +97,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 43-02-PLAN.md (subscription leak fixes: takeUntil/destroy$ in AppComponent, SettingsPage, AutoQueuePage)
+Stopped at: Completed 43-01-PLAN.md (XSS fix via escapeHtml in ConfirmModalService; RestService pipe refactor)
 Next action: Execute 43-03-PLAN.md
 
 ---

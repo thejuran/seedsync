@@ -38,8 +38,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 ### Frontend Quality
 
-- [ ] **FE-01**: ConfirmModalService sanitizes file names before innerHTML insertion (Finding 12)
-- [ ] **FE-02**: RestService uses RxJS pipe operators instead of nested subscribe in Observable constructor (Finding 17)
+- [x] **FE-01**: ConfirmModalService sanitizes file names before innerHTML insertion (Finding 12)
+- [x] **FE-02**: RestService uses RxJS pipe operators instead of nested subscribe in Observable constructor (Finding 17)
 - [x] **FE-03**: AppComponent router subscriptions stored and unsubscribed on destroy (Finding 18)
 - [ ] **FE-04**: AutoQueueService.remove uses post-request state for index operations (Finding 25)
 - [ ] **FE-05**: StreamServiceRegistry reconnect timers cancelled on service destroy (Finding 37)
@@ -109,8 +109,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | CRASH-04 | Phase 42 | Complete |
 | CRASH-05 | Phase 42 | Complete |
 | CRASH-06 | Phase 42 | Complete |
-| FE-01 | Phase 43 | Pending |
-| FE-02 | Phase 43 | Pending |
+| FE-01 | Phase 43 | Complete |
+| FE-02 | Phase 43 | Complete |
 | FE-03 | Phase 43 | Complete |
 | FE-04 | Phase 43 | Pending |
 | FE-05 | Phase 43 | Pending |
