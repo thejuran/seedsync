@@ -127,8 +127,7 @@ class Lftp:
         try:
             self.__process.expect(self.__expect_pattern, timeout=self.__timeout)
         except pexpect.exceptions.TIMEOUT:
-            self.logger.exception("Lftp timeout exception")
-            pass
+            self.logger.warning("Lftp timeout exception")
         finally:
             out = self.__process.before.decode('utf8', 'replace')
             out = out.strip()  # remove any CRs
@@ -147,8 +146,7 @@ class Lftp:
             try:
                 self.__process.expect(self.__expect_pattern, timeout=self.__timeout)
             except pexpect.exceptions.TIMEOUT:
-                self.logger.exception("Lftp timeout exception")
-                pass
+                self.logger.warning("Lftp timeout exception")
             finally:
                 out = self.__process.before.decode('utf8', 'replace')
                 out = out.strip()  # remove any CRs
