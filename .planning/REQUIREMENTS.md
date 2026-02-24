@@ -24,8 +24,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 - [x] **THRD-01**: Auto-delete timer callback acquires model lock before reading model (Finding 8)
 - [x] **THRD-02**: Webhook import check acquires model lock before reading/mutating model files (Finding 9)
-- [ ] **THRD-03**: ExtractDispatch iterates task queue under Queue.mutex (Finding 13)
-- [ ] **THRD-04**: ExtractDispatch uses context manager lock pattern and copy-under-lock per CLAUDE.md (Finding 22)
+- [x] **THRD-03**: ExtractDispatch iterates task queue under Queue.mutex (Finding 13)
+- [x] **THRD-04**: ExtractDispatch uses context manager lock pattern and copy-under-lock per CLAUDE.md (Finding 22)
 
 ### Crash Prevention
 
@@ -101,8 +101,8 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | SEC-10 | Phase 40 | Complete |
 | THRD-01 | Phase 41 | Complete |
 | THRD-02 | Phase 41 | Complete |
-| THRD-03 | Phase 41 | Pending |
-| THRD-04 | Phase 41 | Pending |
+| THRD-03 | Phase 41 | Complete |
+| THRD-04 | Phase 41 | Complete |
 | CRASH-01 | Phase 42 | Pending |
 | CRASH-02 | Phase 42 | Pending |
 | CRASH-03 | Phase 42 | Pending |

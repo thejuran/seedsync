@@ -41,7 +41,7 @@ Progress: [████░░░░░░] 35% (v3.1)
 - 70 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 3 phases, 6 plans
+**v3.1 so far:** 3 phases, 7 plans
 
 ## Accumulated Context
 
@@ -85,8 +85,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 41-01-PLAN.md (model lock for auto-delete and webhook import)
-Next action: Execute remaining plans in phase 41 or /gsd:plan-phase 42
+Stopped at: Completed 41-02-PLAN.md (ExtractDispatch queue mutex + copy-under-lock)
+Next action: Execute 41-03-PLAN.md
 
 ---
-*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plan 01 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24*
