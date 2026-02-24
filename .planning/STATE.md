@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 46 of 46 (Code Review Fixes)
-Plan: 3 of 3 complete in current phase (01, 02, 03)
-Status: Phase 46 Plan 03 complete
-Last activity: 2026-02-24 — Phase 46 Plan 03 complete (unconditional Tab focus trap CR-02; escapeHtml for okBtn/cancelBtn/okBtnClass/cancelBtnClass CR-05)
+Plan: 4 of 4 complete in current phase (01, 02, 03, 04)
+Status: Phase 46 Plan 04 complete
+Last activity: 2026-02-24 — Phase 46 Plan 04 complete (clearTimeout before _reconnectTimer reassignment CR-06; real unknown-event test CR-08; LogService uses LoggerService CR-09; RestService handleSuccess/handleError helpers CR-11)
 
 Progress: [██████████] 100% (v3.1)
 
@@ -43,7 +43,7 @@ Progress: [██████████] 100% (v3.1)
 
 **v3.1 so far:** 7 phases complete (phases 39-45), 23 plans (45-02 added)
 
-**v3.2 so far:** 1 phase complete (phase 46), 3 plans
+**v3.2 so far:** 1 phase complete (phase 46), 4 plans
 
 ## Accumulated Context
 
@@ -113,6 +113,10 @@ Progress: [██████████] 100% (v3.1)
 - [Phase 46-01]: getMessage() replaces record.msg in SerializeLogRecord — returns fully interpolated message string so format-arg passwords (logger.info('%s', password)) are caught by regex scrubbers before hitting SSE stream (CR-03)
 - [Phase 46-03]: Tab handler restructured to single 'event.key === Tab' branch with unconditional preventDefault() — eliminates the conditional that allowed Tab to escape when focus was on modal container or any non-button element (CR-02)
 - [Phase 46-03]: Four additional escapeHtml() calls added (okBtn, okBtnClass, cancelBtn, cancelBtnClass) — defense-in-depth; current callers pass static strings but prevents future injection if callers pass user input (CR-05)
+- [Phase 46-04]: spyOnProperty for LoggerService.warn getter: spyOn cannot intercept getters on prototypes; spyOnProperty captures the getter call and returns a jasmine.createSpy() that production code invokes (CR-08 test fix)
+- [Phase 46-04]: clearTimeout guard before _reconnectTimer reassignment at both sites: prevents ghost timer accumulation when reconnect is triggered while one is already pending (CR-06)
+- [Phase 46-04]: LogService injects LoggerService for consistent error logging; eliminates direct console.error usage (CR-09)
+- [Phase 46-04]: handleSuccess/handleError factory methods in RestService: each returns a closure over url, eliminates three copies of identical map/catchError blocks across sendRequest/post/delete (CR-11)
 
 ### Todos
 
@@ -131,8 +135,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 46-03-PLAN.md (unconditional Tab focus trap in confirm modal, escapeHtml for all 6 innerHTML values)
-Next action: Phase 46 complete — all 3 plans executed. v3.2 milestone complete. Next: /gsd:new-milestone or tag v3.2.
+Stopped at: Completed 46-04-PLAN.md (clearTimeout guards CR-06; real unknown-event test with spyOnProperty CR-08; LogService LoggerService injection CR-09; RestService handleSuccess/handleError helpers CR-11)
+Next action: Phase 46 Plan 04 complete. Check if remaining Phase 46 plans exist, or if phase is done.
 
 ---
 *v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24; phase 45 all 3 plans complete 2026-02-24*
