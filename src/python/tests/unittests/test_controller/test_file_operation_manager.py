@@ -1,9 +1,11 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import shlex
 import unittest
 from unittest.mock import MagicMock, patch
 
 from controller import FileOperationManager
+from controller.delete.delete_process import DeleteRemoteProcess
 from controller.extract import ExtractStatus
 
 
@@ -371,6 +373,70 @@ class TestFileOperationManager(unittest.TestCase):
         manager.propagate_exception()
 
         mock_extract.propagate_exception.assert_called_once()
+
+
+class TestDeleteRemoteProcessShellEscaping(unittest.TestCase):
+    """Tests that DeleteRemoteProcess uses shlex.quote to escape shell metacharacters."""
+
+    def _make_process(self, file_name: str) -> DeleteRemoteProcess:
+        return DeleteRemoteProcess(
+            remote_address="remote.server.com",
+            remote_username="user",
+            remote_password="password",
+            remote_port=22,
+            remote_path="/remote/path",
+            file_name=file_name
+        )
+
+    @patch('controller.delete.delete_process.Sshcp')
+    def test_delete_remote_escapes_single_quotes_in_filename(self, mock_sshcp_cls):
+        """File names containing single quotes are properly escaped."""
+        mock_ssh = MagicMock()
+        mock_ssh.shell.return_value = b""
+        mock_sshcp_cls.return_value = mock_ssh
+
+        process = self._make_process("it's a file")
+        process.run_once()
+
+        file_path = "/remote/path/it's a file"
+        expected_cmd = "rm -rf {}".format(shlex.quote(file_path))
+        mock_ssh.shell.assert_called_once_with(expected_cmd)
+        # Verify the single quote in the filename is properly escaped by shlex.quote
+        # shlex.quote converts: /remote/path/it's a file -> '/remote/path/it'"'"'s a file'
+        # The embedded single quote becomes '"'"' (end quote, literal ', re-open quote)
+        self.assertIn("'\"'\"'", expected_cmd)
+
+    @patch('controller.delete.delete_process.Sshcp')
+    def test_delete_remote_escapes_semicolons_in_filename(self, mock_sshcp_cls):
+        """File names containing semicolons are properly escaped so metacharacter is not interpreted."""
+        mock_ssh = MagicMock()
+        mock_ssh.shell.return_value = b""
+        mock_sshcp_cls.return_value = mock_ssh
+
+        process = self._make_process("file; rm -rf /")
+        process.run_once()
+
+        file_path = "/remote/path/file; rm -rf /"
+        expected_cmd = "rm -rf {}".format(shlex.quote(file_path))
+        mock_ssh.shell.assert_called_once_with(expected_cmd)
+        # The entire path (including semicolon) must be wrapped in a single quoted token
+        # shlex.quote produces: '/remote/path/file; rm -rf /'
+        # The semicolon appears inside single quotes — safe for the shell
+        self.assertTrue(expected_cmd.startswith("rm -rf '"))
+
+    @patch('controller.delete.delete_process.Sshcp')
+    def test_delete_remote_normal_filename(self, mock_sshcp_cls):
+        """Normal file names are safely quoted by shlex.quote (no injection possible)."""
+        mock_ssh = MagicMock()
+        mock_ssh.shell.return_value = b""
+        mock_sshcp_cls.return_value = mock_ssh
+
+        process = self._make_process("normal_file.txt")
+        process.run_once()
+
+        file_path = "/remote/path/normal_file.txt"
+        expected_cmd = "rm -rf {}".format(shlex.quote(file_path))
+        mock_ssh.shell.assert_called_once_with(expected_cmd)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import os
+import shlex
 import shutil
 from typing import Optional
 
@@ -47,7 +48,7 @@ class DeleteRemoteProcess(AppOneShotProcess):
         file_path = os.path.join(self.__remote_path, self.__file_name)
         self.logger.debug("Deleting remote file {}".format(self.__file_name))
         try:
-            out = self.__ssh.shell("rm -rf '{}'".format(file_path))
+            out = self.__ssh.shell("rm -rf {}".format(shlex.quote(file_path)))
             self.logger.debug("Remote delete output: {}".format(out.decode()))
         except SshcpError:
             self.logger.exception("Exception while deleting remote file")
