@@ -59,14 +59,16 @@ class WebResponseActionCallback(Controller.Command.ICallback):
 class ControllerHandler(IHandler):
     def __init__(self, controller: Controller):
         self.__controller = controller
+        self._bulk_request_times: List[float] = []
+        self._bulk_rate_lock = Lock()
 
     @overrides(IHandler)
     def add_routes(self, web_app: WebApp):
-        web_app.add_handler("/server/command/queue/<file_name>", self.__handle_action_queue)
-        web_app.add_handler("/server/command/stop/<file_name>", self.__handle_action_stop)
-        web_app.add_handler("/server/command/extract/<file_name>", self.__handle_action_extract)
-        web_app.add_handler("/server/command/delete_local/<file_name>", self.__handle_action_delete_local)
-        web_app.add_handler("/server/command/delete_remote/<file_name>", self.__handle_action_delete_remote)
+        web_app.add_post_handler("/server/command/queue/<file_name>", self.__handle_action_queue)
+        web_app.add_post_handler("/server/command/stop/<file_name>", self.__handle_action_stop)
+        web_app.add_post_handler("/server/command/extract/<file_name>", self.__handle_action_extract)
+        web_app.add_delete_handler("/server/command/delete_local/<file_name>", self.__handle_action_delete_local)
+        web_app.add_delete_handler("/server/command/delete_remote/<file_name>", self.__handle_action_delete_remote)
         web_app.add_post_handler("/server/command/bulk", self.__handle_bulk_command)
 
     def __handle_action_queue(self, file_name: str) -> HTTPResponse:
@@ -196,31 +198,29 @@ class ControllerHandler(IHandler):
     # Rate limiting for bulk endpoint (DoS prevention)
     _BULK_RATE_LIMIT = 10  # Max requests per window
     _BULK_RATE_WINDOW = 60.0  # Window size in seconds
-    _bulk_request_times: List[float] = []  # Timestamps of recent bulk requests
-    _bulk_rate_lock = Lock()  # Thread-safe access to rate limit state
 
     def _check_bulk_rate_limit(self) -> bool:
         """
         Check if the bulk request rate limit has been exceeded.
 
         Uses a sliding window algorithm to track recent requests.
-        Thread-safe via class-level lock.
+        Thread-safe via instance-level lock.
 
         Returns:
             True if request is allowed, False if rate limited.
         """
         now = time.time()
-        with ControllerHandler._bulk_rate_lock:
+        with self._bulk_rate_lock:
             # Remove timestamps outside the window
-            ControllerHandler._bulk_request_times = [
-                t for t in ControllerHandler._bulk_request_times
+            self._bulk_request_times = [
+                t for t in self._bulk_request_times
                 if now - t < self._BULK_RATE_WINDOW
             ]
             # Check if limit exceeded
-            if len(ControllerHandler._bulk_request_times) >= self._BULK_RATE_LIMIT:
+            if len(self._bulk_request_times) >= self._BULK_RATE_LIMIT:
                 return False
             # Record this request
-            ControllerHandler._bulk_request_times.append(now)
+            self._bulk_request_times.append(now)
             return True
 
     def __handle_bulk_command(self) -> HTTPResponse:

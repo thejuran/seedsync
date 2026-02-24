@@ -13,8 +13,9 @@ from .scan_manager import ScanManager
 from .lftp_manager import LftpManager
 from .file_operation_manager import FileOperationManager
 from .webhook_manager import WebhookManager
-from .extract import ExtractStatus
+from .extract import ExtractStatus, ExtractStatusResult, ExtractCompletedResult
 from .model_builder import ModelBuilder
+from .scan import ScannerResult
 from .memory_monitor import MemoryMonitor
 from common import Context, AppError, MultiprocessingLogger
 from model import ModelError, ModelFile, Model, ModelDiff, ModelDiffUtil, IModelListener
@@ -312,7 +313,7 @@ class Controller:
     # __update_model() helper methods
     # =========================================================================
 
-    def _collect_scan_results(self) -> Tuple[Optional[object], Optional[object], Optional[object]]:
+    def _collect_scan_results(self) -> Tuple[Optional[ScannerResult], Optional[ScannerResult], Optional[ScannerResult]]:
         """
         Collect the latest scan results from all scanner processes.
 
@@ -331,7 +332,7 @@ class Controller:
         """
         return self.__lftp_manager.status()
 
-    def _collect_extract_results(self) -> Tuple[Optional[object], List]:
+    def _collect_extract_results(self) -> Tuple[Optional[ExtractStatusResult], List[ExtractCompletedResult]]:
         """
         Collect extract process status and completed extractions.
 
@@ -589,7 +590,7 @@ class Controller:
                     file = new_model.get_file(file_name)
                     if file.import_status != ModelFile.ImportStatus.IMPORTED:
                         new_file = copy.copy(file)
-                        new_file._ModelFile__frozen = False
+                        new_file.unfreeze()
                         new_file.import_status = ModelFile.ImportStatus.IMPORTED
                         new_model.update_file(new_file)
                 except ModelError:
@@ -713,7 +714,7 @@ class Controller:
                     old_file = self.__model.get_file(file_name)
                     if old_file.import_status != ModelFile.ImportStatus.IMPORTED:
                         new_file = copy.copy(old_file)
-                        new_file._ModelFile__frozen = False
+                        new_file.unfreeze()
                         new_file.import_status = ModelFile.ImportStatus.IMPORTED
                         self.__model.update_file(new_file)
                 except ModelError:
