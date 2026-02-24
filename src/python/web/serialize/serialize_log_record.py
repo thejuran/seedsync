@@ -55,7 +55,7 @@ class SerializeLogRecord(Serialize):
         json_dict[SerializeLogRecord.__KEY_LEVEL_NAME] = record.levelname
         json_dict[SerializeLogRecord.__KEY_LOGGER_NAME] = record.name
         json_dict[SerializeLogRecord.__KEY_MESSAGE] = SerializeLogRecord._redact_sensitive(
-            record.msg
+            record.getMessage()
         )
         exc_text = None
         if record.exc_text:

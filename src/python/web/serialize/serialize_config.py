@@ -12,6 +12,7 @@ _SENSITIVE_FIELDS = {
     "lftp": ["remote_password"],
     "sonarr": ["sonarr_api_key"],
     "radarr": ["radarr_api_key"],
+    "general": ["webhook_secret"],
 }
 
 _REDACTED = "**REDACTED**"

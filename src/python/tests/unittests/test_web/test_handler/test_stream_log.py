@@ -193,6 +193,18 @@ class TestSerializeLogRecordRedaction(unittest.TestCase):
         payload = _parse_sse_message(sse)
         self.assertEqual(msg, payload["message"])
 
+    def test_redacts_password_in_format_args(self):
+        """Password passed as a format argument is caught via getMessage()."""
+        record = LogRecord(
+            name="test.logger", level=20, pathname="test.py", lineno=1,
+            msg="connecting with -u user,%s", args=("secretpass123",), exc_info=None,
+        )
+        sse = SerializeLogRecord().record(record)
+        payload = _parse_sse_message(sse)
+        message = payload["message"]
+        self.assertIn("**REDACTED**", message)
+        self.assertNotIn("secretpass123", message)
+
     def test_redacts_password_in_exception_traceback(self):
         """Passwords embedded in exc_text are scrubbed before SSE output."""
         exc_text = (

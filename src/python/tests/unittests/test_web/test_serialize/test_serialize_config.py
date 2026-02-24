@@ -113,6 +113,14 @@ class TestSerializeConfig(unittest.TestCase):
         self.assertEqual("**REDACTED**", out_dict["radarr"]["radarr_api_key"])
         self.assertNotIn("radarr-api-key-xyz789", out)
 
+    def test_config_redacts_webhook_secret(self):
+        config = Config()
+        config.general.webhook_secret = "super-secret-webhook-key"
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["general"]["webhook_secret"])
+        self.assertNotIn("super-secret-webhook-key", out)
+
     def test_config_preserves_non_sensitive_fields(self):
         config = Config()
         config.lftp.remote_address = "seedbox.example.com"
