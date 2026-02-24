@@ -63,7 +63,7 @@ def mock_context(test_logger):
     context.config.lftp.local_path = "/local/path"
     context.config.lftp.remote_address = "remote.server.com"
     context.config.lftp.remote_username = "user"
-    context.config.lftp.remote_password = "password"
+    context.config.lftp.remote_password = "password"  # Default test credential — not a real secret (test container only)
     context.config.lftp.use_ssh_key = False
     context.config.lftp.remote_port = 22
     context.config.lftp.remote_path = "/remote/path"

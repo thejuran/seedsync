@@ -322,7 +322,7 @@ class TestController(unittest.TestCase):
             "Lftp": {
                 "remote_address": "localhost",
                 "remote_username": "seedsynctest",
-                "remote_password": "seedsyncpass",
+                "remote_password": "seedsyncpass",  # Test credentials for Docker-based test container — not a real secret
                 "remote_port": 22,
                 "remote_path": os.path.join(self.temp_dir, "remote"),
                 "local_path": os.path.join(self.temp_dir, "local"),

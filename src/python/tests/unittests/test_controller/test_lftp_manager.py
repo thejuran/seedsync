@@ -19,7 +19,7 @@ class TestLftpManager(unittest.TestCase):
         self.mock_context.config.lftp.remote_address = "remote.server.com"
         self.mock_context.config.lftp.remote_port = 22
         self.mock_context.config.lftp.remote_username = "user"
-        self.mock_context.config.lftp.remote_password = "password"
+        self.mock_context.config.lftp.remote_password = "password"  # Test-only credential — not a real secret (mock, no real connection)
         self.mock_context.config.lftp.use_ssh_key = False
         self.mock_context.config.lftp.remote_path = "/remote/path"
         self.mock_context.config.lftp.local_path = "/local/path"

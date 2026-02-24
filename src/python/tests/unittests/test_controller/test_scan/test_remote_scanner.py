@@ -13,6 +13,8 @@ from controller.scan import RemoteScanner, ScannerError
 from ssh import SshcpError
 from common import Localization
 
+# Test-only credential for mock scanner — SSH is patched; this value never reaches a real server.
+
 
 class TestRemoteScanner(unittest.TestCase):
     temp_dir = None

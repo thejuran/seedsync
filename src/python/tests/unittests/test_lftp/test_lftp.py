@@ -13,6 +13,12 @@ from tests.utils import TestUtils
 from lftp import Lftp, LftpJobStatus, LftpError
 
 
+# Test credentials for Docker-based test container (see test/python/Dockerfile).
+# These are NOT production secrets — they exist only in the ephemeral test environment.
+_TEST_USER = "seedsynctest"
+_TEST_PASSWORD = "seedsyncpass"
+
+
 # noinspection PyPep8Naming,SpellCheckingInspection
 class TestLftp(unittest.TestCase):
     temp_dir = None
@@ -99,8 +105,8 @@ class TestLftp(unittest.TestCase):
         # Note: seedsynctest account must be set up. See DeveloperReadme.md for details
         self.host = "localhost"
         self.port = 22
-        self.user = "seedsynctest"
-        self.password = "seedsyncpass"
+        self.user = _TEST_USER
+        self.password = _TEST_PASSWORD
 
         # Default lftp instance - use key-based login
         self.lftp = Lftp(address=self.host, port=self.port, user=self.user, password=None)

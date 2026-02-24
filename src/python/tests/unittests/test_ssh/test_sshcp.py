@@ -16,12 +16,15 @@ from common import overrides
 from ssh import Sshcp, SshcpError
 
 
-# This is outside so it can be used in the parameterized decorators
+# Test credentials for Docker-based test container (see test/python/Dockerfile).
+# These are NOT production secrets — they exist only in the ephemeral test environment.
 # noinspection SpellCheckingInspection
-_PASSWORD = "seedsyncpass"
+_TEST_USER = "seedsynctest"
+# noinspection SpellCheckingInspection
+_TEST_PASSWORD = "seedsyncpass"
 # noinspection SpellCheckingInspection
 _PARAMS = [
-    ("password", _PASSWORD),
+    ("password", _TEST_PASSWORD),
     ("keyauth", None)
 ]
 
@@ -44,7 +47,7 @@ class TestSshcp(unittest.TestCase):
         # Note: seedsynctest account must be set up. See DeveloperReadme.md for details
         self.host = "127.0.0.1"
         self.port = 22
-        self.user = "seedsynctest"
+        self.user = _TEST_USER
 
         logger = logging.getLogger()
         handler = logging.StreamHandler(sys.stdout)
