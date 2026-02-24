@@ -67,6 +67,35 @@ describe("Testing log service", () => {
         expect(Immutable.is(latestRecord, LogRecord.fromJson(json))).toBe(true);
     }));
 
+    it("should not crash on malformed JSON in log event", fakeAsync(() => {
+        let count = 0;
+        logService.logs.subscribe({
+            next: _record => { count++; }
+        });
+        tick();
+        expect(count).toBe(0);
+
+        // Malformed JSON should not throw
+        expect(() => {
+            logService.notifyEvent("log-record", "not valid json {{{");
+            tick();
+        }).not.toThrow();
+
+        // No new record should be emitted
+        expect(count).toBe(0);
+
+        // Subsequent valid events should still work
+        const json = {
+            level_name: "DEBUG",
+            time: "1514776875.9439101",
+            logger_name: "seedsync.Controller.Model",
+            message: "LftpModel: Adding a listener"
+        };
+        logService.notifyEvent("log-record", JSON.stringify(json));
+        tick();
+        expect(count).toBe(1);
+    }));
+
     it("should cache records", fakeAsync(() => {
         let count = 0;
         let latestRecord: LogRecord = null;

@@ -42,8 +42,12 @@ export class LogService extends BaseStreamService implements OnDestroy {
     }
 
     protected onEvent(eventName: string, data: string): void {
-        this._hasReceivedLogs = true;
-        this._logs.next(LogRecord.fromJson(JSON.parse(data)));
+        try {
+            this._hasReceivedLogs = true;
+            this._logs.next(LogRecord.fromJson(JSON.parse(data)));
+        } catch (error) {
+            console.error("Failed to parse log event:", error);
+        }
     }
 
     protected onConnected(): void {

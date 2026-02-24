@@ -107,4 +107,46 @@ describe("Testing server status service", () => {
         expect(latestStatus.server.up).toBe(false);
     }));
 
+    it("should not crash on malformed JSON in status event", fakeAsync(() => {
+        let count = 0;
+        let latestStatus: ServerStatus = null;
+        serverStatusService.status.subscribe({
+            next: status => {
+                count++;
+                latestStatus = status;
+            }
+        });
+        tick();
+        expect(count).toBe(1);
+        const initialStatus = latestStatus;
+
+        // Malformed JSON should not throw
+        expect(() => {
+            serverStatusService.notifyEvent("status", "not valid json {{{");
+            tick();
+        }).not.toThrow();
+
+        // Status should be unchanged
+        expect(count).toBe(1);
+        expect(latestStatus).toBe(initialStatus);
+
+        // Subsequent valid events should still work
+        const validStatusJson: ServerStatusJson = {
+            server: {
+                up: true,
+                error_msg: null
+            },
+            controller: {
+                latest_local_scan_time: null,
+                latest_remote_scan_time: null,
+                latest_remote_scan_failed: null,
+                latest_remote_scan_error: null
+            }
+        };
+        serverStatusService.notifyEvent("status", JSON.stringify(validStatusJson));
+        tick();
+        expect(count).toBe(2);
+        expect(latestStatus.server.up).toBe(true);
+    }));
+
 });

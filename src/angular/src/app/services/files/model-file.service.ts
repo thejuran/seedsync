@@ -132,67 +132,71 @@ export class ModelFileService extends BaseStreamService implements OnDestroy {
      * @param {string} data
      */
     private parseEvent(name: string, data: string): void {
-        if (name === this.EVENT_INIT) {
-            // Init event receives an array of ModelFiles
-            let t0: number;
-            let t1: number;
+        try {
+            if (name === this.EVENT_INIT) {
+                // Init event receives an array of ModelFiles
+                let t0: number;
+                let t1: number;
 
-            t0 = performance.now();
-            const parsed: ModelFileJson[] = JSON.parse(data);
-            t1 = performance.now();
-            this._logger.debug("Parsing took", (t1 - t0).toFixed(0), "ms");
+                t0 = performance.now();
+                const parsed: ModelFileJson[] = JSON.parse(data);
+                t1 = performance.now();
+                this._logger.debug("Parsing took", (t1 - t0).toFixed(0), "ms");
 
-            t0 = performance.now();
-            const newFiles: ModelFile[] = [];
-            for (const file of parsed) {
-                newFiles.push(ModelFile.fromJson(file));
-            }
-            t1 = performance.now();
-            this._logger.debug("ModelFile creation took", (t1 - t0).toFixed(0), "ms");
+                t0 = performance.now();
+                const newFiles: ModelFile[] = [];
+                for (const file of parsed) {
+                    newFiles.push(ModelFile.fromJson(file));
+                }
+                t1 = performance.now();
+                this._logger.debug("ModelFile creation took", (t1 - t0).toFixed(0), "ms");
 
-            // Replace the entire model
-            t0 = performance.now();
-            const newMap = Immutable.Map<string, ModelFile>(newFiles.map(value => ([value.name, value])));
-            t1 = performance.now();
-            this._logger.debug("ModelFile map creation took", (t1 - t0).toFixed(0), "ms");
+                // Replace the entire model
+                t0 = performance.now();
+                const newMap = Immutable.Map<string, ModelFile>(newFiles.map(value => ([value.name, value])));
+                t1 = performance.now();
+                this._logger.debug("ModelFile map creation took", (t1 - t0).toFixed(0), "ms");
 
-            this._files.next(newMap);
-            // this._logger.debug("New model: %O", this._files.getValue().toJS());
-        } else if (name === this.EVENT_ADDED) {
-            // Added event receives old and new ModelFiles
-            // Only new file is relevant
-            const parsed: {new_file: ModelFileJson} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.new_file);
-            if (this._files.getValue().has(file.name)) {
-                this._logger.error("ModelFile named " + file.name + " already exists");
+                this._files.next(newMap);
+                // this._logger.debug("New model: %O", this._files.getValue().toJS());
+            } else if (name === this.EVENT_ADDED) {
+                // Added event receives old and new ModelFiles
+                // Only new file is relevant
+                const parsed: {new_file: ModelFileJson} = JSON.parse(data);
+                const file = ModelFile.fromJson(parsed.new_file);
+                if (this._files.getValue().has(file.name)) {
+                    this._logger.error("ModelFile named " + file.name + " already exists");
+                } else {
+                    this._files.next(this._files.getValue().set(file.name, file));
+                    this._logger.debug("Added file: %O", file.toJS());
+                }
+            } else if (name === this.EVENT_REMOVED) {
+                // Removed event receives old and new ModelFiles
+                // Only old file is relevant
+                const parsed: {old_file: ModelFileJson} = JSON.parse(data);
+                const file = ModelFile.fromJson(parsed.old_file);
+                if (this._files.getValue().has(file.name)) {
+                    this._files.next(this._files.getValue().remove(file.name));
+                    this._logger.debug("Removed file: %O", file.toJS());
+                } else {
+                    this._logger.error("Failed to find ModelFile named " + file.name);
+                }
+            } else if (name === this.EVENT_UPDATED) {
+                // Updated event received old and new ModelFiles
+                // We will only use the new one here
+                const parsed: {new_file: ModelFileJson} = JSON.parse(data);
+                const file = ModelFile.fromJson(parsed.new_file);
+                if (this._files.getValue().has(file.name)) {
+                    this._files.next(this._files.getValue().set(file.name, file));
+                    this._logger.debug("Updated file: %O", file.toJS());
+                } else {
+                    this._logger.error("Failed to find ModelFile named " + file.name);
+                }
             } else {
-                this._files.next(this._files.getValue().set(file.name, file));
-                this._logger.debug("Added file: %O", file.toJS());
+                this._logger.error("Unrecognized event:", name);
             }
-        } else if (name === this.EVENT_REMOVED) {
-            // Removed event receives old and new ModelFiles
-            // Only old file is relevant
-            const parsed: {old_file: ModelFileJson} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.old_file);
-            if (this._files.getValue().has(file.name)) {
-                this._files.next(this._files.getValue().remove(file.name));
-                this._logger.debug("Removed file: %O", file.toJS());
-            } else {
-                this._logger.error("Failed to find ModelFile named " + file.name);
-            }
-        } else if (name === this.EVENT_UPDATED) {
-            // Updated event received old and new ModelFiles
-            // We will only use the new one here
-            const parsed: {new_file: ModelFileJson} = JSON.parse(data);
-            const file = ModelFile.fromJson(parsed.new_file);
-            if (this._files.getValue().has(file.name)) {
-                this._files.next(this._files.getValue().set(file.name, file));
-                this._logger.debug("Updated file: %O", file.toJS());
-            } else {
-                this._logger.error("Failed to find ModelFile named " + file.name);
-            }
-        } else {
-            this._logger.error("Unrecognized event:", name);
+        } catch (error) {
+            this._logger.error("Failed to parse model event:", name, error);
         }
     }
 }

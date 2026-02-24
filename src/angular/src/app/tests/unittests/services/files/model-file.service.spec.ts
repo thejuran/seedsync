@@ -293,6 +293,48 @@ describe("Testing model file service", () => {
         expect(Immutable.is(latestModel.get("File.One"), expectedModelFiles[0])).toBe(true);
     }));
 
+    it("should not crash on malformed JSON in init event", fakeAsync(() => {
+        let count = 0;
+        let latestModel: Immutable.Map<string, ModelFile> = null;
+        modelFileService.files.subscribe({
+            next: modelFiles => {
+                count++;
+                latestModel = modelFiles;
+            }
+        });
+        tick();
+        expect(count).toBe(1);
+        expect(latestModel.size).toBe(0);
+
+        // Malformed JSON should not throw and should not change the model
+        expect(() => {
+            modelFileService.notifyEvent("model-init", "not valid json {{{");
+            tick();
+        }).not.toThrow();
+
+        expect(count).toBe(1);
+        expect(latestModel.size).toBe(0);
+
+        // Subsequent valid events should still work
+        const validModelFiles = [
+            {
+                name: "File.One",
+                is_dir: false,
+                local_size: 1234,
+                remote_size: 4567,
+                state: "default",
+                downloading_speed: 99,
+                eta: 54,
+                full_path: "/full/path/to/file.one",
+                children: []
+            }
+        ];
+        modelFileService.notifyEvent("model-init", JSON.stringify(validModelFiles));
+        tick();
+        expect(count).toBe(2);
+        expect(latestModel.size).toBe(1);
+    }));
+
     it("should send empty model on disconnect", fakeAsync(() => {
         let count = 0;
         let latestModel: Immutable.Map<string, ModelFile> = null;
