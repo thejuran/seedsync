@@ -1,10 +1,12 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import json
 import unittest
 from unittest.mock import patch
 from logging import LogRecord
 
 from web.handler.stream_log import CachedQueueLogHandler
+from web.serialize import SerializeLogRecord
 
 
 def create_log_record(created: float, msg: str) -> LogRecord:
@@ -134,3 +136,74 @@ class TestCachedQueueLogHandler(unittest.TestCase):
         # Get cached record, should return nothing
         actual = cache.get_cached_records()
         self.assertEqual(0, len(actual))
+
+
+def _parse_sse_message(sse_text: str) -> dict:
+    """
+    Parse an SSE message produced by SerializeLogRecord.record() and return
+    the decoded JSON payload dict.  The SSE format is:
+
+        event: log-record\ndata: {...}\n\n
+    """
+    for line in sse_text.splitlines():
+        if line.startswith("data:"):
+            return json.loads(line[len("data:"):].strip())
+    raise ValueError("No data line found in SSE message: {!r}".format(sse_text))
+
+
+class TestSerializeLogRecordRedaction(unittest.TestCase):
+    def _make_record(self, msg: str, exc_text: str = None) -> LogRecord:
+        record = LogRecord(
+            name="test.logger",
+            level=20,  # INFO
+            pathname="test.py",
+            lineno=1,
+            msg=msg,
+            args=None,
+            exc_info=None,
+        )
+        record.exc_text = exc_text
+        return record
+
+    def test_redacts_lftp_password_from_log_message(self):
+        """LFTP -u user,password argument: password portion is replaced."""
+        msg = "command: lftp -p 22 -u remoteuser,secretpass123 sftp://host.example.com"
+        record = self._make_record(msg)
+        sse = SerializeLogRecord().record(record)
+        payload = _parse_sse_message(sse)
+        message = payload["message"]
+        self.assertIn("-u remoteuser,**REDACTED**", message)
+        self.assertNotIn("secretpass123", message)
+
+    def test_redacts_password_equals_pattern(self):
+        """Generic password=<value> pattern is replaced."""
+        msg = "Login failed: password=mysecret"
+        record = self._make_record(msg)
+        sse = SerializeLogRecord().record(record)
+        payload = _parse_sse_message(sse)
+        message = payload["message"]
+        self.assertIn("password=**REDACTED**", message)
+        self.assertNotIn("mysecret", message)
+
+    def test_preserves_normal_messages(self):
+        """Normal log messages pass through without modification."""
+        msg = "Downloading file.txt from remote server"
+        record = self._make_record(msg)
+        sse = SerializeLogRecord().record(record)
+        payload = _parse_sse_message(sse)
+        self.assertEqual(msg, payload["message"])
+
+    def test_redacts_password_in_exception_traceback(self):
+        """Passwords embedded in exc_text are scrubbed before SSE output."""
+        exc_text = (
+            "Traceback (most recent call last):\n"
+            "  File 'lftp.py', line 66, in connect\n"
+            "    command: lftp -u admin,supersecretpass sftp://storage.box\n"
+            "LftpError: connection refused"
+        )
+        record = self._make_record("LFTP connection error", exc_text=exc_text)
+        sse = SerializeLogRecord().record(record)
+        payload = _parse_sse_message(sse)
+        exc_tb = payload["exc_tb"]
+        self.assertIn("-u admin,**REDACTED**", exc_tb)
+        self.assertNotIn("supersecretpass", exc_tb)
