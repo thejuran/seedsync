@@ -13,6 +13,7 @@
 - ✅ **v1.8 Radarr + Webhooks** - Phases 26-28 (shipped 2026-02-11)
 - ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
 - ✅ **v3.0 Terminal UI Overhaul** - Phases 33-38 (shipped 2026-02-17)
+- 🚧 **v3.1 Harden & Fix** - Phases 39-45 (in progress)
 
 ## Phases
 
@@ -142,7 +143,124 @@ See `.planning/milestones/v3.0-ROADMAP.md` for full details.
 
 </details>
 
+### 🚧 v3.1 Harden & Fix (In Progress)
+
+**Milestone Goal:** Address all findings from deep code review — close an RCE attack chain, seal credential exposure, eliminate race conditions and crash bugs, and resolve code quality issues across Python backend and Angular frontend.
+
+- [ ] **Phase 39: Critical Security Chain** - Eliminate RSA key exposure, SSH MITM vector, and pickle RCE
+- [ ] **Phase 40: Credential & Endpoint Security** - Seal config API leaks, debug mode exposure, SSRF, webhook auth, and response hygiene
+- [ ] **Phase 41: Thread Safety** - Fix race conditions in auto-delete, webhook imports, and extract dispatch
+- [ ] **Phase 42: Crash Prevention** - Fix all 6 crash bugs across exception propagation, None guards, and SSE handling
+- [ ] **Phase 43: Frontend Quality** - Fix XSS, Observable anti-patterns, and subscription leaks in Angular
+- [ ] **Phase 44: Code Quality** - Fix distutils removal, shell injection, API method correctness, and type patterns
+- [ ] **Phase 45: Documentation & Accessibility** - Update CLAUDE.md, add focus trap, and ARIA labels
+
+## Phase Details
+
+### Phase 39: Critical Security Chain
+**Goal**: The RSA private key attack chain is completely closed — no committed key material, no SSH MITM downgrade opportunity, and no pickle deserialization RCE vector
+**Depends on**: Phase 38
+**Requirements**: SEC-01, SEC-02, SEC-07
+**Success Criteria** (what must be TRUE):
+  1. Repository contains no RSA private key file; .gitignore prevents any future commit of key material
+  2. SSH connections to the remote server require host key verification — unknown hosts are not silently accepted and MITM downgrade is not possible
+  3. Remote scanner communicates scan results via JSON; pickle deserialization is not used anywhere in the scan pipeline
+**Plans**: TBD
+
+### Phase 40: Credential & Endpoint Security
+**Goal**: Sensitive credentials are never returned to API clients, debug mode cannot leak LFTP passwords, SSRF is blocked on *arr test endpoints, webhooks require authentication, and all responses include security headers with no internal error detail leakage
+**Depends on**: Phase 39
+**Requirements**: SEC-03, SEC-04, SEC-05, SEC-06, SEC-08, SEC-09, SEC-10
+**Success Criteria** (what must be TRUE):
+  1. GET /api/config response contains no remote_password, sonarr_api_key, or radarr_api_key values — fields are redacted or absent
+  2. Enabling verbose/debug mode in the UI does not cause LFTP password strings to appear in the SSE log stream
+  3. Sonarr/Radarr test-connection rejects private IP ranges and non-http/https URLs with an error response
+  4. Webhook POST requests without a valid HMAC signature are rejected with a 4xx response
+  5. All API responses include Content-Security-Policy, X-Frame-Options, and X-Content-Type-Options headers; internal exception details are not present in error response bodies
+**Plans**: TBD
+
+### Phase 41: Thread Safety
+**Goal**: Auto-delete timers, webhook import checks, and ExtractDispatch queue iteration all hold the model lock for the minimum required window, eliminating data races on shared model state
+**Depends on**: Phase 40
+**Requirements**: THRD-01, THRD-02, THRD-03, THRD-04
+**Success Criteria** (what must be TRUE):
+  1. Auto-delete timer callback reads model state only under the model lock — no window where a stale file reference can be acted on
+  2. Webhook import checks read and mutate model files only under the model lock — concurrent webhook delivery cannot corrupt model state
+  3. ExtractDispatch iterates its task queue under the queue mutex and uses the copy-under-lock pattern documented in CLAUDE.md — no concurrent modification during iteration
+**Plans**: TBD
+
+### Phase 42: Crash Prevention
+**Goal**: No reachable code path causes an unhandled exception from incorrect exception re-raise, None arithmetic, overly broad exception catches, unknown SSE event names, uncaught JSON parse errors, or indefinite action endpoint waits
+**Depends on**: Phase 41
+**Requirements**: CRASH-01, CRASH-02, CRASH-03, CRASH-04, CRASH-05, CRASH-06
+**Success Criteria** (what must be TRUE):
+  1. propagate_exception correctly re-raises without a redundant outer raise that could mask the original traceback
+  2. ETA estimation does not crash when remote_size is None — it returns a safe fallback value instead
+  3. WebhookManager.process handles an empty queue without crashing — it catches queue.Empty specifically and continues normally
+  4. An unknown SSE event name does not tear down the subscription — the client continues receiving subsequent events
+  5. A malformed JSON payload in an SSE message does not crash the Angular observable chain — the error is caught and the stream continues
+**Plans**: TBD
+
+### Phase 43: Frontend Quality
+**Goal**: The Angular frontend has no XSS injection vector via innerHTML, no nested-subscribe anti-patterns in Observable constructors, no leaked router or stream subscriptions, and no stale-index bugs in AutoQueue remove operations
+**Depends on**: Phase 42
+**Requirements**: FE-01, FE-02, FE-03, FE-04, FE-05, FE-06, FE-07
+**Success Criteria** (what must be TRUE):
+  1. ConfirmModalService sanitizes file names before inserting into innerHTML — a file name containing HTML special characters renders as literal text, not injected markup
+  2. RestService uses RxJS pipe operators throughout — no Observable constructor wraps a nested subscribe call
+  3. AppComponent, SettingsPage, AutoQueuePage, and StreamServiceRegistry all unsubscribe from their subscriptions on component/service destroy — no observable or timer continues executing after the component is gone
+  4. AutoQueueService.remove operates on post-request state for index resolution — removing a pattern does not corrupt the remaining list order
+**Plans**: TBD
+
+### Phase 44: Code Quality
+**Goal**: The codebase runs correctly on Python 3.12+ (distutils gone), shell injection via pexpect is impossible, HTTP mutation endpoints use correct methods, type comparisons use isinstance, and all medium-severity structural findings are resolved
+**Depends on**: Phase 43
+**Requirements**: CODE-01, CODE-02, CODE-03, CODE-04, CODE-05, CODE-06, CODE-07, CODE-08, CODE-09, CODE-10, CODE-11, CODE-12, CODE-13
+**Success Criteria** (what must be TRUE):
+  1. Application starts and passes all tests under Python 3.12+ — no ImportError from distutils
+  2. pexpect.spawn receives an argument list in all call sites — shell metacharacter injection via file paths is not possible
+  3. Queue, stop, and delete actions use POST or DELETE HTTP methods — GET requests to these endpoints are rejected or have no side effect
+  4. All type comparisons in the codebase use isinstance() — no type(x) == SomeType pattern remains
+  5. ModelFile frozen bypass uses an explicit unfreeze method; rate limiter state is per-instance; AppProcess busy-poll has a sleep interval; controller return types are correctly annotated; __downloaded_files uses set semantics; pexpect.TIMEOUT is logged not silenced; import status has a single code path; directory DOWNLOADED edge case is handled; test credentials are parameterized or documented
+**Plans**: TBD
+
+### Phase 45: Documentation & Accessibility
+**Goal**: CLAUDE.md reflects the current codebase version and documents all API response codes; the confirm modal is fully keyboard-accessible with a focus trap; file rows have keyboard navigation and ARIA labels
+**Depends on**: Phase 44
+**Requirements**: DOCS-01, DOCS-02, DOCS-03, DOCS-04
+**Success Criteria** (what must be TRUE):
+  1. CLAUDE.md version reference matches the current application version and documents 429 and 504 response codes alongside existing codes
+  2. Opening the confirm modal traps keyboard focus inside it — Tab does not escape to background content; closing the modal returns focus to the triggering element
+  3. File rows are reachable and operable via keyboard; each row has an ARIA label sufficient for a screen reader to identify it
+**Plans**: TBD
+
+## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 39 → 40 → 41 → 42 → 43 → 44 → 45
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1-5. UI Styling | v1.0 | 8/8 | Complete | 2026-02-03 |
+| 6-8. Dropdown & Form | v1.1 | 4/4 | Complete | 2026-02-04 |
+| 9. UI Cleanup | v1.2 | 1/1 | Complete | 2026-02-04 |
+| 10-11. Polish & Clarity | v1.3 | 5/5 | Complete | 2026-02-04 |
+| 12-14. Sass @use | v1.4 | 3/3 | Complete | 2026-02-08 |
+| 15-19. Backend Testing | v1.5 | 8/8 | Complete | 2026-02-08 |
+| 20-21. CI Cleanup | v1.6 | 2/2 | Complete | 2026-02-10 |
+| 22-25. Sonarr | v1.7 | 8/8 | Complete | 2026-02-10 |
+| 26-28. Radarr + Webhooks | v1.8 | 5/5 | Complete | 2026-02-11 |
+| 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
+| 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
+| 39. Critical Security Chain | v3.1 | 0/TBD | Not started | - |
+| 40. Credential & Endpoint Security | v3.1 | 0/TBD | Not started | - |
+| 41. Thread Safety | v3.1 | 0/TBD | Not started | - |
+| 42. Crash Prevention | v3.1 | 0/TBD | Not started | - |
+| 43. Frontend Quality | v3.1 | 0/TBD | Not started | - |
+| 44. Code Quality | v3.1 | 0/TBD | Not started | - |
+| 45. Documentation & Accessibility | v3.1 | 0/TBD | Not started | - |
+
 ---
 
-*Last updated: 2026-02-17 (v3.0 shipped)*
-*12 milestones (all shipped), 38 phases, 63 plans total*
+*Last updated: 2026-02-23 (v3.1 roadmap created)*
+*12 milestones shipped + v3.1 in progress, 45 phases total, 63 plans complete*

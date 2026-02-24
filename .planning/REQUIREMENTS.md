@@ -89,56 +89,56 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SEC-01 | — | Pending |
-| SEC-02 | — | Pending |
-| SEC-03 | — | Pending |
-| SEC-04 | — | Pending |
-| SEC-05 | — | Pending |
-| SEC-06 | — | Pending |
-| SEC-07 | — | Pending |
-| SEC-08 | — | Pending |
-| SEC-09 | — | Pending |
-| SEC-10 | — | Pending |
-| THRD-01 | — | Pending |
-| THRD-02 | — | Pending |
-| THRD-03 | — | Pending |
-| THRD-04 | — | Pending |
-| CRASH-01 | — | Pending |
-| CRASH-02 | — | Pending |
-| CRASH-03 | — | Pending |
-| CRASH-04 | — | Pending |
-| CRASH-05 | — | Pending |
-| CRASH-06 | — | Pending |
-| FE-01 | — | Pending |
-| FE-02 | — | Pending |
-| FE-03 | — | Pending |
-| FE-04 | — | Pending |
-| FE-05 | — | Pending |
-| FE-06 | — | Pending |
-| FE-07 | — | Pending |
-| CODE-01 | — | Pending |
-| CODE-02 | — | Pending |
-| CODE-03 | — | Pending |
-| CODE-04 | — | Pending |
-| CODE-05 | — | Pending |
-| CODE-06 | — | Pending |
-| CODE-07 | — | Pending |
-| CODE-08 | — | Pending |
-| CODE-09 | — | Pending |
-| CODE-10 | — | Pending |
-| CODE-11 | — | Pending |
-| CODE-12 | — | Pending |
-| CODE-13 | — | Pending |
-| DOCS-01 | — | Pending |
-| DOCS-02 | — | Pending |
-| DOCS-03 | — | Pending |
-| DOCS-04 | — | Pending |
+| SEC-01 | Phase 39 | Pending |
+| SEC-02 | Phase 39 | Pending |
+| SEC-07 | Phase 39 | Pending |
+| SEC-03 | Phase 40 | Pending |
+| SEC-04 | Phase 40 | Pending |
+| SEC-05 | Phase 40 | Pending |
+| SEC-06 | Phase 40 | Pending |
+| SEC-08 | Phase 40 | Pending |
+| SEC-09 | Phase 40 | Pending |
+| SEC-10 | Phase 40 | Pending |
+| THRD-01 | Phase 41 | Pending |
+| THRD-02 | Phase 41 | Pending |
+| THRD-03 | Phase 41 | Pending |
+| THRD-04 | Phase 41 | Pending |
+| CRASH-01 | Phase 42 | Pending |
+| CRASH-02 | Phase 42 | Pending |
+| CRASH-03 | Phase 42 | Pending |
+| CRASH-04 | Phase 42 | Pending |
+| CRASH-05 | Phase 42 | Pending |
+| CRASH-06 | Phase 42 | Pending |
+| FE-01 | Phase 43 | Pending |
+| FE-02 | Phase 43 | Pending |
+| FE-03 | Phase 43 | Pending |
+| FE-04 | Phase 43 | Pending |
+| FE-05 | Phase 43 | Pending |
+| FE-06 | Phase 43 | Pending |
+| FE-07 | Phase 43 | Pending |
+| CODE-01 | Phase 44 | Pending |
+| CODE-02 | Phase 44 | Pending |
+| CODE-03 | Phase 44 | Pending |
+| CODE-04 | Phase 44 | Pending |
+| CODE-05 | Phase 44 | Pending |
+| CODE-06 | Phase 44 | Pending |
+| CODE-07 | Phase 44 | Pending |
+| CODE-08 | Phase 44 | Pending |
+| CODE-09 | Phase 44 | Pending |
+| CODE-10 | Phase 44 | Pending |
+| CODE-11 | Phase 44 | Pending |
+| CODE-12 | Phase 44 | Pending |
+| CODE-13 | Phase 44 | Pending |
+| DOCS-01 | Phase 45 | Pending |
+| DOCS-02 | Phase 45 | Pending |
+| DOCS-03 | Phase 45 | Pending |
+| DOCS-04 | Phase 45 | Pending |
 
 **Coverage:**
 - v3.1 requirements: 44 total
-- Mapped to phases: 0
-- Unmapped: 44 ⚠️
+- Mapped to phases: 44
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-02-23*
-*Last updated: 2026-02-23 after initial definition*
+*Last updated: 2026-02-23 — traceability filled after roadmap creation*
