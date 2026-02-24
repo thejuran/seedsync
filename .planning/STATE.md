@@ -85,6 +85,10 @@ Progress: [███████░░░] 70% (v3.1)
 - [Phase 44-01]: Inline _strtobool replaces distutils.util.strtobool (CODE-04): distutils removed in Python 3.12; inline function with identical boolean-string-to-int behavior; no new dependencies
 - [Phase 44-01]: ModelFile.unfreeze() public method (CODE-11): eliminates name-mangling bypass pattern (_ModelFile__frozen = False) — clear intent, survives refactoring, symmetric with freeze()
 - [Phase 44-01]: isinstance() over type() == (CODE-01): isinstance correctly handles subclasses, is idiomatic Python; replaced 12 instances across 7 setters in ModelFile
+- [Phase 44-02]: pexpect.spawn with argv list (CODE-02): __run_command flags/args params changed from str to list; spawn called as spawn(command_args[0], command_args[1:]) — no shell involved, metacharacters in file paths are literal
+- [Phase 44-02]: Local shell quoting removed from Sshcp.shell(): quoting was only needed for local shell expansion; without a shell, command string is forwarded as-is to the remote shell which handles quoting correctly
+- [Phase 44-02]: logger.warning for TIMEOUT in lftp.py (CODE-08): TIMEOUT is semi-expected in long-running LFTP sessions; logger.exception replaced by logger.warning; bare pass removed — finally: block provides continuation
+- [Phase 44-02]: time.sleep(0.01) in AppProcess.terminate busy-poll (CODE-05): 10ms polling interval prevents 100% CPU spin during process shutdown wait
 - [Phase 44-05]: Docker test credential constants over inline strings (CODE-13): _TEST_USER/_TEST_PASSWORD module-level constants with documentation comment in integration test files; inline comments for mock unit test fake passwords — documentation not parameterization, since Docker test containers use intentionally fixed credentials
 - [Phase 44-code-quality]: POST for queue/stop/extract (CODE-09): GET requests can be unintentionally triggered by browser prefetch and crawlers; POST prevents unintended side effects
 - [Phase 44-code-quality]: Instance-level _bulk_request_times and _bulk_rate_lock (CODE-03): class-level state is shared across all handler instances; per-instance rate limiting is the correct semantics
@@ -107,8 +111,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 44-05-PLAN.md (test credential documentation — _TEST_USER/_TEST_PASSWORD constants and inline comments)
-Next action: Execute phase 45 plans or check ROADMAP for next phase
+Stopped at: Completed 44-02-PLAN.md (pexpect.spawn argument list, TIMEOUT logging in lftp.py, sleep in AppProcess busy-poll)
+Next action: Execute phase 44 plan 03 (POST/DELETE HTTP methods, rate limiter instance state, controller return types)
 
 ---
 *v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24*

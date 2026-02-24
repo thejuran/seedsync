@@ -243,7 +243,7 @@ Plans:
 **Plans**: 5 plans
 Plans:
 - [x] 44-01-PLAN.md — distutils replacement, isinstance() migration, ModelFile unfreeze() method (completed 2026-02-24)
-- [ ] 44-02-PLAN.md — pexpect.spawn argument list, TIMEOUT logging, AppProcess busy-poll sleep
+- [x] 44-02-PLAN.md — pexpect.spawn argument list, TIMEOUT logging, AppProcess busy-poll sleep (completed 2026-02-24)
 - [ ] 44-03-PLAN.md — POST/DELETE HTTP methods, rate limiter instance state, controller return types
 - [ ] 44-04-PLAN.md — __downloaded_files type fix, import_status consolidation, directory DOWNLOADED edge case
 - [ ] 44-05-PLAN.md — Test credential documentation
