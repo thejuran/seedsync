@@ -54,12 +54,12 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 - [x] **CODE-04**: distutils.strtobool replaced with inline implementation compatible with Python 3.12+ (Finding 24)
 - [x] **CODE-05**: AppProcess.terminate adds sleep interval to busy-poll loop (Finding 31)
 - [x] **CODE-06**: Controller return type annotations use proper tuple syntax (Finding 33)
-- [ ] **CODE-07**: __downloaded_files type/usage corrected for set semantics (Finding 34)
+- [x] **CODE-07**: __downloaded_files type/usage corrected for set semantics (Finding 34)
 - [x] **CODE-08**: lftp.py logs pexpect.TIMEOUT instead of swallowing silently (Finding 35)
 - [x] **CODE-09**: Mutating endpoints (queue/stop/delete) use POST/DELETE HTTP methods (Finding 36)
-- [ ] **CODE-10**: Import status management consolidated to single code path (Finding 39)
+- [x] **CODE-10**: Import status management consolidated to single code path (Finding 39)
 - [x] **CODE-11**: type(x) == SomeType replaced with isinstance() across 12 instances (Finding 41)
-- [ ] **CODE-12**: Directory DOWNLOADED state edge case handled correctly (Finding 29)
+- [x] **CODE-12**: Directory DOWNLOADED state edge case handled correctly (Finding 29)
 - [x] **CODE-13**: Hardcoded test credentials parameterized or documented as intentional (Finding 30)
 
 ### Documentation & Accessibility
@@ -122,12 +122,12 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 | CODE-04 | Phase 44 | Complete |
 | CODE-05 | Phase 44 | Complete |
 | CODE-06 | Phase 44 | Complete |
-| CODE-07 | Phase 44 | Pending |
+| CODE-07 | Phase 44 | Complete |
 | CODE-08 | Phase 44 | Complete |
 | CODE-09 | Phase 44 | Complete |
-| CODE-10 | Phase 44 | Pending |
+| CODE-10 | Phase 44 | Complete |
 | CODE-11 | Phase 44 | Complete |
-| CODE-12 | Phase 44 | Pending |
+| CODE-12 | Phase 44 | Complete |
 | CODE-13 | Phase 44 | Complete |
 | DOCS-01 | Phase 45 | Pending |
 | DOCS-02 | Phase 45 | Pending |
