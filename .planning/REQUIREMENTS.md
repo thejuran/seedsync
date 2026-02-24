@@ -15,7 +15,7 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 - [ ] **SEC-04**: Config API redacts sensitive fields (remote_password, sonarr_api_key, radarr_api_key) from GET responses (Finding 4, CWE-200)
 - [ ] **SEC-05**: Debug/verbose mode toggle protected — LFTP passwords redacted from SSE log stream when verbose enabled (Finding 6, CWE-15)
 - [ ] **SEC-06**: Sonarr/Radarr test-connection endpoints validate URL scheme (http/https only) and block private IP ranges (Finding 7, CWE-918)
-- [ ] **SEC-07**: Remote scanner uses JSON deserialization instead of pickle (Finding 10, CWE-502)
+- [x] **SEC-07**: Remote scanner uses JSON deserialization instead of pickle (Finding 10, CWE-502)
 - [ ] **SEC-08**: DeleteRemoteProcess escapes shell metacharacters in file paths (Finding 26)
 - [ ] **SEC-09**: Web server sets Content-Security-Policy, X-Frame-Options, and X-Content-Type-Options headers (Finding 27)
 - [ ] **SEC-10**: Internal error details not exposed in API responses to clients (Finding 28)
@@ -91,7 +91,7 @@ Requirements for v3.1 Harden & Fix. Each maps to roadmap phases.
 |-------------|-------|--------|
 | SEC-01 | Phase 39 | Complete |
 | SEC-02 | Phase 39 | Complete |
-| SEC-07 | Phase 39 | Pending |
+| SEC-07 | Phase 39 | Complete |
 | SEC-03 | Phase 40 | Pending |
 | SEC-04 | Phase 40 | Pending |
 | SEC-05 | Phase 40 | Pending |

@@ -10,9 +10,9 @@ See: .planning/PROJECT.md (updated 2026-02-23)
 ## Current Position
 
 Phase: 39 of 45 (Critical Security Chain)
-Plan: 1 of 1 complete in current phase
+Plan: 2 of 2 complete in current phase
 Status: Phase 39 complete
-Last activity: 2026-02-24 — Phase 39 Plan 01 complete (critical SSH security hardening)
+Last activity: 2026-02-24 — Phase 39 Plan 02 complete (JSON migration: pickle RCE elimination)
 
 Progress: [█░░░░░░░░░] 10% (v3.1)
 
@@ -41,7 +41,7 @@ Progress: [█░░░░░░░░░] 10% (v3.1)
 - 65 plans executed
 - 15 days total (2026-02-03 to 2026-02-24)
 
-**v3.1 so far:** 1 phase, 1 plan
+**v3.1 so far:** 1 phase, 2 plans
 
 ## Accumulated Context
 
@@ -51,6 +51,8 @@ Progress: [█░░░░░░░░░] 10% (v3.1)
 - **UserKnownHostsFile removed:** Removed /dev/null redirect so known_hosts persists across reconnects
 - **MITM detection:** Added REMOTE HOST IDENTIFICATION HAS CHANGED pattern in both pexpect branches (password and key-auth paths) in sshcp.py
 - **Test exception documented:** test/python/Dockerfile keeps StrictHostKeyChecking=no for ephemeral localhost test container — documented with explicit comment
+- **Pickle replaced with JSON (CWE-502):** SystemFile uses to_dict/from_dict; scan_fs outputs json.dumps; remote_scanner uses json.loads — eliminates RCE vector from untrusted SSH stdout
+- **Error message format-agnostic:** Changed "Invalid pickled data" to "Invalid scan data" to avoid leaking transport format details
 
 ### Todos
 
@@ -69,8 +71,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 39-01-PLAN.md (critical SSH security hardening)
-Next action: /gsd:plan-phase 40
+Stopped at: Completed 39-02-PLAN.md (JSON migration: pickle RCE elimination)
+Next action: /gsd:execute-phase 39 (if more plans) or /gsd:plan-phase 40
 
 ---
-*v3.1 Harden & Fix: phase 39 complete 2026-02-24*
+*v3.1 Harden & Fix: phase 39 plan 02 complete 2026-02-24*
