@@ -93,6 +93,10 @@ Progress: [███████░░░] 70% (v3.1)
 - [Phase 44-code-quality]: POST for queue/stop/extract (CODE-09): GET requests can be unintentionally triggered by browser prefetch and crawlers; POST prevents unintended side effects
 - [Phase 44-code-quality]: Instance-level _bulk_request_times and _bulk_rate_lock (CODE-03): class-level state is shared across all handler instances; per-instance rate limiting is the correct semantics
 - [Phase 44-code-quality]: ScannerResult/ExtractStatusResult/ExtractCompletedResult type annotations (CODE-06): replaces opaque Optional[object] with domain-specific types in controller _collect_scan_results and _collect_extract_results
+- [Phase 44-code-quality]: BoundedOrderedSet type annotation for __downloaded_files with None init: set() lacks .touch() support; None correctly represents uninitialized state
+- [Phase 44-code-quality]: clear() resets __downloaded_files = None (not .clear()): avoids mutating shared persist BoundedOrderedSet and wiping download history
+- [Phase 44-code-quality]: has_downloadable_children flag in _are_all_children_downloaded: prevents empty/subdir-only directories from vacuously satisfying DOWNLOADED check
+- [Phase 44-code-quality]: _set_import_status helper takes Model parameter: works for both new_model (pre-diff) and self.__model (live, under lock) — eliminates duplicated copy-unfreeze-set-update pattern (CODE-10)
 
 ### Todos
 
@@ -111,8 +115,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-24
-Stopped at: Completed 44-02-PLAN.md (pexpect.spawn argument list, TIMEOUT logging in lftp.py, sleep in AppProcess busy-poll)
-Next action: Execute phase 44 plan 03 (POST/DELETE HTTP methods, rate limiter instance state, controller return types)
+Stopped at: Completed 44-04-PLAN.md (BoundedOrderedSet type fix in model_builder, directory DOWNLOADED edge case, _set_import_status helper consolidation)
+Next action: Phase 44 complete — all 5 plans executed. Execute phase 45 or next milestone action.
 
 ---
 *v3.1 Harden & Fix: phase 40 complete 2026-02-24 (all 3 plans executed); phase 41 plans 01-02 complete 2026-02-24; phase 42 all 4 plans complete 2026-02-23; phase 43 all 3 plans complete 2026-02-24; phase 44 all 5 plans complete 2026-02-24*
