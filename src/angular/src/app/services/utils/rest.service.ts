@@ -34,7 +34,7 @@ export class RestService {
     }
 
     /**
-     * Send backend a request and generate a WebReaction response
+     * Send backend a GET request and generate a WebReaction response
      * @param {string} url
      * @returns {Observable<WebReaction>}
      */
@@ -60,5 +60,55 @@ export class RestService {
         //      prevent duplicate http requests
         //      share result with those that subscribe after the value was published
         // More info: https://blog.thoughtram.io/angular/2016/06/16/cold-vs-hot-observables.html
+    }
+
+    /**
+     * Send backend a POST request and generate a WebReaction response
+     * @param {string} url
+     * @returns {Observable<WebReaction>}
+     */
+    public post(url: string): Observable<WebReaction> {
+        return this._http.post(url, null, {responseType: "text"}).pipe(
+            map(data => {
+                this._logger.debug("%s http response: %s", url, data);
+                return new WebReaction(true, data, null);
+            }),
+            catchError((err: HttpErrorResponse) => {
+                let errorMessage: string = null;
+                this._logger.debug("%s error: %O", url, err);
+                if (err.error instanceof Event) {
+                    errorMessage = err.error.type;
+                } else {
+                    errorMessage = err.error;
+                }
+                return of(new WebReaction(false, null, errorMessage));
+            }),
+            shareReplay(1)
+        );
+    }
+
+    /**
+     * Send backend a DELETE request and generate a WebReaction response
+     * @param {string} url
+     * @returns {Observable<WebReaction>}
+     */
+    public delete(url: string): Observable<WebReaction> {
+        return this._http.delete(url, {responseType: "text"}).pipe(
+            map(data => {
+                this._logger.debug("%s http response: %s", url, data);
+                return new WebReaction(true, data, null);
+            }),
+            catchError((err: HttpErrorResponse) => {
+                let errorMessage: string = null;
+                this._logger.debug("%s error: %O", url, err);
+                if (err.error instanceof Event) {
+                    errorMessage = err.error.type;
+                } else {
+                    errorMessage = err.error;
+                }
+                return of(new WebReaction(false, null, errorMessage));
+            }),
+            shareReplay(1)
+        );
     }
 }
