@@ -46,12 +46,14 @@ class Persist(Serializable):
     def from_file(cls: Type[T_Persist], file_path: str) -> T_Persist:
         if not os.path.isfile(file_path):
             raise AppError(Localization.Error.MISSING_FILE.format(file_path))
+        os.chmod(file_path, 0o600)  # tighten permissions on existing files
         with open(file_path, "r") as f:
             return cls.from_str(f.read())
 
     def to_file(self, file_path: str):
         with open(file_path, "w") as f:
             f.write(self.to_str())
+        os.chmod(file_path, 0o600)  # restrict to owner read/write only
 
     @classmethod
     @abstractmethod
