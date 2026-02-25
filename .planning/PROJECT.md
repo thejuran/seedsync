@@ -174,7 +174,20 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ### Active
 
-(None — define in next milestone)
+## Current Milestone: v3.2 Security Hardening II
+
+**Goal:** Close remaining security gaps identified by Huntarr-inspired audit — path traversal, authentication, config hardening, and defense-in-depth improvements.
+
+**Target features:**
+- Path traversal protection on file delete/extract endpoints
+- Config file written with restrictive permissions (0600)
+- API authentication middleware (token-based)
+- Webhook endpoint hardening (require secret or restrict to localhost)
+- Additional config field redaction (remote host/username/path)
+- SSRF DNS rebinding fix (resolve-once pattern)
+- Restart endpoint changed to POST (CSRF prevention)
+- SSH command log redaction (user@host scrubbed)
+- CSP `unsafe-inline` removal (nonce-based or strict policy)
 
 ### Out of Scope
 
@@ -240,7 +253,7 @@ Reliable file sync from seedbox to local with automated media library integratio
 
 ## Project Status
 
-**Status:** v3.1 Harden & Fix shipped
+**Status:** v3.2 Security Hardening II in progress
 
 13 milestones shipped (v1.0 through v3.1), 46 phases, 88 plans completed.
 
@@ -249,4 +262,4 @@ Reliable file sync from seedbox to local with automated media library integratio
 - E2E test coverage (Playwright)
 
 ---
-*Last updated: 2026-02-24 after v3.1 milestone*
+*Last updated: 2026-02-25 after v3.2 milestone started*
