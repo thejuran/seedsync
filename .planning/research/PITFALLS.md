@@ -1,270 +1,323 @@
 # Pitfalls Research
 
-**Domain:** Adding dark mode to existing Bootstrap 5.3 Angular app
-**Researched:** 2026-02-11
+**Domain:** Adding security hardening features to existing Bottle + Angular self-hosted app
+**Researched:** 2026-02-25
 **Confidence:** HIGH
+
+This document is scoped to v3.2 Security Hardening II — the specific failure modes that arise when adding
+(1) API auth middleware, (2) path traversal guards, (3) CSP nonce removal, (4) webhook auth hardening,
+and (5) DNS rebinding prevention to an already-running application.
+
+---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Theme Flicker on Page Load (FOUC)
+### Pitfall 1: Auth Middleware Killing the SSE Stream
 
 **What goes wrong:**
-Flash of Unstyled Content (FOUC) occurs when the page briefly renders in the wrong theme before JavaScript applies the user's preference. Users see a jarring white flash when they've selected dark mode, or vice versa.
+The SSE endpoint (`/server/stream`) is a long-lived generator function that yields events indefinitely. If a
+Bearer-token auth middleware checks the `Authorization` header on every request and returns 401 for missing
+tokens, the SSE stream is blocked at the HTTP handshake — before the generator ever starts. The Angular
+frontend reconnects immediately (SSE spec), sees another 401, reconnects again, and the app enters an
+infinite reconnection loop with no file list, no status updates, and no logs visible.
 
 **Why it happens:**
-Angular's server-side rendering doesn't know the user's theme preference stored in localStorage. The initial HTML renders with default styles, and dark mode is only applied after hydration when JavaScript reads localStorage. This creates a visible delay between page load and theme application.
+Bottle does not have built-in middleware in the Django/Flask sense. Auth is typically implemented as:
+(a) a decorator on each route, or (b) a `before_request` hook. Both approaches apply uniformly to ALL
+routes unless the developer explicitly exempts the SSE endpoint. Since SSE connections arrive without a
+request body (they are plain GET requests with `Accept: text/event-stream`), a naive token check that
+only looks at a header will block it if the Angular `EventSource` constructor cannot send custom headers
+(it cannot — `EventSource` in browsers does not support custom headers by design).
 
 **How to avoid:**
-1. **Inline theme script in index.html**: Add a blocking script in `<head>` that reads localStorage and sets `data-bs-theme` attribute BEFORE Angular bootstraps
-2. **Use hidden HTML**: Add `<html hidden>` attribute and remove it after theme is applied
-3. **CSS-based hiding**: Use CSS to hide body until theme class is applied
-
-```html
-<!-- In index.html <head> BEFORE any stylesheets -->
-<script>
-  (function() {
-    const theme = localStorage.getItem('theme') ||
-                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-    document.documentElement.setAttribute('data-bs-theme', theme);
-  })();
-</script>
-```
+1. **Do not use `Authorization: Bearer` headers with `EventSource`** — the browser's native `EventSource`
+   API cannot send them. Instead, use one of:
+   - A query-parameter token: `/server/stream?token=<tok>` (validate server-side, log only first N chars)
+   - A short-lived session cookie set on first auth, sent automatically by the browser
+   - A pre-flight REST handshake that issues a streaming token
+2. In `web_app.py`'s `before_request` hook (if used), explicitly exempt `/server/stream` from token checks
+   OR handle the stream token validation inside `__web_stream()` before the generator yields anything.
+3. The current architecture instantiates all `IStreamHandler` objects inside `__web_stream()` before the
+   yield loop. Auth validation belongs at the top of `__web_stream()`, returning a 401 `HTTPResponse`
+   before `setup()` is called on any handler — this is safe.
+4. Test SSE reconnect behavior explicitly: disconnect the browser, wait for the SSE client-side reconnect,
+   verify the reconnected stream resumes without re-authenticating via a new token round-trip.
 
 **Warning signs:**
-- Visual flash when refreshing page with hard reload
-- Different theme appears for 100-300ms on navigation
-- Users report "flickering" when opening app
+- Browser console shows `EventSource` repeatedly firing `error` events (status 401/403)
+- Angular `ConnectedService` oscillates between connected/disconnected rapidly
+- File list never populates after auth is added
+- `stream-service.registry.ts` reconnect counter climbs without bound
+- Python logs show `Stream connection stopped by client` every few seconds
 
 **Phase to address:**
-Phase 1 (Theme Infrastructure) — Must be solved before any theme toggle implementation. Testing should include hard refresh, cache clearing, and incognito mode.
+Phase covering API authentication — must solve SSE auth strategy before writing any auth middleware.
+Add explicit test: verify SSE stream delivers model events to an authenticated Angular client.
 
 ---
 
-### Pitfall 2: Hardcoded Colors Breaking Dark Mode
+### Pitfall 2: Path Traversal Guard Broken by Symlinks
 
 **What goes wrong:**
-Components with hardcoded hex colors in SCSS files don't adapt to theme changes. Specific example: form inputs already styled with dark backgrounds (`#2c3e50` type values) will look wrong in actual dark mode, creating double-dark or invisible text situations.
+A guard that uses `os.path.abspath()` or `os.path.realpath()` to reject paths outside `local_path`
+will behave differently for symlinks. If `local_path` itself is a symlink (common on seedboxes where
+download dirs are symlinked from `/home/user/downloads` → `/mnt/storage/downloads`), `realpath()` resolves
+through the symlink and the guard's base path changes. A file named `legit-file.mkv` that lives in the
+real download directory passes, but a file that is itself a symlink pointing outside the download dir
+(e.g., a symlink to `/etc/passwd`) will also pass the `abspath()` check if `abspath()` is used — because
+`abspath()` does NOT follow symlinks for existence, it only normalizes the string.
 
 **Why it happens:**
-Bootstrap 5.3's dark mode relies on CSS variables, but many components use direct Sass variables or hardcoded hex values. The project context notes "hardcoded hex colors in some component SCSS files" — these bypass the theme system entirely. Bootstrap's own architecture is inconsistent: some components use theme-aware CSS variables while others use color SCSS variables directly.
+- `os.path.abspath(path)` normalizes `.` and `..` in the string but does NOT call `stat()` — it does not
+  follow symlinks.
+- `os.path.realpath(path)` follows all symlinks to their ultimate target. It is the correct choice for
+  containment checks but changes semantics if the base dir is itself a symlink.
+- `shutil.rmtree()` (used in `DeleteLocalProcess.run_once()`) follows symlinks into directories before
+  v3.8 Python, and in all versions deletes symlinks as files but traverses into real directories. A
+  symlink-to-directory that passes the guard could cause `rmtree` to delete outside the download dir.
 
 **How to avoid:**
-1. **Audit all SCSS files** for hardcoded colors: `grep -r "#[0-9a-fA-F]\{6\}" src/**/*.scss`
-2. **Replace with CSS variables**: Convert `color: #2c3e50` → `color: var(--bs-body-color)`
-3. **Use color-mode mixin** for dual values:
-```scss
-.my-component {
-  background-color: #f8f9fa; // light mode default
-
-  @include color-mode(dark) {
-    background-color: #212529; // dark mode override
-  }
-}
-```
-4. **Special attention to existing dark form inputs**: These need to be INVERTED for dark mode, not doubled-down
+1. **Resolve both the base path and the target path with `realpath()` before comparing:**
+   ```python
+   base = os.path.realpath(self.__local_path)
+   target = os.path.realpath(os.path.join(self.__local_path, file_name))
+   if not target.startswith(base + os.sep):
+       raise ValueError("Path traversal detected: {}".format(file_name))
+   ```
+2. **Detect when the target is itself a symlink** even if containment passes:
+   ```python
+   if os.path.islink(os.path.join(self.__local_path, file_name)):
+       raise ValueError("Refusing to delete symlink: {}".format(file_name))
+   ```
+   This is conservative but correct for a security-hardened tool.
+3. **Validate at the HTTP handler layer** (in `ControllerHandler`) rather than (only) inside the
+   subprocess — the subprocess runs after the command is already on the queue; handler-layer rejection
+   avoids the queuing entirely.
+4. The file name arriving at `__handle_action_delete_local` comes from URL double-decode (`unquote`).
+   Ensure the decoded name does not start with `/` or contain `..` components before passing to the
+   controller. A simple check: `os.path.basename(file_name) == file_name` rejects anything with a path
+   separator, which is the correct invariant for names that are supposed to be top-level entries in
+   `local_path`.
 
 **Warning signs:**
-- Text becomes invisible in one theme
-- Form inputs look odd in dark mode (too dark or too light)
-- Teal accent colors lose contrast in one theme
-- Borders disappear or become too prominent
+- Acceptance tests pass file names like `../../etc/passwd` or `../outside/file.txt` without rejection
+- `local_path` in config is configured as a symlink and guard logic uses string-only normalization
+- `shutil.rmtree` is called with a path that resolves outside the download directory
+- Log messages show unusual paths being deleted (paths outside the configured `local_path`)
 
 **Phase to address:**
-Phase 2 (Component Audit & Remediation) — Systematic review of every component SCSS file. Create a checklist of files with hardcoded colors. Priority: forms, buttons, cards, navigation.
+Phase covering path traversal protection. Guards must be added at both the HTTP handler layer and
+the `DeleteLocalProcess.run_once()` layer (defense in depth). Test with: `../x`, `../../etc`, absolute
+paths like `/tmp/x`, symlinks within `local_path` pointing outside it.
 
 ---
 
-### Pitfall 3: SCSS Variable Override Scope Issues
+### Pitfall 3: CSP `unsafe-inline` Removal Breaking Angular's Runtime
 
 **What goes wrong:**
-Variable overrides set before importing Bootstrap don't apply to dark mode. Dark mode CSS variables ignore your custom Sass variable values. Example: You override `$primary` in your SCSS, but dark mode uses Bootstrap's default primary color instead.
+The current CSP in `web_app.py` includes `script-src 'self' 'unsafe-inline'`. Removing `'unsafe-inline'`
+to improve security will immediately break Angular's production build in one or more of these ways:
+(a) Angular inlines small scripts in `index.html` for zone.js bootstrapping and router preloading.
+(b) Bootstrap JavaScript (Popper.js) may inject inline event handlers.
+(c) Any use of `[innerHTML]` or `DomSanitizer.bypassSecurityTrust*` in Angular components will be blocked.
+(d) The CRT scan-line overlay is implemented as a CSS pseudo-element, but if any style is applied via
+    `element.style` in JavaScript, it will be blocked by a `style-src` without `'unsafe-inline'`.
+
+A nonce-based CSP (`script-src 'nonce-<random>'`) is the correct replacement, but nonces require
+per-response generation — meaning every response, including the `index.html` served by Bottle's
+`static_file()`, must inject a fresh nonce. This is non-trivial because `static_file()` returns a file
+directly without template rendering.
 
 **Why it happens:**
-Bootstrap 5.3 introduced a breaking architectural change. CSS variables for dark mode are partially generated from `_variables-dark.scss`, NOT from your custom Sass variable overrides. The two-layer SCSS customization in SeedSync (variable overrides + post-compilation overrides) adds complexity. Additionally, the project uses `@use/@forward` for app SCSS but `@import` for Bootstrap, creating module scope conflicts.
+Angular's production build (as of Angular 15+) supports CSP nonces via the `ngCspNonce` attribute
+on `<app-root>` or the `CSP_NONCE` injection token. However, this only covers Angular-generated inline
+styles (used for component styles in non-shadow-DOM setups). It does NOT cover:
+- Scripts injected by third-party packages
+- Inline scripts already present in `index.html` (Google Fonts `<link>` is not a script but the
+  preconnect hints are sometimes inlined in some configs)
+- Any script added by `DomService` or dynamic component creation
 
-Per Bootstrap issue #39379: "CSS variables not adopting default overrides" — overriding base colors in 5.3 doesn't work like it did in 5.2.x. You must now use `@include color-mode(dark)` with explicit CSS variable overrides.
+A strict CSP without `'unsafe-inline'` and without nonces will produce silent failures: components render
+but event bindings silently fail because Angular couldn't execute bootstrapping scripts.
 
 **How to avoid:**
-1. **Override CSS variables, not just Sass variables**:
-```scss
-// This alone won't work for dark mode:
-$primary: #17a2b8;
-
-// You need BOTH:
-$primary: #17a2b8;
-
-@include color-mode(dark) {
-  --bs-primary: #20c997; // adjusted for dark mode contrast
-  --bs-primary-rgb: 32, 201, 151;
-}
-```
-
-2. **Be explicit with teal accent colors**: Define both light and dark variants
-3. **Test contrast ratios**: WCAG requires 4.5:1 for text, 3:1 for UI components
-4. **Document the migration path**: @import → @use for Bootstrap requires namespace handling
+1. **Do not simply delete `'unsafe-inline'`** without a replacement strategy. The correct sequence is:
+   a. Enable CSP violation reporting first (`report-uri /csp-report` or `report-to`) to observe what
+      would be blocked before enforcing.
+   b. Switch to `Content-Security-Policy-Report-Only` header while testing.
+   c. Only harden to enforcement once reporting shows zero violations for a full usage session.
+2. **For the nonce approach** (cleanest long-term):
+   - Generate a cryptographic nonce per request in Bottle's `after_request` hook (already in place).
+   - The nonce must be injected into `index.html` at serve time, which requires moving `index.html`
+     from a static file to a template rendered by Bottle's `template()` or Jinja2.
+   - Pass the nonce to Angular via `<app-root ngCspNonce="{{ nonce }}">` (Angular 16+).
+   - Add `'nonce-{{ nonce }}'` to both `script-src` and `style-src`.
+3. **For the `'strict-dynamic'` approach** (simpler with Angular's module bundler):
+   - Angular's build produces hashes for known inline scripts; these can replace `'unsafe-inline'`.
+   - Build Angular, extract the `sha256-*` hashes from the build output, add them to CSP.
+   - Angular 19's `ng build --output-hashing=all` facilitates this.
+   - Drawback: hashes change on every build — CSP must be updated with every Angular deploy.
+4. **Check `style-src` separately**: Angular uses style encapsulation that may inject component styles.
+   The `ViewEncapsulation.Emulated` (default) mode adds `<style>` tags for component-scoped CSS, which
+   are blocked by `style-src` without `'unsafe-inline'`. Angular 19 supports style nonces via
+   `CSP_NONCE` injection token, but it must be provided with the same nonce value used in the HTTP header.
 
 **Warning signs:**
-- Custom colors work in light mode but not dark mode
-- Console warnings about CSS variable undefined
-- Sass compilation errors about undefined variables
-- Theme toggle changes Bootstrap defaults but not custom colors
+- Angular app shows blank page or partial render after CSP change
+- Browser console shows `Refused to execute inline script` or `Refused to apply inline style`
+- The CRT scan-line overlay disappears (CSS pseudo-element itself is fine, but if it's applied via JS `setAttribute` on style, it's blocked)
+- Google Fonts fail to load (check `connect-src` and `style-src` for fonts.googleapis.com)
+- `Content-Security-Policy-Report-Only` header in DevTools shows repeated violations
 
 **Phase to address:**
-Phase 2 (Component Audit & Remediation) — After identifying all custom colors, create dark mode variants. Phase 3 (SCSS Architecture Cleanup) — Migrate from @import to @use if needed, unify the two-layer customization approach.
+Phase covering CSP hardening. Must start with report-only mode. Angular's exact inline script situation
+depends on the production build output — analyze the built `index.html` before writing the final CSP.
+Do not harden CSP until Angular build artifacts are fully analyzed.
 
 ---
 
-### Pitfall 4: data-bs-theme Inheritance Conflicts
+### Pitfall 4: Webhook Auth Defaults Breaking Sonarr/Radarr Integrations
 
 **What goes wrong:**
-Conflicting `data-bs-theme` attributes on nested elements create visual inconsistencies. Project context mentions "uses data-bs-theme='dark' on some dropdown menus" — these will conflict with global theme toggle. Dropdowns, modals, and tooltips appear in wrong theme.
+The current HMAC verification logic in `WebhookHandler._verify_hmac()` skips verification when
+`webhook_secret` is empty (backward compat for existing installs). If the hardening milestone changes
+the default to "require secret or restrict to localhost-only," existing Sonarr/Radarr setups that send
+webhooks without a secret will silently stop triggering imports. The auto-delete chain breaks: files
+download but never get confirmed as imported → auto-delete never fires → disk fills up.
 
 **Why it happens:**
-`data-bs-theme` attribute cascades but can be overridden at any level. If a dropdown has `data-bs-theme="dark"` hardcoded but the page is in light mode, that specific dropdown will be dark. Bootstrap's own documentation is unclear about precedence rules. The attribute was designed for per-component theming but creates maintenance burden when implementing global themes.
+Sonarr and Radarr's webhook configuration pages have a "Secret" field that defaults to empty. Users who
+configured webhooks in v1.8 (before HMAC was introduced in v3.1) have empty secrets on both sides.
+If the server side changes the default to "reject requests without a secret," those users see 401 responses
+from the webhook endpoints, but Sonarr/Radarr do not surface these errors prominently — the webhook simply
+"stops working" from the user's perspective with no obvious error in the SeedSync UI.
 
-Per Bootstrap issue #38973: `data-bs-theme="dark"` behaves differently than the old `.navbar-dark` class, and there's currently no way to make dropdowns use default colors while keeping the navbar dark.
+Additionally, Sonarr sends a `Test` event when you save the webhook configuration. If the server rejects
+the Test with 401, Sonarr shows a connection error. But if the server rejects subsequent `Download` events
+(after the Test somehow passed), the failure is invisible.
 
 **How to avoid:**
-1. **Audit for hardcoded data-bs-theme**: `grep -r "data-bs-theme" src/`
-2. **Remove component-level attributes**: Let theme cascade from root `<html>` element
-3. **Use CSS classes instead** for permanent dark components (if needed):
-```typescript
-// Instead of template: <div data-bs-theme="dark">
-// Use class binding: <div [class.always-dark]="true">
-```
-4. **Document exceptions**: If any component MUST be dark regardless of theme, document why
-5. **Test inheritance**: Parent light → child unset (should be light), Parent dark → child unset (should be dark)
+1. **Do not change the default behavior for existing installs.** The current `empty secret = skip` logic
+   is the correct backward-compatible default. Any hardening should be opt-in.
+2. **If adding a "localhost-only" restriction as an alternative to HMAC**, implement it as a separate
+   config option (e.g., `webhook_require_local_source = false`), not as a new default.
+3. **Surface auth failures visibly**: When a webhook request fails HMAC (or localhost check), log at
+   WARNING level with the source IP. Add a status indicator in the Settings UI if the last webhook
+   attempt failed auth.
+4. **Test with actual Sonarr/Radarr Test events**: Sonarr's Test event must receive a 200 response or it
+   marks the webhook as failed. Ensure the HMAC check path handles Test events correctly — if the Test
+   event carries a signature, verify it; if it doesn't (legacy Sonarr), the empty-secret skip still applies.
+5. **Document the migration path clearly**: Users upgrading to stricter defaults need explicit instructions
+   for generating and configuring a shared secret on both sides.
 
 **Warning signs:**
-- Dropdowns don't change with global theme toggle
-- Modals appear in wrong theme
-- Tooltips/popovers have mismatched colors
-- Form controls inside themed containers look wrong
+- After hardening deploy, Sonarr/Radarr webhook Test shows "connection refused" or auth error
+- Auto-delete stops triggering (downloads complete but files are never cleaned up)
+- Python logs show `401 Invalid webhook signature` from the Sonarr/Radarr IP
+- `WebhookManager` queue never receives new imports after upgrade
 
 **Phase to address:**
-Phase 2 (Component Audit & Remediation) — Search and replace hardcoded attributes. Phase 4 (Integration Testing) — Test every dropdown, modal, tooltip in both themes.
+Phase covering webhook hardening. Never change default from "empty secret = permissive" to "empty secret
+= reject" without an explicit migration guide. New restriction modes must be opt-in config options.
 
 ---
 
-### Pitfall 5: Color Contrast Failures in Dark Mode
+### Pitfall 5: DNS Rebinding Fix Blocking Tailscale and Internal Sonarr/Radarr URLs
 
 **What goes wrong:**
-Teal accent colors that look perfect in light mode fail WCAG contrast requirements in dark mode. Text becomes unreadable, focus indicators disappear, disabled states are invisible. 83.9% of websites have detectable color contrast issues (WebAIM 2022), and dark mode often makes this worse.
+The current `ConfigHandler._validate_url()` uses `socket.getaddrinfo()` at config-set time and rejects
+URLs that resolve to private/loopback IPs. This works for the intended SSRF scenario (attacker-controlled
+URL that resolves to `127.0.0.1`). However, it also blocks legitimate use cases:
+- Sonarr running on the same host as SeedSync: `http://localhost:8989` or `http://127.0.0.1:8989`
+- Sonarr/Radarr on a local network: `http://192.168.1.100:8989`
+- Sonarr/Radarr accessed via Tailscale: `http://100.x.y.z:8989` (Tailscale IPs are in `100.64.0.0/10`,
+  which is a shared address space — `ipaddress.ip_address(addr).is_private` returns False for these
+  addresses in Python < 3.11, but returns True in Python 3.11+ due to RFC 6598 classification)
+- Sonarr accessed via a hostname in `/etc/hosts` or a local DNS (e.g., `http://sonarr.lan:8989`)
 
 **Why it happens:**
-Simply inverting colors fails to meet WCAG standards. The project uses "teal accent colors that need to work in both light and dark" — teal (#17a2b8 type values) has specific contrast challenges. Pure black (#000000) in dark mode causes halation effect and eye strain. Developers test dark mode visually but don't run automated contrast checkers.
+The SSRF protection was designed for the threat model of an external attacker setting a malicious Sonarr
+URL via the config API. But SeedSync is a self-hosted tool where `localhost`, `192.168.x.x`, and Tailscale
+addresses are not only legitimate but are the primary deployment targets. The current blanket block on
+private IPs is overly broad for the actual threat model.
 
-Common mistakes:
-- Forcing brand colors onto critical UI elements regardless of contrast
-- Using subtle color changes for focus that blend into dark backgrounds
-- Ignoring non-text elements (icons, borders) which need 3:1 ratio since WCAG 2.1
-- Extreme contrast (pure black bg with pure white text) causing strain
+Additionally, if a "resolve-once" DNS rebinding fix is added (resolve hostname once at config-save time,
+cache the IP, use the cached IP for all subsequent requests), it introduces a new failure: Tailscale IP
+addresses can change (machine re-enrolls, IP is recycled), and local DNS hostnames can legitimately point
+to different IPs over time. Cached IPs become stale and connections silently fail.
 
 **How to avoid:**
-1. **Define separate teal variants** for light and dark:
-```scss
-$teal-light-mode: #17a2b8; // Good contrast on white
-$teal-dark-mode: #4dd4ac;  // Good contrast on dark gray
-
-@include color-mode(dark) {
-  --bs-teal: #{$teal-dark-mode};
-}
-```
-
-2. **Use softer blacks**: `#1a1a1a` or `#212529` instead of `#000000`
-3. **Test with tools**:
-   - Chrome DevTools color picker shows contrast ratio
-   - axe DevTools automated scanning
-   - WAVE browser extension
-4. **WCAG targets**: 4.5:1 for small text, 3:1 for large text and UI components
-5. **Test focus indicators**: Must be visible in both themes, ideally 3:1+ contrast
+1. **Reconsider the threat model**: SeedSync has no public exposure — it's accessed via Tailscale or
+   local network. The primary SSRF threat is a compromised client sending a malicious Sonarr URL, not
+   an external attacker. The correct mitigation may be: validate that the URL looks like a reasonable
+   Sonarr URL (correct path structure, not a local metadata endpoint) rather than checking the resolved IP.
+2. **If keeping IP-based validation**: Add an explicit allowlist for private ranges when the user has
+   explicitly configured them:
+   ```python
+   PRIVATE_RANGES_ALLOWED = [
+       ipaddress.ip_network("127.0.0.0/8"),       # localhost
+       ipaddress.ip_network("192.168.0.0/16"),    # local network
+       ipaddress.ip_network("10.0.0.0/8"),        # local network
+       ipaddress.ip_network("172.16.0.0/12"),     # local network
+       ipaddress.ip_network("100.64.0.0/10"),     # Tailscale / CGNAT
+   ]
+   ```
+   Then document that this is intentional (SeedSync is a self-hosted tool, private addresses are expected).
+3. **For DNS rebinding specifically**: The actual rebinding attack requires an attacker to control DNS
+   TTL and serve different IPs for the same hostname. For a self-hosted tool this is an extremely low-risk
+   vector. If implementing resolve-once, do NOT cache indefinitely — cap at the DNS TTL or 60 seconds.
+4. **Do not break the current test-connection button**: The test-connection endpoints in Settings call
+   `_validate_url()` before making the outbound request. If users are testing `http://192.168.1.100:8989`,
+   the URL must not be rejected. This is the primary user-visible action that validates the Sonarr config.
+5. **Python version note**: `ipaddress.ip_address().is_private` behavior changed in Python 3.11 to
+   include more ranges (RFC 6890). Test on the exact Python version in the Docker image.
 
 **Warning signs:**
-- Text is hard to read in one theme
-- Focus indicators invisible when tabbing
-- Disabled buttons look identical to enabled
-- Error messages don't stand out
-- Link colors too similar to body text
+- Settings page "Test Connection" fails for `localhost`, `127.0.0.1`, or Tailscale IPs after fix
+- Users report "URL resolves to a private/reserved IP address" for their normal Sonarr setup
+- Sonarr/Radarr integration completely non-functional after DNS rebinding hardening
+- Test suite passes (mocked `getaddrinfo`) but real-world behavior differs
 
 **Phase to address:**
-Phase 2 (Component Audit & Remediation) — Define contrast-safe color pairs. Phase 4 (Integration Testing) — Run automated accessibility scans. Phase 5 (Polish & Refinement) — Manual testing with screen readers, keyboard navigation.
+Phase covering SSRF / DNS rebinding fix. Must explicitly verify that the test-connection workflow
+succeeds for localhost, LAN IPs (`192.168.x.x`), and Tailscale IPs (`100.x.x.x`). If the threat model
+does not warrant blocking private IPs, remove that check and rely on other controls (HMAC on webhooks,
+no credentials forwarded to arbitrary URLs).
 
 ---
 
-### Pitfall 6: Multi-Tab Synchronization Missing
+### Pitfall 6: Restart Endpoint CSRF — GET-to-POST Migration Breaking Angular Client
 
 **What goes wrong:**
-User changes theme in Tab A, switches to Tab B, sees old theme. Theme preference updates in localStorage but other open tabs don't react. Leads to confusion and "theme toggle doesn't work" bug reports.
+`/server/command/restart` is currently registered as a GET handler in `ServerHandler.add_routes()`.
+The CSRF fix is to change it to POST. However, the Angular `RestService.sendRequest()` uses `HttpClient.get()`
+for the restart call. If the backend changes to POST without the Angular side being updated simultaneously,
+the restart button sends a GET to a POST-only endpoint and receives a 405 Method Not Allowed — the
+server restarts nothing, and the user sees an error. This is a bilateral change that must ship atomically.
 
 **Why it happens:**
-The `storage` event fires when localStorage changes, but only in OTHER tabs, not the tab that made the change. Developers implement theme toggle but forget cross-tab sync. Angular change detection doesn't automatically track localStorage changes from external sources.
+The Angular service calls are structured around `sendRequest()` (GET) and `post()` (POST) as separate
+methods. Changing the backend without updating the corresponding Angular service call is easy to miss
+during code review, especially since the restart flow is tested manually (UI click) rather than with
+automated tests that exercise both sides.
 
 **How to avoid:**
-1. **Listen to storage event**:
-```typescript
-// In theme service
-@HostListener('window:storage', ['$event'])
-onStorageChange(event: StorageEvent) {
-  if (event.key === 'theme' && event.newValue) {
-    this.applyTheme(event.newValue);
-    this.cdr.detectChanges(); // Trigger Angular change detection
-  }
-}
-```
-
-2. **Broadcast theme changes**: In Angular service, emit when theme changes
-3. **Test multi-tab**: Open 2+ tabs, toggle in one, verify others update
-4. **Use RxJS**: Create observable from storage event for reactive updates
+1. **Change both sides in the same commit/PR**: The backend `add_handler` → `add_post_handler` change
+   and the Angular `RestService.sendRequest(url)` → `RestService.post(url)` change for the restart URL
+   must be in the same diff.
+2. **Verify with Angular unit tests**: `ServerCommandService` should have a test that the restart action
+   uses HTTP POST, not GET. This test should be updated before the implementation change to drive the
+   correct behavior.
+3. **Check all callers**: Search for all references to `/server/command/restart` in the Angular codebase —
+   there may be more than one call site if restart is triggered from multiple components.
 
 **Warning signs:**
-- Theme toggle works but only in current tab
-- Refreshing page shows correct theme but switching tabs doesn't
-- Users report "inconsistent theme behavior"
+- Restart button produces a network error in browser DevTools (405 Method Not Allowed)
+- Python logs show `GET /server/command/restart` after the backend was changed to POST-only
+- Angular unit tests for restart pass (if they still use `sendRequest` which issues GET)
 
 **Phase to address:**
-Phase 1 (Theme Infrastructure) — Build storage listener into theme service from the start. Phase 4 (Integration Testing) — Explicit multi-tab testing.
-
----
-
-### Pitfall 7: Existing Dark Form Inputs in Light Mode
-
-**What goes wrong:**
-The project context states "form inputs already styled with dark backgrounds." When implementing dark mode, these inputs will be TOO dark in actual dark mode, or clash visually in light mode when compared to Bootstrap's native form styling.
-
-**Why it happens:**
-Previous design decisions made form inputs dark (possibly for aesthetic reasons or to match a specific design). Now adding a proper theme system creates conflict: do dark inputs represent "always dark" or were they the proto-dark-mode? If inputs are dark in light mode, they'll need to be light in dark mode (inverted logic).
-
-**How to avoid:**
-1. **Audit current form input styles**: Identify all custom background colors
-2. **Decide on strategy**:
-   - **Option A**: Make inputs theme-aware (light in light mode, dark in dark mode)
-   - **Option B**: Keep inputs consistently styled but adjust contrast
-   - **Option C**: Remove custom dark styling, use Bootstrap defaults
-3. **Update selectively**:
-```scss
-.form-control {
-  // Remove: background-color: #2c3e50;
-
-  // Light mode uses Bootstrap default
-  background-color: var(--bs-body-bg);
-  color: var(--bs-body-color);
-
-  @include color-mode(dark) {
-    background-color: var(--bs-dark);
-    color: var(--bs-light);
-  }
-}
-```
-
-**Warning signs:**
-- Form inputs invisible or very low contrast in one theme
-- Input text disappears when typing
-- Placeholder text unreadable
-- Focus states don't show clearly
-- Autofill styles clash with theme
-
-**Phase to address:**
-Phase 2 (Component Audit & Remediation) — Early priority due to existing customization. Create before/after comparison, test all form states (empty, filled, focused, disabled, error, success).
+Phase covering CSRF prevention / POST migration. A two-sided change — verify both sides ship together.
 
 ---
 
@@ -274,68 +327,61 @@ Shortcuts that seem reasonable but create long-term problems.
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Using CSS `filter: invert(1)` globally for dark mode | Works in 5 minutes | Inverts images/logos, bad performance, accessibility issues, tints colors oddly | Never for production; OK for quick prototype |
-| Hardcoding `data-bs-theme="dark"` in templates | Quick visual fix for one component | Prevents global theme toggle, creates maintenance burden | Only if component MUST always be dark regardless of theme (rare) |
-| Skipping contrast ratio testing | Faster development | Accessibility failures, WCAG violations, unusable for low vision users | Never — automated tools run in seconds |
-| Using only light mode colors in dark mode | No extra color definitions needed | Poor UX, contrast failures, unprofessional appearance | Never — define proper dark variants |
-| Putting theme script at end of body | Simpler HTML structure | Guarantees FOUC, bad first impression | Never — theme must apply before render |
-| Testing in only one browser | Faster QA process | Misses browser-specific color rendering, prefers-color-scheme bugs | Never — test Chrome, Firefox, Safari minimum |
+| Exempting SSE from auth rather than fixing auth transport | Ships quickly | SSE stream is unprotected; attacker on LAN can read file names | Never for production — implement token-in-query-param or cookie |
+| Using `abspath()` instead of `realpath()` for path traversal | Simpler code | Symlinks bypass the guard entirely | Never for security-critical path validation |
+| CSP report-only mode permanently | Avoids breakage risk | CSP provides no protection in report-only mode | Acceptable for ≤1 week while gathering violations, not indefinitely |
+| Keeping `'unsafe-inline'` in CSP while "investigating" | Zero breakage risk | Negates XSS protection entirely | Only during initial report-only observation phase |
+| Caching DNS resolution result indefinitely | Fixes rebinding for session | Stale IPs when Tailscale IPs rotate or DNS changes | Never — cap cache at 60s or respect TTL |
+| Adding auth only to new endpoints, not existing ones | Incremental rollout | Creates inconsistent security surface; some endpoints unprotected | Never — auth must apply uniformly via middleware/hook |
+
+---
 
 ## Integration Gotchas
 
-Common mistakes when connecting to external services or existing systems.
+Common mistakes when connecting to external services or existing system components.
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| Bootstrap SCSS Import | Using `@import "bootstrap"` then switching to `@use` breaks variable overrides | Keep `@import` OR migrate fully to `@use` with namespaces, don't mix |
-| Angular Component Tests | Not setting `data-bs-theme` in TestBed, tests pass but theme is broken | Add `data-bs-theme` to test fixture: `fixture.nativeElement.setAttribute('data-bs-theme', 'dark')` |
-| prefers-color-scheme | Assuming it works in all browsers | Check browser support (IE11 doesn't support), provide fallback |
-| localStorage Theme | Directly reading/writing without service | Use Angular service with RxJS for reactive updates, proper encapsulation |
-| SVG Icons | Expecting icons to auto-adapt with theme change | Use `currentColor` in SVGs or provide theme-specific icon variants |
-| Third-party Components | Assuming they respect Bootstrap theme | Many don't — may need custom CSS or wait for library updates |
+| Sonarr/Radarr webhooks | Requiring HMAC secret by default on upgrade | Keep empty-secret = skip as backward-compat default; hardening is opt-in |
+| Sonarr/Radarr test-connection | Blocking localhost/LAN IPs with SSRF guard | Explicitly allow private ranges for self-hosted tool; document threat model |
+| Angular EventSource + auth | Sending `Authorization` header via EventSource | EventSource cannot send custom headers; use query-param token or cookie |
+| Bottle after_request hook | Applying auth check to static file routes | Static files (`/`, `/<path>`, Angular assets) should be exempt from API auth |
+| Angular `HttpClient` + CSRF | Forgetting to update Angular when backend changes GET→POST | Change both sides atomically; cover with unit test asserting HTTP method |
+| Angular CSP nonce | Generating nonce server-side but not injecting into `index.html` | `index.html` must be served as a template (not raw static file) to inject nonce |
+| `socket.getaddrinfo` Python version | `is_private` behavior differs across Python 3.9/3.10/3.11 | Pin Python version in Docker; test SSRF validation on the exact runtime version |
 
-## Performance Traps
+---
 
-Patterns that work at small scale but fail as usage grows.
+## Security Mistakes
 
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Using CSS filter on large containers | Jank on scroll, slow animations | Apply filters to small elements only, prefer CSS variables | 100+ filtered elements on page |
-| Re-rendering all components on theme change | UI freezes for 200-500ms when toggling theme | Use OnPush change detection, CSS-only theme switching | 50+ components re-render |
-| Loading duplicate CSS for each theme | Large bundle size, slow initial load | Use CSS variables, single stylesheet, runtime theme switching | 200kb+ unused CSS loaded |
-| Storing theme state in multiple places | Sync issues, stale data | Single source of truth (localStorage + service) | 5+ components tracking theme independently |
-| Not debouncing theme toggle | Rapid clicks cause multiple localStorage writes, change detection cycles | Debounce toggle function 100-200ms | Users double-click theme toggle |
+Domain-specific security issues specific to this codebase.
 
-## UX Pitfalls
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Validating path at HTTP layer but not in subprocess | Path traversal guard bypassed by direct controller invocation in tests | Validate in both `ControllerHandler` and `DeleteLocalProcess.run_once()` |
+| Using `os.path.basename(file_name) == file_name` as the only check | Passes for symlinks named without separators that point outside `local_path` | Also check for symlink: `os.path.islink()` |
+| Logging the full token on auth failure | Token exposure in logs (even partial) | Log only first 4 chars and length: `tok[:4]***` |
+| Nonce reuse across requests | Attacker can pre-compute nonce for CSP bypass | Nonce must be generated fresh per response (not once at startup) |
+| Webhook IP restriction without testing Sonarr's outbound IP | Sonarr may send from container IP or reverse proxy IP, not its configured URL IP | Rely on HMAC, not IP allowlists — HMAC is portable across network topologies |
+| Applying auth to `/server/stream` without token transport solution | SSE permanently broken for all users | Design SSE auth transport before implementing auth middleware |
 
-Common user experience mistakes in this domain.
-
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| No visual feedback on theme toggle | User clicks, nothing happens (async), clicks again | Show loading state, animate transition, immediate feedback |
-| Theme toggle buried in settings | Users don't discover dark mode, prefer OS setting | Prominent toggle in header/nav, respect prefers-color-scheme default |
-| Abrupt theme transition | Jarring visual change, feels broken | CSS transition on theme change (100-200ms ease) |
-| Not respecting OS preference on first visit | User has dark OS, app loads light | Check `prefers-color-scheme`, use as default if no localStorage value |
-| Forgetting print styles | Dark mode prints black pages (wastes ink) | `@media print` always uses light theme |
-| Pure black dark mode | Eye strain, halation effect, harder to read | Use dark gray (#1a1a1a or #212529) |
-| Ignoring reduced-motion preference | Theme transitions trigger motion sensitivity | Check `prefers-reduced-motion`, skip animations if set |
+---
 
 ## "Looks Done But Isn't" Checklist
 
 Things that appear complete but are missing critical pieces.
 
-- [ ] **Dark mode toggle:** Often missing localStorage persistence — verify theme survives page refresh
-- [ ] **Color contrast:** Often missing automated checks — verify WCAG AA compliance with axe DevTools
-- [ ] **Multi-tab sync:** Often missing storage event listener — verify theme updates across tabs
-- [ ] **FOUC prevention:** Often missing inline script — verify no flash on hard refresh
-- [ ] **SVG icons:** Often missing currentColor or theme variants — verify icons visible in both themes
-- [ ] **Form validation:** Often missing dark mode error state styles — verify error/success states visible
-- [ ] **Focus indicators:** Often missing dark mode adjustments — verify keyboard navigation visible
-- [ ] **Third-party components:** Often missing theme integration — verify modals, datepickers, charts themed
-- [ ] **Print styles:** Often missing light theme override — verify dark mode doesn't print
-- [ ] **Tooltips/popovers:** Often missing theme styles — verify all overlays match theme
-- [ ] **Loading states:** Often missing dark mode spinners/skeletons — verify loading UI themed
-- [ ] **Email templates:** Often missing (emails don't use web CSS) — verify email notifications readable
+- [ ] **Path traversal guard:** Often only checks string normalization — verify `realpath()` is used and symlinks within `local_path` pointing outside are rejected
+- [ ] **SSE + auth:** Often auth is added but SSE is not tested — verify Angular file list populates after auth middleware is in place
+- [ ] **CSP hardening:** Often `unsafe-inline` is removed without verifying Angular build output — verify app bootstraps and Google Fonts load after CSP change
+- [ ] **Webhook auth defaults:** Often new default breaks existing installs — verify existing empty-secret configurations still receive webhooks
+- [ ] **DNS rebinding fix:** Often blocks localhost — verify Settings test-connection works for `http://localhost:8989`, `http://192.168.x.x:8989`, and a Tailscale IP
+- [ ] **Restart endpoint POST migration:** Often backend is updated but Angular client is not — verify restart button works end-to-end after the change
+- [ ] **Auth middleware scope:** Often applies to all routes including static files — verify Angular app assets still load without auth headers
+- [ ] **Config file permissions (0600):** Often the code sets permissions but existing config files are not migrated — verify the permission is set on first write AND on existing file at startup
+- [ ] **Token rotation:** Often token auth is implemented with a static config value — verify there is a way to rotate the token without restarting (or document that restart is required)
+
+---
 
 ## Recovery Strategies
 
@@ -343,16 +389,15 @@ When pitfalls occur despite prevention, how to recover.
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| FOUC discovered after launch | LOW | Add inline script to index.html, deploy, clear CDN cache |
-| Hardcoded colors throughout codebase | HIGH | Systematic SCSS audit (2-4 hours), replace with variables, full regression test |
-| Contrast failures reported | MEDIUM | Run axe scan, fix flagged elements, define compliant color pairs (1-2 hours) |
-| Theme doesn't persist | LOW | Add localStorage write to toggle function, test (30 min) |
-| Multi-tab sync missing | LOW | Add storage event listener to service (15 min), test |
-| Existing dark form inputs clash | MEDIUM | Decide on strategy, update form SCSS, test all form states (1-2 hours) |
-| data-bs-theme conflicts | MEDIUM | Search & replace in templates, test dropdowns/modals (1-2 hours) |
-| SCSS variable overrides don't work | HIGH | Migrate to CSS variable overrides, test all colors (2-3 hours) |
-| SVG icons invisible | MEDIUM | Convert to currentColor or provide variants (30 min per icon set) |
-| Print styles missing | LOW | Add `@media print` with light theme override (15 min) |
+| SSE broken by auth middleware | LOW | Add auth exemption for `/server/stream` in hook; redeploy |
+| Path traversal bypassed by symlink | MEDIUM | Add `realpath()` check and symlink rejection to both layers; audit logs for anomalous paths |
+| CSP change breaks Angular | LOW | Revert CSP header to include `'unsafe-inline'` temporarily; switch to report-only; analyze violations |
+| Webhook auth breaks Sonarr/Radarr | LOW | Set `webhook_secret` back to empty in config; redeploy; document migration path |
+| DNS rebinding fix blocks Tailscale | LOW | Add `100.64.0.0/10` to allowed private ranges; redeploy |
+| Restart endpoint 405 after GET→POST migration | LOW | Update Angular `ServerCommandService` to use `RestService.post()`; rebuild frontend |
+| Auth middleware applied to static files | LOW | Scope middleware to `/server/` prefix only; redeploy |
+
+---
 
 ## Pitfall-to-Phase Mapping
 
@@ -360,74 +405,49 @@ How roadmap phases should address these pitfalls.
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Theme Flicker (FOUC) | Phase 1: Theme Infrastructure | Hard refresh test, incognito mode, cache cleared |
-| Hardcoded Colors | Phase 2: Component Audit | Grep for hex colors returns zero or documented exceptions |
-| SCSS Variable Scope | Phase 2: Component Audit | Custom colors work in both themes |
-| data-bs-theme Conflicts | Phase 2: Component Audit | Grep finds zero hardcoded attributes (or documented ones) |
-| Color Contrast Failures | Phase 2 & 4: Audit & Testing | axe DevTools scan shows zero contrast issues |
-| Multi-Tab Sync | Phase 1: Theme Infrastructure | Two tabs open, toggle in one, other updates |
-| Existing Dark Forms | Phase 2: Component Audit | Form inputs visible and usable in both themes |
-| Missing Test Coverage | Phase 3: Unit Test Updates | 381 existing tests pass, theme service has 90%+ coverage |
-| SVG Icon Issues | Phase 5: Polish & Refinement | All icons visible and contrast-safe in both themes |
-| Print Styles | Phase 5: Polish & Refinement | Print preview always shows light theme |
-| Third-party Components | Phase 4: Integration Testing | All libraries respect theme or have custom overrides |
-| Performance Issues | Phase 5: Polish & Refinement | Theme toggle < 100ms, no scroll jank, bundle size acceptable |
+| Auth breaks SSE stream | API auth phase — design SSE token transport first | Angular file list populates with auth enabled; no reconnect loop |
+| Path traversal bypasses symlinks | Path traversal guard phase — use `realpath()` at both layers | Test with symlinked `local_path` and symlinks within it pointing outside |
+| CSP unsafe-inline removal | CSP hardening phase — report-only first | Zero violations in report-only for a full session; app bootstraps cleanly |
+| Webhook defaults break existing installs | Webhook hardening phase — keep empty-secret skip | Existing empty-secret Sonarr/Radarr setups still deliver webhooks |
+| DNS rebinding fix blocks Tailscale | SSRF/DNS rebinding phase — validate against real network topology | Test-connection works for localhost, LAN IPs, Tailscale IPs |
+| Restart GET→POST breaks Angular | CSRF / POST migration phase — change both sides atomically | Restart button works end-to-end; Angular unit test asserts POST method |
+| Auth scope includes static files | API auth phase — scope to `/server/` prefix | Angular SPA loads without auth headers; only API calls require token |
+
+---
 
 ## Sources
 
-**Bootstrap 5.3 Official Documentation:**
-- [Color modes · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/customize/color-modes/)
-- [Bootstrap 5.3.0 Release Announcement](https://blog.getbootstrap.com/2023/05/30/bootstrap-5-3-0/)
-- [Sass · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/customize/sass/)
-- [Dropdowns · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/components/dropdowns/)
+**Bottle Framework:**
+- [Bottle documentation: Hooks](https://bottlepy.org/docs/dev/api.html#bottle.Bottle.hook) — `before_request` hook applies to all routes unless explicitly exempted
+- [Bottle documentation: Routing](https://bottlepy.org/docs/dev/routing.html) — route matching and handler registration
 
-**Bootstrap Issues & Discussions:**
-- [Most components don't support theme/dark mode · Issue #37976](https://github.com/twbs/bootstrap/issues/37976)
-- [Dark mode's derived variables should reference the variables they are based on · Issue #37949](https://github.com/twbs/bootstrap/issues/37949)
-- [CSS variables not adopting default overrides · Issue #39379](https://github.com/twbs/bootstrap/issues/39379)
-- [data-bs-theme="dark" behaves differently compared to CSS class `navbar-dark` · Issue #38973](https://github.com/twbs/bootstrap/issues/38973)
-- [How To Change Custom Color Created In SASS For Dark Mode · Discussion #37838](https://github.com/orgs/twbs/discussions/37838)
+**Browser EventSource Limitations:**
+- [MDN: EventSource](https://developer.mozilla.org/en-US/docs/Web/API/EventSource) — EventSource does not support custom request headers; credentials option only controls cookies
+- [WHATWG: Server-sent events spec](https://html.spec.whatwg.org/multipage/server-sent-events.html) — EventSource reconnects automatically on connection loss
 
-**FOUC & Theme Flicker:**
-- [Fixing Dark Mode Flickering (FOUC) in React and Next.js](https://notanumber.in/blog/fixing-react-dark-mode-flickering)
-- [FOUC on angular.io (possibly related to the dark theme) · Issue #42460](https://github.com/angular/angular/issues/42460)
-- [Preventing flash of unstyled content - Master CSS](https://rc.css.master.co/guide/flash-of-unstyled-content)
+**Path Traversal and Symlinks:**
+- [CWE-22: Improper Limitation of a Pathname](https://cwe.mitre.org/data/definitions/22.html) — includes symlink-based traversal as a variant
+- [Python os.path.realpath docs](https://docs.python.org/3/library/os.path.html#os.path.realpath) — resolves symlinks; behavior difference from `abspath()`
+- [Python shutil.rmtree docs](https://docs.python.org/3/library/shutil.html#shutil.rmtree) — symlink handling notes
 
-**Color Contrast & Accessibility:**
-- [Offering a Dark Mode Doesn't Satisfy WCAG Color Contrast Requirements](https://www.boia.org/blog/offering-a-dark-mode-doesnt-satisfy-wcag-color-contrast-requirements)
-- [The Designer's Guide to Dark Mode Accessibility](https://www.accessibilitychecker.org/blog/dark-mode-accessibility/)
-- [Color Contrast for Accessibility: WCAG Guide (2026)](https://www.webability.io/blog/color-contrast-for-accessibility)
-- [WebAIM: Contrast and Color Accessibility](https://webaim.org/articles/contrast/)
+**CSP and Angular:**
+- [Angular: Content Security Policy](https://angular.dev/best-practices/security#content-security-policy) — Angular 16+ `ngCspNonce` attribute and `CSP_NONCE` token
+- [MDN: Content-Security-Policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy) — nonce, hash, and strict-dynamic directives
+- [MDN: CSP violations and reporting](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP#violation_reporting) — report-only mode
 
-**Multi-Tab Synchronization:**
-- [Cross-Tab State Synchronization in React Using the Browser storage Event](https://medium.com/@vinaykumarbr07/cross-tab-state-synchronization-in-react-using-the-browser-storage-event-14b6f1a97ea6)
-- [Synchronizing LocalStorage Across Multiple Tabs Using JavaScript](https://medium.com/@behzadsoleimani97/synchronizing-localstorage-across-multiple-tabs-using-javascrip-f683cc8d0907)
-- [Use localStorage for Tab Synchronization](https://nabeelvalley.co.za/blog/2024/07-03/localstorage-based-sync/)
+**DNS Rebinding:**
+- [OWASP: DNS Rebinding](https://owasp.org/www-community/attacks/DNS_Rebinding) — attack mechanics and mitigations
+- [Python ipaddress: is_private behavior change in 3.11](https://docs.python.org/3/library/ipaddress.html) — RFC 6890 ranges added in 3.11
+- [Tailscale IP range: 100.64.0.0/10 CGNAT](https://tailscale.com/kb/1033/ip-and-dns-mappings) — Tailscale uses CGNAT address space
 
-**SCSS @use vs @import:**
-- [Sass: @use](https://sass-lang.com/documentation/at-rules/use/)
-- [Sass: Breaking Change: @import and global built-in functions](https://sass-lang.com/documentation/breaking-changes/import/)
-- [Problems Importing Bootstrap into SCSS with @use Instead of @import](https://www.codegenes.net/blog/importing-bootstrap-into-my-scss-via-use-instead-of-import-causes-problems/)
-- [How to Customize Bootstrap with Sass Update in Angular 19? · Discussion #41260](https://github.com/orgs/twbs/discussions/41260)
+**Sonarr/Radarr Webhooks:**
+- [Sonarr webhook documentation](https://wiki.servarr.com/sonarr/settings#connections) — Test event behavior and secret field
+- [Radarr webhook documentation](https://wiki.servarr.com/radarr/settings#connections) — mirrors Sonarr webhook spec
 
-**SVG Icons & Dark Mode:**
-- [Making single color SVG icons work in dark mode](https://hidde.blog/making-single-color-svg-icons-work-in-dark-mode/)
-- [The best method for embedding dark-mode friendly SVG in HTML](https://www.ctrl.blog/entry/svg-embed-dark-mode.html)
-- [Optimizing SVG Images for Dark Mode: Inverting Colors with CSS and JavaScript](https://cherniaev.com/optimizing-svg-for-dark-mode)
-
-**Teal Color Trends 2026:**
-- [Colour of the Year 2026 - Transformative Teal in the IT world](https://railsformers.com/colour-of-the-year-2026-transformative-teal-in-the-it-world)
-- [Midnight Teal: The Deep Digital Luxe Color Transforming Design Trends in 2026](https://zeenesia.com/2025/12/02/midnight-teal-the-deep-digital-luxe-color-transforming-design-trends-in-2026/)
-
-**Angular Testing:**
-- [Basics of testing components · Angular](https://angular.dev/guide/testing/components-basics)
-- [Component testing scenarios · Angular](https://angular.dev/guide/testing/components-scenarios)
-
-**Browser Support:**
-- [prefers-color-scheme media query | Can I use](https://caniuse.com/prefers-color-scheme)
-- [prefers-color-scheme - CSS | MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-color-scheme)
+**CSRF Prevention:**
+- [OWASP: CSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html) — GET-to-POST migration rationale
 
 ---
-*Pitfalls research for: Adding dark mode to existing Bootstrap 5.3 Angular app*
-*Researched: 2026-02-11*
-*Confidence: HIGH — Based on official Bootstrap docs, GitHub issues, accessibility guidelines, and 2026 best practices*
+*Pitfalls research for: Adding security hardening to existing Bottle + Angular self-hosted file sync app*
+*Researched: 2026-02-25*
+*Confidence: HIGH — Based on direct codebase analysis (web_app.py, webhook.py, config.py, delete_process.py), official docs, and known ecosystem behaviors*
