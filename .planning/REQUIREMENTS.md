@@ -49,9 +49,9 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Log Redaction
 
-- [ ] **LOG-01**: SSH command logs redact user@host patterns from debug output
-- [ ] **LOG-02**: SSE log stream does not expose SSH connection topology (user, host, path)
-- [ ] **LOG-03**: Redaction pattern does not false-positive on non-SSH log lines (e.g., email addresses in unrelated context)
+- [x] **LOG-01**: SSH command logs redact user@host patterns from debug output
+- [x] **LOG-02**: SSE log stream does not expose SSH connection topology (user, host, path)
+- [x] **LOG-03**: Redaction pattern does not false-positive on non-SSH log lines (e.g., email addresses in unrelated context)
 
 ### CSP Hardening
 
@@ -115,9 +115,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DNS-03 | Phase 50 | Pending |
 | ENDP-01 | Phase 47 | Pending |
 | ENDP-02 | Phase 47 | Pending |
-| LOG-01 | Phase 47 | Pending |
-| LOG-02 | Phase 47 | Pending |
-| LOG-03 | Phase 47 | Pending |
+| LOG-01 | Phase 47 | Complete |
+| LOG-02 | Phase 47 | Complete |
+| LOG-03 | Phase 47 | Complete |
 | CSP-01 | Phase 51 | Pending |
 | CSP-02 | Phase 51 | Pending |
 | CSP-03 | Phase 51 | Pending |

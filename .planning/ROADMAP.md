@@ -254,7 +254,7 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
-| 47. Isolated Backend Hardening | 1/3 | In Progress|  | - |
+| 47. Isolated Backend Hardening | 2/3 | In Progress|  | - |
 | 48. Config and Webhook Layer | v3.2 | 0/TBD | Not started | - |
 | 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
 | 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
