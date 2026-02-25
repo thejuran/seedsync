@@ -41,3 +41,14 @@ class TestServerHandler(unittest.TestCase):
 
     def test_constructor_creates_child_logger(self):
         self.mock_context.logger.getChild.assert_called_once_with("ServerActionHandler")
+
+    def test_restart_route_registered_as_post(self):
+        """ENDP-01: Restart endpoint must use POST method."""
+        mock_web_app = MagicMock()
+        self.handler.add_routes(mock_web_app)
+        mock_web_app.add_post_handler.assert_called_once_with(
+            "/server/command/restart",
+            unittest.mock.ANY  # the private handler method
+        )
+        # Ensure add_handler (GET) was NOT called
+        mock_web_app.add_handler.assert_not_called()

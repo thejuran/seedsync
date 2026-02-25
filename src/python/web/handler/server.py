@@ -16,7 +16,7 @@ class ServerHandler(IHandler):
 
     @overrides(IHandler)
     def add_routes(self, web_app: WebApp):
-        web_app.add_handler("/server/command/restart", self.__handle_action_restart)
+        web_app.add_post_handler("/server/command/restart", self.__handle_action_restart)
 
     def is_restart_requested(self):
         """

@@ -211,3 +211,83 @@ class TestSerializeLogRecord(unittest.TestCase):
         out = parse_stream(serialize.record(record))
         data = json.loads(out["data"])
         self.assertEqual(None, data["exc_tb"])
+
+
+class TestRedactSensitive(unittest.TestCase):
+    """
+    Tests for SerializeLogRecord._redact_sensitive() — covers SSH topology
+    redaction (LOG-01, LOG-02) and false-positive safety (LOG-03).
+
+    _redact_sensitive() is a @staticmethod so it can be tested directly
+    without constructing full LogRecord objects.
+    """
+
+    # ------------------------------------------------------------------ #
+    # Redaction tests (LOG-01, LOG-02): these must show **REDACTED**       #
+    # ------------------------------------------------------------------ #
+
+    def test_redact_sftp_url(self):
+        """LFTP sftp:// URL containing user@host must be redacted."""
+        result = SerializeLogRecord._redact_sensitive(
+            "Connecting to sftp://myuser@seedbox.example.com/downloads"
+        )
+        self.assertNotIn("myuser", result)
+        self.assertNotIn("seedbox.example.com", result)
+        self.assertIn("sftp://", result)  # protocol prefix preserved
+        self.assertIn("**REDACTED**", result)
+
+    def test_redact_ssh_command_args_user_at_host(self):
+        """SSH command list with user@host standalone token must be redacted."""
+        result = SerializeLogRecord._redact_sensitive(
+            "Command: ['ssh', '-p', '22', 'myuser@seedbox.example.com', 'ls']"
+        )
+        self.assertNotIn("myuser@seedbox", result)
+        self.assertIn("**REDACTED**@**REDACTED**", result)
+
+    def test_redact_scp_user_at_host_colon_path(self):
+        """SCP-style user@host:path destination token must be redacted."""
+        result = SerializeLogRecord._redact_sensitive(
+            "Command: ['scp', 'myuser@seedbox.example.com:/remote/path', '/local/path']"
+        )
+        self.assertNotIn("myuser@seedbox", result)
+        self.assertIn("**REDACTED**@**REDACTED**", result)
+
+    def test_redact_lftp_prompt(self):
+        """LFTP shell prompt containing user@host must be redacted."""
+        result = SerializeLogRecord._redact_sensitive(
+            "lftp myuser@seedbox.example.com:~>"
+        )
+        self.assertNotIn("myuser@seedbox", result)
+        self.assertIn("**REDACTED**@**REDACTED**", result)
+
+    # ------------------------------------------------------------------ #
+    # False-positive safety tests (LOG-03): must NOT redact                #
+    # ------------------------------------------------------------------ #
+
+    def test_no_redact_filename_with_at(self):
+        """Filename with @ in the middle must not be redacted."""
+        msg = "Downloading file@720p.mkv"
+        result = SerializeLogRecord._redact_sensitive(msg)
+        self.assertEqual(msg, result)
+
+    def test_no_redact_filename_at_version(self):
+        """Version-style filename with @ must not be redacted."""
+        msg = "Processing release@1.0.tar.gz"
+        result = SerializeLogRecord._redact_sensitive(msg)
+        self.assertEqual(msg, result)
+
+    def test_no_redact_embedded_at_in_path(self):
+        """Path with @ mid-word must not be redacted."""
+        msg = "/downloads/show@720p/file.mkv"
+        result = SerializeLogRecord._redact_sensitive(msg)
+        self.assertEqual(msg, result)
+
+    # ------------------------------------------------------------------ #
+    # Existing pattern preservation                                         #
+    # ------------------------------------------------------------------ #
+
+    def test_existing_password_redaction_preserved(self):
+        """Existing LFTP -u password redaction must still work."""
+        result = SerializeLogRecord._redact_sensitive("-u myuser,secretpass123")
+        self.assertNotIn("secretpass123", result)
+        self.assertIn("**REDACTED**", result)
