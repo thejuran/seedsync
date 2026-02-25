@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: Security Hardening II
 status: unknown
-last_updated: "2026-02-25T23:42:14.642Z"
+last_updated: "2026-02-25T23:42:45.786Z"
 progress:
   total_phases: 36
-  completed_phases: 32
+  completed_phases: 33
   total_plans: 52
-  completed_plans: 51
+  completed_plans: 52
 ---
 
 # Project State
@@ -70,6 +70,7 @@ Recent decisions for v3.2:
 - [Phase 47]: chmod placed after with-block in to_file() (file must be closed before chmod); placed before open() in from_file() (restrict before reading)
 - [Phase 47-isolated-backend-hardening]: Pattern B RHS requires letter-start ([a-zA-Z][\w.\-]*) to prevent false-positives on version filenames like release@1.0.tar.gz
 - [Phase 47-isolated-backend-hardening]: Two-pattern SSH redaction approach: sftp:// URL pattern + bare user@host token pattern maintained separately for clarity and independent maintainability
+- [Phase 47-isolated-backend-hardening]: Restart endpoint uses POST-only via add_post_handler; GET returns 405 automatically via Bottle
 
 ### Todos
 
@@ -89,7 +90,7 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: Completed 47-03-PLAN.md — SSH topology redaction in SSE log stream (LOG-01, LOG-02, LOG-03)
+Stopped at: Completed 47-02-PLAN.md — restart endpoint CSRF fix (GET to POST, ENDP-01, ENDP-02)
 Next action: Continue Phase 47 plans
 
 ---

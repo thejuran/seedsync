@@ -44,8 +44,8 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Endpoint Hygiene
 
-- [ ] **ENDP-01**: Restart endpoint uses POST method instead of GET
-- [ ] **ENDP-02**: Angular frontend sends restart request as POST (RestService update)
+- [x] **ENDP-01**: Restart endpoint uses POST method instead of GET
+- [x] **ENDP-02**: Angular frontend sends restart request as POST (RestService update)
 
 ### Log Redaction
 
@@ -113,8 +113,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DNS-01 | Phase 50 | Pending |
 | DNS-02 | Phase 50 | Pending |
 | DNS-03 | Phase 50 | Pending |
-| ENDP-01 | Phase 47 | Pending |
-| ENDP-02 | Phase 47 | Pending |
+| ENDP-01 | Phase 47 | Complete |
+| ENDP-02 | Phase 47 | Complete |
 | LOG-01 | Phase 47 | Complete |
 | LOG-02 | Phase 47 | Complete |
 | LOG-03 | Phase 47 | Complete |
