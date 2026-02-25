@@ -184,7 +184,10 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
   3. The restart button in the UI sends an HTTP POST — confirmed by browser devtools Network tab showing POST method
   4. The SSE log stream visible in the Logs page contains no user@host strings even when LFTP is actively connecting
   5. Log lines that contain email-like patterns unrelated to SSH (e.g., a filename with @ in it) are not incorrectly redacted
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 47-01-PLAN.md — Config file permission hardening (TDD: Persist.to_file() + from_file() chmod 0600)
+- [ ] 47-02-PLAN.md — Restart endpoint POST migration (backend route + Angular service)
+- [ ] 47-03-PLAN.md — SSH topology log redaction (TDD: _redact_sensitive() sftp:// and user@host patterns)
 
 ### Phase 48: Config and Webhook Layer
 **Goal**: The config API no longer discloses SSH topology fields, webhook endpoints have a payload size cap, and startup warnings surface insecure configuration states
@@ -251,7 +254,7 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
-| 47. Isolated Backend Hardening | v3.2 | 0/TBD | Not started | - |
+| 47. Isolated Backend Hardening | v3.2 | 0/3 | Planned | - |
 | 48. Config and Webhook Layer | v3.2 | 0/TBD | Not started | - |
 | 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
 | 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
