@@ -31,7 +31,7 @@ class SerializeLogRecord(Serialize):
     def _redact_sensitive(message: str) -> str:
         """
         Scrub credential patterns from a log message string before it reaches
-        the SSE stream.  Two patterns are handled:
+        the SSE stream.  Four patterns are handled:
 
         1. LFTP ``-u username,password`` argument — the password is the token
            immediately after the comma.  Only the password portion is replaced
@@ -39,6 +39,17 @@ class SerializeLogRecord(Serialize):
 
         2. Generic ``password=<value>`` / ``password: <value>`` patterns that
            may appear in exception messages or other log output.
+
+        3. SSH topology: ``sftp://user@host/path`` URLs emitted by LFTP — the
+           entire ``user@host/path`` portion is replaced with redacted tokens
+           while the ``sftp://`` scheme prefix is preserved.
+
+        4. SSH topology: bare ``user@host`` tokens in SSH/SCP command output
+           (e.g. ``['ssh', '-p', '22', 'user@host', 'cmd']``).  The lookbehind
+           ``(?<=[\\s'\\"\\[])`` ensures the token is preceded by whitespace,
+           a quote, or an opening bracket — which prevents false positives on
+           filenames such as ``file@720p.mkv`` where ``@`` is preceded by a
+           word character.
         """
         # LFTP: -u username,secretpass  →  -u username,**REDACTED**
         message = re.sub(r'(-u\s+\S+,)\S+', r'\1**REDACTED**', message)
@@ -46,6 +57,17 @@ class SerializeLogRecord(Serialize):
         message = re.sub(
             r'(password[=:]\s*)\S+', r'\1**REDACTED**', message,
             flags=re.IGNORECASE
+        )
+        # SSH topology: sftp://user@host URLs (LFTP connection strings)
+        message = re.sub(r'sftp://\S+@\S+', 'sftp://**REDACTED**@**REDACTED**', message)
+        # SSH topology: user@host tokens (preceded by whitespace/quote/bracket, not mid-word)
+        # Covers: 'user@host', "user@host:path", lftp user@host:~>
+        # Does NOT match: file@720p.mkv or release@1.0.tar.gz (RHS must start with a
+        # letter, not a digit — hostnames start with letters, version strings do not)
+        message = re.sub(
+            r"(?<=[\s'\"\[])(\w[\w.\-]*)@([a-zA-Z][\w.\-]*)",
+            '**REDACTED**@**REDACTED**',
+            message
         )
         return message
 
