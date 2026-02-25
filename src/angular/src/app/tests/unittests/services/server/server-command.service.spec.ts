@@ -44,7 +44,7 @@ describe("Testing server command service", () => {
     });
 
 
-    it("should send a GET restart command", () => {
+    it("should send a POST restart command", () => {
         let count = 0;
         commandService.restart().subscribe({
            next: reaction => {
@@ -53,8 +53,10 @@ describe("Testing server command service", () => {
            }
         });
 
-        // set request
-        httpMock.expectOne("/server/command/restart").flush("{}");
+        // Expect POST, not GET
+        const req = httpMock.expectOne("/server/command/restart");
+        expect(req.request.method).toBe("POST");
+        req.flush("{}");
 
         expect(count).toBe(1);
         httpMock.verify();

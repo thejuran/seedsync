@@ -23,7 +23,7 @@ export class ServerCommandService extends BaseWebService implements OnDestroy {
      * @returns {Observable<WebReaction>}
      */
     public restart(): Observable<WebReaction> {
-        return this._restService.sendRequest(this.RESTART_URL);
+        return this._restService.post(this.RESTART_URL);
     }
 
     protected onConnected(): void {
