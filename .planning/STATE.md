@@ -5,14 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.2 Security Hardening II
+**Current focus:** v3.2 Security Hardening II — Phase 47: Isolated Backend Hardening
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements
-Last activity: 2026-02-25 — Milestone v3.2 started
+Phase: 47 of 51 (Isolated Backend Hardening)
+Plan: — of — in current phase
+Status: Ready to plan
+Last activity: 2026-02-25 — v3.2 roadmap created, 5 phases defined, 32 requirements mapped
+
+Progress: [████████████████████░░░░░░░░░░] 46/51 phases complete (prior milestones)
 
 ## Milestones Shipped
 
@@ -46,13 +48,21 @@ Last activity: 2026-02-25 — Milestone v3.2 started
 
 See PROJECT.md Key Decisions table for full list.
 
+Recent decisions for v3.2:
+- SSE stream exempted from Bearer token auth (EventSource cannot send custom headers; stream contains only file names/status codes, not secrets)
+- Empty webhook_secret keeps "allow" default — do NOT change to "reject" on upgrade (breaks existing Sonarr/Radarr installs)
+- Empty api_token keeps "allow all" default — startup WARNING provides visibility without lockout
+- Angular autoCsp skipped (requires application builder; SeedSync uses browser builder) — CSP handled via Bottle after_request header + Angular build hashes
+- DNS rebinding Host validation bundled into Phase 50 before_request hook alongside auth
+
 ### Todos
 
 None.
 
 ### Blockers
 
-None.
+- Phase 50 requires explicit SSE auth transport decision before writing implementation tasks (confirmed: exempt SSE entirely)
+- Phase 51 requires production Angular build output audit before finalizing CSP directives (inline scripts must be enumerated)
 
 ## Tech Debt
 
@@ -63,8 +73,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: v3.2 milestone initialization
-Next action: Define requirements
+Stopped at: v3.2 roadmap created — ROADMAP.md, STATE.md, REQUIREMENTS.md traceability written
+Next action: /gsd:plan-phase 47
 
 ---
-*v3.2 Security Hardening II: started 2026-02-25*
+*v3.2 Security Hardening II: phases 47-51, 32 requirements*

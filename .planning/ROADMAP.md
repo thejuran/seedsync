@@ -14,6 +14,7 @@
 - ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
 - ✅ **v3.0 Terminal UI Overhaul** - Phases 33-38 (shipped 2026-02-17)
 - ✅ **v3.1 Harden & Fix** - Phases 39-46 (shipped 2026-02-24)
+- 🚧 **v3.2 Security Hardening II** - Phases 47-51 (in progress)
 
 ## Phases
 
@@ -159,6 +160,81 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 
 </details>
 
+### 🚧 v3.2 Security Hardening II (In Progress)
+
+**Milestone Goal:** Close remaining security gaps identified by Huntarr-inspired audit — path traversal, authentication, config hardening, and defense-in-depth improvements.
+
+#### Phase Summary
+
+- [ ] **Phase 47: Isolated Backend Hardening** - Config file permissions, restart POST, SSH log redaction
+- [ ] **Phase 48: Config and Webhook Layer** - Extended redaction, webhook payload limit, startup warnings
+- [ ] **Phase 49: Path Traversal Guards** - realpath()-based containment on delete and extract endpoints
+- [ ] **Phase 50: API Token Authentication** - Bearer token middleware, Angular interceptor, DNS rebinding prevention
+- [ ] **Phase 51: CSP Hardening** - Remove unsafe-inline via nonce-based or hash-based policy
+
+## Phase Details
+
+### Phase 47: Isolated Backend Hardening
+**Goal**: Config files are protected at the OS level, the restart endpoint resists CSRF, and SSH topology does not leak through log streams
+**Depends on**: Phase 46 (v3.1 complete)
+**Requirements**: CONF-01, CONF-02, ENDP-01, ENDP-02, LOG-01, LOG-02, LOG-03
+**Success Criteria** (what must be TRUE):
+  1. A newly written settings.cfg has mode 0600 — no other user on the system can read it
+  2. An existing settings.cfg with permissive permissions (e.g., 0644) is tightened to 0600 on the next startup without user action
+  3. The restart button in the UI sends an HTTP POST — confirmed by browser devtools Network tab showing POST method
+  4. The SSE log stream visible in the Logs page contains no user@host strings even when LFTP is actively connecting
+  5. Log lines that contain email-like patterns unrelated to SSH (e.g., a filename with @ in it) are not incorrectly redacted
+**Plans**: TBD
+
+### Phase 48: Config and Webhook Layer
+**Goal**: The config API no longer discloses SSH topology fields, webhook endpoints have a payload size cap, and startup warnings surface insecure configuration states
+**Depends on**: Phase 47
+**Requirements**: CONF-03, CONF-04, WHOOK-01, WHOOK-02, WARN-01, WARN-02, WARN-03
+**Success Criteria** (what must be TRUE):
+  1. GET /server/config response shows **REDACTED** for remote_address, remote_username, and remote_path alongside the previously redacted password and API keys
+  2. The Settings page still displays the user-entered values for all fields (not **REDACTED**) because it reads from local Angular state, not the API response
+  3. A webhook POST with a body exceeding 1MB receives 413 before the body is read — confirmed by sending a large payload and observing the status code
+  4. Application startup log contains a WARNING when webhook_secret is not configured
+  5. Application startup log contains a WARNING when no API token is configured, and a second WARNING when the app is bound to 0.0.0.0 without a token
+  6. All startup warnings appear in the log but the application starts successfully and serves requests
+**Plans**: TBD
+
+### Phase 49: Path Traversal Guards
+**Goal**: File delete and extract endpoints reject paths that resolve outside local_path, including symlink-based bypass attempts
+**Depends on**: Phase 48
+**Requirements**: PATH-01, PATH-02, PATH-03
+**Success Criteria** (what must be TRUE):
+  1. Sending a delete request for a filename containing "../" sequences (e.g., "../../etc/passwd") returns 400 Bad Request
+  2. Sending an extract request with an archive path that resolves outside local_path returns 400 Bad Request
+  3. The 400 error response body contains no filesystem path details — only a generic rejection message
+  4. Delete and extract requests for legitimate filenames within local_path succeed normally — no regressions for normal usage
+**Plans**: TBD
+
+### Phase 50: API Token Authentication
+**Goal**: All /server/* API endpoints require a valid Bearer token; the Angular SPA receives the token automatically at serve time; DNS rebinding attacks via Host header spoofing are blocked
+**Depends on**: Phase 49
+**Requirements**: AUTH-01, AUTH-02, AUTH-03, AUTH-04, AUTH-05, AUTH-06, AUTH-07, AUTH-08, DNS-01, DNS-02, DNS-03
+**Success Criteria** (what must be TRUE):
+  1. A curl request to any /server/* endpoint without an Authorization header receives 401 Unauthorized
+  2. A curl request with the correct Authorization: Bearer <token> header receives the expected response
+  3. The Angular file list loads and stays populated — the SSE stream connects and reconnects without authentication errors even though EventSource cannot send custom headers
+  4. Webhook POST requests from Sonarr/Radarr continue to work without a Bearer token (they use HMAC auth)
+  5. A fresh install with no token configured allows all requests through and logs a startup WARNING — no lockout on upgrade
+  6. A request with a Host header not in the allowlist (localhost, 127.0.0.1, [::1], configured hostname) receives 400 Bad Request
+  7. A user-configured allowed hostname in Settings is accepted by the Host validation — reverse proxy setups are not broken
+**Plans**: TBD
+
+### Phase 51: CSP Hardening
+**Goal**: The Content-Security-Policy header no longer contains unsafe-inline for script-src; Angular runtime functions correctly under the stricter policy; no CSP violations appear during normal usage
+**Depends on**: Phase 50
+**Requirements**: CSP-01, CSP-02, CSP-03, CSP-04
+**Success Criteria** (what must be TRUE):
+  1. The CSP header on index.html responses does not contain 'unsafe-inline' in script-src
+  2. The Angular SPA loads completely and all pages function normally — file list, settings, logs, about — with no blank page or broken bindings
+  3. The browser console shows zero CSP violation reports during a full usage session (file list, settings, logs, about pages visited)
+  4. The Bottle after_request CSP header covers directives not handled by the Angular build (default-src, img-src, connect-src, font-src, frame-ancestors) without conflicting with the build-generated policy
+**Plans**: TBD
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -175,8 +251,14 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 | 29-32. Dark Mode | v2.0 | 6/6 | Complete | 2026-02-12 |
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
+| 47. Isolated Backend Hardening | v3.2 | 0/TBD | Not started | - |
+| 48. Config and Webhook Layer | v3.2 | 0/TBD | Not started | - |
+| 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
+| 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
+| 51. CSP Hardening | v3.2 | 0/TBD | Not started | - |
 
 ---
 
-*Last updated: 2026-02-24 after v3.1 milestone completion*
-*13 milestones shipped, 46 phases total, 88 plans complete*
+*Last updated: 2026-02-25 after v3.2 roadmap created*
+*13 milestones shipped, 46 phases complete, 88 plans complete*
+*v3.2 in progress: phases 47-51, 32 requirements*

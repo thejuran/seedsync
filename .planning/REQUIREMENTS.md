@@ -93,44 +93,44 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PATH-01 | — | Pending |
-| PATH-02 | — | Pending |
-| PATH-03 | — | Pending |
-| CONF-01 | — | Pending |
-| CONF-02 | — | Pending |
-| CONF-03 | — | Pending |
-| CONF-04 | — | Pending |
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| AUTH-04 | — | Pending |
-| AUTH-05 | — | Pending |
-| AUTH-06 | — | Pending |
-| AUTH-07 | — | Pending |
-| AUTH-08 | — | Pending |
-| WHOOK-01 | — | Pending |
-| WHOOK-02 | — | Pending |
-| DNS-01 | — | Pending |
-| DNS-02 | — | Pending |
-| DNS-03 | — | Pending |
-| ENDP-01 | — | Pending |
-| ENDP-02 | — | Pending |
-| LOG-01 | — | Pending |
-| LOG-02 | — | Pending |
-| LOG-03 | — | Pending |
-| CSP-01 | — | Pending |
-| CSP-02 | — | Pending |
-| CSP-03 | — | Pending |
-| CSP-04 | — | Pending |
-| WARN-01 | — | Pending |
-| WARN-02 | — | Pending |
-| WARN-03 | — | Pending |
+| PATH-01 | Phase 49 | Pending |
+| PATH-02 | Phase 49 | Pending |
+| PATH-03 | Phase 49 | Pending |
+| CONF-01 | Phase 47 | Pending |
+| CONF-02 | Phase 47 | Pending |
+| CONF-03 | Phase 48 | Pending |
+| CONF-04 | Phase 48 | Pending |
+| AUTH-01 | Phase 50 | Pending |
+| AUTH-02 | Phase 50 | Pending |
+| AUTH-03 | Phase 50 | Pending |
+| AUTH-04 | Phase 50 | Pending |
+| AUTH-05 | Phase 50 | Pending |
+| AUTH-06 | Phase 50 | Pending |
+| AUTH-07 | Phase 50 | Pending |
+| AUTH-08 | Phase 50 | Pending |
+| WHOOK-01 | Phase 48 | Pending |
+| WHOOK-02 | Phase 48 | Pending |
+| DNS-01 | Phase 50 | Pending |
+| DNS-02 | Phase 50 | Pending |
+| DNS-03 | Phase 50 | Pending |
+| ENDP-01 | Phase 47 | Pending |
+| ENDP-02 | Phase 47 | Pending |
+| LOG-01 | Phase 47 | Pending |
+| LOG-02 | Phase 47 | Pending |
+| LOG-03 | Phase 47 | Pending |
+| CSP-01 | Phase 51 | Pending |
+| CSP-02 | Phase 51 | Pending |
+| CSP-03 | Phase 51 | Pending |
+| CSP-04 | Phase 51 | Pending |
+| WARN-01 | Phase 48 | Pending |
+| WARN-02 | Phase 48 | Pending |
+| WARN-03 | Phase 48 | Pending |
 
 **Coverage:**
 - v3.2 requirements: 32 total
-- Mapped to phases: 0
-- Unmapped: 32 (awaiting roadmap)
+- Mapped to phases: 32
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after initial definition*
+*Last updated: 2026-02-25 after roadmap creation — all 32 requirements mapped*
