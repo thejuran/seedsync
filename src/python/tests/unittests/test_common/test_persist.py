@@ -68,3 +68,34 @@ class TestPersist(unittest.TestCase):
         self.assertTrue(os.path.isfile(file_path))
         with open(file_path, "r") as f:
             self.assertEqual("write out some new content", f.read())
+
+    def test_to_file_sets_0600_permissions(self):
+        file_path = os.path.join(self.temp_dir, "persist_perms")
+        persist = DummyPersist()
+        persist.my_content = "sensitive content"
+        persist.to_file(file_path)
+        mode = os.stat(file_path).st_mode & 0o777
+        self.assertEqual(0o600, mode, f"Expected 0600 permissions, got {oct(mode)}")
+
+    def test_from_file_tightens_permissive_permissions(self):
+        file_path = os.path.join(self.temp_dir, "persist_tighten")
+        with open(file_path, "w") as f:
+            f.write("some content")
+        os.chmod(file_path, 0o644)
+        DummyPersist.from_file(file_path)
+        mode = os.stat(file_path).st_mode & 0o777
+        self.assertEqual(0o600, mode, f"Expected 0600 permissions after from_file(), got {oct(mode)}")
+
+    def test_to_file_overwrite_preserves_0600_permissions(self):
+        file_path = os.path.join(self.temp_dir, "persist_overwrite_perms")
+        persist = DummyPersist()
+        persist.my_content = "first write"
+        persist.to_file(file_path)
+        mode = os.stat(file_path).st_mode & 0o777
+        self.assertEqual(0o600, mode, f"Expected 0600 after first write, got {oct(mode)}")
+        persist.my_content = "second write"
+        persist.to_file(file_path)
+        mode = os.stat(file_path).st_mode & 0o777
+        self.assertEqual(0o600, mode, f"Expected 0600 after overwrite, got {oct(mode)}")
+        with open(file_path, "r") as f:
+            self.assertEqual("second write", f.read())
