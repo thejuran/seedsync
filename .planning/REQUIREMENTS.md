@@ -15,8 +15,8 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Config Hardening
 
-- [ ] **CONF-01**: Config file (settings.cfg) is written with 0600 permissions (owner read/write only)
-- [ ] **CONF-02**: Existing config files with overly permissive permissions are fixed to 0600 on startup load
+- [x] **CONF-01**: Config file (settings.cfg) is written with 0600 permissions (owner read/write only)
+- [x] **CONF-02**: Existing config files with overly permissive permissions are fixed to 0600 on startup load
 - [ ] **CONF-03**: API config endpoint redacts remote_address, remote_username, and remote_path in addition to existing password/API key redaction
 - [ ] **CONF-04**: Settings UI continues to function correctly with additional fields redacted (uses local state, not API roundtrip for display)
 
@@ -96,8 +96,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PATH-01 | Phase 49 | Pending |
 | PATH-02 | Phase 49 | Pending |
 | PATH-03 | Phase 49 | Pending |
-| CONF-01 | Phase 47 | Pending |
-| CONF-02 | Phase 47 | Pending |
+| CONF-01 | Phase 47 | Complete |
+| CONF-02 | Phase 47 | Complete |
 | CONF-03 | Phase 48 | Pending |
 | CONF-04 | Phase 48 | Pending |
 | AUTH-01 | Phase 50 | Pending |

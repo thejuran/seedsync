@@ -1,3 +1,16 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: Security Hardening II
+status: unknown
+last_updated: "2026-02-25T23:41:20.205Z"
+progress:
+  total_phases: 36
+  completed_phases: 32
+  total_plans: 52
+  completed_plans: 50
+---
+
 # Project State
 
 ## Project Reference
@@ -10,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 47 of 51 (Isolated Backend Hardening)
-Plan: — of — in current phase
-Status: Ready to plan
-Last activity: 2026-02-25 — v3.2 roadmap created, 5 phases defined, 32 requirements mapped
+Plan: 1 of 1 in current phase
+Status: In progress
+Last activity: 2026-02-25 — 47-01 config file permission hardening complete (CONF-01, CONF-02)
 
 Progress: [████████████████████░░░░░░░░░░] 46/51 phases complete (prior milestones)
 
@@ -54,6 +67,7 @@ Recent decisions for v3.2:
 - Empty api_token keeps "allow all" default — startup WARNING provides visibility without lockout
 - Angular autoCsp skipped (requires application builder; SeedSync uses browser builder) — CSP handled via Bottle after_request header + Angular build hashes
 - DNS rebinding Host validation bundled into Phase 50 before_request hook alongside auth
+- [Phase 47]: chmod placed after with-block in to_file() (file must be closed before chmod); placed before open() in from_file() (restrict before reading)
 
 ### Todos
 
@@ -73,8 +87,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-25
-Stopped at: v3.2 roadmap created — ROADMAP.md, STATE.md, REQUIREMENTS.md traceability written
-Next action: /gsd:plan-phase 47
+Stopped at: Completed 47-01-PLAN.md — config file permission hardening (CONF-01, CONF-02)
+Next action: Continue Phase 47 plans
 
 ---
 *v3.2 Security Hardening II: phases 47-51, 32 requirements*
