@@ -200,7 +200,10 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
   4. Application startup log contains a WARNING when webhook_secret is not configured
   5. Application startup log contains a WARNING when no API token is configured, and a second WARNING when the app is bound to 0.0.0.0 without a token
   6. All startup warnings appear in the log but the application starts successfully and serves requests
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 48-01-PLAN.md — api_token config field + config API redaction (CONF-03, CONF-04)
+- [ ] 48-02-PLAN.md — Webhook payload cap + startup security warnings (WHOOK-01, WHOOK-02, WARN-01, WARN-02, WARN-03)
 
 ### Phase 49: Path Traversal Guards
 **Goal**: File delete and extract endpoints reject paths that resolve outside local_path, including symlink-based bypass attempts
@@ -255,7 +258,7 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
 | 47. Isolated Backend Hardening | 3/3 | Complete    | 2026-02-25 | - |
-| 48. Config and Webhook Layer | v3.2 | 0/TBD | Not started | - |
+| 48. Config and Webhook Layer | v3.2 | 0/2 | Not started | - |
 | 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
 | 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
 | 51. CSP Hardening | v3.2 | 0/TBD | Not started | - |
