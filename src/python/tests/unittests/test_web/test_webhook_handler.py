@@ -85,6 +85,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_sonarr_download_event_enqueues(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {
             "eventType": "Download",
             "episodeFile": {"sourcePath": "/downloads/Test.File-GROUP"}
@@ -97,6 +98,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_radarr_download_event_enqueues(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {
             "eventType": "Download",
             "movieFile": {"sourcePath": "/downloads/Movie.2024-GROUP"}
@@ -109,6 +111,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_test_event_returns_200_test_ok(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {"eventType": "Test"}
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(200, response.status_code)
@@ -117,6 +120,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_grab_event_returns_200_ok(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {"eventType": "Grab"}
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(200, response.status_code)
@@ -124,6 +128,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_rename_event_returns_200_ok(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {"eventType": "Rename"}
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(200, response.status_code)
@@ -131,6 +136,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_empty_body_returns_400(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = None
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(400, response.status_code)
@@ -138,6 +144,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_invalid_json_returns_400(self, mock_request):
+        mock_request.content_length = -1
         # Make request.json raise an exception when accessed
         type(mock_request).json = property(lambda self: (_ for _ in ()).throw(ValueError("bad json")))
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
@@ -146,6 +153,7 @@ class TestWebhookHandlerRoutes(unittest.TestCase):
 
     @patch('web.handler.webhook.request')
     def test_download_with_no_title_returns_200_no_enqueue(self, mock_request):
+        mock_request.content_length = -1
         mock_request.json = {"eventType": "Download"}
         response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(200, response.status_code)
@@ -170,6 +178,7 @@ class TestWebhookHandlerHmacVerification(unittest.TestCase):
     def test_webhook_without_secret_config_accepts_all(self, mock_request):
         """When webhook_secret is empty, all requests pass regardless of headers."""
         handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(""))
+        mock_request.content_length = -1
         mock_request.json = {"eventType": "Test"}
         # No X-Webhook-Signature header needed
         mock_request.headers = {}
@@ -227,6 +236,7 @@ class TestWebhookHandlerHmacVerification(unittest.TestCase):
         body_bytes = json.dumps(body_dict).encode("utf-8")
         correct_sig = _compute_hmac(secret, body_bytes)
 
+        mock_request.content_length = -1
         mock_request.body.read.return_value = body_bytes
         mock_request.headers.get.return_value = correct_sig
         mock_request.json = body_dict
@@ -241,8 +251,50 @@ class TestWebhookHandlerHmacVerification(unittest.TestCase):
         handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(secret))
         body_bytes = b'{"eventType": "Download"}'
 
+        mock_request.content_length = -1
         mock_request.body.read.return_value = body_bytes
         mock_request.headers.get.return_value = "wrongsignature"
 
         response = handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
         self.assertEqual(401, response.status_code)
+
+
+class TestWebhookPayloadSizeLimit(unittest.TestCase):
+    """Tests for webhook payload size enforcement (WHOOK-01)."""
+
+    def setUp(self):
+        self.mock_webhook_manager = MagicMock()
+        self.handler = WebhookHandler(self.mock_webhook_manager, _make_mock_config(""))
+
+    @patch('web.handler.webhook.request')
+    def test_oversized_payload_returns_413(self, mock_request):
+        """Payloads over 1MB must return 413 without reading the body."""
+        mock_request.content_length = 2_000_000  # 2 MB
+        response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(413, response.status_code)
+        self.assertIn("Payload too large", response.body)
+        mock_request.body.read.assert_not_called()
+
+    @patch('web.handler.webhook.request')
+    def test_payload_at_limit_is_accepted(self, mock_request):
+        """Payloads at exactly 1MB (the limit) must be accepted."""
+        mock_request.content_length = 1_048_576  # exactly 1 MB
+        mock_request.json = {"eventType": "Test"}
+        response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(200, response.status_code)
+
+    @patch('web.handler.webhook.request')
+    def test_payload_under_limit_is_accepted(self, mock_request):
+        """Payloads under 1MB must be processed normally."""
+        mock_request.content_length = 500
+        mock_request.json = {"eventType": "Test"}
+        response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(200, response.status_code)
+
+    @patch('web.handler.webhook.request')
+    def test_missing_content_length_is_accepted(self, mock_request):
+        """Missing Content-Length header (-1 from Bottle) must be accepted (graceful degradation)."""
+        mock_request.content_length = -1
+        mock_request.json = {"eventType": "Test"}
+        response = self.handler._handle_webhook("Sonarr", WebhookHandler._extract_sonarr_title)
+        self.assertEqual(200, response.status_code)

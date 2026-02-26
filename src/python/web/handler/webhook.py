@@ -17,6 +17,8 @@ from ..web_app import IHandler, WebApp
 
 logger = logging.getLogger(__name__)
 
+_WEBHOOK_MAX_BODY_BYTES = 1_048_576  # 1 MB
+
 
 class WebhookHandler(IHandler):
     """
@@ -89,6 +91,10 @@ class WebhookHandler(IHandler):
         Returns:
             HTTPResponse with appropriate status code
         """
+        # Reject oversized payloads before reading body (WHOOK-01)
+        if request.content_length is not None and request.content_length > _WEBHOOK_MAX_BODY_BYTES:
+            return HTTPResponse(status=413, body="Payload too large")
+
         # Verify HMAC signature when webhook_secret is configured
         auth_error = self._verify_hmac()
         if auth_error is not None:
