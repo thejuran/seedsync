@@ -2,9 +2,11 @@
 
 import json
 import logging
+import os
 import time
+from pathlib import Path
 from threading import Event, Lock
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from urllib.parse import unquote
 
 from bottle import HTTPResponse, request
@@ -57,8 +59,11 @@ class WebResponseActionCallback(Controller.Command.ICallback):
 
 
 class ControllerHandler(IHandler):
-    def __init__(self, controller: Controller):
+    def __init__(self, controller: Controller, local_path: str = ""):
         self.__controller = controller
+        self.__local_path_real: Optional[Path] = (
+            Path(os.path.realpath(local_path)) if local_path else None
+        )
         self._bulk_request_times: List[float] = []
         self._bulk_rate_lock = Lock()
 
@@ -122,6 +127,10 @@ class ControllerHandler(IHandler):
         # value is double encoded
         file_name = unquote(file_name)
 
+        guard = self._check_path_safe(file_name)
+        if guard:
+            return guard
+
         command = Controller.Command(Controller.Command.Action.EXTRACT, file_name)
         callback = WebResponseActionCallback()
         command.add_callback(callback)
@@ -143,6 +152,10 @@ class ControllerHandler(IHandler):
         # value is double encoded
         file_name = unquote(file_name)
 
+        guard = self._check_path_safe(file_name)
+        if guard:
+            return guard
+
         command = Controller.Command(Controller.Command.Action.DELETE_LOCAL, file_name)
         callback = WebResponseActionCallback()
         command.add_callback(callback)
@@ -163,6 +176,10 @@ class ControllerHandler(IHandler):
         """
         # value is double encoded
         file_name = unquote(file_name)
+
+        guard = self._check_path_safe(file_name)
+        if guard:
+            return guard
 
         command = Controller.Command(Controller.Command.Action.DELETE_REMOTE, file_name)
         callback = WebResponseActionCallback()
@@ -188,6 +205,13 @@ class ControllerHandler(IHandler):
         "delete_remote": Controller.Command.Action.DELETE_REMOTE,
     }
 
+    # Path-destructive actions that require traversal guarding
+    _GUARDED_ACTIONS = {
+        Controller.Command.Action.DELETE_LOCAL,
+        Controller.Command.Action.DELETE_REMOTE,
+        Controller.Command.Action.EXTRACT,
+    }
+
     # Timeout per file in seconds for bulk operations
     _BULK_TIMEOUT_PER_FILE = 5.0
     # Maximum total timeout for bulk operations in seconds
@@ -198,6 +222,24 @@ class ControllerHandler(IHandler):
     # Rate limiting for bulk endpoint (DoS prevention)
     _BULK_RATE_LIMIT = 10  # Max requests per window
     _BULK_RATE_WINDOW = 60.0  # Window size in seconds
+
+    def _check_path_safe(self, file_name: str) -> Optional[HTTPResponse]:
+        """
+        Returns HTTPResponse(status=400) if file_name resolves outside local_path, else None.
+
+        Uses realpath() to resolve both '..' sequences and symlinks before checking
+        containment within local_path. Returns None when local_path was not configured
+        (guard is a no-op).
+        """
+        if self.__local_path_real is None:
+            return None
+        candidate = Path(os.path.realpath(
+            os.path.join(str(self.__local_path_real), file_name)
+        ))
+        if not candidate.is_relative_to(self.__local_path_real):
+            logger.warning("Rejected path traversal attempt for: %s", repr(file_name))
+            return HTTPResponse(body="Invalid file path", status=400)
+        return None
 
     def _check_bulk_rate_limit(self) -> bool:
         """
@@ -375,7 +417,23 @@ class ControllerHandler(IHandler):
 
         # Phase 1: Queue all commands (parallel queuing)
         commands_with_callbacks: List[Tuple[str, WebResponseActionCallback]] = []
+        results = []
+        succeeded = 0
+        failed = 0
         for file_name in files:
+            # Path traversal guard for destructive actions
+            if action in self._GUARDED_ACTIONS:
+                guard = self._check_path_safe(file_name)
+                if guard:
+                    results.append({
+                        "file": file_name,
+                        "success": False,
+                        "error": "Invalid file path",
+                        "error_code": 400
+                    })
+                    failed += 1
+                    continue
+
             command = Controller.Command(action, file_name)
             callback = WebResponseActionCallback()
             command.add_callback(callback)
@@ -390,9 +448,6 @@ class ControllerHandler(IHandler):
         # Phase 2: Wait for all callbacks to complete
         # The controller will process all queued commands in its next cycle,
         # so waiting for all at once is much faster than waiting one-by-one.
-        results = []
-        succeeded = 0
-        failed = 0
         timed_out = 0
 
         # Calculate remaining time for each callback

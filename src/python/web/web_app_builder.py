@@ -27,7 +27,10 @@ class WebAppBuilder:
         self.__context = context
         self.__controller = controller
 
-        self.controller_handler = ControllerHandler(controller)
+        self.controller_handler = ControllerHandler(
+            controller,
+            local_path=context.config.lftp.local_path
+        )
         self.server_handler = ServerHandler(context)
         self.config_handler = ConfigHandler(context.config)
         self.auto_queue_handler = AutoQueueHandler(auto_queue_persist)
