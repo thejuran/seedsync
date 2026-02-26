@@ -9,10 +9,10 @@ from common import Config
 # Sensitive fields that must never be returned in API responses.
 # Keyed by section name (lowercase), values are field names to redact.
 _SENSITIVE_FIELDS = {
-    "lftp": ["remote_password"],
+    "lftp": ["remote_password", "remote_address", "remote_username", "remote_path"],
     "sonarr": ["sonarr_api_key"],
     "radarr": ["radarr_api_key"],
-    "general": ["webhook_secret"],
+    "general": ["webhook_secret", "api_token"],
 }
 
 _REDACTED = "**REDACTED**"

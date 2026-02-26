@@ -32,10 +32,12 @@ class TestSerializeConfig(unittest.TestCase):
         out = SerializeConfig.config(config)
         out_dict = json.loads(out)
         self.assertIn("lftp", out_dict)
-        self.assertEqual("server.remote.com", out_dict["lftp"]["remote_address"])
-        self.assertEqual("user-on-remote-server", out_dict["lftp"]["remote_username"])
+        # SSH topology fields are redacted (CONF-03)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_address"])
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_username"])
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_path"])
+        # Non-sensitive fields are preserved
         self.assertEqual(3456, out_dict["lftp"]["remote_port"])
-        self.assertEqual("/remote/server/path", out_dict["lftp"]["remote_path"])
         self.assertEqual("/local/server/path", out_dict["lftp"]["local_path"])
         self.assertEqual("/remote/server/path/to/script", out_dict["lftp"]["remote_path_to_scan_script"])
         self.assertEqual(6, out_dict["lftp"]["num_max_parallel_downloads"])
@@ -121,7 +123,7 @@ class TestSerializeConfig(unittest.TestCase):
         self.assertEqual("**REDACTED**", out_dict["general"]["webhook_secret"])
         self.assertNotIn("super-secret-webhook-key", out)
 
-    def test_config_preserves_non_sensitive_fields(self):
+    def test_config_redacts_and_preserves_fields(self):
         config = Config()
         config.lftp.remote_address = "seedbox.example.com"
         config.lftp.remote_port = 2222
@@ -137,9 +139,76 @@ class TestSerializeConfig(unittest.TestCase):
         config.lftp.num_max_total_connections = 0
         out = SerializeConfig.config(config)
         out_dict = json.loads(out)
-        # Non-sensitive fields are preserved as-is
-        self.assertEqual("seedbox.example.com", out_dict["lftp"]["remote_address"])
+        # SSH topology fields are redacted (CONF-03)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_address"])
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_username"])
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_path"])
+        # Non-sensitive field is preserved as-is
         self.assertEqual(2222, out_dict["lftp"]["remote_port"])
-        self.assertEqual("myuser", out_dict["lftp"]["remote_username"])
         # Sensitive field is redacted
         self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_password"])
+
+    def test_config_redacts_remote_address(self):
+        config = Config()
+        config.lftp.remote_address = "seedbox.example.com"
+        config.lftp.remote_username = "user"
+        config.lftp.remote_password = "pass"
+        config.lftp.remote_port = 22
+        config.lftp.remote_path = "/remote/path"
+        config.lftp.local_path = "/local/path"
+        config.lftp.remote_path_to_scan_script = "/remote/scan"
+        config.lftp.num_max_parallel_downloads = 1
+        config.lftp.num_max_parallel_files_per_download = 1
+        config.lftp.num_max_connections_per_root_file = 1
+        config.lftp.num_max_connections_per_dir_file = 1
+        config.lftp.num_max_total_connections = 0
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_address"])
+        self.assertNotIn("seedbox.example.com", out)
+
+    def test_config_redacts_remote_username(self):
+        config = Config()
+        config.lftp.remote_address = "server.example.com"
+        config.lftp.remote_username = "sshuser"
+        config.lftp.remote_password = "pass"
+        config.lftp.remote_port = 22
+        config.lftp.remote_path = "/remote/path"
+        config.lftp.local_path = "/local/path"
+        config.lftp.remote_path_to_scan_script = "/remote/scan"
+        config.lftp.num_max_parallel_downloads = 1
+        config.lftp.num_max_parallel_files_per_download = 1
+        config.lftp.num_max_connections_per_root_file = 1
+        config.lftp.num_max_connections_per_dir_file = 1
+        config.lftp.num_max_total_connections = 0
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_username"])
+        self.assertNotIn("sshuser", out)
+
+    def test_config_redacts_remote_path(self):
+        config = Config()
+        config.lftp.remote_address = "server.example.com"
+        config.lftp.remote_username = "user"
+        config.lftp.remote_password = "pass"
+        config.lftp.remote_port = 22
+        config.lftp.remote_path = "/secret/seedbox/path"
+        config.lftp.local_path = "/local/path"
+        config.lftp.remote_path_to_scan_script = "/remote/scan"
+        config.lftp.num_max_parallel_downloads = 1
+        config.lftp.num_max_parallel_files_per_download = 1
+        config.lftp.num_max_connections_per_root_file = 1
+        config.lftp.num_max_connections_per_dir_file = 1
+        config.lftp.num_max_total_connections = 0
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["lftp"]["remote_path"])
+        self.assertNotIn("/secret/seedbox/path", out)
+
+    def test_config_redacts_api_token(self):
+        config = Config()
+        config.general.api_token = "super-secret-token"
+        out = SerializeConfig.config(config)
+        out_dict = json.loads(out)
+        self.assertEqual("**REDACTED**", out_dict["general"]["api_token"])
+        self.assertNotIn("super-secret-token", out)
