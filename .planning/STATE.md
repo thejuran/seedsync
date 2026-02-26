@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 
 ## Current Position
 
-Phase: 48 of 51 (Config and Webhook Layer)
-Plan: 2 of 3 in current phase
-Status: In progress
-Last activity: 2026-02-26 — 48-02 webhook payload size cap (413 >1MB), startup security warnings for webhook_secret/api_token/0.0.0.0
+Phase: 49 of 51 (Path Traversal Guards)
+Plan: 1 of 1 in current phase
+Status: Complete
+Last activity: 2026-02-25 — 49-01 path traversal guards (PATH-01, PATH-02, PATH-03): realpath-based guard, delete_local/delete_remote/extract protected, bulk endpoint per-file guard
 
 Progress: [████████████████████░░░░░░░░░░] 46/51 phases complete (prior milestones)
 
@@ -76,6 +76,10 @@ Recent decisions for v3.2:
 - [Phase 48-02]: content_length check uses > _WEBHOOK_MAX_BODY_BYTES (strict greater-than); exactly 1MB is accepted — consistent with common gateway conventions
 - [Phase 48-02]: WARN-02 (0.0.0.0 binding warning) always paired with WARN-01 (api_token warning) since WebAppJob hardcodes 0.0.0.0 bind address
 - [Phase 48-02]: _emit_startup_warnings() factored into static method for direct unit testability without starting threads
+- [Phase 49-01]: Guard uses os.path.realpath() + Path.is_relative_to() — not string matching — to handle both ../ sequences and symlinks
+- [Phase 49-01]: local_path defaults to empty string for backward compatibility; empty local_path makes guard a no-op (None)
+- [Phase 49-01]: _GUARDED_ACTIONS covers only delete_local, delete_remote, extract — queue/stop operate on model names not filesystem paths
+- [Phase 49-01]: 400 response body is exactly "Invalid file path" with no path details to prevent information leakage (PATH-03)
 
 ### Todos
 
@@ -94,9 +98,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-26
-Stopped at: Completed 48-02-PLAN.md — webhook payload size cap (WHOOK-01) + startup security warnings (WHOOK-02, WARN-01, WARN-02, WARN-03)
-Next action: Continue Phase 48 with plan 03
+Last session: 2026-02-25
+Stopped at: Completed 49-01-PLAN.md — path traversal guards (PATH-01, PATH-02, PATH-03)
+Next action: Continue Phase 49 complete — proceed to Phase 50
 
 ---
 *v3.2 Security Hardening II: phases 47-51, 32 requirements*

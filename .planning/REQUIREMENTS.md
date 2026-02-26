@@ -9,9 +9,9 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Path Safety
 
-- [ ] **PATH-01**: File delete endpoint rejects filenames that resolve outside the configured local_path via realpath() + is_relative_to() check
-- [ ] **PATH-02**: File extract endpoint rejects archive paths that resolve outside the configured local_path or output directory
-- [ ] **PATH-03**: Path traversal attempts return 400 Bad Request with no path details in the error body
+- [x] **PATH-01**: File delete endpoint rejects filenames that resolve outside the configured local_path via realpath() + is_relative_to() check
+- [x] **PATH-02**: File extract endpoint rejects archive paths that resolve outside the configured local_path or output directory
+- [x] **PATH-03**: Path traversal attempts return 400 Bad Request with no path details in the error body
 
 ### Config Hardening
 
@@ -93,9 +93,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PATH-01 | Phase 49 | Pending |
-| PATH-02 | Phase 49 | Pending |
-| PATH-03 | Phase 49 | Pending |
+| PATH-01 | Phase 49 | Complete |
+| PATH-02 | Phase 49 | Complete |
+| PATH-03 | Phase 49 | Complete |
 | CONF-01 | Phase 47 | Complete |
 | CONF-02 | Phase 47 | Complete |
 | CONF-03 | Phase 48 | Complete |
