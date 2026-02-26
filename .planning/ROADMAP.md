@@ -258,7 +258,7 @@ Plans:
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
 | 47. Isolated Backend Hardening | 3/3 | Complete    | 2026-02-25 | - |
-| 48. Config and Webhook Layer | 2/2 | Complete   | 2026-02-26 | - |
+| 48. Config and Webhook Layer | 2/2 | Complete    | 2026-02-26 | - |
 | 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
 | 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
 | 51. CSP Hardening | v3.2 | 0/TBD | Not started | - |
