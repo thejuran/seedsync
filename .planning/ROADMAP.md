@@ -167,7 +167,7 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 #### Phase Summary
 
 - [x] **Phase 47: Isolated Backend Hardening** - Config file permissions, restart POST, SSH log redaction (completed 2026-02-25)
-- [ ] **Phase 48: Config and Webhook Layer** - Extended redaction, webhook payload limit, startup warnings
+- [x] **Phase 48: Config and Webhook Layer** - Extended redaction, webhook payload limit, startup warnings (completed 2026-02-26)
 - [ ] **Phase 49: Path Traversal Guards** - realpath()-based containment on delete and extract endpoints
 - [ ] **Phase 50: API Token Authentication** - Bearer token middleware, Angular interceptor, DNS rebinding prevention
 - [ ] **Phase 51: CSP Hardening** - Remove unsafe-inline via nonce-based or hash-based policy
@@ -258,7 +258,7 @@ Plans:
 | 33-38. Terminal UI | v3.0 | 12/12 | Complete | 2026-02-17 |
 | 39-46. Harden & Fix | v3.1 | 25/25 | Complete | 2026-02-24 |
 | 47. Isolated Backend Hardening | 3/3 | Complete    | 2026-02-25 | - |
-| 48. Config and Webhook Layer | 1/2 | In Progress|  | - |
+| 48. Config and Webhook Layer | 2/2 | Complete   | 2026-02-26 | - |
 | 49. Path Traversal Guards | v3.2 | 0/TBD | Not started | - |
 | 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
 | 51. CSP Hardening | v3.2 | 0/TBD | Not started | - |

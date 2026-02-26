@@ -33,8 +33,8 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Webhook Hardening
 
-- [ ] **WHOOK-01**: Webhook endpoints reject payloads exceeding 1MB with 413 status before reading body
-- [ ] **WHOOK-02**: Startup log emits WARNING when webhook_secret is not configured
+- [x] **WHOOK-01**: Webhook endpoints reject payloads exceeding 1MB with 413 status before reading body
+- [x] **WHOOK-02**: Startup log emits WARNING when webhook_secret is not configured
 
 ### DNS Rebinding Prevention
 
@@ -62,9 +62,9 @@ Requirements for v3.2 milestone. Each maps to roadmap phases.
 
 ### Startup Warnings
 
-- [ ] **WARN-01**: Startup log emits WARNING when no API token is configured
-- [ ] **WARN-02**: Startup log emits WARNING when app is bound to 0.0.0.0 without API token
-- [ ] **WARN-03**: Startup warnings do not block application startup
+- [x] **WARN-01**: Startup log emits WARNING when no API token is configured
+- [x] **WARN-02**: Startup log emits WARNING when app is bound to 0.0.0.0 without API token
+- [x] **WARN-03**: Startup warnings do not block application startup
 
 ## Future Requirements
 
@@ -108,8 +108,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-06 | Phase 50 | Pending |
 | AUTH-07 | Phase 50 | Pending |
 | AUTH-08 | Phase 50 | Pending |
-| WHOOK-01 | Phase 48 | Pending |
-| WHOOK-02 | Phase 48 | Pending |
+| WHOOK-01 | Phase 48 | Complete |
+| WHOOK-02 | Phase 48 | Complete |
 | DNS-01 | Phase 50 | Pending |
 | DNS-02 | Phase 50 | Pending |
 | DNS-03 | Phase 50 | Pending |
@@ -122,9 +122,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CSP-02 | Phase 51 | Pending |
 | CSP-03 | Phase 51 | Pending |
 | CSP-04 | Phase 51 | Pending |
-| WARN-01 | Phase 48 | Pending |
-| WARN-02 | Phase 48 | Pending |
-| WARN-03 | Phase 48 | Pending |
+| WARN-01 | Phase 48 | Complete |
+| WARN-02 | Phase 48 | Complete |
+| WARN-03 | Phase 48 | Complete |
 
 **Coverage:**
 - v3.2 requirements: 32 total

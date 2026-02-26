@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-02-25)
 ## Current Position
 
 Phase: 48 of 51 (Config and Webhook Layer)
-Plan: 1 of 3 in current phase
+Plan: 2 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-26 — 48-01 api_token config field added, SSH topology + api_token redacted from GET /server/config (CONF-03, CONF-04)
+Last activity: 2026-02-26 — 48-02 webhook payload size cap (413 >1MB), startup security warnings for webhook_secret/api_token/0.0.0.0
 
 Progress: [████████████████████░░░░░░░░░░] 46/51 phases complete (prior milestones)
 
@@ -73,6 +73,9 @@ Recent decisions for v3.2:
 - [Phase 47-isolated-backend-hardening]: Restart endpoint uses POST-only via add_post_handler; GET returns 405 automatically via Bottle
 - [Phase 48-01]: api_token uses Checkers.null + Converters.null (same as webhook_secret); no config-layer validation, deferred to Phase 48-02 startup warning
 - [Phase 48-01]: CONF-04 satisfied by architecture — Angular Settings UI reads from local BehaviorSubject, no API response polling on re-render
+- [Phase 48-02]: content_length check uses > _WEBHOOK_MAX_BODY_BYTES (strict greater-than); exactly 1MB is accepted — consistent with common gateway conventions
+- [Phase 48-02]: WARN-02 (0.0.0.0 binding warning) always paired with WARN-01 (api_token warning) since WebAppJob hardcodes 0.0.0.0 bind address
+- [Phase 48-02]: _emit_startup_warnings() factored into static method for direct unit testability without starting threads
 
 ### Todos
 
@@ -92,8 +95,8 @@ None.
 ## Session Continuity
 
 Last session: 2026-02-26
-Stopped at: Completed 48-01-PLAN.md — api_token config field + SSH topology redaction (CONF-03, CONF-04)
-Next action: Continue Phase 48 plans
+Stopped at: Completed 48-02-PLAN.md — webhook payload size cap (WHOOK-01) + startup security warnings (WHOOK-02, WARN-01, WARN-02, WARN-03)
+Next action: Continue Phase 48 with plan 03
 
 ---
 *v3.2 Security Hardening II: phases 47-51, 32 requirements*
