@@ -701,3 +701,136 @@ class TestControllerHandlerBulkCommand(unittest.TestCase):
 
         self.assertEqual(429, response.status_code)
         self.assertEqual("application/json", response.content_type)
+
+
+class TestControllerHandlerPathTraversal(unittest.TestCase):
+    """Tests for path traversal guard on file-destructive endpoints."""
+
+    def setUp(self):
+        self.mock_controller = MagicMock(spec=Controller)
+        self.handler = ControllerHandler(self.mock_controller, local_path="/tmp/test_downloads")
+        # Reset rate limit state between tests
+        ControllerHandler._bulk_request_times = []
+
+    def _setup_success_callback(self):
+        """Setup mock controller to call on_success synchronously."""
+        def side_effect(command):
+            for callback in command.callbacks:
+                callback.on_success()
+        self.mock_controller.queue_command.side_effect = side_effect
+
+    def _call_bulk_handler(self, json_body):
+        """Helper to call the bulk handler with a mocked request."""
+        with patch('web.handler.controller.request') as mock_request:
+            mock_request.json = json_body
+            return self.handler._ControllerHandler__handle_bulk_command()
+
+    def test_delete_local_traversal_returns_400(self):
+        """Path traversal in delete_local should return 400 before queuing."""
+        response = self.handler._ControllerHandler__handle_action_delete_local("../../etc/passwd")
+
+        self.assertEqual(400, response.status_code)
+        self.assertIn("Invalid file path", response.body)
+        self.mock_controller.queue_command.assert_not_called()
+
+    def test_delete_remote_traversal_returns_400(self):
+        """Path traversal in delete_remote should return 400 before queuing."""
+        response = self.handler._ControllerHandler__handle_action_delete_remote("../../etc/passwd")
+
+        self.assertEqual(400, response.status_code)
+        self.assertIn("Invalid file path", response.body)
+        self.mock_controller.queue_command.assert_not_called()
+
+    def test_extract_traversal_returns_400(self):
+        """Path traversal in extract should return 400 before queuing."""
+        response = self.handler._ControllerHandler__handle_action_extract("../../etc/passwd")
+
+        self.assertEqual(400, response.status_code)
+        self.assertIn("Invalid file path", response.body)
+        self.mock_controller.queue_command.assert_not_called()
+
+    def test_traversal_response_contains_no_path_details(self):
+        """400 response body must not leak any filesystem path information."""
+        response = self.handler._ControllerHandler__handle_action_delete_local("../../etc/passwd")
+
+        body = response.body
+        self.assertNotIn("/etc", body)
+        self.assertNotIn("/passwd", body)
+        self.assertNotIn("/tmp", body)
+        self.assertNotIn("/downloads", body)
+        self.assertNotIn("test_downloads", body)
+
+    def test_normal_filename_passes_through(self):
+        """Normal filename should pass through to existing logic."""
+        self._setup_success_callback()
+
+        response = self.handler._ControllerHandler__handle_action_delete_local("movie.mkv")
+
+        self.assertEqual(200, response.status_code)
+        self.mock_controller.queue_command.assert_called_once()
+
+    def test_subdirectory_filename_passes_through(self):
+        """Filename with safe subdirectory should pass through."""
+        self._setup_success_callback()
+
+        response = self.handler._ControllerHandler__handle_action_delete_local("subdir/movie.mkv")
+
+        self.assertEqual(200, response.status_code)
+        self.mock_controller.queue_command.assert_called_once()
+
+    def test_bulk_delete_local_traversal_rejected(self):
+        """Bulk delete_local with traversal filename should get per-file error."""
+        self._setup_success_callback()
+
+        response = self._call_bulk_handler({
+            "action": "delete_local",
+            "files": ["../../etc/passwd", "good.mkv"]
+        })
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        # First file (traversal) should fail
+        self.assertFalse(body["results"][0]["success"])
+        self.assertIn("Invalid file path", body["results"][0]["error"])
+
+        # Second file (normal) should succeed
+        self.assertTrue(body["results"][1]["success"])
+
+        # Controller should only have been called for the good file
+        self.assertEqual(1, self.mock_controller.queue_command.call_count)
+
+    def test_bulk_extract_traversal_rejected(self):
+        """Bulk extract with traversal filename should get per-file error."""
+        self._setup_success_callback()
+
+        response = self._call_bulk_handler({
+            "action": "extract",
+            "files": ["../../etc/passwd", "good.mkv"]
+        })
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        # First file (traversal) should fail
+        self.assertFalse(body["results"][0]["success"])
+        self.assertIn("Invalid file path", body["results"][0]["error"])
+
+        # Second file (normal) should succeed
+        self.assertTrue(body["results"][1]["success"])
+
+    def test_bulk_queue_traversal_not_rejected(self):
+        """Bulk queue with traversal filename should NOT be rejected (not path-destructive)."""
+        self._setup_success_callback()
+
+        response = self._call_bulk_handler({
+            "action": "queue",
+            "files": ["../../etc/passwd"]
+        })
+
+        self.assertEqual(200, response.status_code)
+        body = json.loads(response.body)
+
+        # queue is not path-guarded — should succeed
+        self.assertTrue(body["results"][0]["success"])
+        self.mock_controller.queue_command.assert_called_once()
