@@ -18,14 +18,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-25)
 
 **Core value:** Reliable file sync from seedbox to local with automated media library integration
-**Current focus:** v3.2 Security Hardening II — Phase 47: Isolated Backend Hardening
+**Current focus:** v3.2 Security Hardening II — Phase 48: Config and Webhook Layer
 
 ## Current Position
 
-Phase: 47 of 51 (Isolated Backend Hardening)
-Plan: 3 of 3 in current phase
+Phase: 48 of 51 (Config and Webhook Layer)
+Plan: 1 of 3 in current phase
 Status: In progress
-Last activity: 2026-02-25 — 47-03 SSH topology redaction in SSE log stream complete (LOG-01, LOG-02, LOG-03)
+Last activity: 2026-02-26 — 48-01 api_token config field added, SSH topology + api_token redacted from GET /server/config (CONF-03, CONF-04)
 
 Progress: [████████████████████░░░░░░░░░░] 46/51 phases complete (prior milestones)
 
@@ -71,6 +71,8 @@ Recent decisions for v3.2:
 - [Phase 47-isolated-backend-hardening]: Pattern B RHS requires letter-start ([a-zA-Z][\w.\-]*) to prevent false-positives on version filenames like release@1.0.tar.gz
 - [Phase 47-isolated-backend-hardening]: Two-pattern SSH redaction approach: sftp:// URL pattern + bare user@host token pattern maintained separately for clarity and independent maintainability
 - [Phase 47-isolated-backend-hardening]: Restart endpoint uses POST-only via add_post_handler; GET returns 405 automatically via Bottle
+- [Phase 48-01]: api_token uses Checkers.null + Converters.null (same as webhook_secret); no config-layer validation, deferred to Phase 48-02 startup warning
+- [Phase 48-01]: CONF-04 satisfied by architecture — Angular Settings UI reads from local BehaviorSubject, no API response polling on re-render
 
 ### Todos
 
@@ -89,9 +91,9 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-02-25
-Stopped at: Completed 47-02-PLAN.md — restart endpoint CSRF fix (GET to POST, ENDP-01, ENDP-02)
-Next action: Continue Phase 47 plans
+Last session: 2026-02-26
+Stopped at: Completed 48-01-PLAN.md — api_token config field + SSH topology redaction (CONF-03, CONF-04)
+Next action: Continue Phase 48 plans
 
 ---
 *v3.2 Security Hardening II: phases 47-51, 32 requirements*
