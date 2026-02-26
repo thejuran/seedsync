@@ -3,6 +3,7 @@
 import unittest
 import sys
 import copy
+from unittest.mock import MagicMock
 
 from common import overrides, Config
 from seedsync import Seedsync
@@ -168,3 +169,79 @@ class TestSeedsync(unittest.TestCase):
         config.lftp.remote_path_to_scan_script = incomplete_value
         self.assertTrue(Seedsync._detect_incomplete_config(config))
         config.lftp.remote_path_to_scan_script = "value"
+
+
+class TestSeedsyncApiTokenConfig(unittest.TestCase):
+    """Tests for api_token config field defaults and round-trip behavior."""
+
+    def test_default_config_has_api_token_field(self):
+        config = Seedsync._create_default_config()
+        self.assertEqual("", config.general.api_token)
+        config_dict = config.as_dict()
+        self.assertIsNotNone(config_dict["General"]["api_token"])
+
+    def test_config_from_dict_without_api_token_defaults_to_empty(self):
+        config_dict = Seedsync._create_default_config().as_dict()
+        del config_dict["General"]["api_token"]
+        config = Config.from_dict(config_dict)
+        self.assertEqual("", config.general.api_token)
+
+    def test_config_from_dict_with_api_token_preserves_value(self):
+        config_dict = Seedsync._create_default_config().as_dict()
+        config_dict["General"]["api_token"] = "my-secret-token"
+        config = Config.from_dict(config_dict)
+        self.assertEqual("my-secret-token", config.general.api_token)
+
+
+class TestSeedsyncStartupWarnings(unittest.TestCase):
+    """Tests for startup security warning emission (WHOOK-02, WARN-01, WARN-02, WARN-03)."""
+
+    def _make_mock_config(self, webhook_secret="", api_token=""):
+        mock_config = MagicMock()
+        mock_config.general.webhook_secret = webhook_secret
+        mock_config.general.api_token = api_token
+        return mock_config
+
+    def test_startup_warns_when_webhook_secret_empty(self):
+        mock_logger = MagicMock()
+        mock_config = self._make_mock_config(webhook_secret="", api_token="configured")
+        Seedsync._emit_startup_warnings(mock_logger, mock_config)
+        warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
+        self.assertTrue(
+            any("webhook_secret" in call for call in warning_calls),
+            msg="Expected a warning containing 'webhook_secret'"
+        )
+
+    def test_startup_warns_when_api_token_empty(self):
+        mock_logger = MagicMock()
+        mock_config = self._make_mock_config(webhook_secret="configured", api_token="")
+        Seedsync._emit_startup_warnings(mock_logger, mock_config)
+        warning_calls = [str(call) for call in mock_logger.warning.call_args_list]
+        self.assertTrue(
+            any("API token" in call for call in warning_calls),
+            msg="Expected a warning containing 'API token'"
+        )
+        self.assertTrue(
+            any("0.0.0.0" in call for call in warning_calls),
+            msg="Expected a warning containing '0.0.0.0'"
+        )
+
+    def test_startup_no_warning_when_secrets_configured(self):
+        mock_logger = MagicMock()
+        mock_config = self._make_mock_config(webhook_secret="configured", api_token="configured")
+        Seedsync._emit_startup_warnings(mock_logger, mock_config)
+        mock_logger.warning.assert_not_called()
+
+    def test_startup_warns_both_when_both_empty(self):
+        mock_logger = MagicMock()
+        mock_config = self._make_mock_config(webhook_secret="", api_token="")
+        Seedsync._emit_startup_warnings(mock_logger, mock_config)
+        # 3 warnings: webhook_secret + api_token + 0.0.0.0
+        self.assertEqual(3, mock_logger.warning.call_count)
+
+    def test_startup_warnings_do_not_raise(self):
+        """Warnings are advisory only — no exception should be raised (WARN-03)."""
+        mock_logger = MagicMock()
+        mock_config = self._make_mock_config(webhook_secret="", api_token="")
+        # Must not raise
+        Seedsync._emit_startup_warnings(mock_logger, mock_config)

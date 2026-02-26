@@ -112,6 +112,9 @@ class Seedsync:
         self.context.logger.info("Starting SeedSync")
         self.context.logger.info("Platform: {}".format(platform.machine()))
 
+        # Startup security warnings (WHOOK-02, WARN-01, WARN-02, WARN-03)
+        Seedsync._emit_startup_warnings(self.context.logger, self.context.config)
+
         # Create webhook manager (shared between controller and web app)
         webhook_manager = WebhookManager(self.context)
 
@@ -347,6 +350,24 @@ class Seedsync:
                 if Seedsync.__CONFIG_DUMMY_VALUE == config_dict[sec_name][key]:
                     return True
         return False
+
+    @staticmethod
+    def _emit_startup_warnings(logger, config) -> None:
+        """Emit security warnings for insecure configuration states."""
+        if not config.general.webhook_secret:
+            logger.warning(
+                "Security: webhook_secret is not configured. "
+                "Webhook endpoints will accept requests from any caller."
+            )
+        if not config.general.api_token:
+            logger.warning(
+                "Security: No API token configured. "
+                "All API requests will be accepted without authentication."
+            )
+            logger.warning(
+                "Security: Application is bound to 0.0.0.0 without an API token. "
+                "Any host on the network can access the API."
+            )
 
     @staticmethod
     def _load_persist(cls: Type[T_Persist], file_path: str) -> T_Persist:
