@@ -16,6 +16,17 @@ class SshcpError(AppError):
     pass
 
 
+# Error message prefixes that indicate transient network issues (timeouts,
+# connection drops, unreachable hosts). Consumers can use these to decide
+# whether a failed SSH operation is worth retrying.
+TRANSIENT_ERROR_PATTERNS = ("Timed out", "Connection refused by server")
+
+# Error message prefixes that indicate permanent configuration problems
+# (wrong credentials, changed host keys, bad hostnames). These should not
+# be retried — the user needs to fix the configuration.
+PERMANENT_ERROR_PATTERNS = ("Incorrect password", "Remote host key has changed", "Bad hostname:")
+
+
 class Sshcp:
     """
     Scp command utility

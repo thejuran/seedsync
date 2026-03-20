@@ -9,7 +9,7 @@ import hashlib
 
 from .scanner_process import IScanner, ScannerError
 from common import overrides, Localization
-from ssh import Sshcp, SshcpError
+from ssh import Sshcp, SshcpError, TRANSIENT_ERROR_PATTERNS, PERMANENT_ERROR_PATTERNS
 from system import SystemFile
 
 
@@ -17,6 +17,19 @@ class RemoteScanner(IScanner):
     """
     Scanner implementation to scan the remote filesystem
     """
+
+    @staticmethod
+    def _is_transient_ssh_error(error: SshcpError) -> bool:
+        """Check if an SSH error is transient (timeout, connection refused, etc.)"""
+        msg = str(error)
+        return any(pattern in msg for pattern in TRANSIENT_ERROR_PATTERNS)
+
+    @staticmethod
+    def _is_permanent_ssh_error(error: SshcpError) -> bool:
+        """Check if an SSH error is a permanent config problem (wrong password, bad host, etc.)"""
+        msg = str(error)
+        return any(pattern in msg for pattern in PERMANENT_ERROR_PATTERNS)
+
     def __init__(self,
                  remote_address: str,
                  remote_username: str,
@@ -33,7 +46,8 @@ class RemoteScanner(IScanner):
                            port=remote_port,
                            user=remote_username,
                            password=remote_password)
-        self.__first_run = True
+        self.__install_done = False  # Whether scanfs has been installed successfully
+        self.__first_run = True     # Whether the first successful scan has completed
 
         # Append scan script name to remote path if not there already
         script_name = os.path.basename(self.__local_path_to_scan_script)
@@ -47,8 +61,9 @@ class RemoteScanner(IScanner):
 
     @overrides(IScanner)
     def scan(self) -> List[SystemFile]:
-        if self.__first_run:
+        if not self.__install_done:
             self._install_scanfs()
+            self.__install_done = True
 
         try:
             out = self.__ssh.shell("'{}' '{}'".format(
@@ -58,12 +73,17 @@ class RemoteScanner(IScanner):
         except SshcpError as e:
             self.logger.warning("Caught an SshcpError: {}".format(str(e)))
             recoverable = True
-            # Any scanner errors are fatal
+            # Any scanner errors are fatal, regardless of transience
             if "SystemScannerError" in str(e):
                 recoverable = False
-            # First time errors are fatal
-            # User should be prompted to correct these
-            if self.__first_run:
+            # Permanent SSH errors (wrong password, host key changed, bad
+            # hostname) are always fatal — retrying won't help.
+            elif self._is_permanent_ssh_error(e):
+                recoverable = False
+            # Before the first successful scan, non-transient errors are
+            # fatal so the user is prompted to correct them. Transient
+            # network issues (timeouts, connection refused) are retried.
+            elif self.__first_run and not self._is_transient_ssh_error(e):
                 recoverable = False
             raise ScannerError(
                 Localization.Error.REMOTE_SERVER_SCAN.format(str(e).strip()),
@@ -91,7 +111,7 @@ class RemoteScanner(IScanner):
         self.logger.debug("Local scanfs md5sum = {}".format(local_md5sum))
         try:
             out = self.__ssh.shell("md5sum {} | awk '{{print $1}}' || echo".format(self.__remote_path_to_scan_script))
-            out = out.decode()
+            out = out.decode('utf-8').strip()
             if out == local_md5sum:
                 self.logger.info("Skipping remote scanfs installation: already installed")
                 return
@@ -99,7 +119,7 @@ class RemoteScanner(IScanner):
             self.logger.exception("Caught scp exception")
             raise ScannerError(
                 Localization.Error.REMOTE_SERVER_INSTALL.format(str(e).strip()),
-                recoverable=False
+                recoverable=self._is_transient_ssh_error(e)
             )
 
         # Go ahead and install
@@ -121,5 +141,5 @@ class RemoteScanner(IScanner):
             self.logger.exception("Caught scp exception")
             raise ScannerError(
                 Localization.Error.REMOTE_SERVER_INSTALL.format(str(e).strip()),
-                recoverable=False
+                recoverable=self._is_transient_ssh_error(e)
             )

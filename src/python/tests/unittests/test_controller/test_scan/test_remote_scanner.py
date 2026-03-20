@@ -7,6 +7,7 @@ from unittest.mock import patch, call, ANY
 import tempfile
 import os
 import json
+import hashlib
 import shutil
 
 from controller.scan import RemoteScanner, ScannerError
@@ -42,6 +43,9 @@ class TestRemoteScanner(unittest.TestCase):
         TestRemoteScanner.temp_scan_script = os.path.join(TestRemoteScanner.temp_dir, "script")
         with open(TestRemoteScanner.temp_scan_script, "w") as f:
             f.write("")
+        # Pre-compute the md5 of the empty scan script for tests that need it
+        with open(TestRemoteScanner.temp_scan_script, "rb") as f:
+            TestRemoteScanner.scan_script_md5 = hashlib.md5(f.read()).hexdigest()
 
     @classmethod
     def tearDownClass(cls):
@@ -303,7 +307,7 @@ class TestRemoteScanner(unittest.TestCase):
 
         self.ssh_run_command_count = 0
 
-        # Ssh run command fails the first time
+        # Ssh run command fails the first time with a non-timeout error
         # noinspection PyUnusedLocal
         def ssh_shell(*args):
             self.ssh_run_command_count += 1
@@ -321,6 +325,263 @@ class TestRemoteScanner(unittest.TestCase):
         with self.assertRaises(ScannerError) as ctx:
             scanner.scan()
         self.assertEqual(Localization.Error.REMOTE_SERVER_SCAN.format("an ssh error"), str(ctx.exception))
+        self.assertFalse(ctx.exception.recoverable)
+
+    def test_raises_recoverable_error_on_first_run_timeout(self):
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        self.ssh_run_command_count = 0
+
+        # Ssh run command times out on the first scan attempt
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check
+                return b''
+            elif self.ssh_run_command_count == 2:
+                # first scan attempt - timeout
+                raise SshcpError("Timed out")
+            else:
+                # later tries
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertEqual(Localization.Error.REMOTE_SERVER_SCAN.format("Timed out"), str(ctx.exception))
+        self.assertTrue(ctx.exception.recoverable)
+
+    def test_raises_recoverable_error_on_first_run_connection_refused(self):
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        self.ssh_run_command_count = 0
+
+        # Ssh run command gets connection refused on the first scan attempt
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check
+                return b''
+            elif self.ssh_run_command_count == 2:
+                # first scan attempt - connection refused
+                raise SshcpError("Connection refused by server")
+            else:
+                # later tries
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertEqual(
+            Localization.Error.REMOTE_SERVER_SCAN.format("Connection refused by server"),
+            str(ctx.exception)
+        )
+        self.assertTrue(ctx.exception.recoverable)
+
+    def test_recovers_after_first_run_timeout(self):
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        local_md5 = TestRemoteScanner.scan_script_md5
+        self.ssh_run_command_count = 0
+
+        # First scan: install succeeds (md5 match skips copy), scan times out
+        # Second scan: install skipped (already done), scan succeeds
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check (first scan) — matches, so copy is skipped
+                return local_md5.encode()
+            elif self.ssh_run_command_count == 2:
+                # first scan attempt - timeout
+                raise SshcpError("Timed out")
+            else:
+                # second scan attempt - succeeds (no install re-run)
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertTrue(ctx.exception.recoverable)
+
+        # Retry succeeds — install is not re-run
+        files = scanner.scan()
+        self.assertEqual([], files)
+        self.mock_ssh.copy.assert_not_called()
+        self.assertEqual(3, self.mock_ssh.shell.call_count)
+
+    def test_raises_nonrecoverable_error_on_system_scanner_error_with_timeout_in_message(self):
+        """SystemScannerError is always fatal, even if the message also contains 'Timed out'"""
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        self.ssh_run_command_count = 0
+
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check
+                return b''
+            elif self.ssh_run_command_count == 2:
+                raise SshcpError("SystemScannerError: Timed out waiting for lock")
+            else:
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertFalse(ctx.exception.recoverable)
+
+    def test_raises_recoverable_error_on_md5sum_timeout(self):
+        """Timeout during install_scanfs md5sum check is recoverable"""
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        # md5sum check times out
+        def ssh_shell(*args):
+            raise SshcpError("Timed out")
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertEqual(Localization.Error.REMOTE_SERVER_INSTALL.format("Timed out"), str(ctx.exception))
+        self.assertTrue(ctx.exception.recoverable)
+
+    def test_raises_recoverable_error_on_copy_timeout(self):
+        """Timeout during install_scanfs copy is recoverable"""
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        # md5sum returns empty string (hash mismatch → triggers copy), copy times out
+        self.mock_ssh.shell.return_value = b''
+
+        def ssh_copy(*args, **kwargs):
+            raise SshcpError("Timed out")
+        self.mock_ssh.copy.side_effect = ssh_copy
+
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertEqual(Localization.Error.REMOTE_SERVER_INSTALL.format("Timed out"), str(ctx.exception))
+        self.assertTrue(ctx.exception.recoverable)
+
+    def test_raises_nonrecoverable_error_on_wrong_password_after_first_run(self):
+        """Permanent SSH errors are fatal even after first successful scan"""
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        local_md5 = TestRemoteScanner.scan_script_md5
+        self.ssh_run_command_count = 0
+
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check
+                return local_md5.encode()
+            elif self.ssh_run_command_count == 2:
+                # first scan succeeds
+                return json.dumps([]).encode()
+            elif self.ssh_run_command_count == 3:
+                # second scan - wrong password (e.g. password was changed)
+                raise SshcpError("Incorrect password")
+            else:
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        scanner.scan()  # succeeds
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
+        self.assertFalse(ctx.exception.recoverable)
+
+    def test_raises_nonrecoverable_error_on_host_key_change_after_first_run(self):
+        """Host key changes are fatal even after first successful scan"""
+        scanner = RemoteScanner(
+            remote_address="my remote address",
+            remote_username="my remote user",
+            remote_password="my password",
+            remote_port=1234,
+            remote_path_to_scan="/remote/path/to/scan",
+            local_path_to_scan_script=TestRemoteScanner.temp_scan_script,
+            remote_path_to_scan_script="/remote/path/to/scan/script"
+        )
+
+        local_md5 = TestRemoteScanner.scan_script_md5
+        self.ssh_run_command_count = 0
+
+        # noinspection PyUnusedLocal
+        def ssh_shell(*args):
+            self.ssh_run_command_count += 1
+            if self.ssh_run_command_count == 1:
+                # md5sum check
+                return local_md5.encode()
+            elif self.ssh_run_command_count == 2:
+                # first scan succeeds
+                return json.dumps([]).encode()
+            elif self.ssh_run_command_count == 3:
+                # second scan - host key changed
+                raise SshcpError("Remote host key has changed. This may indicate a MITM attack.")
+            else:
+                return json.dumps([]).encode()
+        self.mock_ssh.shell.side_effect = ssh_shell
+
+        scanner.scan()  # succeeds
+        with self.assertRaises(ScannerError) as ctx:
+            scanner.scan()
         self.assertFalse(ctx.exception.recoverable)
 
     def test_raises_recoverable_error_on_subsequent_failed_ssh(self):
