@@ -11,7 +11,7 @@ curl -sS "http://myapp:8800/server/config/set/lftp/remote_port/1234"; echo
 curl -sS "http://myapp:8800/server/config/set/lftp/remote_path/%252Fhome%252Fremoteuser%252Ffiles"; echo
 curl -sS "http://myapp:8800/server/config/set/autoqueue/patterns_only/true"; echo
 
-curl -sS "http://myapp:8800/server/command/restart"; echo
+curl -sS -X POST "http://myapp:8800/server/command/restart"; echo
 
 ./wait-for-it.sh myapp:8800 -t 60 -- echo "Seedsync app is up (after configuring)"
 
