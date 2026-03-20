@@ -196,11 +196,13 @@ class TestConfig(unittest.TestCase):
             "debug": "True",
             "verbose": "False",
             "webhook_secret": "",
+            "api_token": "",
         }
         general = Config.General.from_dict(good_dict)
         self.assertEqual(True, general.debug)
         self.assertEqual(False, general.verbose)
         self.assertEqual("", general.webhook_secret)
+        self.assertEqual("", general.api_token)
 
         # webhook_secret with non-empty value
         good_dict_with_secret = dict(good_dict)
@@ -208,8 +210,14 @@ class TestConfig(unittest.TestCase):
         general_with_secret = Config.General.from_dict(good_dict_with_secret)
         self.assertEqual("mysecret", general_with_secret.webhook_secret)
 
+        # api_token with non-empty value
+        good_dict_with_token = dict(good_dict)
+        good_dict_with_token["api_token"] = "mytoken"
+        general_with_token = Config.General.from_dict(good_dict_with_token)
+        self.assertEqual("mytoken", general_with_token.api_token)
+
         # check_common only covers fields that raise on empty (Checkers.string_nonempty)
-        # webhook_secret uses Checkers.null so it allows empty strings — not included here
+        # webhook_secret and api_token use Checkers.null so they allow empty strings — not included here
         self.check_common(Config.General,
                           good_dict,
                           {
@@ -217,8 +225,9 @@ class TestConfig(unittest.TestCase):
                               "verbose",
                           })
 
-        # webhook_secret must be present (missing key still raises)
+        # webhook_secret and api_token must be present (missing key still raises)
         self.__check_missing_error(Config.General, good_dict, "webhook_secret")
+        self.__check_missing_error(Config.General, good_dict, "api_token")
 
         # bad values
         self.check_bad_value_error(Config.General, good_dict, "debug", "SomeString")
@@ -474,6 +483,7 @@ class TestConfig(unittest.TestCase):
         config.general.debug = True
         config.general.verbose = False
         config.general.webhook_secret = ""
+        config.general.api_token = ""
         config.lftp.remote_address = "server.remote.com"
         config.lftp.remote_username = "user-on-remote-server"
         config.lftp.remote_password = "pass-on-remote-server"
@@ -517,6 +527,7 @@ class TestConfig(unittest.TestCase):
         debug = True
         verbose = False
         webhook_secret =
+        api_token =
 
         [Lftp]
         remote_address = server.remote.com
