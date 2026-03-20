@@ -1490,7 +1490,9 @@ class TestController(unittest.TestCase):
         lcb_txt_path = os.path.join(TestController.temp_dir, "local", "lc", "lcb.zip.txt")
         while True:
             self.controller.process()
-            if os.path.isfile(lca_txt_path) and os.path.isfile(lcb_txt_path):
+            if os.path.isfile(lca_txt_path) and os.path.isfile(lcb_txt_path) \
+                    and os.path.getsize(lca_txt_path) > 0 \
+                    and os.path.getsize(lcb_txt_path) > 0:
                 break
         callback.on_success.assert_called_once_with()
         callback.on_failure.assert_not_called()
@@ -1577,7 +1579,7 @@ class TestController(unittest.TestCase):
         # Look for presence of extracted file
         while True:
             self.controller.process()
-            if os.path.isfile(re_txt_path):
+            if os.path.isfile(re_txt_path) and os.path.getsize(re_txt_path) > 0:
                 break
 
         # Verify again
