@@ -1,6 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from "@angular/core";
 
-
 /**
  * Selection banner component that displays when files are selected.
  *

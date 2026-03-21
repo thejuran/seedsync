@@ -22,11 +22,10 @@
   <!-- Status message when not connected or waiting for logs -->
   @if (!hasReceivedLogs) {
     <div class="status-message">
-      @if (!isConnected) {
-        <span>{{Localization.Notification.STATUS_CONNECTION_WAITING}}</span>
-      }
       @if (isConnected) {
         <span>Connected - waiting for logs...</span>
+      } @else {
+        <span>{{Localization.Notification.STATUS_CONNECTION_WAITING}}</span>
       }
     </div>
   }

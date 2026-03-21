@@ -34,12 +34,12 @@ import {ToastService} from "../../services/utils/toast.service";
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-    AsyncPipe,
-    FileComponent,
-    SelectionBannerComponent,
-    BulkActionsBarComponent,
-    FileActionsBarComponent
-]
+        AsyncPipe,
+        FileComponent,
+        SelectionBannerComponent,
+        BulkActionsBarComponent,
+        FileActionsBarComponent
+    ]
 })
 export class FileListComponent {
     // Inject DestroyRef for automatic subscription cleanup

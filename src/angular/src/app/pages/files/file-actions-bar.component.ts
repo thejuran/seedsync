@@ -1,6 +1,4 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from "@angular/core";
-
-
 import {ViewFile} from "../../services/files/view-file";
 
 /**

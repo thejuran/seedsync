@@ -1,5 +1,5 @@
 <div id="header">
-  @for (notif of notifications | async; track notif) {
+  @for (notif of notifications | async; track notif.timestamp) {
     <div
       class="alert"
       [class.alert-danger]="notif.level == Notification.Level.DANGER"

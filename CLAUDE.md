@@ -4,12 +4,12 @@ SeedSync is a file syncing tool that syncs files from a remote Linux server (lik
 
 ## Technology Stack
 
-- **Frontend**: Angular 19.x with TypeScript 5.7
+- **Frontend**: Angular 21.x with TypeScript 5.9
 - **Backend**: Python 3.11+ with Bottle web framework
 - **Build System**: Docker/Docker Buildx for builds, Make for orchestration
 - **Package Manager**: Poetry (Python), npm (Angular)
 - **Testing**: pytest (Python), Karma/Jasmine (Angular unit tests), Playwright (E2E)
-- **Linting**: ESLint 9.x with typescript-eslint (flat config format)
+- **Linting**: ESLint 10.x with typescript-eslint (flat config format)
 - **CSS Framework**: Bootstrap 5.3 with Popper.js
 
 ## Project Structure
@@ -287,7 +287,7 @@ Both deb packages and Docker images are built and tested for both architectures 
 
 The codebase underwent significant modernization:
 
-1. **Frontend**: Upgraded from Angular 4.x to Angular 19.x, Bootstrap 4 to 5
+1. **Frontend**: Upgraded from Angular 4.x to Angular 21.x (via 19→20→21), Bootstrap 4 to 5, control flow migration (*ngIf/*ngFor → @if/@for)
 2. **Thread Safety**: Added synchronization to all listener collections
 3. **Performance**: Replaced deep copy with freeze-on-add immutability pattern
 4. **Memory Management**: Added bounded collections with LRU eviction

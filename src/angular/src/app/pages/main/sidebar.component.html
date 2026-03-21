@@ -1,5 +1,5 @@
 <nav id="sidebar">
-  @for (routeInfo of routeInfos; track routeInfo) {
+  @for (routeInfo of routeInfos; track routeInfo.path) {
     <a
       class="button"
       routerLink="{{routeInfo.path}}"

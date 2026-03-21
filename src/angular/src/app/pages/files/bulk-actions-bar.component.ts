@@ -1,6 +1,4 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChanges} from "@angular/core";
-
-
 import {List} from "immutable";
 
 import {ViewFile} from "../../services/files/view-file";

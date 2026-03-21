@@ -1,17 +1,14 @@
 @if (file) {
   <div class="file-actions-bar">
     <div class="file-name">
-      @if (!file.isDir && !file.isArchive) {
-        <img src="assets/icons/file-light.svg" />
-      }
-      @if (!file.isDir && file.isArchive) {
-        <img src="assets/icons/file-archive-light.svg" />
-      }
-      @if (file.isDir && !file.isArchive) {
-        <img src="assets/icons/directory-light.svg" />
-      }
       @if (file.isDir && file.isArchive) {
         <img src="assets/icons/directory-archive-light.svg" />
+      } @else if (file.isDir) {
+        <img src="assets/icons/directory-light.svg" />
+      } @else if (file.isArchive) {
+        <img src="assets/icons/file-archive-light.svg" />
+      } @else {
+        <img src="assets/icons/file-light.svg" />
       }
       <span class="name-text">{{file.name}}</span>
     </div>

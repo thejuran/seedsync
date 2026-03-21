@@ -37,7 +37,7 @@ function initializeLogger(logger: LoggerService): () => void {
 
 export const appConfig: ApplicationConfig = {
     providers: [
-        provideZoneChangeDetection(),
+        provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(ROUTES),
         provideHttpClient(),
 
