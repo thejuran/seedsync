@@ -14,7 +14,7 @@ import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from "@
     styleUrls: ["./selection-banner.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: []
+
 })
 export class SelectionBannerComponent {
 

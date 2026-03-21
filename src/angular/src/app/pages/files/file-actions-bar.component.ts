@@ -13,7 +13,7 @@ import {ViewFile} from "../../services/files/view-file";
     styleUrls: ["./file-actions-bar.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: []
+
 })
 export class FileActionsBarComponent {
     @Input() file: ViewFile | null = null;

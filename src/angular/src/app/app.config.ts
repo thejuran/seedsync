@@ -1,4 +1,4 @@
-import {ApplicationConfig, APP_INITIALIZER} from "@angular/core";
+import {ApplicationConfig, APP_INITIALIZER, provideZoneChangeDetection} from "@angular/core";
 import {provideRouter, RouteReuseStrategy} from "@angular/router";
 import {provideHttpClient} from "@angular/common/http";
 
@@ -37,6 +37,7 @@ function initializeLogger(logger: LoggerService): () => void {
 
 export const appConfig: ApplicationConfig = {
     providers: [
+        provideZoneChangeDetection(),
         provideRouter(ROUTES),
         provideHttpClient(),
 

@@ -34,7 +34,7 @@ export interface BulkActionCounts {
     styleUrls: ["./bulk-actions-bar.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: []
+
 })
 export class BulkActionsBarComponent implements OnChanges {
 
