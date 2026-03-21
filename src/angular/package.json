@@ -26,7 +26,7 @@
     "compare-versions": "^6.1.1",
     "css-element-queries": "^1.1.1",
     "font-awesome": "^4.7.0",
-    "immutable": "^4.3.0",
+    "immutable": "^5.1.5",
     "jquery": "^4.0.0",
     "rxjs": "^7.5.0",
     "zone.js": "^0.16.1"
@@ -37,11 +37,11 @@
     "@angular/compiler-cli": "^21.2.5",
     "@angular/language-service": "^21.2.5",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.48.0",
+    "@playwright/test": "^1.58.2",
     "@types/jasmine": "^6.0.0",
     "@types/node": "^25.5.0",
-    "@typescript-eslint/eslint-plugin": "^8.54.0",
-    "@typescript-eslint/parser": "^8.54.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
     "eslint": "^10.1.0",
     "globals": "^17.4.0",
     "jasmine-core": "^6.1.0",
@@ -54,10 +54,10 @@
     "karma-jasmine-html-reporter": "^2.1.0",
     "karma-spec-reporter": "^0.0.36",
     "playwright": "^1.48.0",
-    "sass": "^1.32.0",
+    "sass": "^1.98.0",
     "ts-node": "~10.9.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "^8.54.0"
+    "typescript-eslint": "^8.57.1"
   },
   "overrides": {
     "undici": "^7.24.0"
