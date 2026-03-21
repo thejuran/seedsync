@@ -97,10 +97,12 @@ class BulkActionsDashboardPage extends DashboardPage {
     // Helper methods
     async clickFileCheckbox(index: number) {
         await this.getFileCheckbox(index).click();
+        await this.page.waitForTimeout(100);
     }
 
     async clickHeaderCheckbox() {
         await this.headerCheckbox.click();
+        await this.page.waitForTimeout(100);
     }
 
     async isFileRowBulkSelected(index: number): Promise<boolean> {
@@ -146,6 +148,7 @@ class BulkActionsDashboardPage extends DashboardPage {
     async pressCtrlA() {
         const modifier = process.platform === 'darwin' ? 'Meta' : 'Control';
         await this.page.keyboard.press(`${modifier}+a`);
+        await this.page.waitForTimeout(100);
     }
 
     async pressEscape() {
