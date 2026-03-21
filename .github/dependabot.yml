@@ -9,7 +9,32 @@ updates:
         patterns:
           - "*"
     ignore:
+      # Angular 21 is a major upgrade requiring dedicated migration
+      - dependency-name: "@angular/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@angular-devkit/*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "zone.js"
+        update-types: ["version-update:semver-major"]
       # webpack 5.105+ pulls in @angular/build requiring ^21.0.0
-      # which is incompatible with our Angular 19 project
       - dependency-name: "webpack"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # jQuery 4 is a major breaking change
+      - dependency-name: "jquery"
+        update-types: ["version-update:semver-major"]
+      # ESLint 10 is a major breaking change
+      - dependency-name: "eslint"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@eslint/*"
+        update-types: ["version-update:semver-major"]
+      # Major type definition bumps can break builds
+      - dependency-name: "@types/jasmine"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "jasmine-core"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "globals"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "immutable"
+        update-types: ["version-update:semver-major"]
