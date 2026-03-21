@@ -4,7 +4,7 @@ import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
 import {LoggerService} from "../../services/utils/logger.service";
-import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
+
 import {OptionComponent, OptionType} from "./option.component";
 import {ConfigService} from "../../services/settings/config.service";
 import {Config} from "../../services/settings/config";
@@ -27,7 +27,7 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
+    imports: [NgTemplateOutlet, AsyncPipe, OptionComponent]
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;

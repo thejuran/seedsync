@@ -34,6 +34,7 @@ jobs:
   unittests-angular:
     name: Angular unit tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4

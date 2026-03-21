@@ -6,7 +6,7 @@ import {takeUntil} from "rxjs/operators";
 
 import * as Immutable from "immutable";
 
-import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
+
 import {AutoQueueService} from "../../services/autoqueue/autoqueue.service";
 import {AutoQueuePattern} from "../../services/autoqueue/autoqueue-pattern";
 import {Notification} from "../../services/utils/notification";
@@ -24,7 +24,7 @@ import {ConfigService} from "../../services/settings/config.service";
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [AsyncPipe, FormsModule, ClickStopPropagationDirective]
+    imports: [AsyncPipe, FormsModule]
 })
 export class AutoQueuePageComponent implements OnInit, OnDestroy {
 

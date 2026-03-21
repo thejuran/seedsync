@@ -51,9 +51,9 @@ RUN	pyinstaller /python/scan_fs.py \
 
 
 # Creates environment for angular
-# Note: Using Node 20 LTS with Angular 13.x and Dart Sass
+# Note: Using Node 22 LTS for Angular 21.x
 # --legacy-peer-deps required for peer dependency conflicts
-FROM node:20-slim AS seedsync_build_angular_env
+FROM node:22-slim AS seedsync_build_angular_env
 COPY src/angular/package*.json /app/
 WORKDIR /app
 # Ensure NODE_ENV is not production so devDependencies (including @angular/cli) are installed
@@ -64,15 +64,15 @@ RUN npm install --include=dev --legacy-peer-deps && \
     test -f node_modules/@angular/cli/bin/ng.js || (echo "ERROR: @angular/cli not installed" && exit 1)
 
 # Builds angular app into html
-# Output is in /build/dist/
+# Output is in /build/dist/browser/
 FROM seedsync_build_angular_env AS seedsync_build_angular
 COPY src/angular /app
 WORKDIR /app
 RUN mkdir -p /build
 # Verify node_modules exists, reinstall if missing (handles Docker cache issues)
 RUN if [ ! -f node_modules/@angular/cli/bin/ng.js ]; then npm install --legacy-peer-deps; fi
-# Use --configuration=production (--prod is deprecated in Angular 12+)
-# Note: Angular 13+ CLI binary is ng.js
+# Use --configuration=production with the application builder (esbuild)
+# Note: Angular 21 application builder outputs to browser/ subdirectory
 RUN node node_modules/@angular/cli/bin/ng.js build --configuration=production --output-path /build/dist/
 
 
@@ -94,7 +94,7 @@ COPY --from=seedsync_build_pyinstaller /build/dist/seedsync /build/work/seedsync
 # Copy scanfs into _internal directory where PyInstaller expects it (sys._MEIPASS)
 COPY --from=seedsync_build_scanfs /build/dist/scanfs /build/work/seedsync/_internal/
 # Copy html into _internal directory where PyInstaller expects it (sys._MEIPASS)
-COPY --from=seedsync_build_angular /build/dist /build/work/seedsync/_internal/html
+COPY --from=seedsync_build_angular /build/dist/browser /build/work/seedsync/_internal/html
 WORKDIR /build/work
 RUN dpkg-buildpackage -B -uc -us
 RUN ls /build/*.deb && echo "----" && ls /build/work
@@ -110,4 +110,4 @@ COPY --from=seedsync_build_scanfs /build/dist/scanfs .
 
 # Exports html to host
 FROM scratch AS seedsync_build_angular_export
-COPY --from=seedsync_build_angular /build/dist ./html
+COPY --from=seedsync_build_angular /build/dist/browser ./html
