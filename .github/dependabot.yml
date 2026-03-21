@@ -15,7 +15,10 @@ updates:
       - dependency-name: "@angular-devkit/*"
         update-types: ["version-update:semver-major"]
       - dependency-name: "zone.js"
-        update-types: ["version-update:semver-major"]
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
+      # TypeScript 5.9+ is incompatible with Angular 19 (requires <5.9.0)
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
       # webpack 5.105+ pulls in @angular/build requiring ^21.0.0
       - dependency-name: "webpack"
         update-types: ["version-update:semver-minor", "version-update:semver-major"]
