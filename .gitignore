@@ -10,4 +10,4 @@ htmlcov/
 
 # SSH private keys
 id_rsa
-*.pem
+*.pem.gsd/activity/
