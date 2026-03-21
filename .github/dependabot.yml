@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/src/angular"
+    schedule:
+      interval: "weekly"
+    groups:
+      npm_and_yarn:
+        patterns:
+          - "*"
+    ignore:
+      # webpack 5.105+ pulls in @angular/build requiring ^21.0.0
+      # which is incompatible with our Angular 19 project
+      - dependency-name: "webpack"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
