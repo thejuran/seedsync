@@ -1,6 +1,6 @@
 import {AfterViewInit, Component, ElementRef, OnInit, OnDestroy, ViewChild} from "@angular/core";
 import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
-import {NgFor, NgIf, NgClass} from "@angular/common";
+import { NgClass } from "@angular/common";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ROUTE_INFOS, RouteInfo} from "../../routes";
@@ -15,7 +15,7 @@ import {SidebarComponent} from "./sidebar.component";
     templateUrl: "./app.component.html",
     styleUrls: ["./app.component.scss"],
     standalone: true,
-    imports: [RouterOutlet, HeaderComponent, SidebarComponent, NgFor, NgIf, NgClass]
+    imports: [RouterOutlet, HeaderComponent, SidebarComponent, NgClass]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild("topHeader", {static: false}) topHeader: ElementRef;

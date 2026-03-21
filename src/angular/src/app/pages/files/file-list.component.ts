@@ -1,5 +1,5 @@
 import {Component, ChangeDetectionStrategy, HostListener, DestroyRef, inject} from "@angular/core";
-import {NgIf, NgFor, AsyncPipe} from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 // CDK virtual scroll temporarily disabled for E2E debugging
 // import {CdkVirtualScrollViewport, CdkVirtualForOf} from "@angular/cdk/scrolling";
@@ -34,9 +34,12 @@ import {ToastService} from "../../services/utils/toast.service";
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
-        NgIf, NgFor, AsyncPipe, FileComponent,
-        SelectionBannerComponent, BulkActionsBarComponent, FileActionsBarComponent
-    ]
+    AsyncPipe,
+    FileComponent,
+    SelectionBannerComponent,
+    BulkActionsBarComponent,
+    FileActionsBarComponent
+]
 })
 export class FileListComponent {
     // Inject DestroyRef for automatic subscription cleanup

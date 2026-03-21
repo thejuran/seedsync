@@ -1,46 +1,56 @@
-<div class="file-actions-bar" *ngIf="file">
+@if (file) {
+  <div class="file-actions-bar">
     <div class="file-name">
-        <img src="assets/icons/file-light.svg" *ngIf="!file.isDir && !file.isArchive" />
-        <img src="assets/icons/file-archive-light.svg" *ngIf="!file.isDir && file.isArchive" />
-        <img src="assets/icons/directory-light.svg" *ngIf="file.isDir && !file.isArchive" />
-        <img src="assets/icons/directory-archive-light.svg" *ngIf="file.isDir && file.isArchive" />
-        <span class="name-text">{{file.name}}</span>
+      @if (!file.isDir && !file.isArchive) {
+        <img src="assets/icons/file-light.svg" />
+      }
+      @if (!file.isDir && file.isArchive) {
+        <img src="assets/icons/file-archive-light.svg" />
+      }
+      @if (file.isDir && !file.isArchive) {
+        <img src="assets/icons/directory-light.svg" />
+      }
+      @if (file.isDir && file.isArchive) {
+        <img src="assets/icons/directory-archive-light.svg" />
+      }
+      <span class="name-text">{{file.name}}</span>
     </div>
     <div class="actions">
-        <button class="btn btn-outline-success ghost-btn"
-                [disabled]="!isQueueable()"
-                [class.loading]="activeAction === 'queue'"
-                (click)="onQueue()">
-            <img src="assets/icons/queue.svg" alt="Queue" />
-            Queue
-        </button>
-        <button class="btn btn-outline-danger ghost-btn"
-                [disabled]="!isStoppable()"
-                [class.loading]="activeAction === 'stop'"
-                (click)="onStop()">
-            <img src="assets/icons/stop.svg" alt="Stop" />
-            Stop
-        </button>
-        <button class="btn btn-outline-secondary ghost-btn"
-                [disabled]="!isExtractable()"
-                [class.loading]="activeAction === 'extract'"
-                (click)="onExtract()">
-            <img src="assets/icons/extract.svg" alt="Extract" />
-            Extract
-        </button>
-        <button class="btn btn-outline-danger ghost-btn"
-                [disabled]="!isLocallyDeletable()"
-                [class.loading]="activeAction === 'delete_local'"
-                (click)="onDeleteLocal()">
-            <img src="assets/icons/delete-local.svg" alt="Delete Local" />
-            Delete Local
-        </button>
-        <button class="btn btn-outline-danger ghost-btn"
-                [disabled]="!isRemotelyDeletable()"
-                [class.loading]="activeAction === 'delete_remote'"
-                (click)="onDeleteRemote()">
-            <img src="assets/icons/delete-remote.svg" alt="Delete Remote" />
-            Delete Remote
-        </button>
+      <button class="btn btn-outline-success ghost-btn"
+        [disabled]="!isQueueable()"
+        [class.loading]="activeAction === 'queue'"
+        (click)="onQueue()">
+        <img src="assets/icons/queue.svg" alt="Queue" />
+        Queue
+      </button>
+      <button class="btn btn-outline-danger ghost-btn"
+        [disabled]="!isStoppable()"
+        [class.loading]="activeAction === 'stop'"
+        (click)="onStop()">
+        <img src="assets/icons/stop.svg" alt="Stop" />
+        Stop
+      </button>
+      <button class="btn btn-outline-secondary ghost-btn"
+        [disabled]="!isExtractable()"
+        [class.loading]="activeAction === 'extract'"
+        (click)="onExtract()">
+        <img src="assets/icons/extract.svg" alt="Extract" />
+        Extract
+      </button>
+      <button class="btn btn-outline-danger ghost-btn"
+        [disabled]="!isLocallyDeletable()"
+        [class.loading]="activeAction === 'delete_local'"
+        (click)="onDeleteLocal()">
+        <img src="assets/icons/delete-local.svg" alt="Delete Local" />
+        Delete Local
+      </button>
+      <button class="btn btn-outline-danger ghost-btn"
+        [disabled]="!isRemotelyDeletable()"
+        [class.loading]="activeAction === 'delete_remote'"
+        (click)="onDeleteRemote()">
+        <img src="assets/icons/delete-remote.svg" alt="Delete Remote" />
+        Delete Remote
+      </button>
     </div>
-</div>
+  </div>
+}

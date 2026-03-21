@@ -42,13 +42,13 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Angular 19 → 20** `risk:high` `depends:[]`
+- [x] **S01: Angular 19 → 20** `risk:high` `depends:[]`
   > After this: Angular 20 builds, all 394 unit tests pass, CI green
 
-- [ ] **S02: Angular 20 → 21 + security fixes** `risk:medium` `depends:[S01]`
+- [x] **S02: Angular 20 → 21 + security fixes** `risk:medium` `depends:[S01]`
   > After this: Angular 21 builds, all unit tests pass, npm audit clean, CI green
 
-- [ ] **S03: Dependency cleanup + dependabot unblock** `risk:low` `depends:[S02]`
+- [x] **S03: Dependency cleanup + dependabot unblock** `risk:low` `depends:[S02]`
   > After this: jQuery 4, ESLint 10, remaining deps upgraded, dependabot ignore rules removed, CI green
 
 ## Boundary Map

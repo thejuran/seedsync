@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from "@angular/core";
-import {NgFor, NgIf, AsyncPipe} from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
@@ -24,7 +24,7 @@ import {ConfigService} from "../../services/settings/config.service";
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgFor, NgIf, AsyncPipe, FormsModule, ClickStopPropagationDirective]
+    imports: [AsyncPipe, FormsModule, ClickStopPropagationDirective]
 })
 export class AutoQueuePageComponent implements OnInit, OnDestroy {
 

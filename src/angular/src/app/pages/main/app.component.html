@@ -1,77 +1,81 @@
 <div id="top-sidebar"
-     [class.top-sidebar-open]="showSidebar"
-     [class.top-sidebar-closed]="!showSidebar">
+  [class.top-sidebar-open]="showSidebar"
+  [class.top-sidebar-closed]="!showSidebar">
 
-    <div id="logo">
-        <span class="image">
-            <!--suppress HtmlUnknownTarget -->
-            <img src="assets/logo.png" />
-        </span>
-        <span class="text"><b>Seed</b>Sync</span>
+  <div id="logo">
+    <span class="image">
+      <!--suppress HtmlUnknownTarget -->
+      <img src="assets/logo.png" />
+    </span>
+    <span class="text"><b>Seed</b>Sync</span>
 
-        <button id="sidebar-btn-close" class="sidebar-btn" (click)="showSidebar=false">
-            <span>&#10006;</span>
-        </button>
-    </div>
+    <button id="sidebar-btn-close" class="sidebar-btn" (click)="showSidebar=false">
+      <span>&#10006;</span>
+    </button>
+  </div>
 
-    <app-sidebar></app-sidebar>
+  <app-sidebar></app-sidebar>
 </div>
 
 <!-- Used for sidebar closing -->
 <div id="outside-sidebar"
-     [class.outside-sidebar-show]="showSidebar"
-     [class.outside-sidebar-hide]="!showSidebar"
-     (click)="showSidebar=false">
+  [class.outside-sidebar-show]="showSidebar"
+  [class.outside-sidebar-hide]="!showSidebar"
+  (click)="showSidebar=false">
 </div>
 
 <div id="top-content">
-    <div id="top-header">
-        <!--
-            We attach the ResizeSensor to the header so that we can advertise its height
-            to other components, who can correctly position any sticky elements
-            Since ResizeSensor forces the div to be position: absolute, we create a wrapper
-            div to which to apply the sensor
-         -->
-        <div #topHeader>
+  <div id="top-header">
+    <!--
+    We attach the ResizeSensor to the header so that we can advertise its height
+    to other components, who can correctly position any sticky elements
+    Since ResizeSensor forces the div to be position: absolute, we create a wrapper
+    div to which to apply the sensor
+    -->
+    <div #topHeader>
 
-            <app-header></app-header>
+      <app-header></app-header>
 
-            <div id="title-bar">
-                <button id="sidebar-btn-open" class="sidebar-btn" (click)="showSidebar=!showSidebar">
-                    &#9776;
-                </button>
-                <span id="title">{{activeRoute?.name}}</span>
-            </div>
-
-        </div>
+      <div id="title-bar">
+        <button id="sidebar-btn-open" class="sidebar-btn" (click)="showSidebar=!showSidebar">
+          &#9776;
+        </button>
+        <span id="title">{{activeRoute?.name}}</span>
+      </div>
 
     </div>
 
-    <router-outlet></router-outlet>
+  </div>
+
+  <router-outlet></router-outlet>
 </div>
 
 <!-- Toast notifications -->
-<div class="toast-container position-fixed top-0 end-0 p-3" *ngIf="toasts.length > 0">
-    <div *ngFor="let toast of toasts"
-         class="toast show"
+@if (toasts.length > 0) {
+  <div class="toast-container position-fixed top-0 end-0 p-3">
+    @for (toast of toasts; track toast) {
+      <div
+        class="toast show"
          [ngClass]="{
             'bg-success text-white': toast.type === 'success',
             'bg-info text-dark': toast.type === 'info',
             'bg-warning text-dark': toast.type === 'warning',
             'bg-danger text-white': toast.type === 'danger'
          }"
-         role="alert"
-         aria-live="assertive"
-         aria-atomic="true">
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true">
         <div class="d-flex">
-            <div class="toast-body">
-                {{toast.message}}
-            </div>
-            <button type="button" class="btn-close me-2 m-auto"
-                    [ngClass]="{'btn-close-white': toast.type === 'success' || toast.type === 'danger'}"
-                    (click)="dismissToast(toast)"
-                    aria-label="Close">
-            </button>
+          <div class="toast-body">
+            {{toast.message}}
+          </div>
+          <button type="button" class="btn-close me-2 m-auto"
+            [ngClass]="{'btn-close-white': toast.type === 'success' || toast.type === 'danger'}"
+            (click)="dismissToast(toast)"
+            aria-label="Close">
+          </button>
         </div>
-    </div>
-</div>
+      </div>
+    }
+  </div>
+}

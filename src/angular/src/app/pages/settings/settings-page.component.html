@@ -1,201 +1,215 @@
 <!--suppress HtmlUnknownAttribute -->
 <ng-template #optionsList let-header="header" let-options="options" let-id="id">
-    <div class="card">
-        <h3 class="card-header" id="heading-{{id}}">
-            <button class="btn terminal-header"
-                    type="button"
-                    data-bs-toggle="collapse"
-                    attr.data-bs-target="#collapse-{{id}}">
-                --- {{header}} ---
-            </button>
-        </h3>
-        <div id="collapse-{{id}}" class="collapse" data-bs-parent="#accordion">
-            <div class="card-body">
-                <div *ngFor="let option of options">
-                    <app-option
-                        [type]="option.type"
-                        [label]="option.label"
-                        [description]="option.description"
-                        [value]="(config | async)?.get(option.valuePath[0]).get(option.valuePath[1])"
-                        (changeEvent)="onSetConfig(option.valuePath[0], option.valuePath[1], $event)">
-                    </app-option>
-                </div>
-            </div>
-        </div>
+  <div class="card">
+    <h3 class="card-header" id="heading-{{id}}">
+      <button class="btn terminal-header"
+        type="button"
+        data-bs-toggle="collapse"
+        attr.data-bs-target="#collapse-{{id}}">
+        --- {{header}} ---
+      </button>
+    </h3>
+    <div id="collapse-{{id}}" class="collapse" data-bs-parent="#accordion">
+      <div class="card-body">
+        @for (option of options; track option) {
+          <div>
+            <app-option
+              [type]="option.type"
+              [label]="option.label"
+              [description]="option.description"
+              [value]="(config | async)?.get(option.valuePath[0]).get(option.valuePath[1])"
+              (changeEvent)="onSetConfig(option.valuePath[0], option.valuePath[1], $event)">
+            </app-option>
+          </div>
+        }
+      </div>
     </div>
+  </div>
 </ng-template>
 
 
 <div id="settings">
-    <div id="accordion">
-        <div id="left">
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_SERVER">
-            </ng-container>
+  <div id="accordion">
+    <div id="left">
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_SERVER">
+      </ng-container>
 
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_AUTOQUEUE">
-            </ng-container>
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_AUTOQUEUE">
+      </ng-container>
 
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_EXTRACT">
-            </ng-container>
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_EXTRACT">
+      </ng-container>
 
-            <!--suppress HtmlUnknownAttribute -->
-            <div class="card">
-                <h3 class="card-header" id="heading-arr">
-                    <button class="btn terminal-header"
-                            type="button"
-                            data-bs-toggle="collapse"
-                            data-bs-target="#collapse-arr">
-                        --- *arr Integration ---
-                    </button>
-                </h3>
-                <div id="collapse-arr" class="collapse" data-bs-parent="#accordion">
-                    <div class="card-body">
-                        <h4 class="subsection-header">Sonarr</h4>
-                        <div>
-                            <app-option
-                                [type]="OptionType.Checkbox"
-                                [label]="'Enable Sonarr Integration'"
-                                [value]="(config | async)?.get('sonarr')?.get('enabled')"
-                                (changeEvent)="onSetConfig('sonarr', 'enabled', $event)">
-                            </app-option>
-                        </div>
-                        <fieldset [attr.disabled]="!(config | async)?.get('sonarr')?.get('enabled') ? '' : null">
-                            <div>
-                                <app-option
-                                    [type]="OptionType.Text"
-                                    [label]="'Sonarr URL'"
-                                    [description]="'e.g. http://localhost:8989'"
-                                    [value]="(config | async)?.get('sonarr')?.get('sonarr_url')"
-                                    (changeEvent)="onSetConfig('sonarr', 'sonarr_url', $event)">
-                                </app-option>
-                            </div>
-                            <div>
-                                <app-option
-                                    [type]="OptionType.Password"
-                                    [label]="'Sonarr API Key'"
-                                    [description]="'Found in Sonarr under Settings \u2192 General \u2192 API Key'"
-                                    [value]="(config | async)?.get('sonarr')?.get('sonarr_api_key')"
-                                    (changeEvent)="onSetConfig('sonarr', 'sonarr_api_key', $event)">
-                                </app-option>
-                            </div>
-                            <div class="test-connection">
-                                <button class="btn btn-secondary" type="button"
-                                        [disabled]="testSonarrConnectionLoading"
-                                        (click)="onTestSonarrConnection()">
-                                    <span *ngIf="!testSonarrConnectionLoading">Test Connection</span>
-                                    <span *ngIf="testSonarrConnectionLoading">Testing...</span>
-                                </button>
-                                <div *ngIf="testSonarrConnectionResult"
-                                     class="test-result"
-                                     [class.text-success]="testSonarrConnectionResult.success"
-                                     [class.text-danger]="!testSonarrConnectionResult.success">
-                                    {{testSonarrConnectionResult.message}}
-                                </div>
-                            </div>
-                        </fieldset>
-                        <h4 class="subsection-header">Radarr</h4>
-                        <div>
-                            <app-option
-                                [type]="OptionType.Checkbox"
-                                [label]="'Enable Radarr Integration'"
-                                [value]="(config | async)?.get('radarr')?.get('enabled')"
-                                (changeEvent)="onSetConfig('radarr', 'enabled', $event)">
-                            </app-option>
-                        </div>
-                        <fieldset [attr.disabled]="!(config | async)?.get('radarr')?.get('enabled') ? '' : null">
-                            <div>
-                                <app-option
-                                    [type]="OptionType.Text"
-                                    [label]="'Radarr URL'"
-                                    [description]="'e.g. http://localhost:7878'"
-                                    [value]="(config | async)?.get('radarr')?.get('radarr_url')"
-                                    (changeEvent)="onSetConfig('radarr', 'radarr_url', $event)">
-                                </app-option>
-                            </div>
-                            <div>
-                                <app-option
-                                    [type]="OptionType.Password"
-                                    [label]="'Radarr API Key'"
-                                    [description]="'Found in Radarr under Settings \u2192 General \u2192 API Key'"
-                                    [value]="(config | async)?.get('radarr')?.get('radarr_api_key')"
-                                    (changeEvent)="onSetConfig('radarr', 'radarr_api_key', $event)">
-                                </app-option>
-                            </div>
-                            <div class="test-connection">
-                                <button class="btn btn-secondary" type="button"
-                                        [disabled]="testRadarrConnectionLoading"
-                                        (click)="onTestRadarrConnection()">
-                                    <span *ngIf="!testRadarrConnectionLoading">Test Connection</span>
-                                    <span *ngIf="testRadarrConnectionLoading">Testing...</span>
-                                </button>
-                                <div *ngIf="testRadarrConnectionResult"
-                                     class="test-result"
-                                     [class.text-success]="testRadarrConnectionResult.success"
-                                     [class.text-danger]="!testRadarrConnectionResult.success">
-                                    {{testRadarrConnectionResult.message}}
-                                </div>
-                            </div>
-                        </fieldset>
-                        <h4 class="subsection-header">Webhook URLs</h4>
-                        <div class="webhook-urls">
-                            <p class="webhook-description">
-                                Configure these URLs in your *arr apps under Settings &rarr; Connect &rarr; Add &rarr; Webhook.
-                                Replace <code>&lt;seedsync-address&gt;</code> with your SeedSync server's IP or hostname.
-                            </p>
-                            <div class="webhook-url-item">
-                                <label>Sonarr Webhook URL</label>
-                                <div class="webhook-url-display">
-                                    <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/sonarr</code>
-                                </div>
-                            </div>
-                            <div class="webhook-url-item">
-                                <label>Radarr Webhook URL</label>
-                                <div class="webhook-url-display">
-                                    <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/radarr</code>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!--suppress HtmlUnknownAttribute -->
+      <div class="card">
+        <h3 class="card-header" id="heading-arr">
+          <button class="btn terminal-header"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#collapse-arr">
+            --- *arr Integration ---
+          </button>
+        </h3>
+        <div id="collapse-arr" class="collapse" data-bs-parent="#accordion">
+          <div class="card-body">
+            <h4 class="subsection-header">Sonarr</h4>
+            <div>
+              <app-option
+                [type]="OptionType.Checkbox"
+                [label]="'Enable Sonarr Integration'"
+                [value]="(config | async)?.get('sonarr')?.get('enabled')"
+                (changeEvent)="onSetConfig('sonarr', 'enabled', $event)">
+              </app-option>
             </div>
-
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_AUTODELETE">
-            </ng-container>
-
+            <fieldset [attr.disabled]="!(config | async)?.get('sonarr')?.get('enabled') ? '' : null">
+              <div>
+                <app-option
+                  [type]="OptionType.Text"
+                  [label]="'Sonarr URL'"
+                  [description]="'e.g. http://localhost:8989'"
+                  [value]="(config | async)?.get('sonarr')?.get('sonarr_url')"
+                  (changeEvent)="onSetConfig('sonarr', 'sonarr_url', $event)">
+                </app-option>
+              </div>
+              <div>
+                <app-option
+                  [type]="OptionType.Password"
+                  [label]="'Sonarr API Key'"
+                  [description]="'Found in Sonarr under Settings \u2192 General \u2192 API Key'"
+                  [value]="(config | async)?.get('sonarr')?.get('sonarr_api_key')"
+                  (changeEvent)="onSetConfig('sonarr', 'sonarr_api_key', $event)">
+                </app-option>
+              </div>
+              <div class="test-connection">
+                <button class="btn btn-secondary" type="button"
+                  [disabled]="testSonarrConnectionLoading"
+                  (click)="onTestSonarrConnection()">
+                  @if (!testSonarrConnectionLoading) {
+                    <span>Test Connection</span>
+                  }
+                  @if (testSonarrConnectionLoading) {
+                    <span>Testing...</span>
+                  }
+                </button>
+                @if (testSonarrConnectionResult) {
+                  <div
+                    class="test-result"
+                    [class.text-success]="testSonarrConnectionResult.success"
+                    [class.text-danger]="!testSonarrConnectionResult.success">
+                    {{testSonarrConnectionResult.message}}
+                  </div>
+                }
+              </div>
+            </fieldset>
+            <h4 class="subsection-header">Radarr</h4>
+            <div>
+              <app-option
+                [type]="OptionType.Checkbox"
+                [label]="'Enable Radarr Integration'"
+                [value]="(config | async)?.get('radarr')?.get('enabled')"
+                (changeEvent)="onSetConfig('radarr', 'enabled', $event)">
+              </app-option>
+            </div>
+            <fieldset [attr.disabled]="!(config | async)?.get('radarr')?.get('enabled') ? '' : null">
+              <div>
+                <app-option
+                  [type]="OptionType.Text"
+                  [label]="'Radarr URL'"
+                  [description]="'e.g. http://localhost:7878'"
+                  [value]="(config | async)?.get('radarr')?.get('radarr_url')"
+                  (changeEvent)="onSetConfig('radarr', 'radarr_url', $event)">
+                </app-option>
+              </div>
+              <div>
+                <app-option
+                  [type]="OptionType.Password"
+                  [label]="'Radarr API Key'"
+                  [description]="'Found in Radarr under Settings \u2192 General \u2192 API Key'"
+                  [value]="(config | async)?.get('radarr')?.get('radarr_api_key')"
+                  (changeEvent)="onSetConfig('radarr', 'radarr_api_key', $event)">
+                </app-option>
+              </div>
+              <div class="test-connection">
+                <button class="btn btn-secondary" type="button"
+                  [disabled]="testRadarrConnectionLoading"
+                  (click)="onTestRadarrConnection()">
+                  @if (!testRadarrConnectionLoading) {
+                    <span>Test Connection</span>
+                  }
+                  @if (testRadarrConnectionLoading) {
+                    <span>Testing...</span>
+                  }
+                </button>
+                @if (testRadarrConnectionResult) {
+                  <div
+                    class="test-result"
+                    [class.text-success]="testRadarrConnectionResult.success"
+                    [class.text-danger]="!testRadarrConnectionResult.success">
+                    {{testRadarrConnectionResult.message}}
+                  </div>
+                }
+              </div>
+            </fieldset>
+            <h4 class="subsection-header">Webhook URLs</h4>
+            <div class="webhook-urls">
+              <p class="webhook-description">
+                Configure these URLs in your *arr apps under Settings &rarr; Connect &rarr; Add &rarr; Webhook.
+                Replace <code>&lt;seedsync-address&gt;</code> with your SeedSync server's IP or hostname.
+              </p>
+              <div class="webhook-url-item">
+                <label>Sonarr Webhook URL</label>
+                <div class="webhook-url-display">
+                  <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/sonarr</code>
+                </div>
+              </div>
+              <div class="webhook-url-item">
+                <label>Radarr Webhook URL</label>
+                <div class="webhook-url-display">
+                  <code>http://&lt;seedsync-address&gt;:{{(config | async)?.get('web')?.get('port')}}/server/webhook/radarr</code>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="right">
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_CONNECTIONS">
-            </ng-container>
+      </div>
 
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_DISCOVERY">
-            </ng-container>
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_AUTODELETE">
+      </ng-container>
 
-            <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-            <ng-container
-                *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_OTHER">
-            </ng-container>
-
-        </div>
     </div>
+    <div id="right">
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_CONNECTIONS">
+      </ng-container>
 
-    <div id="commands">
-        <button class="btn btn-primary" type="button"
-                [disabled]="!commandsEnabled"
-                (click)="onCommandRestart()">
-            <img src="assets/icons/refresh.svg" alt="" />
-            <span class="text">Restart</span>
-        </button>
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_DISCOVERY">
+      </ng-container>
+
+      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
+      <ng-container
+        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_OTHER">
+      </ng-container>
+
     </div>
+  </div>
+
+  <div id="commands">
+    <button class="btn btn-primary" type="button"
+      [disabled]="!commandsEnabled"
+      (click)="onCommandRestart()">
+      <img src="assets/icons/refresh.svg" alt="" />
+      <span class="text">Restart</span>
+    </button>
+  </div>
 </div>

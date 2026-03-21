@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from "@angular/core";
-import {NgIf} from "@angular/common";
+
 
 /**
  * Selection banner component that displays when files are selected.
@@ -14,7 +14,7 @@ import {NgIf} from "@angular/common";
     styleUrls: ["./selection-banner.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf]
+    imports: []
 })
 export class SelectionBannerComponent {
 

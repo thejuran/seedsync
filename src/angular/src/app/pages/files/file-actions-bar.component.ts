@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy} from "@angular/core";
-import {NgIf} from "@angular/common";
+
 
 import {ViewFile} from "../../services/files/view-file";
 
@@ -13,7 +13,7 @@ import {ViewFile} from "../../services/files/view-file";
     styleUrls: ["./file-actions-bar.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf]
+    imports: []
 })
 export class FileActionsBarComponent {
     @Input() file: ViewFile | null = null;

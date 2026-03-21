@@ -1,45 +1,46 @@
 <div id="autoqueue">
-    <span id="description" *ngIf="connected">
-
-        <ng-container *ngIf="enabled && patternsOnly">
-            Files matching these patterns will be automatically queued.
-            Wildcards (*) are supported. <br />
-            Add/Remove these patterns below.
-        </ng-container>
-
-        <ng-container *ngIf="enabled && !patternsOnly">
-            Patterns are disabled. <b>All files will be auto-queued.</b><br />
-            To restrict which files are auto-queued, enable patterns in Settings.
-        </ng-container>
-
-        <ng-container *ngIf="!enabled">
-            Auto-Queue is disabled. <br />
-            Enable AutoQueue in Settings to queue files automatically.
-        </ng-container>
+  @if (connected) {
+    <span id="description">
+      @if (enabled && patternsOnly) {
+        Files matching these patterns will be automatically queued.
+        Wildcards (*) are supported. <br />
+        Add/Remove these patterns below.
+      }
+      @if (enabled && !patternsOnly) {
+        Patterns are disabled. <b>All files will be auto-queued.</b><br />
+        To restrict which files are auto-queued, enable patterns in Settings.
+      }
+      @if (!enabled) {
+        Auto-Queue is disabled. <br />
+        Enable AutoQueue in Settings to queue files automatically.
+      }
     </span>
-    <div id="controls" [class.controls-disabled]="!(enabled && patternsOnly)">
-        <div *ngFor="let pattern of patterns | async"
-             class="pattern">
-            <button class="btn btn-outline-danger ghost-btn" type="button"
-                    [disabled]="!(enabled && patternsOnly)"
-                    (click)="onRemovePattern(pattern)">
-                <span>&#8722;</span>
-            </button>
-            <span class="text">{{pattern.pattern}}</span>
-        </div>
-        <div id="add-pattern">
-            <button class="btn btn-outline-success ghost-btn" type="button"
-                    [disabled]="!(newPattern && enabled && patternsOnly)"
-                    (click)="onAddPattern()">
-                <span>&#43;</span>
-            </button>
-            <label>
-                <input type="search"
-                       class="form-control"
-                       (keyup.enter)="(newPattern && enabled && patternsOnly) && onAddPattern()"
-                       [(ngModel)]="newPattern"
-                       [disabled]="!connected || !enabled || !patternsOnly"/>
-            </label>
-        </div>
+  }
+  <div id="controls" [class.controls-disabled]="!(enabled && patternsOnly)">
+    @for (pattern of patterns | async; track pattern) {
+      <div
+        class="pattern">
+        <button class="btn btn-outline-danger ghost-btn" type="button"
+          [disabled]="!(enabled && patternsOnly)"
+          (click)="onRemovePattern(pattern)">
+          <span>&#8722;</span>
+        </button>
+        <span class="text">{{pattern.pattern}}</span>
+      </div>
+    }
+    <div id="add-pattern">
+      <button class="btn btn-outline-success ghost-btn" type="button"
+        [disabled]="!(newPattern && enabled && patternsOnly)"
+        (click)="onAddPattern()">
+        <span>&#43;</span>
+      </button>
+      <label>
+        <input type="search"
+          class="form-control"
+          (keyup.enter)="(newPattern && enabled && patternsOnly) && onAddPattern()"
+          [(ngModel)]="newPattern"
+          [disabled]="!connected || !enabled || !patternsOnly"/>
+      </label>
     </div>
+  </div>
 </div>

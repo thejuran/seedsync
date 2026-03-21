@@ -3,7 +3,7 @@ import {
     ChangeDetectionStrategy, ChangeDetectorRef, Component, ElementRef, HostListener,
     OnDestroy, OnInit, ViewChild, ViewContainerRef
 } from "@angular/core";
-import {NgIf, DatePipe, AsyncPipe} from "@angular/common";
+import { DatePipe, AsyncPipe } from "@angular/common";
 
 import {LogService} from "../../services/logs/log.service";
 import {LogRecord} from "../../services/logs/log-record";
@@ -21,7 +21,7 @@ import {takeUntil} from "rxjs/operators";
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, DatePipe, AsyncPipe]
+    imports: [DatePipe, AsyncPipe]
 })
 export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChecked, OnDestroy {
     public readonly LogRecord = LogRecord;
@@ -111,7 +111,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
         window.scrollTo(0, document.body.scrollHeight);
     }
 
-    @HostListener("window:scroll", ["$event"])
+    @HostListener("window:scroll")
     checkScroll(): void {
         this.refreshScrollButtonVisibility();
     }

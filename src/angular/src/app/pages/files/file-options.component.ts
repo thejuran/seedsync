@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit} from "@angular/core";
-import {NgIf, AsyncPipe} from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
@@ -26,7 +26,7 @@ declare const bootstrap: {
     styleUrls: ["./file-options.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, AsyncPipe, FormsModule]
+    imports: [AsyncPipe, FormsModule]
 })
 export class FileOptionsComponent implements OnInit, OnDestroy {
     public ViewFile = ViewFile;

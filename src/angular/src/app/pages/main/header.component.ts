@@ -1,5 +1,5 @@
 import {Component, OnInit} from "@angular/core";
-import {NgFor, NgIf, AsyncPipe} from "@angular/common";
+import { AsyncPipe } from "@angular/common";
 import {Observable} from "rxjs";
 
 import * as Immutable from "immutable";
@@ -15,7 +15,7 @@ import {Localization} from "../../common/localization";
     selector: "app-header",
     templateUrl: "./header.component.html",
     standalone: true,
-    imports: [NgFor, NgIf, AsyncPipe],
+    imports: [AsyncPipe],
     styleUrls: ["./header.component.scss"],
 })
 

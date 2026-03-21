@@ -1,163 +1,183 @@
 <div id="file-options"
-     [style.top.px]="headerHeight | async">
-    <div id="filter-search">
-        <span class="prompt">&gt;</span>
-        <div class="input-group">
-            <input class="form-control" placeholder="filter by name..." type="search"
-                   [ngModel]="latestOptions?.nameFilter"
-                   (ngModelChange)="onFilterByName($event)">
-        </div>
+  [style.top.px]="headerHeight | async">
+  <div id="filter-search">
+    <span class="prompt">&gt;</span>
+    <div class="input-group">
+      <input class="form-control" placeholder="filter by name..." type="search"
+        [ngModel]="latestOptions?.nameFilter"
+        (ngModelChange)="onFilterByName($event)">
     </div>
+  </div>
 
-    <div id="filter-status" class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown">
-            <div class="title">
-                Status:
-            </div>
-            <div class="selection">
-                <!-- these divs only show the selected option -->
-                <div class="sel-item" id="sel-item-all"
-                     *ngIf="latestOptions?.selectedStatusFilter == null">
-                    <div class="icon"></div>
-                    <span class="text">All ({{ formatCount(null) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED">
-                    <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
-                    <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING">
-                    <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
-                    <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED">
-                    <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
-                    <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING">
-                    <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
-                    <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED">
-                    <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
-                    <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED">
-                    <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
-                    <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
-                </div>
-            </div>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end">
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == null"
-                 (click)="onFilterByStatus(null)">
-                <div class="icon"></div>
-                <span class="text">All ({{ formatCount(null) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED"
-                 [class.disabled]="isExtractedStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTED) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.EXTRACTED) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTED) : null">
-                <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
-                <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING"
-                 [class.disabled]="isExtractingStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTING) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.EXTRACTING) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTING) : null">
-                <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
-                <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED"
-                 [class.disabled]="isDownloadedStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADED) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.DOWNLOADED) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADED) : null">
-                <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
-                <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING"
-                 [class.disabled]="isDownloadingStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADING) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.DOWNLOADING) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADING) : null">
-                <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
-                <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED"
-                 [class.disabled]="isQueuedStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.QUEUED) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.QUEUED) > 0 ? onFilterByStatus(ViewFile.Status.QUEUED) : null">
-                <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
-                <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED"
-                 [class.disabled]="isStoppedStatusEnabled ? null : true"
-                 [attr.aria-disabled]="getCount(ViewFile.Status.STOPPED) === 0 ? true : null"
-                 (click)="getCount(ViewFile.Status.STOPPED) > 0 ? onFilterByStatus(ViewFile.Status.STOPPED) : null">
-                <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
-                <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
-            </div>
-        </div>
+  <div id="filter-status" class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle"
+      type="button"
+      data-bs-toggle="dropdown">
+      <div class="title">
+        Status:
+      </div>
+      <div class="selection">
+        <!-- these divs only show the selected option -->
+        @if (latestOptions?.selectedStatusFilter == null) {
+          <div class="sel-item" id="sel-item-all"
+            >
+            <div class="icon"></div>
+            <span class="text">All ({{ formatCount(null) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
+            <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
+            <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
+            <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
+            <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
+            <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
+          </div>
+        }
+        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
+            <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
+          </div>
+        }
+      </div>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == null"
+        (click)="onFilterByStatus(null)">
+        <div class="icon"></div>
+        <span class="text">All ({{ formatCount(null) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED"
+        [class.disabled]="isExtractedStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTED) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.EXTRACTED) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTED) : null">
+        <div class="icon"><img src="assets/icons/extracted.svg" class="extracted" /></div>
+        <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING"
+        [class.disabled]="isExtractingStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTING) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.EXTRACTING) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTING) : null">
+        <div class="icon"><img src="assets/icons/extracting.svg" class="extracting" /></div>
+        <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED"
+        [class.disabled]="isDownloadedStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADED) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.DOWNLOADED) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADED) : null">
+        <div class="icon"><img src="assets/icons/downloaded.svg" class="downloaded" /></div>
+        <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING"
+        [class.disabled]="isDownloadingStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADING) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.DOWNLOADING) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADING) : null">
+        <div class="icon"><img src="assets/icons/downloading.svg" class="downloading" /></div>
+        <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED"
+        [class.disabled]="isQueuedStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.QUEUED) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.QUEUED) > 0 ? onFilterByStatus(ViewFile.Status.QUEUED) : null">
+        <div class="icon"><img src="assets/icons/queued.svg" class="queued" /></div>
+        <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED"
+        [class.disabled]="isStoppedStatusEnabled ? null : true"
+        [attr.aria-disabled]="getCount(ViewFile.Status.STOPPED) === 0 ? true : null"
+        (click)="getCount(ViewFile.Status.STOPPED) > 0 ? onFilterByStatus(ViewFile.Status.STOPPED) : null">
+        <div class="icon"><img src="assets/icons/stopped.svg" class="stopped" /></div>
+        <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
+      </div>
     </div>
+  </div>
 
-    <div id="sort-status" class="dropdown">
-        <button class="btn btn-secondary dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown">
-            <div class="title">
-                Sort:
-            </div>
-            <div class="selection">
-                <!-- these divs only show the selected option -->
-                <div class="sel-item"
-                     *ngIf="latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS">
-                    <div class="icon"><img src="assets/icons/states.svg" class="states" /></div>
-                    <span class="text">Status</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC">
-                    <div class="icon"><img src="assets/icons/sort-asc.svg" class="sort-asc" /></div>
-                    <span class="text">Name A&#8594;Z</span>
-                </div>
-                <div class="sel-item"
-                     *ngIf="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC">
-                    <div class="icon"><img src="assets/icons/sort-desc.svg" class="sort-desc" /></div>
-                    <span class="text">Name Z&#8594;A</span>
-                </div>
-            </div>
-        </button>
-        <div class="dropdown-menu dropdown-menu-end">
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS"
-                 (click)="onSort(ViewFileOptions.SortMethod.STATUS)">
-                <div class="icon"><img src="assets/icons/states.svg" class="states" /></div>
-                <span class="text">Status</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC"
-                 (click)="onSort(ViewFileOptions.SortMethod.NAME_ASC)">
-                <div class="icon"><img src="assets/icons/sort-asc.svg" class="sort-asc" /></div>
-                <span class="text">Name A&#8594;Z</span>
-            </div>
-            <div class="dropdown-item"
-                 [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC"
-                 (click)="onSort(ViewFileOptions.SortMethod.NAME_DESC)">
-                <div class="icon"><img src="assets/icons/sort-desc.svg" class="sort-desc" /></div>
-                <span class="text">Name Z&#8594;A</span>
-            </div>
-        </div>
+  <div id="sort-status" class="dropdown">
+    <button class="btn btn-secondary dropdown-toggle"
+      type="button"
+      data-bs-toggle="dropdown">
+      <div class="title">
+        Sort:
+      </div>
+      <div class="selection">
+        <!-- these divs only show the selected option -->
+        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/states.svg" class="states" /></div>
+            <span class="text">Status</span>
+          </div>
+        }
+        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/sort-asc.svg" class="sort-asc" /></div>
+            <span class="text">Name A&#8594;Z</span>
+          </div>
+        }
+        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC) {
+          <div class="sel-item"
+            >
+            <div class="icon"><img src="assets/icons/sort-desc.svg" class="sort-desc" /></div>
+            <span class="text">Name Z&#8594;A</span>
+          </div>
+        }
+      </div>
+    </button>
+    <div class="dropdown-menu dropdown-menu-end">
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS"
+        (click)="onSort(ViewFileOptions.SortMethod.STATUS)">
+        <div class="icon"><img src="assets/icons/states.svg" class="states" /></div>
+        <span class="text">Status</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC"
+        (click)="onSort(ViewFileOptions.SortMethod.NAME_ASC)">
+        <div class="icon"><img src="assets/icons/sort-asc.svg" class="sort-asc" /></div>
+        <span class="text">Name A&#8594;Z</span>
+      </div>
+      <div class="dropdown-item"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC"
+        (click)="onSort(ViewFileOptions.SortMethod.NAME_DESC)">
+        <div class="icon"><img src="assets/icons/sort-desc.svg" class="sort-desc" /></div>
+        <span class="text">Name Z&#8594;A</span>
+      </div>
     </div>
+  </div>
 </div>

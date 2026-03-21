@@ -1,16 +1,19 @@
 <div id="header">
-    <div *ngFor="let notif of notifications | async"
-         class="alert"
-         [class.alert-danger]="notif.level == Notification.Level.DANGER"
-         [class.alert-warning]="notif.level == Notification.Level.WARNING"
-         [class.alert-info]="notif.level == Notification.Level.INFO"
-         [class.alert-success]="notif.level == Notification.Level.SUCCESS"
-         [class.alert-dismissible]="notif.dismissible">
+  @for (notif of notifications | async; track notif) {
+    <div
+      class="alert"
+      [class.alert-danger]="notif.level == Notification.Level.DANGER"
+      [class.alert-warning]="notif.level == Notification.Level.WARNING"
+      [class.alert-info]="notif.level == Notification.Level.INFO"
+      [class.alert-success]="notif.level == Notification.Level.SUCCESS"
+      [class.alert-dismissible]="notif.dismissible">
+      @if (notif.dismissible) {
         <button type="button" class="btn-close"
-                *ngIf="notif.dismissible"
-                (click)="dismiss(notif)"
-                aria-label="Close">
+          (click)="dismiss(notif)"
+          aria-label="Close">
         </button>
-        <span [innerHTML]="notif.text"></span>
+      }
+      <span [innerHTML]="notif.text"></span>
     </div>
+  }
 </div>

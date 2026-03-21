@@ -3,7 +3,7 @@ import {
     EventEmitter, OnChanges, SimpleChanges, ViewChild, ElementRef,
     inject, computed, AfterViewInit, HostBinding
 } from "@angular/core";
-import {NgIf, DatePipe} from "@angular/common";
+import { DatePipe } from "@angular/common";
 
 import {CapitalizePipe} from "../../common/capitalize.pipe";
 import {EtaPipe} from "../../common/eta.pipe";
@@ -33,7 +33,7 @@ import {FileSelectionService} from "../../services/files/file-selection.service"
     styleUrls: ["./file.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf, DatePipe, CapitalizePipe, EtaPipe, FileSizePipe, ClickStopPropagationDirective]
+    imports: [DatePipe, CapitalizePipe, EtaPipe, FileSizePipe, ClickStopPropagationDirective]
 })
 export class FileComponent implements OnChanges, AfterViewInit {
     // Inject FileSelectionService for signal-based selection

@@ -1,5 +1,5 @@
 import {Component, Input, Output, EventEmitter, ChangeDetectionStrategy, OnChanges, SimpleChanges} from "@angular/core";
-import {NgIf} from "@angular/common";
+
 
 import {List} from "immutable";
 
@@ -34,7 +34,7 @@ export interface BulkActionCounts {
     styleUrls: ["./bulk-actions-bar.component.scss"],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgIf]
+    imports: []
 })
 export class BulkActionsBarComponent implements OnChanges {
 

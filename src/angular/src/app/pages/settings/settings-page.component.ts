@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from "@angular/core";
-import {NgFor, NgIf, NgTemplateOutlet, AsyncPipe} from "@angular/common";
+import { NgTemplateOutlet, AsyncPipe } from "@angular/common";
 import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
@@ -27,7 +27,7 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgFor, NgIf, NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
+    imports: [NgTemplateOutlet, AsyncPipe, ClickStopPropagationDirective, OptionComponent]
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;
