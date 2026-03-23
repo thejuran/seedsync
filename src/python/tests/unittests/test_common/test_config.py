@@ -389,7 +389,7 @@ class TestConfig(unittest.TestCase):
 
     def test_from_file(self):
         # Create empty config file
-        config_file = open(tempfile.mktemp(suffix="test_config"), "w")
+        config_file = tempfile.NamedTemporaryFile(mode="w", suffix="test_config", delete=False)
 
         config_file.write("""
         [General]
@@ -477,7 +477,7 @@ class TestConfig(unittest.TestCase):
         os.remove(config_file.name)
 
     def test_to_file(self):
-        config_file_path = tempfile.mktemp(suffix="test_config")
+        config_file_path = tempfile.NamedTemporaryFile(suffix="test_config", delete=False).name
 
         config = Config()
         config.general.debug = True
