@@ -1,4 +1,4 @@
-// Forward Bootstrap variables to components (makes them accessible via @use '../../common/common' as *)
+// Forward Bootstrap variables to components
 @forward 'bootstrap-variables';
 
 // Local access to Bootstrap variables with namespace
@@ -7,18 +7,7 @@
 // ============================================================================
 // Bootstrap Semantic Color Variables (for component use)
 // ============================================================================
-// These Bootstrap variables are defined in node_modules/bootstrap/scss/_variables.scss
-// but are not accessible to component files using @use '../../common/common'.
-// We re-export them here so component SCSS files can use them.
-
-// Theme colors (already defined in _bootstrap-variables.scss, but re-exported for clarity)
-// These are available, but listing them here for documentation
-// $primary, $secondary, $success, $danger, $warning, $info
-
-// Dark-mode semantic colors (static values replacing light-mode tint/shade)
-// Previously used fn.shade-color/fn.tint-color which produce light-mode-appropriate values.
-// Since we're dark-only now, use direct RGBA values that work on dark backgrounds.
-// These variables are consumed by file list status badges (autoqueue, logs components).
+// Functional status colors — these stay as semantic colors, not themed
 $warning-text-emphasis: #f0883e;                    // Amber on dark
 $danger-text-emphasis: #f85149;                     // Red on dark
 $warning-bg-subtle: rgba(240, 136, 62, 0.15);       // Subtle amber
@@ -26,10 +15,10 @@ $danger-bg-subtle: rgba(248, 81, 73, 0.15);         // Subtle red
 $warning-border-subtle: rgba(240, 136, 62, 0.4);    // Amber border
 $danger-border-subtle: rgba(248, 81, 73, 0.4);      // Red border
 
-// Bootstrap gray scale — dark-only values
-$gray-100: #161b22;   // Surface (dark mode elevated surface)
-$gray-300: #30363d;   // Border (dark mode border)
-$gray-800: #c9d1d9;   // Text (dark mode secondary text)
+// Bootstrap gray scale — Earthy Palette
+$gray-100: #583e23;   // Deep Walnut — elevated surface
+$gray-300: #3d4a52;   // Earthy border
+$gray-800: #d4d0e8;   // Muted lavender — secondary text
 
 // ============================================================================
 // Layout Variables

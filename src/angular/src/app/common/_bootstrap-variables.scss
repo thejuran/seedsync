@@ -5,71 +5,57 @@
 // ============================================================================
 // Font Family Overrides
 // ============================================================================
-// Override Bootstrap defaults to use Terminal/Hacker palette fonts
-// Bootstrap's _root.scss emits these as --bs-font-sans-serif and --bs-font-monospace
-$font-family-sans-serif: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
-$font-family-monospace: 'Fira Code', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+// System font stack — no external font dependencies
+$font-family-sans-serif: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 $input-btn-font-family: $font-family-sans-serif;
 
 // ============================================================================
-// Dark Body Colors
+// Dark Body Colors — Earthy Palette
 // ============================================================================
-// Override Bootstrap's _variables-dark.scss defaults (#212529 bg, #dee2e6 text)
-$body-bg-dark: #0d1117;       // Terminal deep background
-$body-color-dark: #e6edf3;    // Terminal primary text
+$body-bg-dark: #13262f;       // Jet Black — deep background
+$body-color-dark: #e9e6ff;    // Lavender — primary text
 
 // ============================================================================
-// Bootstrap Theme Colors (Terminal/Hacker palette)
+// Bootstrap Theme Colors — Earthy Palette + Functional Status Colors
 // ============================================================================
-$primary: #3fb950;    // GitHub green (readable)
-$secondary: #8b949e;  // Muted gray
-$success: #238636;    // Muted green
-$danger: #f85149;     // GitHub red
-$warning: #f0883e;    // Amber
-$info: #58a6ff;       // Blue accent
+$primary: #73683b;    // Olive Bark — accent/active
+$secondary: #b0a084;  // Khaki Beige — muted
+$success: #238636;    // Functional: muted green (status)
+$danger: #f85149;     // Functional: red (status)
+$warning: #f0883e;    // Functional: amber (status)
+$info: #58a6ff;       // Functional: blue (status)
 
 // ============================================================================
-// Application-specific color variables
+// Application-specific color variables — Earthy Palette
 // ============================================================================
 $primary-color: $primary;
-$primary-dark-color: #238636;       // Muted green
+$primary-dark-color: #583e23;       // Deep Walnut
 
 $secondary-color: $secondary;
-$secondary-dark-color: #6e7681;     // Darker gray
-$secondary-darker-color: #484f58;   // Even darker
+$secondary-dark-color: #8a7a5e;     // Darker beige
+$secondary-darker-color: #6b5d44;   // Even darker beige
 
-$logo-color: #3fb950;
-$logo-font: 'Fira Code', monospace;
+$logo-color: #73683b;              // Olive Bark
+$logo-font: $font-family-sans-serif;
 
 // ============================================================================
 // Component Active States (forms, checkboxes, buttons)
 // ============================================================================
-// Green active state for Terminal palette
-$component-active-bg: #3fb950;       // Green
-$component-active-color: #0d1117;    // Dark text on green
+$component-active-bg: #73683b;       // Olive Bark
+$component-active-color: #e9e6ff;    // Lavender text on olive
 
 // ============================================================================
 // Form Input Styling
 // ============================================================================
-// Terminal border color
-$input-border-color: #30363d;        // Terminal border
+$input-border-color: #3d4a52;        // Earthy border (lighter than bg)
 
-// Focus states (uses component-active via cascade)
-// These inherit from $component-active-bg automatically:
-// - $input-focus-border-color: tint-color($component-active-bg, 50%)
-// - $input-btn-focus-color: rgba($component-active-bg, 0.25)
-
-// Focus ring settings (outer glow effect per user decision)
-$focus-ring-width: 0.25rem;                // 4px standard prominence
-$focus-ring-opacity: 0.25;                 // 25% alpha for subtle glow
+// Focus ring settings
+$focus-ring-width: 0.25rem;
+$focus-ring-opacity: 0.25;
 $input-btn-focus-width: $focus-ring-width;
 
 // ============================================================================
 // Checkbox Styling
 // ============================================================================
-// Checked state (inherits from component-active automatically)
-// - $form-check-input-checked-bg-color: $component-active-bg
-// - $form-check-input-checked-border-color: $component-active-bg
-
-// Disabled state
-$form-check-input-disabled-opacity: 0.5;   // 50% opacity for disabled checkboxes
+$form-check-input-disabled-opacity: 0.5;

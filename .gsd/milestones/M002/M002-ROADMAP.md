@@ -56,7 +56,7 @@ This milestone is complete only when all are true:
 
 - [x] **S01: API Token Authentication** `risk:high` `depends:[]`
   > After this: curl to /server/* without token gets 401; Angular UI loads, authenticates via injected Bearer token, and all pages work; SSE streams deliver events; webhooks still work without Bearer token
-- [ ] **S02: CONF-04 Fix + DNS Rebinding Prevention** `risk:medium` `depends:[S01]`
+- [x] **S02: CONF-04 Fix + DNS Rebinding Prevention** `risk:medium` `depends:[S01]`
   > After this: Settings UI shows real config values (not **REDACTED**); Host header from unknown origin returns 400; reverse proxy hostname is configurable in settings
 - [ ] **S03: CSP Hardening** `risk:medium` `depends:[S01]`
   > After this: CSP has no unsafe-inline; Angular app runs fully under strict hash-based CSP; zero CSP violations in browser console across all pages

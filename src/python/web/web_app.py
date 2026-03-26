@@ -87,14 +87,32 @@ class WebApp(bottle.Bottle):
         self._index_html_template = self._load_index_html()
 
         @self.hook('before_request')
-        def _check_auth():
-            """Validate Bearer token on /server/* API endpoints."""
+        def _check_host_and_auth():
+            """Validate Host header and Bearer token on /server/* API endpoints."""
             path = bottle.request.path
 
             # Only protect /server/* paths
             if not path.startswith("/server/"):
                 bottle.request.auth_valid = True
                 return
+
+            # --- Host header validation (R009, R010, R011) ---
+            host = bottle.request.get_header("Host", "")
+            # Strip port from Host header
+            if ":" in host and not host.startswith("["):
+                host = host.rsplit(":", 1)[0]
+            elif host.startswith("[") and "]:" in host:
+                host = host.rsplit(":", 1)[0]
+
+            allowed_hosts = {"localhost", "127.0.0.1", "[::1]"}
+            if self._config and self._config.general.allowed_hostname:
+                allowed_hosts.add(self._config.general.allowed_hostname)
+
+            if host not in allowed_hosts:
+                bottle.abort(400)
+                return
+
+            # --- Bearer token auth ---
 
             # Exempt paths
             if path in WebApp._AUTH_EXEMPT_PATHS:

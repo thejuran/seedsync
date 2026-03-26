@@ -237,6 +237,7 @@ class Config(Persist):
         verbose = PROP("verbose", Checkers.null, Converters.bool)
         webhook_secret = PROP("webhook_secret", Checkers.null, Converters.null)
         api_token = PROP("api_token", Checkers.null, Converters.null)
+        allowed_hostname = PROP("allowed_hostname", Checkers.null, Converters.null)
 
         def __init__(self):
             super().__init__()
@@ -244,6 +245,7 @@ class Config(Persist):
             self.verbose = None
             self.webhook_secret = None
             self.api_token = None
+            self.allowed_hostname = None
 
     class Lftp(IC):
         remote_address = PROP("remote_address", Checkers.string_nonempty, Converters.null)
@@ -421,6 +423,8 @@ class Config(Persist):
         # Backward compatibility: api_token added in v3.2 — default to empty string
         if "api_token" not in general_dict:
             general_dict["api_token"] = ""
+        if "allowed_hostname" not in general_dict:
+            general_dict["allowed_hostname"] = ""
         config.general = Config.General.from_dict(general_dict)
         config.lftp = Config.Lftp.from_dict(Config._check_section(config_dict, "Lftp"))
         config.controller = Config.Controller.from_dict(Config._check_section(config_dict, "Controller"))

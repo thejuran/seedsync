@@ -1,17 +1,11 @@
 // =============================================================================
 // SECTION 1: Application Modules (@use -- modern Sass module system)
-// These modules were migrated from @import to @use/@forward in Phase 12-13.
-// Using @use eliminates application deprecation warnings.
-// @use rules MUST appear before any @import or style rules (Sass spec).
 // =============================================================================
 @use 'app/common/bootstrap-overrides';
 @use 'app/common/common';
 
 // =============================================================================
 // SECTION 2: Bootstrap Core (@import -- required by Bootstrap 5.3)
-// Bootstrap 5.3 uses @import internally and is not compatible with @use.
-// Deprecation warnings from Bootstrap are accepted as external dependency noise.
-// This hybrid approach will be revisited when Bootstrap 6 adds @use support.
 // =============================================================================
 
 // 1. Bootstrap functions (required for variable calculations)
@@ -77,46 +71,43 @@ html {
 }
 
 html, body {
-    font-family: 'IBM Plex Sans', var(--bs-font-sans-serif);
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     font-size: 15px;
     line-height: 1.5;
     margin: 0;
-    background-color: var(--bs-body-bg, #0d1117);
+    background-color: var(--bs-body-bg, #13262f);
 }
 
 // ============================================================================
-// SECTION 5: App CSS Custom Properties — Terminal/Hacker Palette (dark-only)
+// SECTION 5: App CSS Custom Properties — Earthy Palette (dark-only)
 // ============================================================================
-// Components use var(--app-*) for colors that Bootstrap doesn't provide.
-// Single palette — no light/dark switching. Phase 37 removes ThemeService.
 
 :root {
   // Layout backgrounds
-  --app-header-bg: #161b22;
-  --app-top-header-bg: #0d1117;
-  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.7);
+  --app-header-bg: #583e23;
+  --app-top-header-bg: #13262f;
 
   // File list
-  --app-file-header-bg: #161b22;
-  --app-file-header-color: #3fb950;
-  --app-file-row-even: #161b22;
-  --app-file-border-color: #30363d;
-  --app-bulk-overlay-bg: rgba(13, 17, 23, 0.85);
+  --app-file-header-bg: #583e23;
+  --app-file-header-color: #73683b;
+  --app-file-row-even: rgba(88, 62, 35, 0.3);
+  --app-file-border-color: #3d4a52;
+  --app-bulk-overlay-bg: rgba(19, 38, 47, 0.85);
 
   // Text
-  --app-logo-color: #3fb950;
-  --app-muted-text: #8b949e;
-  --app-separator-color: #484f58;
+  --app-logo-color: #73683b;
+  --app-muted-text: #b0a084;
+  --app-separator-color: #6b5d44;
 
   // Accents
-  --app-accent-teal-border: #238636;
+  --app-accent-teal-border: #73683b;
 
-  // Selection/accent (green) — used for selected rows, action bars, banners
-  --app-selection-bg: #238636;
-  --app-selection-bg-subtle: rgba(63, 185, 80, 0.1);
-  --app-selection-bg-alpha: rgba(63, 185, 80, 0.15);
-  --app-selection-border: #3fb950;
-  --app-selection-text-emphasis: #3fb950;
+  // Selection/accent — Olive Bark
+  --app-selection-bg: #73683b;
+  --app-selection-bg-subtle: rgba(115, 104, 59, 0.1);
+  --app-selection-bg-alpha: rgba(115, 104, 59, 0.15);
+  --app-selection-border: #73683b;
+  --app-selection-text-emphasis: #e9e6ff;
 }
 
 /* show the input search cancel button */
@@ -125,56 +116,14 @@ input[type=search]::-webkit-search-cancel-button {
 }
 
 div {
-    /*border: 1px solid black;*/
-    /* make padding and border inside box */
     box-sizing: border-box;
 }
 
 // ============================================================================
-// SECTION 6: Terminal Effects — CRT Overlay, Animations, Utility Classes
+// SECTION 6: (Reserved — terminal effects removed)
 // ============================================================================
 
-// CRT scan-line overlay — subtle horizontal lines across entire viewport
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 9999;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.03) 0px,
-    rgba(0, 0, 0, 0.03) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-}
-
-// Keyframe animations (used by Phases 34-36 for terminal effects)
-@keyframes cursor-blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0; }
-}
-
-@keyframes green-pulse {
-  0%, 100% { box-shadow: 0 0 4px rgba(0, 255, 65, 0.3); }
-  50% { box-shadow: 0 0 12px rgba(0, 255, 65, 0.6); }
-}
-
-// Utility classes (used by Phases 34-36 for terminal styling)
-.glow-green {
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
-}
-
-.text-terminal {
-  font-family: var(--bs-font-monospace);
-  color: #3fb950;
-}
-
-.cursor-blink::after {
-  content: '_';
-  animation: cursor-blink 1s step-end infinite;
+/* Toast container z-index */
+.toast-container {
+    z-index: 1090;
 }

@@ -300,6 +300,7 @@ class Seedsync:
         config.general.verbose = False
         config.general.webhook_secret = ""
         config.general.api_token = secrets.token_urlsafe(32)
+        config.general.allowed_hostname = ""
 
         config.lftp.remote_address = Seedsync.__CONFIG_DUMMY_VALUE
         config.lftp.remote_username = Seedsync.__CONFIG_DUMMY_VALUE

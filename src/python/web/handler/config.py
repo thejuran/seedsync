@@ -7,6 +7,7 @@ from typing import Optional
 from urllib.parse import urlparse, unquote
 
 import requests
+import bottle
 from bottle import HTTPResponse
 
 from common import overrides, Config, ConfigError
@@ -53,7 +54,8 @@ class ConfigHandler(IHandler):
         return None
 
     def __handle_get_config(self):
-        out_json = SerializeConfig.config(self.__config)
+        authenticated = getattr(bottle.request, 'auth_valid', False)
+        out_json = SerializeConfig.config(self.__config, authenticated=authenticated)
         return HTTPResponse(body=out_json)
 
     def __handle_set_config(self, section: str, key: str, value: str):
