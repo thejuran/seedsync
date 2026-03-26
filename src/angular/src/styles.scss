@@ -108,6 +108,9 @@ html, body {
   --app-selection-bg-alpha: rgba(115, 104, 59, 0.15);
   --app-selection-border: #73683b;
   --app-selection-text-emphasis: #e9e6ff;
+
+  // Sidebar overlay
+  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.7);
 }
 
 /* show the input search cancel button */
@@ -118,10 +121,6 @@ input[type=search]::-webkit-search-cancel-button {
 div {
     box-sizing: border-box;
 }
-
-// ============================================================================
-// SECTION 6: (Reserved — terminal effects removed)
-// ============================================================================
 
 /* Toast container z-index */
 .toast-container {

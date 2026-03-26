@@ -81,11 +81,17 @@ class TestWebAppSecurityHeaders(unittest.TestCase):
         self.assertIn("default-src 'self'", csp)
 
     def test_csp_header_contains_required_directives(self):
-        """CSP header must include key directives for a web app."""
+        """CSP header must include complementary directives (R014).
+        script-src and style-src are handled by Angular autoCsp meta tag."""
         response = self.client.get("/test/ping")
         csp = response.headers["Content-Security-Policy"]
-        self.assertIn("script-src", csp)
         self.assertIn("frame-ancestors 'none'", csp)
+        self.assertIn("font-src", csp)
+        self.assertIn("connect-src", csp)
+        # script-src and style-src NOT in Bottle CSP — handled by autoCsp (R015)
+        self.assertNotIn("script-src", csp)
+        self.assertNotIn("style-src", csp)
+        self.assertNotIn("unsafe-inline", csp)
 
     def test_response_has_x_frame_options(self):
         """X-Frame-Options: DENY must be present on every response."""

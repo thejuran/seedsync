@@ -1,39 +1,37 @@
-// Bootstrap post-compilation overrides
+// Bootstrap post-compilation overrides — Earthy Palette
 // These are imported AFTER Bootstrap components are compiled
-// Use for overriding specific Bootstrap component styles
 
 @use 'bootstrap-variables' as bv;
 @use 'bootstrap/scss/functions' as fn;
 
-// Bootstrap modal customization (migrated from styles.scss)
+// Bootstrap modal customization
 .modal-body {
-    /* break up long text */
     overflow-wrap: normal;
     hyphens: auto;
     word-break: break-word;
 }
 
-// Dropdown theme — Terminal palette (dark-only, no guard needed)
+// Dropdown theme — Earthy Palette
 .dropdown-menu {
-  --bs-dropdown-bg: #161b22;
-  --bs-dropdown-border-color: #30363d;
+  --bs-dropdown-bg: #583e23;
+  --bs-dropdown-border-color: #3d4a52;
   --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
 
-  --bs-dropdown-link-color: #e6edf3;
-  --bs-dropdown-link-hover-color: #e6edf3;
-  --bs-dropdown-link-hover-bg: #238636;
-  --bs-dropdown-link-active-color: #ffffff;
-  --bs-dropdown-link-active-bg: #3fb950;
-  --bs-dropdown-link-disabled-color: rgba(255, 255, 255, 0.4);
+  --bs-dropdown-link-color: #e9e6ff;
+  --bs-dropdown-link-hover-color: #e9e6ff;
+  --bs-dropdown-link-hover-bg: #73683b;
+  --bs-dropdown-link-active-color: #e9e6ff;
+  --bs-dropdown-link-active-bg: #73683b;
+  --bs-dropdown-link-disabled-color: rgba(233, 230, 255, 0.4);
 }
 
 // Toggle button pressed/open state
 .dropdown-toggle.show {
-  background-color: #238636;
-  border-color: #3fb950;
+  background-color: #73683b;
+  border-color: #73683b;
 }
 
-// Dropdown fade animation (~150ms per user decision)
+// Dropdown fade animation
 .dropdown-menu {
   opacity: 0;
   transition: opacity 0.15s ease-in-out;
@@ -43,41 +41,40 @@
   opacity: 1;
 }
 
-// Dropdown item hover transition (~100ms per user decision)
+// Dropdown item hover transition
 .dropdown-item {
   transition: background-color 0.1s ease-in-out;
 }
 
 // ============================================================================
-// Theme-Aware Form Styling
+// Form Styling — Earthy Palette
 // ============================================================================
-// Form controls — Terminal palette (dark-only, no guard needed)
 .form-control {
-  background-color: #0d1117;
-  color: #e6edf3;
-  border-color: #30363d;
+  background-color: #13262f;
+  color: #e9e6ff;
+  border-color: #3d4a52;
 
   &::placeholder {
-    color: #8b949e;
+    color: #b0a084;
   }
 
   &:focus {
-    background-color: #0d1117;
-    color: #e6edf3;
+    background-color: #13262f;
+    color: #e9e6ff;
   }
 
   &:disabled {
-    background-color: #161b22;
+    background-color: #583e23;
     opacity: 0.65;
   }
 }
 
 .form-check-input {
-  background-color: #0d1117;
-  border-color: #30363d;
+  background-color: #13262f;
+  border-color: #3d4a52;
 
   &:focus {
-    border-color: #3fb950;
+    border-color: #73683b;
   }
 
   &:disabled {
@@ -86,7 +83,7 @@
 }
 
 // ============================================================================
-// Custom Scrollbars — Terminal Palette
+// Custom Scrollbars — Earthy Palette
 // ============================================================================
 
 // Webkit (Chrome, Safari, Edge)
@@ -95,19 +92,19 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d1117;
+  background: #13262f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #30363d;
+  background: #3d4a52;
   border-radius: 4px;
 
   &:hover {
-    background: #3fb950;
+    background: #73683b;
   }
 }
 
 // Firefox
 * {
-  scrollbar-color: #30363d #0d1117;
+  scrollbar-color: #3d4a52 #13262f;
   scrollbar-width: thin;
 }

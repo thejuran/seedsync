@@ -41,7 +41,10 @@
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
             ],
-            "browser": "src/main.ts"
+            "browser": "src/main.ts",
+            "security": {
+              "autoCsp": true
+            }
           },
           "configurations": {
             "production": {

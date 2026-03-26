@@ -145,11 +145,12 @@ class WebApp(bottle.Bottle):
 
         @self.hook('after_request')
         def _add_security_headers():
+            # CSP scoped to directives NOT covered by Angular autoCsp (R014).
+            # autoCsp handles script-src and style-src via meta tag with hashes.
+            # Bottle only sets complementary directives to avoid conflicts.
             bottle.response.set_header(
                 'Content-Security-Policy',
                 "default-src 'self'; "
-                "script-src 'self' 'unsafe-inline'; "
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
                 "font-src 'self' https://fonts.gstatic.com; "
                 "connect-src 'self' https://api.github.com; "
                 "img-src 'self' data:; "
