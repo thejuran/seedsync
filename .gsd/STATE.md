@@ -1,20 +1,30 @@
 # GSD State
 
-**Active Milestone:** M002 — Finish v3.2 Security
-**Active Slice:** S02 — CONF-04 Fix + DNS Rebinding Prevention
+**Active Milestone:** M003 — UI Redesign — Earthy Palette
+**Active Slice:** none
 **Active Task:** none
 **Phase:** planning
-**Slice Branch:** gsd/M002/S02
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Plan S02 tasks
+**Next Action:** Plan S01 tasks (create slice plan and task plans)
 **Last Updated:** 2026-03-25
-**Requirements Status:** 8 validated · 8 active · 1 deferred · 3 out of scope
+
+**Note:** M002 (Finish v3.2 Security) is being worked on by another GSD instance on branch `gsd/M002/S01`. M003 is independent frontend work — branch from master, not from M002.
 
 ## Recent Decisions
 
-- D001: CONF-04 fix — return unredacted config for authenticated requests
-- D004: Host allowlist — localhost variants only, user configures reverse proxy hostname
+- D007: Top nav bar replacing sidebar (matches Triggarr)
+- D008: System font stack, no Google Fonts
+- D009: Earthy 5-color palette (#13262f, #583e23, #73683b, #b0a084, #e9e6ff)
+- D010: Remove all terminal/hacker theming
+- D011: Remove all SVG icons, text-only UI
 
 ## Blockers
 
-- (none)
+- None
+
+## Requirements Status
+
+- 19 active (R021–R039)
+- 0 validated
+- 1 deferred (R040 — toast redesign)
+- 2 out of scope (R041, R042)

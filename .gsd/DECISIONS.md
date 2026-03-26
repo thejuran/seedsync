@@ -18,3 +18,11 @@ Added `.github/dependabot.yml` ignoring major bumps for Angular, TypeScript, web
 | D004 | M002 | arch | Host allowlist default | localhost, 127.0.0.1, [::1] only + configurable | Minimal default; user adds reverse proxy hostname | No |
 | D005 | M002 | arch | CSP strategy | autoCsp (hash-based) + scoped Bottle header | No server-side nonce logic needed; set-and-forget | No |
 | D006 | M002 | convention | External fonts | Keep Google Fonts CDN in CSP allowlist | Existing UI depends on them; bundling is out of scope | Yes — if self-hosting needed |
+| D007 | M003 | arch | Navigation pattern | Top nav bar replacing sidebar | Matches Triggarr's pattern for visual kinship | No |
+| D008 | M003 | convention | Typography | System font stack, no Google Fonts | Removes external dependency, faster load (supersedes D006 for fonts) | No |
+| D009 | M003 | convention | Color palette | Earthy 5-color palette (#13262f, #583e23, #73683b, #b0a084, #e9e6ff) | User-specified palette for visual differentiation from Triggarr | No |
+| D010 | M003 | convention | Terminal effects | Remove all terminal/hacker theming | CRT, ASCII art, prompts, glows — none preserved | No |
+| D011 | M003 | convention | Icons | Remove all SVG icons, text-only UI | Clean minimal aesthetic; status dots for filter dropdowns | No |
+| D012 | M003 | convention | Status colors | Keep functional green/amber/red/blue | Semantic colors independent of theme palette | No |
+| D013 | M003 | convention | Progress display | Percentage + size text replacing ASCII bar | Clean text over decorative ASCII visualization | No |
+| D014 | M003 | convention | Branding | Text-only "SeedSync" in accent color, no logo image | Matches Triggarr's text branding pattern | No |
