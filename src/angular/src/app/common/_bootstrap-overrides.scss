@@ -14,7 +14,7 @@
 // Dropdown theme — Earthy Palette
 .dropdown-menu {
   --bs-dropdown-bg: #583e23;
-  --bs-dropdown-border-color: #3d4a52;
+  --bs-dropdown-border-color: #{bv.$earthy-border};
   --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
 
   --bs-dropdown-link-color: #e9e6ff;
@@ -52,7 +52,7 @@
 .form-control {
   background-color: #13262f;
   color: #e9e6ff;
-  border-color: #3d4a52;
+  border-color: #{bv.$earthy-border};
 
   &::placeholder {
     color: #b0a084;
@@ -71,7 +71,7 @@
 
 .form-check-input {
   background-color: #13262f;
-  border-color: #3d4a52;
+  border-color: #{bv.$earthy-border};
 
   &:focus {
     border-color: #73683b;
@@ -95,7 +95,7 @@
   background: #13262f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #3d4a52;
+  background: #{bv.$earthy-border};
   border-radius: 4px;
 
   &:hover {
@@ -105,6 +105,6 @@
 
 // Firefox
 * {
-  scrollbar-color: #3d4a52 #13262f;
+  scrollbar-color: #{bv.$earthy-border} #13262f;
   scrollbar-width: thin;
 }

@@ -3,6 +3,7 @@
 from typing import Type, Callable, Optional
 from abc import ABC, abstractmethod
 import hmac
+import html as html_mod
 import os
 import time
 
@@ -151,7 +152,7 @@ class WebApp(bottle.Bottle):
             bottle.response.set_header(
                 'Content-Security-Policy',
                 "default-src 'self'; "
-                "font-src 'self' https://fonts.gstatic.com; "
+                "font-src 'self'; "
                 "connect-src 'self' https://api.github.com; "
                 "img-src 'self' data:; "
                 "frame-ancestors 'none'"
@@ -218,7 +219,8 @@ class WebApp(bottle.Bottle):
     def _inject_meta_tag(self, html: str) -> str:
         """Inject api-token meta tag into the HTML before </head>."""
         api_token = self._config.general.api_token if self._config else ""
-        meta_tag = '<meta name="api-token" content="{}">'.format(api_token or "")
+        safe_token = html_mod.escape(api_token or "", quote=True)
+        meta_tag = '<meta name="api-token" content="{}">'.format(safe_token)
         return html.replace("</head>", "    {}\n</head>".format(meta_tag), 1)
 
     def __index(self):

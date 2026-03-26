@@ -41,8 +41,11 @@ def _make_minimal_web_app(html_path: str = "/tmp") -> WebApp:
 
 
 def _make_web_app_with_index(api_token: str = "", html_content: str = _TEST_INDEX_HTML):
-    """Create a WebApp with a real index.html in a temp dir and config."""
-    tmpdir = tempfile.mkdtemp()
+    """Create a WebApp with a real index.html in a temp dir and config.
+    Returns (app, tmp_dir_obj) — caller should call tmp_dir_obj.cleanup() or use
+    the returned tmpdir.name path. The TemporaryDirectory auto-cleans on GC."""
+    tmp_dir_obj = tempfile.TemporaryDirectory()
+    tmpdir = tmp_dir_obj.name
     with open(os.path.join(tmpdir, "index.html"), "w") as f:
         f.write(html_content)
 
@@ -58,7 +61,7 @@ def _make_web_app_with_index(api_token: str = "", html_content: str = _TEST_INDE
 
     app = WebApp(context=mock_context, controller=mock_controller, config=mock_config)
     app.add_default_routes()
-    return app, tmpdir
+    return app, tmp_dir_obj
 
 
 class TestWebAppSecurityHeaders(unittest.TestCase):
@@ -135,53 +138,53 @@ class TestWebAppMetaTagInjection(unittest.TestCase):
 
     def test_index_contains_meta_tag_with_token(self):
         """index.html should contain api-token meta tag with configured token."""
-        app, tmpdir = _make_web_app_with_index(api_token="my-secret-token")
+        app, _tmpd = _make_web_app_with_index(api_token="my-secret-token")
         client = TestApp(app)
         response = client.get("/")
         self.assertIn('<meta name="api-token" content="my-secret-token">', response.text)
 
     def test_index_meta_tag_empty_when_no_token(self):
         """Empty api_token should produce meta tag with empty content."""
-        app, tmpdir = _make_web_app_with_index(api_token="")
+        app, _tmpd = _make_web_app_with_index(api_token="")
         client = TestApp(app)
         response = client.get("/")
         self.assertIn('<meta name="api-token" content="">', response.text)
 
     def test_index_content_type_is_html(self):
         """Response Content-Type should be text/html."""
-        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        app, _tmpd = _make_web_app_with_index(api_token="tok")
         client = TestApp(app)
         response = client.get("/")
         self.assertIn("text/html", response.content_type)
 
     def test_dashboard_route_serves_injected_index(self):
         """All Angular routes should serve the injected index.html."""
-        app, tmpdir = _make_web_app_with_index(api_token="dashboard-tok")
+        app, _tmpd = _make_web_app_with_index(api_token="dashboard-tok")
         client = TestApp(app)
         response = client.get("/dashboard")
         self.assertIn('<meta name="api-token" content="dashboard-tok">', response.text)
 
     def test_settings_route_serves_injected_index(self):
-        app, tmpdir = _make_web_app_with_index(api_token="settings-tok")
+        app, _tmpd = _make_web_app_with_index(api_token="settings-tok")
         client = TestApp(app)
         response = client.get("/settings")
         self.assertIn('<meta name="api-token" content="settings-tok">', response.text)
 
     def test_logs_route_serves_injected_index(self):
-        app, tmpdir = _make_web_app_with_index(api_token="logs-tok")
+        app, _tmpd = _make_web_app_with_index(api_token="logs-tok")
         client = TestApp(app)
         response = client.get("/logs")
         self.assertIn('<meta name="api-token" content="logs-tok">', response.text)
 
     def test_about_route_serves_injected_index(self):
-        app, tmpdir = _make_web_app_with_index(api_token="about-tok")
+        app, _tmpd = _make_web_app_with_index(api_token="about-tok")
         client = TestApp(app)
         response = client.get("/about")
         self.assertIn('<meta name="api-token" content="about-tok">', response.text)
 
     def test_meta_tag_inserted_before_head_close(self):
         """Meta tag should appear before </head>."""
-        app, tmpdir = _make_web_app_with_index(api_token="pos-test")
+        app, _tmpd = _make_web_app_with_index(api_token="pos-test")
         client = TestApp(app)
         response = client.get("/")
         text = response.text
@@ -193,7 +196,7 @@ class TestWebAppMetaTagInjection(unittest.TestCase):
 
     def test_original_html_preserved(self):
         """Original HTML structure should be preserved after injection."""
-        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        app, _tmpd = _make_web_app_with_index(api_token="tok")
         client = TestApp(app)
         response = client.get("/")
         self.assertIn("<app-root>", response.text)
@@ -201,7 +204,7 @@ class TestWebAppMetaTagInjection(unittest.TestCase):
 
     def test_security_headers_on_index(self):
         """Security headers should still be present on index.html responses."""
-        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        app, _tmpd = _make_web_app_with_index(api_token="tok")
         client = TestApp(app)
         response = client.get("/")
         self.assertIn("Content-Security-Policy", response.headers)
@@ -209,9 +212,9 @@ class TestWebAppMetaTagInjection(unittest.TestCase):
 
     def test_static_files_not_affected(self):
         """Static files other than index.html should be served normally."""
-        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        app, _tmpd = _make_web_app_with_index(api_token="tok")
         # Create a static CSS file
-        with open(os.path.join(tmpdir, "styles.css"), "w") as f:
+        with open(os.path.join(_tmpd.name, "styles.css"), "w") as f:
             f.write("body { color: red; }")
         client = TestApp(app)
         response = client.get("/styles.css")

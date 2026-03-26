@@ -48,7 +48,8 @@ $component-active-color: #e9e6ff;    // Lavender text on olive
 // ============================================================================
 // Form Input Styling
 // ============================================================================
-$input-border-color: #3d4a52;        // Earthy border (lighter than bg)
+$earthy-border: #3d4a52;              // Earthy border (lighter than bg)
+$input-border-color: $earthy-border;
 
 // Focus ring settings
 $focus-ring-width: 0.25rem;

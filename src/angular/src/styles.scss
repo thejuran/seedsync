@@ -91,7 +91,7 @@ html, body {
   --app-file-header-bg: #583e23;
   --app-file-header-color: #73683b;
   --app-file-row-even: rgba(88, 62, 35, 0.3);
-  --app-file-border-color: #3d4a52;
+  --app-file-border-color: #{common.$earthy-border};
   --app-bulk-overlay-bg: rgba(19, 38, 47, 0.85);
 
   // Text
@@ -109,8 +109,6 @@ html, body {
   --app-selection-border: #73683b;
   --app-selection-text-emphasis: #e9e6ff;
 
-  // Sidebar overlay
-  --app-sidebar-overlay-bg: rgba(0, 0, 0, 0.7);
 }
 
 /* show the input search cancel button */
