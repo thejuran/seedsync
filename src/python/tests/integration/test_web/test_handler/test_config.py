@@ -16,8 +16,8 @@ class TestConfigHandler(BaseTestWebApp):
         self.assertEqual(200, resp.status_int)
         json_dict = json.loads(str(resp.html))
         self.assertEqual(True, json_dict["general"]["debug"])
-        # lftp.remote_path is redacted in API responses
-        self.assertEqual("**REDACTED**", json_dict["lftp"]["remote_path"])
+        # No api_token configured → auth_valid=True → config is unredacted (CONF-04)
+        self.assertEqual("/remote/server/path", json_dict["lftp"]["remote_path"])
         self.assertEqual(5678, json_dict["controller"]["interval_ms_local_scan"])
         self.assertEqual(8080, json_dict["web"]["port"])
 

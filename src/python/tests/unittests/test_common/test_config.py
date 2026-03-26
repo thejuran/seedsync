@@ -197,6 +197,7 @@ class TestConfig(unittest.TestCase):
             "verbose": "False",
             "webhook_secret": "",
             "api_token": "",
+            "allowed_hostname": "",
         }
         general = Config.General.from_dict(good_dict)
         self.assertEqual(True, general.debug)
@@ -228,6 +229,7 @@ class TestConfig(unittest.TestCase):
         # webhook_secret and api_token must be present (missing key still raises)
         self.__check_missing_error(Config.General, good_dict, "webhook_secret")
         self.__check_missing_error(Config.General, good_dict, "api_token")
+        self.__check_missing_error(Config.General, good_dict, "allowed_hostname")
 
         # bad values
         self.check_bad_value_error(Config.General, good_dict, "debug", "SomeString")
@@ -484,6 +486,7 @@ class TestConfig(unittest.TestCase):
         config.general.verbose = False
         config.general.webhook_secret = ""
         config.general.api_token = ""
+        config.general.allowed_hostname = ""
         config.lftp.remote_address = "server.remote.com"
         config.lftp.remote_username = "user-on-remote-server"
         config.lftp.remote_password = "pass-on-remote-server"
@@ -528,6 +531,7 @@ class TestConfig(unittest.TestCase):
         verbose = False
         webhook_secret =
         api_token =
+        allowed_hostname =
 
         [Lftp]
         remote_address = server.remote.com
