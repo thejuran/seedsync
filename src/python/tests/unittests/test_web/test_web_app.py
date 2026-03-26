@@ -1,6 +1,8 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import logging
+import os
+import tempfile
 import unittest
 from unittest.mock import MagicMock
 
@@ -8,8 +10,20 @@ from webtest import TestApp
 
 from web.web_app import WebApp
 
+_TEST_INDEX_HTML = """<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>SeedSync</title>
+</head>
+<body>
+    <app-root></app-root>
+</body>
+</html>
+"""
 
-def _make_minimal_web_app() -> WebApp:
+
+def _make_minimal_web_app(html_path: str = "/tmp") -> WebApp:
     """
     Create a minimal WebApp instance suitable for unit testing.
 
@@ -18,12 +32,33 @@ def _make_minimal_web_app() -> WebApp:
     """
     mock_context = MagicMock()
     mock_context.logger = logging.getLogger("test_web_app")
-    mock_context.args.html_path = "/tmp"
+    mock_context.args.html_path = html_path
     mock_context.status = MagicMock()
 
     mock_controller = MagicMock()
 
     return WebApp(context=mock_context, controller=mock_controller)
+
+
+def _make_web_app_with_index(api_token: str = "", html_content: str = _TEST_INDEX_HTML):
+    """Create a WebApp with a real index.html in a temp dir and config."""
+    tmpdir = tempfile.mkdtemp()
+    with open(os.path.join(tmpdir, "index.html"), "w") as f:
+        f.write(html_content)
+
+    mock_context = MagicMock()
+    mock_context.logger = logging.getLogger("test_web_app")
+    mock_context.args.html_path = tmpdir
+    mock_context.status = MagicMock()
+
+    mock_config = MagicMock()
+    mock_config.general.api_token = api_token
+
+    mock_controller = MagicMock()
+
+    app = WebApp(context=mock_context, controller=mock_controller, config=mock_config)
+    app.add_default_routes()
+    return app, tmpdir
 
 
 class TestWebAppSecurityHeaders(unittest.TestCase):
@@ -87,3 +122,100 @@ class TestWebAppSecurityHeaders(unittest.TestCase):
         self.assertIn("Content-Security-Policy", response.headers)
         self.assertIn("X-Frame-Options", response.headers)
         self.assertIn("X-Content-Type-Options", response.headers)
+
+
+class TestWebAppMetaTagInjection(unittest.TestCase):
+    """Tests for api-token meta tag injection in index.html (R007)."""
+
+    def test_index_contains_meta_tag_with_token(self):
+        """index.html should contain api-token meta tag with configured token."""
+        app, tmpdir = _make_web_app_with_index(api_token="my-secret-token")
+        client = TestApp(app)
+        response = client.get("/")
+        self.assertIn('<meta name="api-token" content="my-secret-token">', response.text)
+
+    def test_index_meta_tag_empty_when_no_token(self):
+        """Empty api_token should produce meta tag with empty content."""
+        app, tmpdir = _make_web_app_with_index(api_token="")
+        client = TestApp(app)
+        response = client.get("/")
+        self.assertIn('<meta name="api-token" content="">', response.text)
+
+    def test_index_content_type_is_html(self):
+        """Response Content-Type should be text/html."""
+        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        client = TestApp(app)
+        response = client.get("/")
+        self.assertIn("text/html", response.content_type)
+
+    def test_dashboard_route_serves_injected_index(self):
+        """All Angular routes should serve the injected index.html."""
+        app, tmpdir = _make_web_app_with_index(api_token="dashboard-tok")
+        client = TestApp(app)
+        response = client.get("/dashboard")
+        self.assertIn('<meta name="api-token" content="dashboard-tok">', response.text)
+
+    def test_settings_route_serves_injected_index(self):
+        app, tmpdir = _make_web_app_with_index(api_token="settings-tok")
+        client = TestApp(app)
+        response = client.get("/settings")
+        self.assertIn('<meta name="api-token" content="settings-tok">', response.text)
+
+    def test_logs_route_serves_injected_index(self):
+        app, tmpdir = _make_web_app_with_index(api_token="logs-tok")
+        client = TestApp(app)
+        response = client.get("/logs")
+        self.assertIn('<meta name="api-token" content="logs-tok">', response.text)
+
+    def test_about_route_serves_injected_index(self):
+        app, tmpdir = _make_web_app_with_index(api_token="about-tok")
+        client = TestApp(app)
+        response = client.get("/about")
+        self.assertIn('<meta name="api-token" content="about-tok">', response.text)
+
+    def test_meta_tag_inserted_before_head_close(self):
+        """Meta tag should appear before </head>."""
+        app, tmpdir = _make_web_app_with_index(api_token="pos-test")
+        client = TestApp(app)
+        response = client.get("/")
+        text = response.text
+        meta_pos = text.find('<meta name="api-token"')
+        head_close_pos = text.find("</head>")
+        self.assertGreater(meta_pos, -1, "Meta tag not found")
+        self.assertGreater(head_close_pos, -1, "</head> not found")
+        self.assertLess(meta_pos, head_close_pos, "Meta tag should be before </head>")
+
+    def test_original_html_preserved(self):
+        """Original HTML structure should be preserved after injection."""
+        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        client = TestApp(app)
+        response = client.get("/")
+        self.assertIn("<app-root>", response.text)
+        self.assertIn("<title>SeedSync</title>", response.text)
+
+    def test_security_headers_on_index(self):
+        """Security headers should still be present on index.html responses."""
+        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        client = TestApp(app)
+        response = client.get("/")
+        self.assertIn("Content-Security-Policy", response.headers)
+        self.assertIn("X-Frame-Options", response.headers)
+
+    def test_static_files_not_affected(self):
+        """Static files other than index.html should be served normally."""
+        app, tmpdir = _make_web_app_with_index(api_token="tok")
+        # Create a static CSS file
+        with open(os.path.join(tmpdir, "styles.css"), "w") as f:
+            f.write("body { color: red; }")
+        client = TestApp(app)
+        response = client.get("/styles.css")
+        self.assertEqual("body { color: red; }", response.text)
+        self.assertNotIn("api-token", response.text)
+
+    def test_missing_index_html_returns_404(self):
+        """When index.html doesn't exist, return 404."""
+        app = _make_minimal_web_app(html_path="/nonexistent/path")
+        app.add_default_routes()
+        client = TestApp(app)
+        response = client.get("/", expect_errors=True)
+        self.assertEqual(404, response.status_int)

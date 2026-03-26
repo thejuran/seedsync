@@ -2,12 +2,14 @@
 
 from typing import Type, Callable, Optional
 from abc import ABC, abstractmethod
+import hmac
+import os
 import time
 
 import bottle
-from bottle import static_file
+from bottle import static_file, HTTPResponse
 
-from common import Context
+from common import Context, Config
 from controller import Controller
 
 
@@ -60,17 +62,68 @@ class WebApp(bottle.Bottle):
     _STREAM_YIELD_INTERVAL_IN_MS = 10  # Small delay between events to avoid flooding
     _HEARTBEAT_INTERVAL_IN_MS = 15000  # Send ping every 15 seconds
 
-    def __init__(self, context: Context, controller: Controller):
+    # Paths exempt from Bearer token auth
+    _AUTH_EXEMPT_PATHS = {
+        "/server/stream",      # SSE — EventSource cannot send custom headers (R003)
+    }
+    _AUTH_EXEMPT_PREFIXES = (
+        "/server/webhook/",    # Webhooks use HMAC auth (R004)
+    )
+
+    def __init__(self, context: Context, controller: Controller, config: Config = None):
         super().__init__()
         self.logger = context.logger.getChild("WebApp")
         self._controller = controller
         self._html_path = context.args.html_path
         self._status = context.status
+        self._config = config
         self.logger.info("Html path set to: {}".format(self._html_path))
         # Use object.__setattr__ to bypass Bottle's special __setattr__ handling
         # that prevents attribute reassignment (Bottle thinks it's a plugin conflict)
         object.__setattr__(self, '_stop_flag', False)
         self._streaming_handlers = []  # list of (handler, kwargs) pairs
+
+        # Cache index.html template for meta tag injection
+        self._index_html_template = self._load_index_html()
+
+        @self.hook('before_request')
+        def _check_auth():
+            """Validate Bearer token on /server/* API endpoints."""
+            path = bottle.request.path
+
+            # Only protect /server/* paths
+            if not path.startswith("/server/"):
+                bottle.request.auth_valid = True
+                return
+
+            # Exempt paths
+            if path in WebApp._AUTH_EXEMPT_PATHS:
+                bottle.request.auth_valid = True
+                return
+            if path.startswith(WebApp._AUTH_EXEMPT_PREFIXES):
+                bottle.request.auth_valid = True
+                return
+
+            # No token configured — allow all (backward compat, R005)
+            api_token = self._config.general.api_token if self._config else ""
+            if not api_token:
+                bottle.request.auth_valid = True
+                return
+
+            # Validate Bearer token
+            auth_header = bottle.request.get_header("Authorization", "")
+            if not auth_header.startswith("Bearer "):
+                bottle.request.auth_valid = False
+                bottle.abort(401, "Unauthorized")
+                return
+
+            provided_token = auth_header[7:]  # Strip "Bearer "
+            if not hmac.compare_digest(provided_token, api_token):
+                bottle.request.auth_valid = False
+                bottle.abort(401, "Unauthorized")
+                return
+
+            bottle.request.auth_valid = True
 
         @self.hook('after_request')
         def _add_security_headers():
@@ -133,12 +186,32 @@ class WebApp(bottle.Bottle):
         # Use object.__setattr__ to bypass Bottle's special __setattr__ handling
         object.__setattr__(self, '_stop_flag', True)
 
+    def _load_index_html(self) -> Optional[str]:
+        """Load and cache the index.html template from disk."""
+        index_path = os.path.join(self._html_path, "index.html")
+        try:
+            with open(index_path, "r", encoding="utf-8") as f:
+                return f.read()
+        except (FileNotFoundError, PermissionError):
+            self.logger.warning("index.html not found at {}".format(index_path))
+            return None
+
+    def _inject_meta_tag(self, html: str) -> str:
+        """Inject api-token meta tag into the HTML before </head>."""
+        api_token = self._config.general.api_token if self._config else ""
+        meta_tag = '<meta name="api-token" content="{}">'.format(api_token or "")
+        return html.replace("</head>", "    {}\n</head>".format(meta_tag), 1)
+
     def __index(self):
         """
-        Serves the index.html static file
-        :return:
+        Serves index.html with injected api-token meta tag.
         """
-        return self.__static("index.html")
+        if self._index_html_template is None:
+            bottle.abort(404, "index.html not found")
+            return
+
+        body = self._inject_meta_tag(self._index_html_template)
+        return HTTPResponse(body=body, headers={"Content-Type": "text/html; charset=UTF-8"})
 
     # noinspection PyMethodMayBeStatic
     def __static(self, file_path: str):

@@ -6,6 +6,7 @@ import time
 import argparse
 import os
 import logging
+import secrets
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from typing import Optional, Type, TypeVar
@@ -298,7 +299,7 @@ class Seedsync:
         config.general.debug = False
         config.general.verbose = False
         config.general.webhook_secret = ""
-        config.general.api_token = ""
+        config.general.api_token = secrets.token_urlsafe(32)
 
         config.lftp.remote_address = Seedsync.__CONFIG_DUMMY_VALUE
         config.lftp.remote_username = Seedsync.__CONFIG_DUMMY_VALUE
@@ -367,6 +368,11 @@ class Seedsync:
             logger.warning(
                 "Security: Application is bound to 0.0.0.0 without an API token. "
                 "Any host on the network can access the API."
+            )
+        else:
+            logger.info(
+                "Security: API token configured — "
+                "all /server/* endpoints require Bearer authentication."
             )
 
     @staticmethod

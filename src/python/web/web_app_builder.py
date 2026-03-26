@@ -39,7 +39,8 @@ class WebAppBuilder:
 
     def build(self) -> WebApp:
         web_app = WebApp(context=self.__context,
-                         controller=self.__controller)
+                         controller=self.__controller,
+                         config=self.__context.config)
 
         StatusStreamHandler.register(web_app=web_app,
                                      status=self.__context.status)

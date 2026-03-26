@@ -1,6 +1,7 @@
 import {ApplicationConfig, APP_INITIALIZER, provideZoneChangeDetection} from "@angular/core";
 import {provideRouter, RouteReuseStrategy} from "@angular/router";
-import {provideHttpClient} from "@angular/common/http";
+import {provideHttpClient, withInterceptors} from "@angular/common/http";
+import {authInterceptor} from "./services/utils/auth.interceptor";
 
 import {ROUTES} from "./routes";
 import {environment} from "../environments/environment";
@@ -39,7 +40,7 @@ export const appConfig: ApplicationConfig = {
     providers: [
         provideZoneChangeDetection({ eventCoalescing: true }),
         provideRouter(ROUTES),
-        provideHttpClient(),
+        provideHttpClient(withInterceptors([authInterceptor])),
 
         {provide: RouteReuseStrategy, useClass: CachedReuseStrategy},
         {provide: LOCAL_STORAGE, useClass: LocalStorageService},
