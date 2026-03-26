@@ -98,20 +98,23 @@ class WebApp(bottle.Bottle):
                 return
 
             # --- Host header validation (R009, R010, R011) ---
-            host = bottle.request.get_header("Host", "")
-            # Strip port from Host header
-            if ":" in host and not host.startswith("["):
-                host = host.rsplit(":", 1)[0]
-            elif host.startswith("[") and "]:" in host:
-                host = host.rsplit(":", 1)[0]
-
-            allowed_hosts = {"localhost", "127.0.0.1", "[::1]"}
+            # Only enforce when allowed_hostname is configured (opt-in).
+            # Default (empty) allows any Host for backward compatibility and
+            # Docker/container environments where the hostname is dynamic.
             if self._config and self._config.general.allowed_hostname:
-                allowed_hosts.add(self._config.general.allowed_hostname)
+                host = bottle.request.get_header("Host", "")
+                # Strip port from Host header
+                if ":" in host and not host.startswith("["):
+                    host = host.rsplit(":", 1)[0]
+                elif host.startswith("[") and "]:" in host:
+                    host = host.rsplit(":", 1)[0]
 
-            if host not in allowed_hosts:
-                bottle.abort(400)
-                return
+                allowed_hosts = {"localhost", "127.0.0.1", "[::1]",
+                                 self._config.general.allowed_hostname}
+
+                if host not in allowed_hosts:
+                    bottle.abort(400)
+                    return
 
             # --- Bearer token auth ---
 
