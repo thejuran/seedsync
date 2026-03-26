@@ -1,22 +1,23 @@
 # GSD State
 
-**Active Milestone:** M002 — Finish v3.2 Security
-**Active Slice:** S03 — CSP Hardening
+**Active Milestone:** M003 — UI Redesign — Earthy Palette
+**Active Slice:** none (all complete)
 **Active Task:** none
-**Phase:** planning
-**Slice Branch:** gsd/M002/S03
+**Phase:** complete
+**Slice Branch:** gsd/M003/S01
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Plan and execute S03 (CSP hardening)
+**Next Action:** Squash merge gsd/M003/S01 to master
 **Last Updated:** 2026-03-25
-**Requirements Status:** 12 validated · 4 active · 1 deferred · 3 out of scope
 
 ## Recent Decisions
 
-- D001: CONF-04 fix — return unredacted config for authenticated requests
-- D005: CSP via autoCsp (hash-based) + scoped Bottle header
-- D006: Keep Google Fonts CDN in CSP allowlist
-- Bottle before_request hooks overwrite (not append) — combined into single hook
+- D007: Top nav bar replacing sidebar
+- D008: System font stack, no Google Fonts
+- D009: Earthy 5-color palette
+- D010: Remove all terminal/hacker theming
+- D011: Remove all SVG icons, text-only UI
+- D012: Keep functional status colors
 
 ## Blockers
 
-- (none)
+- None

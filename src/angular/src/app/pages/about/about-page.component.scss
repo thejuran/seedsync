@@ -9,71 +9,43 @@
         text-align: center;
         max-width: 500px;
 
-        #banner {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 10px;
-
-            .ascii-logo {
-                font-family: var(--bs-font-monospace);
-                color: #3fb950;
-                font-size: 0.5rem;
-                line-height: 1.2;
-                text-align: left;
-                display: inline-block;
-                margin: 0;
-                user-select: none;
-                white-space: pre;
-                overflow: hidden;
-            }
+        #brand {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--app-logo-color);
+            margin-bottom: 4px;
         }
 
         #version {
-            font-size: 150%;
+            font-size: 1.1rem;
             margin-bottom: 15px;
-            font-family: var(--bs-font-monospace);
-            color: #3fb950;
+            color: var(--app-muted-text);
         }
 
         #description {
             margin-bottom: 20px;
             line-height: 1.5;
-            font-family: var(--bs-font-monospace);
-            color: #8b949e;
+            color: var(--app-muted-text);
         }
 
-        #features, #platforms {
+        .info-section {
             margin-bottom: 20px;
             text-align: left;
 
             .section-title {
-                font-weight: bold;
+                font-weight: 600;
                 margin-bottom: 8px;
                 text-align: center;
-                font-family: var(--bs-font-monospace);
-                color: #3fb950;
-
-                &::before { content: '--- '; }
-                &::after  { content: ' ---'; }
+                color: var(--app-logo-color);
             }
 
             ul {
-                list-style-type: none;
-                padding-left: 0;
+                list-style-type: disc;
+                padding-left: 2em;
                 margin: 0;
 
                 li {
-                    padding: 4px 0;
-                    &::before {
-                        content: '>';
-                        color: #3fb950;
-                        font-family: var(--bs-font-monospace);
-                        font-weight: normal;
-                        display: inline-block;
-                        width: 1em;
-                        margin-left: 1em;
-                    }
+                    padding: 3px 0;
                 }
             }
         }
@@ -99,11 +71,6 @@
             font-size: 90%;
             margin-bottom: 15px;
             color: var(--app-muted-text);
-        }
-
-        #icons {
-            font-size: 80%;
-            color: var(--app-separator-color);
         }
     }
 }

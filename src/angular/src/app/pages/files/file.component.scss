@@ -119,19 +119,12 @@
 .content .name {
     display: flex;
     flex-direction: row;
-    min-width: 0; /* Allow flex item to shrink below content size */
-
-    img {
-        height: 20px;
-        margin-right: 8px;
-        margin-top: 1px;
-        flex-shrink: 0;
-    }
+    min-width: 0;
 
     .text {
         display: flex;
         flex-direction: column;
-        min-width: 0; /* Allow flex item to shrink */
+        min-width: 0;
         overflow: hidden;
 
         .title {
@@ -166,7 +159,7 @@
         &.dot-stopped     { background-color: #f85149; }
         &.dot-extracting  { background-color: #58a6ff; }
         &.dot-extracted   { background-color: #58a6ff; }
-        &.dot-deleted     { background-color: #8b949e; }
+        &.dot-deleted     { background-color: #b0a084; }
         &.dot-default     { background-color: transparent; }
     }
 
@@ -188,23 +181,8 @@
     font-size: 90%;
 }
 
-/* ASCII progress bar (DASH-03) */
-.content .ascii-bar {
-    font-family: var(--bs-font-monospace);  // Fira Code
-    font-size: 85%;
-    color: var(--bs-body-color);
-    letter-spacing: 0;
-    margin-bottom: 5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: clip;
-
-    &.active {
-        color: #3fb950;  // green when downloading
-    }
-}
 .content .size_info {
-    font-size: 80%;
+    font-size: 85%;
 }
 
 /* Hide the outer eta and timestamps on mobile */
@@ -244,41 +222,14 @@
         margin-right: 0;
     }
 
-    img {
-        width: 25px;
-        height: 25px;
-        filter: invert(1);
-    }
-
     .text {
         font-size: 12px;
         text-align: center;
         line-height: 12px;
-        margin-top: 4px;
     }
 
-    &:disabled img {
-        opacity: 0.5;
-    }
-
-    /* Loading state with Bootstrap spinner */
     &.loading {
         pointer-events: none;
-    }
-}
-
-
-.actions .ghost-btn {
-    transition: box-shadow 0.15s ease;
-
-    &.btn-outline-success:hover:not(:disabled) {
-        box-shadow: 0 0 8px rgba(63, 185, 80, 0.5);
-    }
-    &.btn-outline-danger:hover:not(:disabled) {
-        box-shadow: 0 0 8px rgba(248, 81, 73, 0.5);
-    }
-    &.btn-outline-secondary:hover:not(:disabled) {
-        box-shadow: 0 0 8px rgba(139, 148, 158, 0.4);
     }
 }
 

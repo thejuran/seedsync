@@ -20,7 +20,7 @@
     @for (pattern of patterns | async; track pattern.pattern) {
       <div
         class="pattern">
-        <button class="btn btn-outline-danger ghost-btn" type="button"
+        <button class="btn btn-outline-danger" type="button"
           [disabled]="!(enabled && patternsOnly)"
           (click)="onRemovePattern(pattern)">
           <span>&#8722;</span>
@@ -29,7 +29,7 @@
       </div>
     }
     <div id="add-pattern">
-      <button class="btn btn-outline-success ghost-btn" type="button"
+      <button class="btn btn-outline-success" type="button"
         [disabled]="!(newPattern && enabled && patternsOnly)"
         (click)="onAddPattern()">
         <span>&#43;</span>

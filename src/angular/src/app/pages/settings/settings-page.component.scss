@@ -23,10 +23,10 @@
                 .card-header {
                     margin-bottom: 0;
 
-                    .btn.terminal-header {
-                        font-family: var(--bs-font-monospace);
-                        color: #3fb950;
-                        font-size: 80%;
+                    .btn {
+                        font-weight: 600;
+                        color: var(--app-muted-text);
+                        font-size: 90%;
                         cursor: default;
 
                         &:focus {
@@ -42,8 +42,7 @@
                         font-size: 100%;
                         font-weight: 600;
                         margin: 20px 20px 10px;
-                        color: #8b949e;
-                        font-family: var(--bs-font-monospace);
+                        color: var(--app-muted-text);
 
                         &:first-child {
                             margin-top: 0;
@@ -119,23 +118,10 @@
         flex-wrap: wrap;
 
         .btn {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            padding: 10px;
+            padding: 10px 20px;
             margin-right: 8px;
             height: 40px;
-            font-size: 120%;
-
-            img {
-                width: 20px;
-                height: 20px;
-                filter: invert(1);
-            }
-
-            .text {
-                margin-left: 5px;
-            }
+            font-size: 100%;
         }
     }
 }

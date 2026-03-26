@@ -28,15 +28,6 @@
       }
     </div>
     <div class="name">
-      @if (file.isDir && file.isArchive) {
-        <img src="assets/icons/directory-archive-light.svg" />
-      } @else if (file.isDir) {
-        <img src="assets/icons/directory-light.svg" />
-      } @else if (file.isArchive) {
-        <img src="assets/icons/file-archive-light.svg" />
-      } @else {
-        <img src="assets/icons/file-light.svg" />
-      }
       <div class="text">
         <div class="title">
           {{file.name}}
@@ -75,70 +66,56 @@
       }
     </div>
     <div class="size">
-      <div class="ascii-bar"
-        [class.active]="file.status === ViewFile.Status.DOWNLOADING">
-        {{getAsciiBar()}}
-      </div>
       <div class="size_info">
-        {{file.localSize | fileSize:3}} of {{file.remoteSize | fileSize:3}}
+        {{file.percentDownloaded}}% — {{file.localSize | fileSize:3}} of {{file.remoteSize | fileSize:3}}
       </div>
     </div>
   </div>
 
   <!-- actions div, hidden for virtual scroll but migrated to Bootstrap for consistency -->
   <div class="actions">
-    <button class="btn btn-outline-success ghost-btn action-button"
+    <button class="btn btn-outline-success action-button"
       [disabled]="!isQueueable()"
       (click)="onQueue(file)"
       [class.loading]="activeAction === FileAction.QUEUE">
       @if (activeAction === FileAction.QUEUE) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      } @else {
-        <img src="assets/icons/queue.svg" alt="" />
       }
       <span class="text">Queue</span>
     </button>
-    <button class="btn btn-outline-danger ghost-btn action-button"
+    <button class="btn btn-outline-danger action-button"
       [disabled]="!isStoppable()"
       (click)="onStop(file)"
       [class.loading]="activeAction === FileAction.STOP">
       @if (activeAction === FileAction.STOP) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      } @else {
-        <img src="assets/icons/stop.svg" alt="" />
       }
       <span class="text">Stop</span>
     </button>
-    <button class="btn btn-outline-secondary ghost-btn action-button"
+    <button class="btn btn-outline-secondary action-button"
       [disabled]="!isExtractable()"
       (click)="onExtract(file)"
       [class.loading]="activeAction === FileAction.EXTRACT">
       @if (activeAction === FileAction.EXTRACT) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      } @else {
-        <img src="assets/icons/extract.svg" alt="" />
       }
       <span class="text">Extract</span>
     </button>
-    <button class="btn btn-outline-danger ghost-btn action-button"
+    <button class="btn btn-outline-danger action-button"
       [disabled]="!isLocallyDeletable()"
       (click)="onDeleteLocal(file)"
       [class.loading]="activeAction === FileAction.DELETE_LOCAL">
       @if (activeAction === FileAction.DELETE_LOCAL) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      } @else {
-        <img src="assets/icons/delete-local.svg" alt="" />
       }
       <span class="text">Delete Local</span>
     </button>
-    <button class="btn btn-outline-danger ghost-btn action-button"
+    <button class="btn btn-outline-danger action-button"
       [disabled]="!isRemotelyDeletable()"
       (click)="onDeleteRemote(file)"
       [class.loading]="activeAction === FileAction.DELETE_REMOTE">
       @if (activeAction === FileAction.DELETE_REMOTE) {
         <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      } @else {
-        <img src="assets/icons/delete-remote.svg" alt="" />
       }
       <span class="text">Delete Remote</span>
     </button>

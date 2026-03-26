@@ -14,6 +14,6 @@
 **Milestones:**
 - M001: Angular 21 Migration ✅ (released as v3.2.0)
 - M002: Finish v3.2 Security 🚧 (API token auth, DNS rebinding, CSP hardening, CONF-04 fix)
-- M003: UI Redesign — Earthy Palette 📋 (retheme from terminal/hacker to clean modern dark UI)
+- M003: UI Redesign — Earthy Palette ✅ (rethemed from terminal/hacker to clean modern dark UI)
 
 **Repo:** https://github.com/thejuran/seedsync

@@ -56,22 +56,22 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Design tokens & global cleanup** `risk:low` `depends:[]`
+- [x] **S01: Design tokens & global cleanup** `risk:low` `depends:[]`
   > After this: App loads with earthy palette, system fonts, no CRT/terminal effects — all pages recolored at the global level.
 
-- [ ] **S02: Top nav bar & layout** `risk:medium` `depends:[S01]`
+- [x] **S02: Top nav bar & layout** `risk:medium` `depends:[S01]`
   > After this: Sidebar replaced with Triggarr-style top nav bar with text links, responsive mobile layout working.
 
-- [ ] **S03: File list & dashboard restyle** `risk:medium` `depends:[S02]`
+- [x] **S03: File list & dashboard restyle** `risk:medium` `depends:[S02]`
   > After this: File list has no file type icons, text-only action buttons, percentage progress text, status dots in filter dropdowns.
 
-- [ ] **S04: Settings page restyle** `risk:low` `depends:[S01]`
+- [x] **S04: Settings page restyle** `risk:low` `depends:[S01]`
   > After this: Settings uses clean card sections with simple headings instead of accordion with monospace terminal headers.
 
-- [ ] **S05: Remaining pages restyle** `risk:low` `depends:[S01]`
+- [x] **S05: Remaining pages restyle** `risk:low` `depends:[S01]`
   > After this: About, Logs, and AutoQueue pages are clean and terminal-free with card-based layouts.
 
-- [ ] **S06: Asset cleanup & polish** `risk:low` `depends:[S02,S03,S04,S05]`
+- [x] **S06: Asset cleanup & polish** `risk:low` `depends:[S02,S03,S04,S05]`
   > After this: All unused SVG icons and logo.png removed, final visual consistency verified across all pages.
 
 ## Boundary Map

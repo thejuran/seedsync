@@ -18,25 +18,10 @@
         flex-direction: row;
         align-items: center;
         flex-wrap: wrap;
-        position: relative;
-
-        .prompt {
-            font-family: var(--bs-font-monospace);
-            color: #3fb950;
-            font-size: 1.1rem;
-            font-weight: 500;
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            z-index: $zindex-file-search;
-            pointer-events: none;
-            user-select: none;
-        }
 
         input {
             border-radius: 5px;
-            padding: 3px 15px 3px 24px;
+            padding: 3px 15px;
             width: 100%;
         }
 
@@ -113,40 +98,20 @@
             }
         }
 
-        // Icon image styling (applies to both button and menu)
-        .icon img {
-            width: 15px;
-            height: 15px;
-            filter: invert(1.0);
-            margin-top: -2px;
-        }
-    }
+        // Status dot styling for filter dropdown
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
 
-    #filter-status {
-        .selection {
-            .sel-item {
-                &#sel-item-all {
-                    .icon {
-                        display: none;
-                    }
-                    .text {
-                        display: inherit;
-                        margin-left: 0;
-                    }
-                }
-            }
-        }
-
-        .icon {
-            img {
-                &.downloaded,
-                &.downloading {
-                    width: 20px;
-                }
-                &.stopped {
-                    width: 13px;
-                }
-            }
+            &.dot-downloading { background-color: #3fb950; }
+            &.dot-downloaded  { background-color: #238636; }
+            &.dot-queued      { background-color: #f0883e; }
+            &.dot-stopped     { background-color: #f85149; }
+            &.dot-extracting  { background-color: #58a6ff; }
+            &.dot-extracted   { background-color: #58a6ff; }
         }
     }
 

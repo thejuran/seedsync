@@ -12,14 +12,8 @@
     .status-message {
         padding: 20px;
         text-align: center;
-        color: #8b949e;
+        color: var(--app-muted-text);
         font-size: 14px;
-        font-family: var(--bs-font-monospace);
-
-        &::before {
-            content: '> ';
-            color: #3fb950;
-        }
     }
 
     .log-marker {
@@ -52,11 +46,11 @@
         word-break: break-all;
 
         &.debug {
-            color: #8b949e;
+            color: var(--app-muted-text);
         }
 
         &.info {
-            color: #e6edf3;
+            color: #e9e6ff;
         }
 
         &.warning {

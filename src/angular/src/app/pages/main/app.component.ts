@@ -1,28 +1,30 @@
 import {AfterViewInit, Component, ElementRef, OnInit, OnDestroy, ViewChild} from "@angular/core";
-import {NavigationEnd, Router, RouterOutlet} from "@angular/router";
+import {NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet} from "@angular/router";
 import { NgClass } from "@angular/common";
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 import {ROUTE_INFOS, RouteInfo} from "../../routes";
 
+declare function require(moduleName: string): { version: string };
+const { version: appVersion } = require("../../../../package.json");
+
 import {DomService} from "../../services/utils/dom.service";
 import {ToastService, Toast} from "../../services/utils/toast.service";
 import {HeaderComponent} from "./header.component";
-import {SidebarComponent} from "./sidebar.component";
 
 @Component({
     selector: "app-root",
     templateUrl: "./app.component.html",
     styleUrls: ["./app.component.scss"],
     standalone: true,
-    imports: [RouterOutlet, HeaderComponent, SidebarComponent, NgClass]
+    imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent, NgClass]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild("topHeader", {static: false}) topHeader: ElementRef;
 
-    showSidebar = false;
+    routeInfos = ROUTE_INFOS;
+    version: string = appVersion;
     toasts: Toast[] = [];
-    activeRoute: RouteInfo;
 
     private destroy$ = new Subject<void>();
     private _resizeObserver: ResizeObserver;
@@ -33,14 +35,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     ngOnInit(): void {
-        // Navigation listener
-        //    Close the sidebar
-        //    Store the active route
-        this.router.events.pipe(takeUntil(this.destroy$)).subscribe(() => {
-            this.showSidebar = false;
-            this.activeRoute = ROUTE_INFOS.find(value => "/" + value.path === this.router.url);
-        });
-
         // Scroll to top on route changes
         this.router.events.pipe(takeUntil(this.destroy$)).subscribe((evt) => {
             if (!(evt instanceof NavigationEnd)) {

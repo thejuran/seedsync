@@ -2,11 +2,11 @@
 <ng-template #optionsList let-header="header" let-options="options" let-id="id">
   <div class="card">
     <h3 class="card-header" id="heading-{{id}}">
-      <button class="btn terminal-header"
+      <button class="btn"
         type="button"
         data-bs-toggle="collapse"
         attr.data-bs-target="#collapse-{{id}}">
-        --- {{header}} ---
+        {{header}}
       </button>
     </h3>
     <div id="collapse-{{id}}" class="collapse" data-bs-parent="#accordion">
@@ -49,11 +49,11 @@
       <!--suppress HtmlUnknownAttribute -->
       <div class="card">
         <h3 class="card-header" id="heading-arr">
-          <button class="btn terminal-header"
+          <button class="btn"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#collapse-arr">
-            --- *arr Integration ---
+            *arr Integration
           </button>
         </h3>
         <div id="collapse-arr" class="collapse" data-bs-parent="#accordion">
@@ -206,8 +206,7 @@
     <button class="btn btn-primary" type="button"
       [disabled]="!commandsEnabled"
       (click)="onCommandRestart()">
-      <img src="assets/icons/refresh.svg" alt="" />
-      <span class="text">Restart</span>
+      Restart
     </button>
   </div>
 </div>
