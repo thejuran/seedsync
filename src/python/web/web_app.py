@@ -150,16 +150,23 @@ class WebApp(bottle.Bottle):
 
         @self.hook('after_request')
         def _add_security_headers():
-            # CSP scoped to directives NOT covered by Angular autoCsp (R014).
-            # autoCsp handles script-src and style-src via meta tag with hashes.
-            # Bottle only sets complementary directives to avoid conflicts.
+            # CSP layered with Angular autoCsp (R014).
+            # autoCsp emits a <meta> CSP with hash-based script-src/style-src.
+            # When both HTTP header and meta tag CSPs exist, the browser enforces
+            # BOTH — a resource must pass ALL policies. The HTTP header must be
+            # permissive for inline (via 'unsafe-inline') so Angular's inline
+            # bootstrap script isn't blocked by default-src fallback. The meta
+            # tag's hash-based policy provides the actual inline restriction.
             bottle.response.set_header(
                 'Content-Security-Policy',
                 "default-src 'self'; "
+                "script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline'; "
                 "font-src 'self'; "
                 "connect-src 'self' https://api.github.com; "
                 "img-src 'self' data:; "
-                "frame-ancestors 'none'"
+                "frame-ancestors 'none'; "
+                "object-src 'none'"
             )
             bottle.response.set_header('X-Frame-Options', 'DENY')
             bottle.response.set_header('X-Content-Type-Options', 'nosniff')
