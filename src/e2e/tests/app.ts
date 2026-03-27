@@ -11,12 +11,12 @@ export class App {
         return this.page.title();
     }
 
-    async getSidebarItems(): Promise<string[]> {
-        const items = await this.page.locator('#sidebar a span.sidebar-label').all();
-        return Promise.all(items.map(item => item.innerHTML()));
+    async getNavLinks(): Promise<string[]> {
+        const items = await this.page.locator('#top-nav .nav-link').all();
+        return Promise.all(items.map(item => item.innerText()));
     }
 
-    async getTopTitle(): Promise<string> {
-        return this.page.locator('#title').innerHTML();
+    async getActiveNavLink(): Promise<string> {
+        return this.page.locator('#top-nav .nav-link.active').innerText();
     }
 }

@@ -174,22 +174,10 @@ class TestSeedsync(unittest.TestCase):
 class TestSeedsyncApiTokenConfig(unittest.TestCase):
     """Tests for api_token config field defaults and round-trip behavior."""
 
-    def test_default_config_generates_api_token(self):
-        """R002: Token auto-generated with secrets.token_urlsafe(32)."""
+    def test_default_config_has_empty_api_token(self):
+        """Default config has empty api_token — user must set explicitly."""
         config = Seedsync._create_default_config()
-        self.assertNotEqual("", config.general.api_token)
-        self.assertIsNotNone(config.general.api_token)
-        # secrets.token_urlsafe(32) produces ~43 chars
-        self.assertGreater(len(config.general.api_token), 30)
-
-    def test_default_config_generates_unique_tokens(self):
-        """Each default config gets a unique token."""
-        config1 = Seedsync._create_default_config()
-        config2 = Seedsync._create_default_config()
-        self.assertNotEqual(config1.general.api_token, config2.general.api_token)
-
-    def test_default_config_has_api_token_field(self):
-        config = Seedsync._create_default_config()
+        self.assertEqual("", config.general.api_token)
         config_dict = config.as_dict()
         self.assertIsNotNone(config_dict["General"]["api_token"])
 

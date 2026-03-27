@@ -66,6 +66,7 @@ class WebApp(bottle.Bottle):
     # Paths exempt from Bearer token auth
     _AUTH_EXEMPT_PATHS = {
         "/server/stream",      # SSE — EventSource cannot send custom headers (R003)
+        "/server/status",      # Health check — needed by monitoring and E2E tests
     }
     _AUTH_EXEMPT_PREFIXES = (
         "/server/webhook/",    # Webhooks use HMAC auth (R004)

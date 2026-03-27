@@ -9,10 +9,10 @@ test.describe('Testing autoqueue page', () => {
         await autoQueuePage.removeAllPatterns();
     });
 
-    test('should have right top title', async ({ page }) => {
+    test('should have AutoQueue nav link active', async ({ page }) => {
         const autoQueuePage = new AutoQueuePage(page);
-        const topTitle = await autoQueuePage.getTopTitle();
-        expect(topTitle).toBe('AutoQueue');
+        const activeLink = await autoQueuePage.getActiveNavLink();
+        expect(activeLink).toBe('AutoQueue');
     });
 
     test('should add and remove patterns', async ({ page }) => {

@@ -13,22 +13,21 @@ test.describe('Testing top-level app', () => {
         expect(title).toBe('SeedSync');
     });
 
-    test('should have all the sidebar items', async ({ page }) => {
+    test('should have all the nav links', async ({ page }) => {
         const app = new App(page);
-        const items = await app.getSidebarItems();
+        const items = await app.getNavLinks();
         expect(items).toEqual([
             'Dashboard',
             'Settings',
             'AutoQueue',
             'Logs',
             'About',
-            'Restart'
         ]);
     });
 
     test('should default to the dashboard page', async ({ page }) => {
         const app = new App(page);
-        const topTitle = await app.getTopTitle();
-        expect(topTitle).toBe('Dashboard');
+        const activeLink = await app.getActiveNavLink();
+        expect(activeLink).toBe('Dashboard');
     });
 });

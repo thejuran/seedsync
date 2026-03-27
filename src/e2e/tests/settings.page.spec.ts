@@ -7,9 +7,9 @@ test.describe('Testing settings page', () => {
         await settingsPage.navigateTo();
     });
 
-    test('should have right top title', async ({ page }) => {
+    test('should have Settings nav link active', async ({ page }) => {
         const settingsPage = new SettingsPage(page);
-        const topTitle = await settingsPage.getTopTitle();
-        expect(topTitle).toBe('Settings');
+        const activeLink = await settingsPage.getActiveNavLink();
+        expect(activeLink).toBe('Settings');
     });
 });

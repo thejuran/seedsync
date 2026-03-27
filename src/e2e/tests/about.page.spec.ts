@@ -7,15 +7,15 @@ test.describe('Testing about page', () => {
         await aboutPage.navigateTo();
     });
 
-    test('should have right top title', async ({ page }) => {
+    test('should have About nav link active', async ({ page }) => {
         const aboutPage = new AboutPage(page);
-        const topTitle = await aboutPage.getTopTitle();
-        expect(topTitle).toBe('About');
+        const activeLink = await aboutPage.getActiveNavLink();
+        expect(activeLink).toBe('About');
     });
 
     test('should have the right version', async ({ page }) => {
         const aboutPage = new AboutPage(page);
         const version = await aboutPage.getVersion();
-        expect(version).toBe('v3.1.2');
+        expect(version).toBe('v3.3.0-dev.1');
     });
 });

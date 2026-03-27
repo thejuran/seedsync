@@ -6,7 +6,6 @@ import time
 import argparse
 import os
 import logging
-import secrets
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from typing import Optional, Type, TypeVar
@@ -299,7 +298,7 @@ class Seedsync:
         config.general.debug = False
         config.general.verbose = False
         config.general.webhook_secret = ""
-        config.general.api_token = secrets.token_urlsafe(32)
+        config.general.api_token = ""
         config.general.allowed_hostname = ""
 
         config.lftp.remote_address = Seedsync.__CONFIG_DUMMY_VALUE
