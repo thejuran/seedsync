@@ -33,6 +33,6 @@ export default defineConfig({
   ],
   timeout: 30000,
   expect: {
-    timeout: 5000
+    timeout: process.env.CI ? 10000 : 5000
   },
 });

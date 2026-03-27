@@ -56,8 +56,8 @@ export class DashboardPage extends App {
 
     async selectFile(index: number) {
         await this.page.locator('#file-list .file').nth(index).click();
-        // Allow Angular change detection to propagate (esbuild output differs slightly)
-        await this.page.waitForTimeout(100);
+        // Allow Angular change detection to propagate (longer in CI/QEMU environments)
+        await this.page.waitForTimeout(process.env.CI ? 500 : 100);
     }
 
     /**

@@ -97,12 +97,13 @@ class BulkActionsDashboardPage extends DashboardPage {
     // Helper methods
     async clickFileCheckbox(index: number) {
         await this.getFileCheckbox(index).click();
-        await this.page.waitForTimeout(100);
+        // Allow Angular change detection to propagate (longer in CI/QEMU environments)
+        await this.page.waitForTimeout(process.env.CI ? 500 : 100);
     }
 
     async clickHeaderCheckbox() {
         await this.headerCheckbox.click();
-        await this.page.waitForTimeout(100);
+        await this.page.waitForTimeout(process.env.CI ? 500 : 100);
     }
 
     async isFileRowBulkSelected(index: number): Promise<boolean> {
