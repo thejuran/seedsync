@@ -16,7 +16,7 @@ paste = "^3.10.1"
 patool = "^4.0.3"
 pexpect = "^4.9.0"
 pytz = "^2025.2"
-requests = "^2.32.5"
+requests = "^2.33.0"
 tblib = "^3.2.2"
 timeout-decorator = "^0.5.0"
 
