@@ -221,7 +221,7 @@ export class FileListComponent {
      */
     private _moveFocusToRow(direction: number): void {
         const rows = Array.from(document.querySelectorAll<HTMLElement>("#file-list .file[role=\"row\"]"));
-        if (rows.length === 0) return;
+        if (rows.length === 0) {return;}
 
         const currentIndex = rows.findIndex(row => row === document.activeElement || row.contains(document.activeElement as Node));
 
@@ -234,7 +234,7 @@ export class FileListComponent {
         }
 
         // Clamp to bounds (do not wrap)
-        if (nextIndex < 0 || nextIndex >= rows.length) return;
+        if (nextIndex < 0 || nextIndex >= rows.length) {return;}
 
         rows[nextIndex].focus();
     }

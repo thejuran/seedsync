@@ -1,9 +1,9 @@
 import {AfterViewInit, Component, ElementRef, OnInit, OnDestroy, ViewChild} from "@angular/core";
 import {NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet} from "@angular/router";
-import { NgClass } from "@angular/common";
+
 import {Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
-import {ROUTE_INFOS, RouteInfo} from "../../routes";
+import {ROUTE_INFOS} from "../../routes";
 
 declare function require(moduleName: string): { version: string };
 const { version: appVersion } = require("../../../../package.json");
@@ -17,7 +17,7 @@ import {HeaderComponent} from "./header.component";
     templateUrl: "./app.component.html",
     styleUrls: ["./app.component.scss"],
     standalone: true,
-    imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent, NgClass]
+    imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild("topHeader", {static: false}) topHeader: ElementRef;

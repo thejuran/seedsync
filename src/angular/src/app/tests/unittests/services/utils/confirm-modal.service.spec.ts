@@ -299,7 +299,7 @@ describe("Testing confirm modal service", () => {
 
     it("should sanitize HTML in title and body to prevent XSS", fakeAsync(() => {
         const options: ConfirmModalOptions = {
-            title: '<script>alert("xss")</script>',
+            title: "<script>alert(\"xss\")</script>",
             body: "<img src=x onerror=alert(1)> test"
         };
 

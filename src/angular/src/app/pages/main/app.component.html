@@ -32,22 +32,16 @@
   <div class="toast-container position-fixed top-0 end-0 p-3">
     @for (toast of toasts; track toast.message) {
       <div
-        class="toast show"
-         [ngClass]="{
-            'bg-success text-white': toast.type === 'success',
-            'bg-info text-dark': toast.type === 'info',
-            'bg-warning text-dark': toast.type === 'warning',
-            'bg-danger text-white': toast.type === 'danger'
-         }"
+        class="toast show earthy-toast"
+        [attr.data-type]="toast.type"
         role="alert"
         aria-live="assertive"
         aria-atomic="true">
-        <div class="d-flex">
+        <div class="d-flex align-items-center">
           <div class="toast-body">
             {{toast.message}}
           </div>
-          <button type="button" class="btn-close me-2 m-auto"
-            [ngClass]="{'btn-close-white': toast.type === 'success' || toast.type === 'danger'}"
+          <button type="button" class="btn-close btn-close-white me-2 m-auto"
             (click)="dismissToast(toast)"
             aria-label="Close">
           </button>

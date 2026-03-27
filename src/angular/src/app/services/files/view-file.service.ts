@@ -357,12 +357,9 @@ export class ViewFileService implements OnDestroy {
         if (remoteSize == null) {
             remoteSize = 0;
         }
-        let percentDownloaded: number = null;
-        if (remoteSize > 0) {
-            percentDownloaded = Math.trunc(100.0 * localSize / remoteSize);
-        } else {
-            percentDownloaded = 100;
-        }
+        const percentDownloaded: number = remoteSize > 0
+            ? Math.trunc(100.0 * localSize / remoteSize)
+            : 100;
 
         // Translate the status
         let status = null;

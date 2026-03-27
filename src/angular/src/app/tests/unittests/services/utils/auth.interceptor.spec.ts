@@ -10,7 +10,7 @@ describe("authInterceptor", () => {
 
     function setupWithMeta(content: string | null): void {
         // Remove any existing meta tag
-        const existing = document.querySelector('meta[name="api-token"]');
+        const existing = document.querySelector("meta[name=\"api-token\"]");
         if (existing) {
             existing.remove();
         }
@@ -40,7 +40,7 @@ describe("authInterceptor", () => {
     afterEach(() => {
         httpMock.verify();
         // Cleanup meta tag
-        const meta = document.querySelector('meta[name="api-token"]');
+        const meta = document.querySelector("meta[name=\"api-token\"]");
         if (meta) {
             meta.remove();
         }
@@ -101,7 +101,7 @@ describe("authInterceptor", () => {
         req1.flush("ok");
 
         // Change the meta tag (simulating a change — shouldn't affect cached value)
-        const meta = document.querySelector('meta[name="api-token"]');
+        const meta = document.querySelector("meta[name=\"api-token\"]");
         if (meta) {
             meta.setAttribute("content", "new-token");
         }

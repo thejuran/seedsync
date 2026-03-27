@@ -102,6 +102,46 @@
                 }
 
             }
+
+            .token-section {
+                margin: 0 20px;
+
+                label {
+                    font-size: 90%;
+                    font-weight: 500;
+                    margin-bottom: 2px;
+                }
+
+                .token-description {
+                    font-size: 85%;
+                    color: var(--bs-secondary);
+                    margin-bottom: 8px;
+                }
+
+                .token-display {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    code {
+                        flex: 1;
+                        display: block;
+                        background: var(--bs-dark);
+                        color: var(--bs-light);
+                        padding: 6px 10px;
+                        border-radius: 4px;
+                        font-size: 85%;
+                        word-break: break-all;
+                        user-select: all;
+                    }
+
+                    .btn {
+                        white-space: nowrap;
+                        height: 36px;
+                        font-size: 85%;
+                    }
+                }
+            }
         }
 
         #right {

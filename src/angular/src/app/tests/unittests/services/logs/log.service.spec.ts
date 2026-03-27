@@ -34,9 +34,6 @@ describe("Testing log service", () => {
     it("should send correct record on event", fakeAsync(() => {
         let count = 0;
         let latestRecord: LogRecord = null;
-        // noinspection JSUnusedAssignment
-        let json = null;
-
         logService.logs.subscribe({
             next: record => {
                 count++;
@@ -44,7 +41,8 @@ describe("Testing log service", () => {
             }
         });
 
-        json = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let json: any = {
             level_name: "DEBUG",
             time: "1514776875.9439101",
             logger_name: "seedsync.Controller.Model",
@@ -99,18 +97,15 @@ describe("Testing log service", () => {
     it("should cache records", fakeAsync(() => {
         let count = 0;
         let latestRecord: LogRecord = null;
-        // noinspection JSUnusedAssignment
-        let data1 = null;
-        // noinspection JSUnusedAssignment
-        let data2  = null;
-
-        data1 = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data1: any = {
             level_name: "WARNING",
             time: "1514771875.9746701",
             logger_name: "another name",
             message: "another message"
         };
-        data2 = {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const data2: any = {
             level_name: "DEBUG",
             time: "1514776875.9439101",
             logger_name: "seedsync.Controller.Model",

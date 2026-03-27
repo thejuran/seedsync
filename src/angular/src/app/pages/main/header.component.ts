@@ -1,6 +1,7 @@
-import {Component, OnInit} from "@angular/core";
+import {Component, OnInit, OnDestroy} from "@angular/core";
 import { AsyncPipe } from "@angular/common";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
+import {takeUntil} from "rxjs/operators";
 
 import * as Immutable from "immutable";
 
@@ -19,7 +20,7 @@ import {Localization} from "../../common/localization";
     styleUrls: ["./header.component.scss"],
 })
 
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
     // expose Notification type to template
     public Notification = Notification;
 
@@ -30,6 +31,7 @@ export class HeaderComponent implements OnInit {
     private _prevServerNotification: Notification;
     private _prevWaitingForRemoteScanNotification: Notification;
     private _prevRemoteServerErrorNotification: Notification;
+    private destroy$ = new Subject<void>();
 
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
@@ -46,7 +48,7 @@ export class HeaderComponent implements OnInit {
 
     ngOnInit(): void {
         // Set up a subscriber to show server status notifications
-        this._serverStatusService.status.subscribe({
+        this._serverStatusService.status.pipe(takeUntil(this.destroy$)).subscribe({
             next: status => {
                 if (status.server.up) {
                     // Remove any server notifications we may have added
@@ -78,7 +80,7 @@ export class HeaderComponent implements OnInit {
         });
 
         // Set up a subscriber to show waiting for remote scan notification
-        this._serverStatusService.status.subscribe({
+        this._serverStatusService.status.pipe(takeUntil(this.destroy$)).subscribe({
             next: status => {
                 if (status.server.up && status.controller.latestRemoteScanTime == null) {
                     // Server up and no remote scan - show notification if not already shown
@@ -100,7 +102,7 @@ export class HeaderComponent implements OnInit {
         });
 
         // Set up a subscriber to show remote server error notifications
-        this._serverStatusService.status.subscribe({
+        this._serverStatusService.status.pipe(takeUntil(this.destroy$)).subscribe({
             next: status => {
                 if (status.server.up && status.controller.latestRemoteScanFailed === true) {
                     // Server up and remote scan failed - show notification if not already shown
@@ -128,5 +130,10 @@ export class HeaderComponent implements OnInit {
                 }
             }
         });
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 }

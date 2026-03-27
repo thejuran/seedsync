@@ -22,7 +22,7 @@ const { version: appVersion } = require("../../../../package.json");
 export class VersionCheckService implements OnDestroy {
     private destroy$ = new Subject<void>();
     private readonly GITHUB_LATEST_RELEASE_URL =
-        "https://api.github.com/repos/ipsingh06/seedsync/releases/latest";
+        "https://api.github.com/repos/thejuran/seedsync/releases/latest";
 
     constructor(private _restService: RestService,
                 private _notifService: NotificationService,

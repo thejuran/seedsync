@@ -9,7 +9,7 @@ let tokenRead = false;
 
 function getApiToken(): string {
     if (!tokenRead) {
-        const meta = document.querySelector('meta[name="api-token"]');
+        const meta = document.querySelector("meta[name=\"api-token\"]");
         cachedToken = meta?.getAttribute("content") || "";
         tokenRead = true;
     }

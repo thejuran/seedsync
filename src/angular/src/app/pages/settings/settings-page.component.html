@@ -199,6 +199,40 @@
         *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_OTHER">
       </ng-container>
 
+      @if (apiToken) {
+        <div class="card">
+          <h3 class="card-header" id="heading-security">
+            <button class="btn"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#collapse-security">
+              Security
+            </button>
+          </h3>
+          <div id="collapse-security" class="collapse" data-bs-parent="#accordion">
+            <div class="card-body">
+              <div class="token-section">
+                <label>API Token</label>
+                <p class="token-description">
+                  Use this token for API access. Include it as a Bearer token in the Authorization header.
+                </p>
+                <div class="token-display">
+                  <code>{{apiToken}}</code>
+                  <button class="btn btn-secondary btn-sm" type="button"
+                    (click)="onCopyToken()">
+                    @if (tokenCopied) {
+                      <span>Copied!</span>
+                    } @else {
+                      <span>Copy</span>
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+
     </div>
   </div>
 

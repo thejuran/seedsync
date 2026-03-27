@@ -1,8 +1,8 @@
-import {Component, Input, Output, ChangeDetectionStrategy, EventEmitter, OnInit} from "@angular/core";
+import {Component, Input, Output, ChangeDetectionStrategy, EventEmitter, OnInit, OnDestroy} from "@angular/core";
 
 import {FormsModule} from "@angular/forms";
 import {Subject} from "rxjs";
-import {debounceTime, distinctUntilChanged} from "rxjs/operators";
+import {debounceTime, distinctUntilChanged, takeUntil} from "rxjs/operators";
 
 @Component({
     selector: "app-option",
@@ -13,7 +13,7 @@ import {debounceTime, distinctUntilChanged} from "rxjs/operators";
     standalone: true,
     imports: [FormsModule]
 })
-export class OptionComponent implements OnInit {
+export class OptionComponent implements OnInit, OnDestroy {
     @Input() type: OptionType;
     @Input() label: string;
     @Input() value: string | number | boolean;
@@ -27,6 +27,7 @@ export class OptionComponent implements OnInit {
     private readonly DEBOUNCE_TIME_MS: number = 1000;
 
     private newValue = new Subject<string | number | boolean>();
+    private destroy$ = new Subject<void>();
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
@@ -37,9 +38,15 @@ export class OptionComponent implements OnInit {
         this.newValue
             .pipe(
                 debounceTime(this.DEBOUNCE_TIME_MS),
-                distinctUntilChanged()
+                distinctUntilChanged(),
+                takeUntil(this.destroy$)
             )
             .subscribe({next: val => this.changeEvent.emit(val)});
+    }
+
+    ngOnDestroy(): void {
+        this.destroy$.next();
+        this.destroy$.complete();
     }
 
     onChange(value: string | number | boolean): void {

@@ -12,10 +12,10 @@ import {LoggerService} from "./logger.service";
  */
 export class WebReaction {
     readonly success: boolean;
-    readonly data: string;
-    readonly errorMessage: string;
+    readonly data: string | null;
+    readonly errorMessage: string | null;
 
-    constructor(success: boolean, data: string, errorMessage: string) {
+    constructor(success: boolean, data: string | null, errorMessage: string | null) {
         this.success = success;
         this.data = data;
         this.errorMessage = errorMessage;
@@ -85,13 +85,10 @@ export class RestService {
 
     private handleError(url: string): (err: HttpErrorResponse) => Observable<WebReaction> {
         return (err: HttpErrorResponse): Observable<WebReaction> => {
-            let errorMessage: string = null;
             this._logger.debug("%s error: %O", url, err);
-            if (err.error instanceof Event) {
-                errorMessage = err.error.type;
-            } else {
-                errorMessage = err.error;
-            }
+            const errorMessage: string | null = err.error instanceof Event
+                ? err.error.type
+                : err.error;
             return of(new WebReaction(false, null, errorMessage));
         };
     }

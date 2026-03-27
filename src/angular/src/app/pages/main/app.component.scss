@@ -99,7 +99,47 @@
     }
 }
 
-/* Toast container z-index */
+// ============================================================================
+// Toast Notifications — Earthy Palette
+// ============================================================================
 .toast-container {
     z-index: 1090;
+}
+
+.earthy-toast {
+    background-color: #1c3340;
+    color: #e9e6ff;
+    border: 1px solid var(--app-separator-color);
+    border-left: 4px solid var(--app-separator-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    .toast-body {
+        font-size: 0.875rem;
+    }
+
+    .btn-close {
+        opacity: 0.5;
+        filter: invert(1) grayscale(100%) brightness(200%);
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &[data-type="success"] {
+        border-left-color: $success;
+    }
+
+    &[data-type="info"] {
+        border-left-color: $info;
+    }
+
+    &[data-type="warning"] {
+        border-left-color: $warning;
+    }
+
+    &[data-type="danger"] {
+        border-left-color: $danger;
+    }
 }

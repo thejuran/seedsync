@@ -749,6 +749,8 @@ describe("Testing model file service", () => {
             children: Immutable.Set<ModelFile>()
         });
         modelFileService.deleteRemote(modelFile).subscribe(DoNothing);
-        httpMock.expectOne(r => r.url === "/server/command/delete_remote/%252Ftest%252Fleadingslash" && r.method === "DELETE").flush("done");
+        httpMock.expectOne(
+            r => r.url === "/server/command/delete_remote/%252Ftest%252Fleadingslash" && r.method === "DELETE"
+        ).flush("done");
     }));
 });

@@ -142,6 +142,7 @@ describe("Testing stream dispatch service", () => {
 
         // Remove the service mapping for event1a AFTER the EventSource listener was created.
         // This simulates the guard path: the event arrives but no service is mapped.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (dispatchService as any)._eventNameToServiceMap.delete("event1a");
 
         // Fire the event via the existing listener — it will reach the next handler

@@ -100,13 +100,13 @@ export class FileComponent implements OnChanges, AfterViewInit {
      * (e.g., [class.even-row] from the parent), so even-row striping
      * continues to work unaffected.
      */
-    @HostBinding('class') get hostClass(): string {
-        if (!this.file) { return ''; }
+    @HostBinding("class") get hostClass(): string {
+        if (!this.file) { return ""; }
         const classes = [`status-${this.file.status}`];
         if (this.file.status === ViewFile.Status.DOWNLOADING) {
-            classes.push('downloading-active');
+            classes.push("downloading-active");
         }
-        return classes.join(' ');
+        return classes.join(" ");
     }
 
     /**
@@ -114,7 +114,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
      * Produces e.g. "status-dot dot-downloading" for use in [class] binding.
      */
     get statusDotClass(): string {
-        return `status-dot dot-${this.file?.status ?? 'default'}`;
+        return `status-dot dot-${this.file?.status ?? "default"}`;
     }
 
     /**
@@ -128,7 +128,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         const pct = Math.min(Math.max(this.file?.percentDownloaded ?? 0, 0), 100);
         const filled = Math.round((pct / 100) * this.BAR_WIDTH);
         const empty = this.BAR_WIDTH - filled;
-        return '[' + '\u2588'.repeat(filled) + '\u2591'.repeat(empty) + '] ' + pct + '%';
+        return "[" + "\u2588".repeat(filled) + "\u2591".repeat(empty) + "] " + pct + "%";
     }
 
     constructor(private confirmModal: ConfirmModalService) {}

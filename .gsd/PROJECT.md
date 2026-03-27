@@ -9,11 +9,12 @@
 - CI: GitHub Actions (Python unit tests, Angular unit tests, E2E Playwright tests, Deb/Docker builds)
 - Registry: ghcr.io/thejuran/seedsync
 
-**Current state:** v3.2.0 stable. M002 in progress — completing API token auth, DNS rebinding prevention, CSP hardening, and CONF-04 Settings UI fix. M003 planned — UI redesign with earthy palette matching Triggarr's design language.
+**Current state:** v3.3.0-dev on master. Security hardening and UI redesign complete. M004 in progress — closing deferred polish (R017 token in Settings, R040 toast restyle) and landing Dependabot dependency updates (Immutable.js 5, TypeScript 6, Angular 21.2.6).
 
 **Milestones:**
 - M001: Angular 21 Migration ✅ (released as v3.2.0)
-- M002: Finish v3.2 Security 🚧 (API token auth, DNS rebinding, CSP hardening, CONF-04 fix)
+- M002: Finish v3.2 Security ✅ (API token auth, DNS rebinding, CSP hardening, CONF-04 fix)
 - M003: UI Redesign — Earthy Palette ✅ (rethemed from terminal/hacker to clean modern dark UI)
+- M004: Polish & Dependency Updates 🚧 (R017, R040, Dependabot PR #161)
 
 **Repo:** https://github.com/thejuran/seedsync

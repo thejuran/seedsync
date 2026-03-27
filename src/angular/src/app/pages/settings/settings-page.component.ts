@@ -57,6 +57,9 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     public testRadarrConnectionLoading = false;
     public testRadarrConnectionResult: {success: boolean; message: string} = null;
 
+    public apiToken = "";
+    public tokenCopied = false;
+
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
                 private _configService: ConfigService,
@@ -75,6 +78,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
     // noinspection JSUnusedGlobalSymbols
     ngOnInit(): void {
+        // Read API token from meta tag injected by Bottle server
+        const meta = document.querySelector("meta[name=\"api-token\"]");
+        this.apiToken = meta?.getAttribute("content") || "";
+
         this._connectedService.connected.pipe(takeUntil(this.destroy$)).subscribe({
             next: (connected: boolean) => {
                 if (!connected) {
@@ -125,6 +132,19 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                 }
             }
         });
+    }
+
+    onCopyToken(): void {
+        if (this.apiToken) {
+            navigator.clipboard.writeText(this.apiToken).then(() => {
+                this.tokenCopied = true;
+                this._cdr.markForCheck();
+                setTimeout(() => {
+                    this.tokenCopied = false;
+                    this._cdr.markForCheck();
+                }, 2000);
+            });
+        }
     }
 
     onCommandRestart(): void {
