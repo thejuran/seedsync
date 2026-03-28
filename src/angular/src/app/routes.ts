@@ -5,7 +5,7 @@ import * as Immutable from "immutable";
 
 import {FilesPageComponent} from "./pages/files/files-page.component";
 import {SettingsPageComponent} from "./pages/settings/settings-page.component";
-import {AutoQueuePageComponent} from "./pages/autoqueue/autoqueue-page.component";
+
 import {LogsPageComponent} from "./pages/logs/logs-page.component";
 import {AboutPageComponent} from "./pages/about/about-page.component";
 
@@ -25,11 +25,6 @@ export const ROUTE_INFOS: Immutable.List<RouteInfo> = Immutable.List([
         path: "settings",
         name: "Settings",
         component: SettingsPageComponent
-    },
-    {
-        path: "autoqueue",
-        name: "AutoQueue",
-        component: AutoQueuePageComponent
     },
     {
         path: "logs",
@@ -56,10 +51,6 @@ export const ROUTES: Routes = [
     {
         path: "settings",
         component: SettingsPageComponent
-    },
-    {
-        path: "autoqueue",
-        component: AutoQueuePageComponent
     },
     {
         path: "logs",

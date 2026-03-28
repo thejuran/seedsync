@@ -19,7 +19,6 @@ test.describe('Testing top-level app', () => {
         expect(items).toEqual([
             'Dashboard',
             'Settings',
-            'AutoQueue',
             'Logs',
             'About',
         ]);

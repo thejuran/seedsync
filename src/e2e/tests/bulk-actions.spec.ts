@@ -207,17 +207,17 @@ test.describe('Bulk File Actions', () => {
             expect(await dashboardPage.getFileCheckbox(2).isChecked()).toBe(true);
         });
 
-        test('1.4 - clicking file name opens details, selection unchanged', async () => {
+        test('1.4 - clicking file name does not clear checkbox selection', async () => {
             await dashboardPage.clickFileCheckbox(0);
             expect(await dashboardPage.getFileCheckbox(0).isChecked()).toBe(true);
 
             // Click on file name (not checkbox)
             await dashboardPage.selectFile(1);
 
-            // Original selection should remain
+            // Original checkbox selection should remain
             expect(await dashboardPage.getFileCheckbox(0).isChecked()).toBe(true);
-            // File details should be shown
-            expect(await dashboardPage.isFileActionsVisible(1)).toBe(true);
+            // Bulk actions bar should still be visible (single-file bar hidden during bulk select)
+            expect(await dashboardPage.selectionBanner.isVisible()).toBe(true);
         });
 
         test('1.5 - selection count in banner matches selected files', async () => {

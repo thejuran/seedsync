@@ -1,5 +1,6 @@
 import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy} from "@angular/core";
 import { NgTemplateOutlet, AsyncPipe } from "@angular/common";
+import {FormsModule} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
 import {takeUntil} from "rxjs/operators";
 
@@ -12,6 +13,8 @@ import {Notification} from "../../services/utils/notification";
 import {Localization} from "../../common/localization";
 import {NotificationService} from "../../services/utils/notification.service";
 import {ServerCommandService} from "../../services/server/server-command.service";
+import {AutoQueueService} from "../../services/autoqueue/autoqueue.service";
+import {AutoQueuePattern} from "../../services/autoqueue/autoqueue-pattern";
 import {
     OPTIONS_CONTEXT_CONNECTIONS, OPTIONS_CONTEXT_DISCOVERY, OPTIONS_CONTEXT_OTHER,
     OPTIONS_CONTEXT_SERVER, OPTIONS_CONTEXT_AUTOQUEUE, OPTIONS_CONTEXT_EXTRACT,
@@ -20,6 +23,8 @@ import {
 import {ConnectedService} from "../../services/utils/connected.service";
 import {StreamServiceRegistry} from "../../services/base/stream-service.registry";
 
+import * as Immutable from "immutable";
+
 @Component({
     selector: "app-settings-page",
     templateUrl: "./settings-page.component.html",
@@ -27,7 +32,7 @@ import {StreamServiceRegistry} from "../../services/base/stream-service.registry
     providers: [],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [NgTemplateOutlet, AsyncPipe, OptionComponent]
+    imports: [NgTemplateOutlet, AsyncPipe, FormsModule, OptionComponent]
 })
 export class SettingsPageComponent implements OnInit, OnDestroy {
     public OPTIONS_CONTEXT_SERVER = OPTIONS_CONTEXT_SERVER;
@@ -61,14 +66,22 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     public tokenCopied = false;
     public tokenRevealed = false;
 
+    // AutoQueue pattern management
+    public patterns: Observable<Immutable.List<AutoQueuePattern>>;
+    public newPattern = "";
+    public autoqueueEnabled = false;
+    public patternsOnly = false;
+
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,
                 private _configService: ConfigService,
                 private _notifService: NotificationService,
                 private _commandService: ServerCommandService,
+                private _autoqueueService: AutoQueueService,
                 private _cdr: ChangeDetectorRef) {
         this._connectedService = _streamServiceRegistry.connectedService;
         this.config = _configService.config;
+        this.patterns = _autoqueueService.patterns;
         this.commandsEnabled = false;
         this._configRestartNotif = new Notification({
             level: Notification.Level.INFO,
@@ -88,10 +101,25 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                 if (!connected) {
                     // Server went down, hide the config restart notification
                     this._notifService.hide(this._configRestartNotif);
+                    this.newPattern = "";
                 }
 
                 // Enable/disable commands based on server connection
                 this.commandsEnabled = connected;
+            }
+        });
+
+        // Track autoqueue config for pattern CRUD enable/disable
+        this._configService.config.pipe(takeUntil(this.destroy$)).subscribe({
+            next: config => {
+                if (config != null) {
+                    this.autoqueueEnabled = config.autoqueue.enabled;
+                    this.patternsOnly = config.autoqueue.patterns_only;
+                } else {
+                    this.autoqueueEnabled = false;
+                    this.patternsOnly = false;
+                }
+                this._cdr.markForCheck();
             }
         });
     }
@@ -146,6 +174,45 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                 }, 2000);
             });
         }
+    }
+
+    onAddPattern(): void {
+        if (!this.newPattern || !this.autoqueueEnabled || !this.patternsOnly) {
+            return;
+        }
+        this._autoqueueService.add(this.newPattern).pipe(takeUntil(this.destroy$)).subscribe({
+            next: reaction => {
+                if (reaction.success) {
+                    this.newPattern = "";
+                    this._cdr.markForCheck();
+                } else {
+                    const notif = new Notification({
+                        level: Notification.Level.DANGER,
+                        dismissible: true,
+                        text: reaction.errorMessage
+                    });
+                    this._notifService.show(notif);
+                }
+            }
+        });
+    }
+
+    onRemovePattern(pattern: AutoQueuePattern): void {
+        if (!this.autoqueueEnabled || !this.patternsOnly) {
+            return;
+        }
+        this._autoqueueService.remove(pattern.pattern).pipe(takeUntil(this.destroy$)).subscribe({
+            next: reaction => {
+                if (!reaction.success) {
+                    const notif = new Notification({
+                        level: Notification.Level.DANGER,
+                        dismissible: true,
+                        text: reaction.errorMessage
+                    });
+                    this._notifService.show(notif);
+                }
+            }
+        });
     }
 
     onCommandRestart(): void {

@@ -26,10 +26,61 @@
         *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_SERVER">
       </ng-container>
 
-      <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
-      <ng-container
-        *ngTemplateOutlet="optionsList;context:OPTIONS_CONTEXT_AUTOQUEUE">
-      </ng-container>
+      <div class="settings-card">
+        <h3 class="settings-card-header">AutoQueue</h3>
+        <div class="settings-card-body">
+          @for (option of OPTIONS_CONTEXT_AUTOQUEUE.options; track option.label) {
+            <div>
+              <app-option
+                [type]="option.type"
+                [label]="option.label"
+                [description]="option.description"
+                [value]="(config | async)?.get(option.valuePath[0]).get(option.valuePath[1])"
+                (changeEvent)="onSetConfig(option.valuePath[0], option.valuePath[1], $event)">
+              </app-option>
+            </div>
+          }
+
+          <!-- Pattern list (only when patterns are enabled) -->
+          <div class="pattern-section" [class.patterns-disabled]="!(autoqueueEnabled && patternsOnly)">
+            <h4 class="subsection-header">Patterns</h4>
+            @if (autoqueueEnabled && patternsOnly) {
+              <p class="pattern-description">Files matching these patterns will be automatically queued. Wildcards (*) are supported.</p>
+            } @else if (autoqueueEnabled && !patternsOnly) {
+              <p class="pattern-description">Patterns are disabled. <strong>All files will be auto-queued.</strong> Enable "Restrict to patterns" above to manage patterns.</p>
+            } @else {
+              <p class="pattern-description">Enable AutoQueue above to manage patterns.</p>
+            }
+
+            @for (pattern of patterns | async; track pattern.pattern) {
+              <div class="pattern-row">
+                <span class="pattern-text">{{pattern.pattern}}</span>
+                <button class="btn btn-sm btn-outline-danger pattern-remove-btn" type="button"
+                  [disabled]="!(autoqueueEnabled && patternsOnly)"
+                  (click)="onRemovePattern(pattern)"
+                  aria-label="Remove pattern">
+                  &minus;
+                </button>
+              </div>
+            }
+
+            <div class="pattern-add">
+              <input type="text"
+                class="form-control form-control-sm"
+                placeholder="Add pattern..."
+                [(ngModel)]="newPattern"
+                [disabled]="!commandsEnabled || !autoqueueEnabled || !patternsOnly"
+                (keyup.enter)="(newPattern && autoqueueEnabled && patternsOnly) && onAddPattern()" />
+              <button class="btn btn-sm btn-outline-success pattern-add-btn" type="button"
+                [disabled]="!(newPattern && autoqueueEnabled && patternsOnly)"
+                (click)="onAddPattern()"
+                aria-label="Add pattern">
+                &#43;
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <!--suppress HtmlUnknownAttribute, UnnecessaryLabelJS -->
       <ng-container

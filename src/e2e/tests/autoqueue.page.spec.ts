@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { AutoQueuePage } from './autoqueue.page';
 
-test.describe('Testing autoqueue page', () => {
+test.describe('Testing autoqueue patterns in settings', () => {
     test.beforeEach(async ({ page }) => {
         const autoQueuePage = new AutoQueuePage(page);
         await autoQueuePage.navigateTo();
@@ -9,10 +9,10 @@ test.describe('Testing autoqueue page', () => {
         await autoQueuePage.removeAllPatterns();
     });
 
-    test('should have AutoQueue nav link active', async ({ page }) => {
+    test('should have Settings nav link active', async ({ page }) => {
         const autoQueuePage = new AutoQueuePage(page);
         const activeLink = await autoQueuePage.getActiveNavLink();
-        expect(activeLink).toBe('AutoQueue');
+        expect(activeLink).toBe('Settings');
     });
 
     test('should add and remove patterns', async ({ page }) => {

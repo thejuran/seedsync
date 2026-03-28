@@ -94,6 +94,68 @@
                 }
             }
 
+            .pattern-section {
+                margin: 8px 16px 0;
+
+                &.patterns-disabled {
+                    opacity: 0.65;
+                }
+
+                .pattern-description {
+                    font-size: 85%;
+                    color: var(--bs-secondary);
+                    margin-bottom: 8px;
+                }
+
+                .pattern-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    padding: 4px 0;
+
+                    .pattern-text {
+                        flex: 1;
+                        font-size: 90%;
+                        word-break: break-all;
+                    }
+
+                    .pattern-remove-btn {
+                        flex-shrink: 0;
+                        width: 28px;
+                        height: 28px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 0;
+                        font-size: 120%;
+                        font-weight: 700;
+                    }
+                }
+
+                .pattern-add {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    margin-top: 8px;
+
+                    input {
+                        flex: 1;
+                    }
+
+                    .pattern-add-btn {
+                        flex-shrink: 0;
+                        width: 28px;
+                        height: 28px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 0;
+                        font-size: 120%;
+                        font-weight: 700;
+                    }
+                }
+            }
+
             .token-section {
                 margin: 0 20px;
 

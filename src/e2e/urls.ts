@@ -3,7 +3,7 @@
 export const Paths = {
   DASHBOARD: '/dashboard',
   SETTINGS: '/settings',
-  AUTOQUEUE: '/autoqueue',
+
   ABOUT: '/about',
   LOGS: '/logs',
 } as const;
