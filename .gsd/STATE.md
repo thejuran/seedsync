@@ -1,13 +1,17 @@
 # GSD State
 
-**Active Milestone:** M006 — Triggarr-Style Layout + Deep Moss Palette Fix
-**Active Slice:** S03 — Dev release + UAT
+**Active Milestone:** M007 — Settings Redesign, Documentation & v3.3.0 Release
+**Active Slice:** none (not started)
 **Active Task:** none
-**Phase:** execute
-**Slice Branch:** gsd/M006/S01
+**Phase:** plan
+**Slice Branch:** n/a
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Squash-merge to master, push, wait for CI + :dev image, then UAT
-**Last Updated:** 2026-03-27
+**Next Action:** Start M007/S01 — Settings page Triggarr-style redesign
+**Last Updated:** 2026-03-28
+
+## Completed Milestones
+
+- M006: ✅ Triggarr-Style Layout + Deep Moss Palette — CI green, UAT passed on :dev image
 
 ## Recent Decisions
 

@@ -38,7 +38,7 @@
   > After this: SeedSync has readable earthy colors and Triggarr-style flat row layout
 - [x] **S02: Deep code review + fixes** `risk:medium` `depends:[S01]`
   > After this: All code review findings resolved — clean, consistent, no regressions
-- [ ] **S03: Dev release + UAT** `risk:low` `depends:[S02]`
+- [x] **S03: Dev release + UAT** `risk:low` `depends:[S02]`
   > After this: `:dev` image published, UAT passed on live container
 
 ## Boundary Map
