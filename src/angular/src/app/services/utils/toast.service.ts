@@ -25,12 +25,13 @@ export class ToastService {
     }
 
     show(toast: Partial<Toast> & {message: string}): void {
+        const id = this._nextId++;
         this._toasts$.next({
-            id: this._nextId++,
+            ...toast,
+            id,
             type: toast.type ?? "info",
             autohide: toast.autohide ?? true,
             delay: toast.delay ?? 5000,
-            ...toast
         });
     }
 

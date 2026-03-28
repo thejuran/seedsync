@@ -48,7 +48,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
             this.toasts.push(toast);
             if (toast.autohide) {
                 setTimeout(() => {
-                    const index = this.toasts.indexOf(toast);
+                    const index = this.toasts.findIndex(t => t.id === toast.id);
                     if (index >= 0) {
                         this.toasts.splice(index, 1);
                     }
@@ -71,7 +71,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     dismissToast(toast: Toast): void {
-        const index = this.toasts.indexOf(toast);
+        const index = this.toasts.findIndex(t => t.id === toast.id);
         if (index >= 0) {
             this.toasts.splice(index, 1);
         }

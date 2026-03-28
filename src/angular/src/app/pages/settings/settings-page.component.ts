@@ -57,10 +57,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     private _badValueNotifs: Map<string, Notification>;
 
     public testSonarrConnectionLoading = false;
-    public testSonarrConnectionResult: {success: boolean; message: string} = null;
+    public testSonarrConnectionResult: {success: boolean; message: string} | null = null;
 
     public testRadarrConnectionLoading = false;
-    public testRadarrConnectionResult: {success: boolean; message: string} = null;
+    public testRadarrConnectionResult: {success: boolean; message: string} | null = null;
 
     public apiToken = "";
     public tokenCopied = false;
@@ -112,7 +112,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         // Track autoqueue config for pattern CRUD enable/disable
         this._configService.config.pipe(takeUntil(this.destroy$)).subscribe({
             next: config => {
-                if (config != null) {
+                if (config?.autoqueue != null) {
                     this.autoqueueEnabled = config.autoqueue.enabled;
                     this.patternsOnly = config.autoqueue.patterns_only;
                 } else {
@@ -172,12 +172,12 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                     this.tokenCopied = false;
                     this._cdr.markForCheck();
                 }, 2000);
-            });
+            }).catch(() => { /* clipboard unavailable (non-HTTPS or permissions) */ });
         }
     }
 
     onAddPattern(): void {
-        if (!this.newPattern || !this.autoqueueEnabled || !this.patternsOnly) {
+        if (!this.commandsEnabled || !this.newPattern || !this.autoqueueEnabled || !this.patternsOnly) {
             return;
         }
         this._autoqueueService.add(this.newPattern).pipe(takeUntil(this.destroy$)).subscribe({
@@ -198,7 +198,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     }
 
     onRemovePattern(pattern: AutoQueuePattern): void {
-        if (!this.autoqueueEnabled || !this.patternsOnly) {
+        if (!this.commandsEnabled || !this.autoqueueEnabled || !this.patternsOnly) {
             return;
         }
         this._autoqueueService.remove(pattern.pattern).pipe(takeUntil(this.destroy$)).subscribe({

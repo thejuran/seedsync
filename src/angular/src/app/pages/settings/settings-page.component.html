@@ -56,7 +56,7 @@
               <div class="pattern-row">
                 <span class="pattern-text">{{pattern.pattern}}</span>
                 <button class="btn btn-sm btn-outline-danger pattern-remove-btn" type="button"
-                  [disabled]="!(autoqueueEnabled && patternsOnly)"
+                  [disabled]="!(commandsEnabled && autoqueueEnabled && patternsOnly)"
                   (click)="onRemovePattern(pattern)"
                   aria-label="Remove pattern">
                   &minus;
@@ -68,11 +68,12 @@
               <input type="text"
                 class="form-control form-control-sm"
                 placeholder="Add pattern..."
+                maxlength="256"
                 [(ngModel)]="newPattern"
                 [disabled]="!commandsEnabled || !autoqueueEnabled || !patternsOnly"
-                (keyup.enter)="(newPattern && autoqueueEnabled && patternsOnly) && onAddPattern()" />
+                (keyup.enter)="(commandsEnabled && newPattern && autoqueueEnabled && patternsOnly) && onAddPattern()" />
               <button class="btn btn-sm btn-outline-success pattern-add-btn" type="button"
-                [disabled]="!(newPattern && autoqueueEnabled && patternsOnly)"
+                [disabled]="!(commandsEnabled && newPattern && autoqueueEnabled && patternsOnly)"
                 (click)="onAddPattern()"
                 aria-label="Add pattern">
                 &#43;
