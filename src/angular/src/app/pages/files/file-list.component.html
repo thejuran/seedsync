@@ -1,12 +1,9 @@
 @if ({files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectedFile: selectedFile$ | async, options: options | async}; as vm) {
-  <app-selection-banner
-    [selectedFiles]="vm.selectedFiles!"
-    (clearSelection)="onClearSelection()">
-  </app-selection-banner>
   <app-bulk-actions-bar
     [visibleFiles]="vm.files!"
     [selectedFiles]="vm.selectedFiles!"
     [operationInProgress]="bulkOperationInProgress"
+    (clearSelection)="onClearSelection()"
     (queueAction)="onBulkQueue($event)"
     (stopAction)="onBulkStop($event)"
     (extractAction)="onBulkExtract($event)"

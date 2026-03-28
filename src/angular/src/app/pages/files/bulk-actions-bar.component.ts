@@ -126,6 +126,11 @@ export class BulkActionsBarComponent implements OnChanges {
     }
 
     /**
+     * Emitted when user clicks Clear button to clear selection.
+     */
+    @Output() clearSelection = new EventEmitter<void>();
+
+    /**
      * Emitted when user clicks Queue button.
      * Passes array of file names that are queueable.
      */
@@ -216,6 +221,13 @@ export class BulkActionsBarComponent implements OnChanges {
      */
     get remotelyDeletableFiles(): string[] {
         return this._cachedRemotelyDeletableFiles;
+    }
+
+    /**
+     * Handle Clear button click.
+     */
+    onClearClick(): void {
+        this.clearSelection.emit();
     }
 
     /**

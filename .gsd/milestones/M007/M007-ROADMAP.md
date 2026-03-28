@@ -39,7 +39,7 @@ This milestone is complete only when all are true:
 
 - [x] **S01: Settings page Triggarr-style redesign** `risk:medium` `depends:[]`
   > After this: Settings page uses card sections with labels-above-inputs, no accordion, compact grid layout matching Triggarr's settings pattern; all existing settings save correctly
-- [ ] **S02: Dashboard multi-select bar consolidation** `risk:low` `depends:[S01]`
+- [x] **S02: Dashboard multi-select bar consolidation** `risk:low` `depends:[S01]`
   > After this: Selection banner and bulk actions bar are merged into a single unified bar showing selected count, Clear button, and action buttons in one row; consistent background tint
 - [ ] **S03: Screenshots & documentation update** `risk:low` `depends:[S02]`
   > After this: README, docs/index.md, and changelog show current UI screenshots (dashboard + settings) and accurate text; all image references resolve

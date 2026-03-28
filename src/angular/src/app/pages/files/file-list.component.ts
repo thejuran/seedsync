@@ -9,7 +9,6 @@ import {map} from "rxjs/operators";
 import {List} from "immutable";
 
 import {FileComponent} from "./file.component";
-import {SelectionBannerComponent} from "./selection-banner.component";
 import {BulkActionsBarComponent} from "./bulk-actions-bar.component";
 import {FileActionsBarComponent} from "./file-actions-bar.component";
 import {ViewFileService} from "../../services/files/view-file.service";
@@ -36,7 +35,6 @@ import {ToastService} from "../../services/utils/toast.service";
     imports: [
         AsyncPipe,
         FileComponent,
-        SelectionBannerComponent,
         BulkActionsBarComponent,
         FileActionsBarComponent
     ]
