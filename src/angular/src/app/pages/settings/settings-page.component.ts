@@ -130,7 +130,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     }
 
     onSetConfig(section: string, option: string, value: string | number | boolean): void {
-        this._configService.set(section, option, value).subscribe({
+        this._configService.set(section, option, value).pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 const notifKey = section + "." + option;
                 if (reaction.success) {
@@ -216,7 +216,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
     }
 
     onCommandRestart(): void {
-        this._commandService.restart().subscribe({
+        this._commandService.restart().pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 if (reaction.success) {
                     this._logger.info(reaction.data);
@@ -232,7 +232,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         this.testSonarrConnectionResult = null;
         this._cdr.markForCheck();
 
-        this._configService.testSonarrConnection().subscribe({
+        this._configService.testSonarrConnection().pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 this.testSonarrConnectionLoading = false;
                 if (reaction.success) {
@@ -271,7 +271,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
         this.testRadarrConnectionResult = null;
         this._cdr.markForCheck();
 
-        this._configService.testRadarrConnection().subscribe({
+        this._configService.testRadarrConnection().pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 this.testRadarrConnectionLoading = false;
                 if (reaction.success) {
