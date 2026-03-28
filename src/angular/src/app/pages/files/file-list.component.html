@@ -10,14 +10,16 @@
     (deleteLocalAction)="onBulkDeleteLocal($event)"
     (deleteRemoteAction)="onBulkDeleteRemote($event)">
   </app-bulk-actions-bar>
-  <app-file-actions-bar
-    [file]="vm.selectedFile"
-    (queueEvent)="onQueue($event)"
-    (stopEvent)="onStop($event)"
-    (extractEvent)="onExtract($event)"
-    (deleteLocalEvent)="onDeleteLocal($event)"
-    (deleteRemoteEvent)="onDeleteRemote($event)">
-  </app-file-actions-bar>
+  @if (!vm.selectedFiles?.size) {
+    <app-file-actions-bar
+      [file]="vm.selectedFile"
+      (queueEvent)="onQueue($event)"
+      (stopEvent)="onStop($event)"
+      (extractEvent)="onExtract($event)"
+      (deleteLocalEvent)="onDeleteLocal($event)"
+      (deleteRemoteEvent)="onDeleteRemote($event)">
+    </app-file-actions-bar>
+  }
   <!-- Progress overlay during bulk operations -->
   @if (bulkOperationInProgress) {
     <div class="bulk-progress-overlay">
