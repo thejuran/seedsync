@@ -9,7 +9,7 @@
 - CI: GitHub Actions (Python unit tests, Angular unit tests, E2E Playwright tests, Deb/Docker builds)
 - Registry: ghcr.io/thejuran/seedsync
 
-**Current state:** v3.3.0-dev on master. Security hardening and UI redesign complete. M004 in progress — closing deferred polish (R017 token in Settings, R040 toast restyle) and landing Dependabot dependency updates (Immutable.js 5, TypeScript 6, Angular 21.2.6).
+**Current state:** v3.3.0-dev on master. All milestones complete. CI fully green — all unit tests, E2E tests (amd64+arm64, Deb+Docker), builds, and `:dev` image published.
 
 **Milestones:**
 - M001: Angular 21 Migration ✅ (released as v3.2.0)
