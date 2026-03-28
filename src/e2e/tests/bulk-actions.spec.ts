@@ -11,7 +11,7 @@ class BulkActionsDashboardPage extends DashboardPage {
 
     // Checkbox selectors
     get headerCheckbox() {
-        return this.page.locator('#file-list #header .checkbox input[type="checkbox"]');
+        return this.page.locator('#file-list #header .header-inner input[type="checkbox"]');
     }
 
     getFileCheckbox(index: number) {
