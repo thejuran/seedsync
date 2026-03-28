@@ -22,17 +22,17 @@ class BulkActionsDashboardPage extends DashboardPage {
         return this.page.locator('#file-list .file').nth(index);
     }
 
-    // Selection banner selectors
+    // Selection banner selectors (merged into bulk-actions-bar)
     get selectionBanner() {
-        return this.page.locator('.selection-banner');
+        return this.page.locator('.bulk-actions-bar');
     }
 
     get selectionCount() {
-        return this.page.locator('.selection-banner .selection-count');
+        return this.page.locator('.bulk-actions-bar .selection-label');
     }
 
     get clearSelectionButton() {
-        return this.page.locator('.selection-banner .clear-btn');
+        return this.page.locator('.bulk-actions-bar .clear-btn');
     }
 
     // Bulk actions bar selectors

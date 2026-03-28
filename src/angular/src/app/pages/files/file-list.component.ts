@@ -1,4 +1,4 @@
-import {Component, ChangeDetectionStrategy, HostListener, DestroyRef, inject} from "@angular/core";
+import {Component, ChangeDetectionStrategy, ChangeDetectorRef, HostListener, DestroyRef, inject} from "@angular/core";
 import { AsyncPipe } from "@angular/common";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 // CDK virtual scroll temporarily disabled for E2E debugging
@@ -45,6 +45,7 @@ export class FileListComponent {
 
     public files: Observable<List<ViewFile>>;
     public identify = FileListComponent.identify;
+    public readonly emptySet = new Set<string>();
     public options: Observable<ViewFileOptions>;
 
     // Header checkbox state: 'none', 'some', 'all'
@@ -74,7 +75,8 @@ export class FileListComponent {
                 private bulkCommandService: BulkCommandService,
                 private confirmModalService: ConfirmModalService,
                 private notificationService: NotificationService,
-                private _toastService: ToastService) {
+                private _toastService: ToastService,
+                private _cdr: ChangeDetectorRef) {
         this.files = viewFileService.filteredFiles;
         this.options = this.viewFileOptionsService.options;
 
@@ -267,31 +269,41 @@ export class FileListComponent {
     }
 
     onQueue(file: ViewFile): void {
-        this.viewFileService.queue(file).subscribe(data => {
+        this.viewFileService.queue(file).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(data => {
             this._logger.info(data);
         });
     }
 
     onStop(file: ViewFile): void {
-        this.viewFileService.stop(file).subscribe(data => {
+        this.viewFileService.stop(file).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(data => {
             this._logger.info(data);
         });
     }
 
     onExtract(file: ViewFile): void {
-        this.viewFileService.extract(file).subscribe(data => {
+        this.viewFileService.extract(file).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(data => {
             this._logger.info(data);
         });
     }
 
     onDeleteLocal(file: ViewFile): void {
-        this.viewFileService.deleteLocal(file).subscribe(data => {
+        this.viewFileService.deleteLocal(file).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(data => {
             this._logger.info(data);
         });
     }
 
     onDeleteRemote(file: ViewFile): void {
-        this.viewFileService.deleteRemote(file).subscribe(data => {
+        this.viewFileService.deleteRemote(file).pipe(
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(data => {
             this._logger.info(data);
         });
     }
@@ -479,12 +491,14 @@ export class FileListComponent {
 
         // Show progress indicator for all bulk operations
         this.bulkOperationInProgress = true;
+        this._cdr.markForCheck();
 
         this.bulkCommandService.executeBulkAction(action, fileNames).pipe(
             takeUntilDestroyed(this.destroyRef)
         ).subscribe({
             next: (result: BulkActionResult) => {
                 this.bulkOperationInProgress = false;
+                this._cdr.markForCheck();
                 // Release the lock before clearing selection
                 this.fileSelectionService.endOperation();
                 this._handleBulkResult(result, messages);
@@ -494,6 +508,7 @@ export class FileListComponent {
             },
             error: (err) => {
                 this.bulkOperationInProgress = false;
+                this._cdr.markForCheck();
                 // Release the lock on error
                 this.fileSelectionService.endOperation();
                 this._logger.error("Bulk action error:", err);

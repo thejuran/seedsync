@@ -188,17 +188,31 @@
               <p class="token-description">
                 Use this token for API access. Include it as a Bearer token in the Authorization header.
               </p>
-              <div class="token-display">
-                <code>{{apiToken}}</code>
-                <button class="btn btn-secondary btn-sm" type="button"
-                  (click)="onCopyToken()">
-                  @if (tokenCopied) {
-                    <span>Copied!</span>
-                  } @else {
-                    <span>Copy</span>
-                  }
-                </button>
-              </div>
+              @if (tokenRevealed) {
+                <div class="token-display">
+                  <code>{{apiToken}}</code>
+                  <button class="btn btn-secondary btn-sm" type="button"
+                    (click)="onCopyToken()">
+                    @if (tokenCopied) {
+                      <span>Copied!</span>
+                    } @else {
+                      <span>Copy</span>
+                    }
+                  </button>
+                  <button class="btn btn-secondary btn-sm" type="button"
+                    (click)="tokenRevealed = false">
+                    Hide
+                  </button>
+                </div>
+              } @else {
+                <div class="token-display">
+                  <code class="token-masked">••••••••••••••••••••</code>
+                  <button class="btn btn-secondary btn-sm" type="button"
+                    (click)="tokenRevealed = true">
+                    Reveal
+                  </button>
+                </div>
+              }
             </div>
           </div>
         </div>

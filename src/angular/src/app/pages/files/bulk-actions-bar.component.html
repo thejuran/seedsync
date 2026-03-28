@@ -2,7 +2,9 @@
   <div class="bulk-actions-bar">
     <div class="bar-left">
       <span class="selection-label">{{ selectedCount }} {{ selectedCount === 1 ? 'file' : 'files' }} selected</span>
-      <button type="button" class="btn btn-sm btn-outline-secondary clear-btn" (click)="onClearClick()">
+      <button type="button" class="btn btn-sm clear-btn action-secondary"
+        [disabled]="operationInProgress"
+        (click)="onClearClick()">
         Clear
       </button>
     </div>

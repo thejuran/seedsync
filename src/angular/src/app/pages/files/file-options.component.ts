@@ -27,7 +27,7 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
     public ViewFile = ViewFile;
     public ViewFileOptions = ViewFileOptions;
 
-    public latestOptions: ViewFileOptions = null;
+    public latestOptions: ViewFileOptions | null = null;
     public headerHeight: Observable<number>;
 
     // These track which status filters are enabled

@@ -59,6 +59,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
     public apiToken = "";
     public tokenCopied = false;
+    public tokenRevealed = false;
 
     constructor(private _logger: LoggerService,
                 _streamServiceRegistry: StreamServiceRegistry,

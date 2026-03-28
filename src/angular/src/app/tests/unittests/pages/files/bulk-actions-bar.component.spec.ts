@@ -224,6 +224,14 @@ describe("BulkActionsBarComponent", () => {
             setInputsAndDetectChanges(testFiles, new Set(["file1", "file2", "file5"]));
         });
 
+        it("should emit clearSelection on Clear click", () => {
+            spyOn(component.clearSelection, "emit");
+
+            component.onClearClick();
+
+            expect(component.clearSelection.emit).toHaveBeenCalled();
+        });
+
         it("should emit queueAction with queueable files on Queue click", () => {
             spyOn(component.queueAction, "emit");
 

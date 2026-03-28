@@ -51,6 +51,11 @@ export class BulkActionsBarComponent implements OnChanges {
      */
     @Input() operationInProgress = false;
 
+    /**
+     * Emitted when user clicks Clear button to clear selection.
+     */
+    @Output() clearSelection = new EventEmitter<void>();
+
     // Cached computed values - recomputed only on input changes
     private _cachedSelectedViewFiles: ViewFile[] = [];
     private _cachedActionCounts: BulkActionCounts = {
@@ -124,11 +129,6 @@ export class BulkActionsBarComponent implements OnChanges {
             remotelyDeletable: remotelyDeletable.length
         };
     }
-
-    /**
-     * Emitted when user clicks Clear button to clear selection.
-     */
-    @Output() clearSelection = new EventEmitter<void>();
 
     /**
      * Emitted when user clicks Queue button.

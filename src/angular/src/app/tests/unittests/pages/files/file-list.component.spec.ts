@@ -1,6 +1,6 @@
 import {ComponentFixture, TestBed, fakeAsync, tick} from "@angular/core/testing";
 import {HttpClientTestingModule} from "@angular/common/http/testing";
-import {ScrollingModule} from "@angular/cdk/scrolling";
+
 import {of, throwError} from "rxjs";
 import {List} from "immutable";
 
@@ -70,7 +70,7 @@ describe("FileListComponent - Keyboard Shortcuts and Range Selection", () => {
         mockToastService = jasmine.createSpyObj("ToastService", ["success", "info", "warning", "danger", "show"]);
 
         await TestBed.configureTestingModule({
-            imports: [FileListComponent, HttpClientTestingModule, ScrollingModule],
+            imports: [FileListComponent, HttpClientTestingModule],
             providers: [
                 FileSelectionService,
                 {provide: ViewFileService, useValue: mockViewFileService},
@@ -434,7 +434,7 @@ describe("FileListComponent - Bulk Action Handlers", () => {
         mockConfirmModalService.confirm.and.returnValue(Promise.resolve(true));
 
         await TestBed.configureTestingModule({
-            imports: [FileListComponent, HttpClientTestingModule, ScrollingModule],
+            imports: [FileListComponent, HttpClientTestingModule],
             providers: [
                 FileSelectionService,
                 {provide: ViewFileService, useValue: mockViewFileService},

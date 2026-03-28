@@ -1,7 +1,7 @@
 @if ({files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectedFile: selectedFile$ | async, options: options | async}; as vm) {
   <app-bulk-actions-bar
     [visibleFiles]="vm.files!"
-    [selectedFiles]="vm.selectedFiles!"
+    [selectedFiles]="vm.selectedFiles ?? emptySet"
     [operationInProgress]="bulkOperationInProgress"
     (clearSelection)="onClearSelection()"
     (queueAction)="onBulkQueue($event)"
