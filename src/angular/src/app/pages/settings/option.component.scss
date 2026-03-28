@@ -2,8 +2,7 @@
 
 .form-group {
     margin-bottom: 0;
-    margin-left: 20px;
-    margin-right: 20px;
+    padding: 6px 16px;
 }
 
 .error {
@@ -15,17 +14,26 @@
 label {
     width: 100%;
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    gap: 2px;
+}
+
+span.name {
+    font-size: 90%;
+    font-weight: 500;
 }
 
 span.description {
     color: var(--app-muted-text);
     font-size: 80%;
-    line-height: initial;
+    line-height: 1.3;
+    white-space: pre-line;
+}
+
+input[type="text"],
+input[type="password"] {
     width: 100%;
-    white-space: pre-line;  // renders newline as <br />
+    margin-top: 2px;
 }
 
 .form-check {
@@ -53,8 +61,4 @@ span.description {
             padding-left: 30px;
         }
     }
-}
-
-input[type="text"] {
-    width: 100%;
 }

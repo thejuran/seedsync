@@ -1,13 +1,13 @@
 # GSD State
 
 **Active Milestone:** M007 — Settings Redesign, Documentation & v3.3.0 Release
-**Active Slice:** none (not started)
+**Active Slice:** S01 ✅ complete — ready to merge
 **Active Task:** none
-**Phase:** plan
-**Slice Branch:** n/a
+**Phase:** merge
+**Slice Branch:** gsd/M007/S01
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Start M007/S01 — Settings page Triggarr-style redesign
-**Last Updated:** 2026-03-28
+**Next Action:** Merge S01 to master, then start S02 — Screenshots & documentation update
+**Last Updated:** 2026-03-27
 
 ## Completed Milestones
 
@@ -17,6 +17,7 @@
 
 - D015: Switch from earthy palette to Deep Moss + Amber (supersedes D009)
 - D016: Rename $earthy-border → $moss-border, .earthy-toast → .moss-toast
+- D017: Settings cards use .settings-card pattern, no Bootstrap accordion JS
 
 ## Blockers
 

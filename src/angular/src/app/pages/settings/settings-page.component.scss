@@ -3,55 +3,47 @@
 #settings {
     width: 100%;
 
-    #accordion {
+    .settings-columns {
         width: 100%;
         display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
+        flex-direction: column;
         padding: 15px;
+        gap: 0;
 
-        #left, #right {
+        .settings-column {
             width: 100%;
 
-            .card {
-                margin-top: 20px;
+            .settings-card {
+                background: var(--app-header-bg);
+                border: 1px solid var(--app-file-border-color);
+                border-radius: 6px;
+                margin-bottom: 16px;
 
-                &:first-child {
-                    margin-top: 0;
-                }
-
-                .card-header {
+                .settings-card-header {
+                    font-weight: 600;
+                    color: var(--app-muted-text);
+                    font-size: 90%;
+                    padding: 12px 16px 0;
                     margin-bottom: 0;
-
-                    .btn {
-                        font-weight: 600;
-                        color: var(--app-muted-text);
-                        font-size: 90%;
-                        cursor: default;
-
-                        &:focus {
-                            box-shadow: none;
-                        }
-                    }
                 }
 
-                .card-body {
-                    padding: 10px 0;
+                .settings-card-body {
+                    padding: 8px 0 12px;
 
                     .subsection-header {
                         font-size: 100%;
                         font-weight: 600;
-                        margin: 20px 20px 10px;
+                        margin: 16px 16px 8px;
                         color: var(--app-muted-text);
 
                         &:first-child {
-                            margin-top: 0;
+                            margin-top: 4px;
                         }
                     }
                 }
 
                 .test-connection {
-                    margin: 10px 20px 0;
+                    margin: 8px 20px 0;
 
                     .btn {
                         height: 36px;
@@ -100,7 +92,6 @@
                         }
                     }
                 }
-
             }
 
             .token-section {
@@ -143,10 +134,6 @@
                 }
             }
         }
-
-        #right {
-            margin-top: 20px;
-        }
     }
 
     #commands {
@@ -167,29 +154,15 @@
 }
 
 
-/* Medium and large screens */
+/* Medium and large screens — two column layout */
 @media only screen and (min-width: $medium-min-width) {
     #settings {
-        #accordion {
-            #left, #right {
+        .settings-columns {
+            flex-direction: row;
+            gap: 20px;
+
+            .settings-column {
                 width: 50%;
-
-                .card-header {
-                    .btn {
-                        pointer-events: none;
-                    }
-                }
-
-                .collapse {
-                    display: inherit;
-                }
-            }
-            #left {
-                padding-right: 10px;
-            }
-            #right {
-                padding-left: 10px;
-                margin-top: 0;
             }
         }
     }
