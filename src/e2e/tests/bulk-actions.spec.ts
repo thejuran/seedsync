@@ -177,7 +177,7 @@ test.describe('Bulk File Actions', () => {
         await dashboardPage.navigateTo();
         // Wait for files to load - with virtual scrolling, only visible files are rendered
         // min-height 500px / 83px row height = ~6 visible files
-        await dashboardPage.waitForFileCount(5);
+        await dashboardPage.waitForAtLeastFileCount(5);
     });
 
     test.describe('TS-1: Checkbox Selection Basics', () => {

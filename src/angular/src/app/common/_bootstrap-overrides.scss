@@ -1,4 +1,4 @@
-// Bootstrap post-compilation overrides — Earthy Palette
+// Bootstrap post-compilation overrides — Deep Moss Palette
 // These are imported AFTER Bootstrap components are compiled
 
 @use 'bootstrap-variables' as bv;
@@ -11,24 +11,24 @@
     word-break: break-word;
 }
 
-// Dropdown theme — Earthy Palette
+// Dropdown theme — Deep Moss Palette
 .dropdown-menu {
-  --bs-dropdown-bg: #583e23;
-  --bs-dropdown-border-color: #{bv.$earthy-border};
+  --bs-dropdown-bg: #{bv.$primary-dark-color};
+  --bs-dropdown-border-color: #{bv.$moss-border};
   --bs-dropdown-box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.4);
 
-  --bs-dropdown-link-color: #e9e6ff;
-  --bs-dropdown-link-hover-color: #e9e6ff;
-  --bs-dropdown-link-hover-bg: #73683b;
-  --bs-dropdown-link-active-color: #e9e6ff;
-  --bs-dropdown-link-active-bg: #73683b;
-  --bs-dropdown-link-disabled-color: rgba(233, 230, 255, 0.4);
+  --bs-dropdown-link-color: #{bv.$body-color-dark};
+  --bs-dropdown-link-hover-color: #{bv.$body-color-dark};
+  --bs-dropdown-link-hover-bg: rgba(bv.$primary, 0.25);
+  --bs-dropdown-link-active-color: #{bv.$body-color-dark};
+  --bs-dropdown-link-active-bg: rgba(bv.$primary, 0.25);
+  --bs-dropdown-link-disabled-color: rgba(bv.$body-color-dark, 0.4);
 }
 
 // Toggle button pressed/open state
 .dropdown-toggle.show {
-  background-color: #73683b;
-  border-color: #73683b;
+  background-color: rgba(bv.$primary, 0.25);
+  border-color: bv.$primary;
 }
 
 // Dropdown fade animation
@@ -47,34 +47,34 @@
 }
 
 // ============================================================================
-// Form Styling — Earthy Palette
+// Form Styling — Deep Moss Palette
 // ============================================================================
 .form-control {
-  background-color: #13262f;
-  color: #e9e6ff;
-  border-color: #{bv.$earthy-border};
+  background-color: bv.$body-bg-dark;
+  color: bv.$body-color-dark;
+  border-color: bv.$moss-border;
 
   &::placeholder {
-    color: #b0a084;
+    color: bv.$secondary;
   }
 
   &:focus {
-    background-color: #13262f;
-    color: #e9e6ff;
+    background-color: bv.$body-bg-dark;
+    color: bv.$body-color-dark;
   }
 
   &:disabled {
-    background-color: #583e23;
+    background-color: bv.$primary-dark-color;
     opacity: 0.65;
   }
 }
 
 .form-check-input {
-  background-color: #13262f;
-  border-color: #{bv.$earthy-border};
+  background-color: bv.$body-bg-dark;
+  border-color: bv.$moss-border;
 
   &:focus {
-    border-color: #73683b;
+    border-color: bv.$primary;
   }
 
   &:disabled {
@@ -83,7 +83,7 @@
 }
 
 // ============================================================================
-// Custom Scrollbars — Earthy Palette
+// Custom Scrollbars — Deep Moss Palette
 // ============================================================================
 
 // Webkit (Chrome, Safari, Edge)
@@ -92,19 +92,19 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #13262f;
+  background: bv.$body-bg-dark;
 }
 ::-webkit-scrollbar-thumb {
-  background: #{bv.$earthy-border};
+  background: bv.$moss-border;
   border-radius: 4px;
 
   &:hover {
-    background: #73683b;
+    background: bv.$primary;
   }
 }
 
 // Firefox
 * {
-  scrollbar-color: #{bv.$earthy-border} #13262f;
+  scrollbar-color: bv.$moss-border bv.$body-bg-dark;
   scrollbar-width: thin;
 }

@@ -75,39 +75,34 @@ html, body {
     font-size: 15px;
     line-height: 1.5;
     margin: 0;
-    background-color: var(--bs-body-bg, #13262f);
+    background-color: var(--bs-body-bg, #151a14);
 }
 
 // ============================================================================
-// SECTION 5: App CSS Custom Properties — Earthy Palette (dark-only)
+// SECTION 5: App CSS Custom Properties — Deep Moss Palette (dark-only)
 // ============================================================================
 
 :root {
   // Layout backgrounds
-  --app-header-bg: #583e23;
-  --app-top-header-bg: #13262f;
+  --app-header-bg: #222a20;
+  --app-top-header-bg: #151a14;
 
   // File list
-  --app-file-header-bg: #583e23;
-  --app-file-header-color: #b0a084;
-  --app-file-row-even: rgba(88, 62, 35, 0.3);
-  --app-file-border-color: #{common.$earthy-border};
-  --app-bulk-overlay-bg: rgba(19, 38, 47, 0.85);
+  --app-file-row-even: rgba(34, 42, 32, 0.5);
+  --app-file-border-color: #{common.$moss-border};
+  --app-bulk-overlay-bg: rgba(21, 26, 20, 0.85);
 
   // Text
-  --app-logo-color: #73683b;
-  --app-muted-text: #b0a084;
-  --app-separator-color: #6b5d44;
+  --app-logo-color: #c49a4a;
+  --app-muted-text: #9aaa8a;
+  --app-separator-color: #4a5440;
 
-  // Accents
-  --app-accent-teal-border: #73683b;
-
-  // Selection/accent — Olive Bark
-  --app-selection-bg: #73683b;
-  --app-selection-bg-subtle: rgba(115, 104, 59, 0.1);
-  --app-selection-bg-alpha: rgba(115, 104, 59, 0.15);
-  --app-selection-border: #73683b;
-  --app-selection-text-emphasis: #e9e6ff;
+  // Selection/accent — Amber
+  --app-selection-bg: rgba(196, 154, 74, 0.25);
+  --app-selection-bg-subtle: rgba(196, 154, 74, 0.08);
+  --app-selection-bg-alpha: rgba(196, 154, 74, 0.15);
+  --app-selection-border: #c49a4a;
+  --app-selection-text-emphasis: #e0e8d6;
 
 }
 
@@ -118,6 +113,12 @@ input[type=search]::-webkit-search-cancel-button {
 
 div {
     box-sizing: border-box;
+}
+
+/* Downloading row glow animation */
+@keyframes green-pulse {
+    0%, 100% { background-color: transparent; }
+    50% { background-color: rgba(common.$status-downloading, 0.06); }
 }
 
 /* Toast container z-index */

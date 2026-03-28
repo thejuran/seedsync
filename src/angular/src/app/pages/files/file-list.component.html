@@ -1,4 +1,4 @@
-@if ({files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectedFile: selectedFile$ | async}; as vm) {
+@if ({files: files | async, state: headerCheckboxState$ | async, selectedFiles: selectedFiles$ | async, selectedFile: selectedFile$ | async, options: options | async}; as vm) {
   <app-selection-banner
     [selectedFiles]="vm.selectedFiles!"
     (clearSelection)="onClearSelection()">
@@ -30,32 +30,28 @@
       <div class="progress-text">Processing files...</div>
     </div>
   }
-  <div id="file-list" role="grid" aria-label="File list">
-    <div id="header" role="row" aria-label="Column headers">
-      <div class="checkbox">
+  <!-- Results count -->
+  @if (vm.files) {
+    <p class="results-count">Showing {{ vm.files.size }} files</p>
+  }
+  <!-- File list card container -->
+  <div id="file-list" class="file-card" role="grid" aria-label="File list">
+    <!-- Select-all checkbox row -->
+    <div id="header" role="row" aria-label="Select all">
+      <div class="header-inner">
         <input type="checkbox"
           [checked]="vm.state === 'all'"
           [indeterminate]="vm.state === 'some'"
           (click)="onHeaderCheckboxClick(vm.files!)"
           aria-label="Select all files" />
+        <span class="header-label">Select all</span>
       </div>
-      <div class="name">Filename</div>
-      <div class="status">Status</div>
-      <div class="speed">Speed</div>
-      <div class="eta">ETA</div>
-      <div class="remote-timestamp">Remote Added</div>
-      <div class="local-timestamp">Local Added</div>
-      <div class="size">Size</div>
     </div>
     <div class="file-viewport">
-      <!-- Session 16: [bulkSelected] binding removed - FileComponent now uses computed()
-      signal that reads directly from FileSelectionService. This eliminates
-      cascading checkbox updates by removing the pipe evaluation + @Input change
-      that previously caused ALL components to re-render on select-all. -->
       @for (file of (vm.files?.toArray() || []); track identify($index, file); let even = $even) {
         <app-file
           [file]="file"
-          [options]="options"
+          [options]="vm.options!"
           [class.even-row]="even"
           (click)="onSelect(file)"
           (checkboxToggle)="onCheckboxToggle($event)"

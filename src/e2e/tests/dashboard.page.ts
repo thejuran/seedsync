@@ -24,9 +24,9 @@ export class DashboardPage extends App {
         await this.page.locator('#file-list .file').first().waitFor({ state: 'visible', timeout: 30000 });
     }
 
-    async waitForFileCount(count: number, timeout: number = 10000) {
-        // Wait for a specific number of files to be loaded (for incremental loading)
-        // With virtual scrolling, we can only count files currently rendered in the viewport
+    async waitForAtLeastFileCount(count: number, timeout: number = 10000) {
+        // Wait for at least `count` files to be rendered in the viewport.
+        // Uses >= because virtual scrolling may render more than expected.
         await this.page.waitForFunction(
             (expectedCount) => {
                 const files = document.querySelectorAll('#file-list .file');
@@ -42,12 +42,14 @@ export class DashboardPage extends App {
         const files: FileInfo[] = [];
 
         for (const elm of fileElements) {
-            // File name is now in .name .text .title (with truncation)
-            const name = (await elm.locator('.name .text .title').textContent() || '').trim();
-            const statusElm = elm.locator('.content .status span.text');
-            const statusCount = await statusElm.count();
-            const status = statusCount > 0 ? (await statusElm.innerHTML()).trim() : '';
-            const size = (await elm.locator('.size .size_info').textContent() || '').trim();
+            // File name is in a flat <span class="name">
+            const name = (await elm.locator('.name').textContent() || '').trim();
+            // Status is in a <span class="status-badge badge-X">
+            const statusText = (await elm.locator('.status-badge').textContent() || '').trim();
+            // "Default" badge means no meaningful status — normalize to empty string for compatibility
+            const status = statusText.toLowerCase() === 'default' ? '' : statusText;
+            // Size is in <span class="size"> inside .meta-right
+            const size = (await elm.locator('.meta-right .size').textContent() || '').trim();
             files.push({ name, status, size });
         }
 
@@ -67,7 +69,7 @@ export class DashboardPage extends App {
     async isFileActionsVisible(index: number): Promise<boolean> {
         // Get the file name at the given index
         const file = this.page.locator('#file-list .file').nth(index);
-        const fileName = await file.locator('.name .text .title').textContent();
+        const fileName = await file.locator('.name').textContent();
 
         // Check if the file-actions-bar shows this file's name
         const actionsBar = this.page.locator('app-file-actions-bar .file-actions-bar');
@@ -78,6 +80,15 @@ export class DashboardPage extends App {
 
         const barFileName = await actionsBar.locator('.name-text').textContent();
         return barFileName?.trim() === fileName?.trim();
+    }
+
+    /**
+     * Get the file name at a given index.
+     * Updated for flat-row layout where name is in a <span class="name">.
+     */
+    async getFileName(index: number): Promise<string> {
+        const file = this.page.locator('#file-list .file').nth(index);
+        return (await file.locator('.name').textContent() || '').trim();
     }
 
     /**

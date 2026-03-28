@@ -1,3 +1,6 @@
+<!-- file.isSelected = single-click highlight (ViewFile model);
+     isSelected() = checkbox/bulk selection (FileSelectionService signal).
+     Both can be true simultaneously — CSS rule .file.selected.bulk-selected handles overlap. -->
 <div class="file"
   [class.selected]="file.isSelected"
   [class.bulk-selected]="isSelected()"
@@ -12,112 +15,30 @@
         (click)="onCheckboxClick($event)"
         [attr.aria-label]="'Select ' + file.name" />
     </div>
-    <div class="status">
-      <span [class]="statusDotClass"></span>
-      <!-- don't show text for default status -->
-      @if (file.status != ViewFile.Status.DEFAULT) {
-        <span
-        class="text">{{file.status | capitalize}}</span>
+    <span [class]="statusBadgeClass">
+      @if (file.status !== ViewFile.Status.DEFAULT) {
+        {{file.status | capitalize}}
+      } @else {
+        Default
       }
-      <!-- Import status badge -->
-      @if (file.importStatus === ViewFile.ImportStatus.IMPORTED) {
-        <span class="badge bg-success import-badge"
-          >
-          Imported
-        </span>
+    </span>
+    @if (file.importStatus === ViewFile.ImportStatus.IMPORTED) {
+      <span class="import-badge">Imported</span>
+    }
+    <span class="name" [title]="file.name">{{file.name}}</span>
+    <span class="meta-right">
+      @if (file.downloadingSpeed > 0) {
+        <span class="speed">{{file.downloadingSpeed | fileSize:3}}/s</span>
       }
-    </div>
-    <div class="name">
-      <div class="text">
-        <div class="title">
-          {{file.name}}
-        </div>
-      </div>
-    </div>
-    <div class="speed">
-      @if (file.downloadingSpeed) {
-        <span>{{file.downloadingSpeed | fileSize:3}}/s</span>
+      @if (file.status === ViewFile.Status.DOWNLOADING && file.eta) {
+        <span class="eta">{{file.eta | eta}}</span>
       }
-      <!-- for mobile layout -->
-      <div class="speed-eta">
-        @if (file.status === ViewFile.Status.DOWNLOADING) {
-          <span>eta: {{file.eta | eta}}</span>
-        }
-      </div>
-    </div>
-    <!-- for desktop layout -->
-    <div class="eta">
-      @if (file.status === ViewFile.Status.DOWNLOADING) {
-        <span>{{file.eta | eta}}</span>
+      @if (file.remoteSize != null) {
+        <span class="size">{{file.percentDownloaded ?? 0}}% — {{file.localSize | fileSize:3}} of {{file.remoteSize | fileSize:3}}</span>
       }
-    </div>
-    <div class="remote-timestamp">
       @if (file.remoteCreatedTimestamp) {
-        <span>
-          {{file.remoteCreatedTimestamp | date: 'yyyy/MM/dd HH:mm'}}
-        </span>
+        <span class="timestamp">{{file.remoteCreatedTimestamp | date: 'yyyy-MM-dd HH:mm'}}</span>
       }
-    </div>
-    <div class="local-timestamp">
-      @if (file.localCreatedTimestamp) {
-        <span>
-          {{file.localCreatedTimestamp | date: 'yyyy/MM/dd HH:mm'}}
-        </span>
-      }
-    </div>
-    <div class="size">
-      <div class="size_info">
-        {{file.percentDownloaded}}% — {{file.localSize | fileSize:3}} of {{file.remoteSize | fileSize:3}}
-      </div>
-    </div>
-  </div>
-
-  <!-- actions div, hidden for virtual scroll but migrated to Bootstrap for consistency -->
-  <div class="actions">
-    <button class="btn btn-outline-success action-button"
-      [disabled]="!isQueueable()"
-      (click)="onQueue(file)"
-      [class.loading]="activeAction === FileAction.QUEUE">
-      @if (activeAction === FileAction.QUEUE) {
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      }
-      <span class="text">Queue</span>
-    </button>
-    <button class="btn btn-outline-danger action-button"
-      [disabled]="!isStoppable()"
-      (click)="onStop(file)"
-      [class.loading]="activeAction === FileAction.STOP">
-      @if (activeAction === FileAction.STOP) {
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      }
-      <span class="text">Stop</span>
-    </button>
-    <button class="btn btn-outline-secondary action-button"
-      [disabled]="!isExtractable()"
-      (click)="onExtract(file)"
-      [class.loading]="activeAction === FileAction.EXTRACT">
-      @if (activeAction === FileAction.EXTRACT) {
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      }
-      <span class="text">Extract</span>
-    </button>
-    <button class="btn btn-outline-danger action-button"
-      [disabled]="!isLocallyDeletable()"
-      (click)="onDeleteLocal(file)"
-      [class.loading]="activeAction === FileAction.DELETE_LOCAL">
-      @if (activeAction === FileAction.DELETE_LOCAL) {
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      }
-      <span class="text">Delete Local</span>
-    </button>
-    <button class="btn btn-outline-danger action-button"
-      [disabled]="!isRemotelyDeletable()"
-      (click)="onDeleteRemote(file)"
-      [class.loading]="activeAction === FileAction.DELETE_REMOTE">
-      @if (activeAction === FileAction.DELETE_REMOTE) {
-        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
-      }
-      <span class="text">Delete Remote</span>
-    </button>
+    </span>
   </div>
 </div>

@@ -51,11 +51,11 @@
     transition: color 0.15s ease;
 
     &:hover {
-        color: #e9e6ff;
+        color: var(--app-selection-text-emphasis);
     }
 
     &.active {
-        color: #e9e6ff;
+        color: var(--app-selection-text-emphasis);
         font-weight: 500;
     }
 }
@@ -100,15 +100,15 @@
 }
 
 // ============================================================================
-// Toast Notifications — Earthy Palette
+// Toast Notifications — Deep Moss Palette
 // ============================================================================
 .toast-container {
     z-index: 1090;
 }
 
-.earthy-toast {
-    background-color: #1c3340;
-    color: #e9e6ff;
+.moss-toast {
+    background-color: var(--app-header-bg);
+    color: var(--app-selection-text-emphasis);
     border: 1px solid var(--app-separator-color);
     border-left: 4px solid var(--app-separator-color);
     border-radius: 6px;

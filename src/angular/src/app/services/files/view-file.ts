@@ -5,29 +5,29 @@ import {Record} from "immutable";
  * Represents the View Model
  */
 interface IViewFile {
-    name: string;
-    isDir: boolean;
-    localSize: number;
-    remoteSize: number;
-    percentDownloaded: number;
-    status: ViewFile.Status;
-    downloadingSpeed: number;
-    eta: number;
-    fullPath: string;
-    isArchive: boolean;  // corresponds to is_extractable in ModelFile
-    isSelected: boolean;
-    isQueueable: boolean;
-    isStoppable: boolean;
+    name: string | null;
+    isDir: boolean | null;
+    localSize: number | null;
+    remoteSize: number | null;
+    percentDownloaded: number | null;
+    status: ViewFile.Status | null;
+    downloadingSpeed: number | null;
+    eta: number | null;
+    fullPath: string | null;
+    isArchive: boolean | null;  // corresponds to is_extractable in ModelFile
+    isSelected: boolean | null;
+    isQueueable: boolean | null;
+    isStoppable: boolean | null;
     // whether file can be queued for extraction (independent of isArchive)
-    isExtractable: boolean;
-    isLocallyDeletable: boolean;
-    isRemotelyDeletable: boolean;
+    isExtractable: boolean | null;
+    isLocallyDeletable: boolean | null;
+    isRemotelyDeletable: boolean | null;
     // timestamps
-    localCreatedTimestamp: Date;
-    localModifiedTimestamp: Date;
-    remoteCreatedTimestamp: Date;
-    remoteModifiedTimestamp: Date;
-    importStatus: ViewFile.ImportStatus;
+    localCreatedTimestamp: Date | null;
+    localModifiedTimestamp: Date | null;
+    remoteCreatedTimestamp: Date | null;
+    remoteModifiedTimestamp: Date | null;
+    importStatus: ViewFile.ImportStatus | null;
 }
 
 // Boiler plate code to set up an immutable class
@@ -60,28 +60,28 @@ const ViewFileRecord = Record(DefaultViewFile);
  * Immutable class that implements the interface
  */
 export class ViewFile extends ViewFileRecord implements IViewFile {
-    name: string;
-    isDir: boolean;
-    localSize: number;
-    remoteSize: number;
-    percentDownloaded: number;
-    status: ViewFile.Status;
-    downloadingSpeed: number;
-    eta: number;
+    name: string | null;
+    isDir: boolean | null;
+    localSize: number | null;
+    remoteSize: number | null;
+    percentDownloaded: number | null;
+    status: ViewFile.Status | null;
+    downloadingSpeed: number | null;
+    eta: number | null;
     // noinspection JSUnusedGlobalSymbols
-    fullPath: string;
-    isArchive: boolean;
-    isSelected: boolean;
-    isQueueable: boolean;
-    isStoppable: boolean;
-    isExtractable: boolean;
-    isLocallyDeletable: boolean;
-    isRemotelyDeletable: boolean;
-    localCreatedTimestamp: Date;
-    localModifiedTimestamp: Date;
-    remoteCreatedTimestamp: Date;
-    remoteModifiedTimestamp: Date;
-    importStatus: ViewFile.ImportStatus;
+    fullPath: string | null;
+    isArchive: boolean | null;
+    isSelected: boolean | null;
+    isQueueable: boolean | null;
+    isStoppable: boolean | null;
+    isExtractable: boolean | null;
+    isLocallyDeletable: boolean | null;
+    isRemotelyDeletable: boolean | null;
+    localCreatedTimestamp: Date | null;
+    localModifiedTimestamp: Date | null;
+    remoteCreatedTimestamp: Date | null;
+    remoteModifiedTimestamp: Date | null;
+    importStatus: ViewFile.ImportStatus | null;
 
     constructor(props) {
         super(props);

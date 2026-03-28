@@ -10,6 +10,7 @@ import {EtaPipe} from "../../common/eta.pipe";
 import {FileSizePipe} from "../../common/file-size.pipe";
 import {ClickStopPropagationDirective} from "../../common/click-stop-propagation.directive";
 import {ViewFile} from "../../services/files/view-file";
+import {FileAction} from "../../services/files/file-action";
 import {Localization} from "../../common/localization";
 import {ViewFileOptions} from "../../services/files/view-file-options";
 import {ConfirmModalService} from "../../services/utils/confirm-modal.service";
@@ -36,20 +37,27 @@ import {FileSelectionService} from "../../services/files/file-selection.service"
     imports: [DatePipe, CapitalizePipe, EtaPipe, FileSizePipe, ClickStopPropagationDirective]
 })
 export class FileComponent implements OnChanges, AfterViewInit {
+    // Badge class lookup — avoids string concatenation in template for defense-in-depth
+    private static readonly BADGE_CLASSES: Record<string, string> = {
+        [ViewFile.Status.DEFAULT]: "status-badge badge-default",
+        [ViewFile.Status.QUEUED]: "status-badge badge-queued",
+        [ViewFile.Status.DOWNLOADING]: "status-badge badge-downloading",
+        [ViewFile.Status.DOWNLOADED]: "status-badge badge-downloaded",
+        [ViewFile.Status.STOPPED]: "status-badge badge-stopped",
+        [ViewFile.Status.DELETED]: "status-badge badge-deleted",
+        [ViewFile.Status.EXTRACTING]: "status-badge badge-extracting",
+        [ViewFile.Status.EXTRACTED]: "status-badge badge-extracted",
+    };
+
+    get statusBadgeClass(): string {
+        return FileComponent.BADGE_CLASSES[this.file?.status] ?? "status-badge badge-default";
+    }
+
     // Inject FileSelectionService for signal-based selection
     private selectionService = inject(FileSelectionService);
 
     // Make ViewFile optionType accessible from template
     ViewFile = ViewFile;
-
-    // Make FileAction accessible from template
-    FileAction = FileAction;
-
-    // Expose min function for template
-    min = Math.min;
-
-    // Width (in characters) of the ASCII progress bar
-    readonly BAR_WIDTH = 10;
 
     // Entire div element
     @ViewChild("fileElement", {static: false}) fileElement!: ElementRef<HTMLDivElement>;
@@ -92,44 +100,22 @@ export class FileComponent implements OnChanges, AfterViewInit {
     });
 
     /**
-     * @HostBinding for status-based class on the host element.
-     * Enables colored left border (DASH-02) and glow animation (DASH-04)
-     * via CSS targeting :host.status-* and :host.downloading-active.
+     * Per-class @HostBindings for status-based classes on the host element.
+     * Enables colored left border and glow animation via CSS targeting
+     * :host.status-* and :host.downloading-active.
      *
-     * Angular merges @HostBinding('class') with attribute-set classes
-     * (e.g., [class.even-row] from the parent), so even-row striping
-     * continues to work unaffected.
+     * Uses individual class bindings instead of @HostBinding('class') to
+     * avoid overwriting parent-applied classes like [class.even-row].
      */
-    @HostBinding("class") get hostClass(): string {
-        if (!this.file) { return ""; }
-        const classes = [`status-${this.file.status}`];
-        if (this.file.status === ViewFile.Status.DOWNLOADING) {
-            classes.push("downloading-active");
-        }
-        return classes.join(" ");
-    }
-
-    /**
-     * Returns the CSS class string for the status dot element (DASH-05).
-     * Produces e.g. "status-dot dot-downloading" for use in [class] binding.
-     */
-    get statusDotClass(): string {
-        return `status-dot dot-${this.file?.status ?? "default"}`;
-    }
-
-    /**
-     * Returns an ASCII block progress bar string (DASH-03).
-     * Example: "[████░░░░░░] 67%"
-     *
-     * OnPush safety: file is an Immutable.js Record — new reference on every update —
-     * so this method only re-evaluates when the input changes.
-     */
-    getAsciiBar(): string {
-        const pct = Math.min(Math.max(this.file?.percentDownloaded ?? 0, 0), 100);
-        const filled = Math.round((pct / 100) * this.BAR_WIDTH);
-        const empty = this.BAR_WIDTH - filled;
-        return "[" + "\u2588".repeat(filled) + "\u2591".repeat(empty) + "] " + pct + "%";
-    }
+    @HostBinding("class.status-default")     get isStatusDefault()     { return this.file?.status === ViewFile.Status.DEFAULT; }
+    @HostBinding("class.status-queued")      get isStatusQueued()      { return this.file?.status === ViewFile.Status.QUEUED; }
+    @HostBinding("class.status-downloading") get isStatusDownloading() { return this.file?.status === ViewFile.Status.DOWNLOADING; }
+    @HostBinding("class.status-downloaded")  get isStatusDownloaded()  { return this.file?.status === ViewFile.Status.DOWNLOADED; }
+    @HostBinding("class.status-stopped")     get isStatusStopped()     { return this.file?.status === ViewFile.Status.STOPPED; }
+    @HostBinding("class.status-deleted")     get isStatusDeleted()     { return this.file?.status === ViewFile.Status.DELETED; }
+    @HostBinding("class.status-extracting")  get isStatusExtracting()  { return this.file?.status === ViewFile.Status.EXTRACTING; }
+    @HostBinding("class.status-extracted")   get isStatusExtracted()   { return this.file?.status === ViewFile.Status.EXTRACTED; }
+    @HostBinding("class.downloading-active") get isDownloadingActive() { return this.file?.status === ViewFile.Status.DOWNLOADING; }
 
     constructor(private confirmModal: ConfirmModalService) {}
 
@@ -171,23 +157,23 @@ export class FileComponent implements OnChanges, AfterViewInit {
     }
 
     isQueueable(): boolean {
-        return this.activeAction == null && this.file?.isQueueable;
+        return this.activeAction == null && (this.file?.isQueueable ?? false);
     }
 
     isStoppable(): boolean {
-        return this.activeAction == null && this.file?.isStoppable;
+        return this.activeAction == null && (this.file?.isStoppable ?? false);
     }
 
     isExtractable(): boolean {
-        return this.activeAction == null && this.file?.isExtractable && this.file?.isArchive;
+        return this.activeAction == null && (this.file?.isExtractable ?? false) && (this.file?.isArchive ?? false);
     }
 
     isLocallyDeletable(): boolean {
-        return this.activeAction == null && this.file?.isLocallyDeletable;
+        return this.activeAction == null && (this.file?.isLocallyDeletable ?? false);
     }
 
     isRemotelyDeletable(): boolean {
-        return this.activeAction == null && this.file?.isRemotelyDeletable;
+        return this.activeAction == null && (this.file?.isRemotelyDeletable ?? false);
     }
 
     onCheckboxClick(event: MouseEvent): void {
@@ -264,10 +250,5 @@ export class FileComponent implements OnChanges, AfterViewInit {
     }
 }
 
-export enum FileAction {
-    QUEUE,
-    STOP,
-    EXTRACT,
-    DELETE_LOCAL,
-    DELETE_REMOTE
-}
+// Re-export for backward compatibility with existing imports
+export {FileAction} from "../../services/files/file-action";

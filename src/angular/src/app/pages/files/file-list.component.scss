@@ -1,13 +1,12 @@
 @use '../../common/common' as *;
 
-/* Ensure the host component takes available space for virtual scroll */
 :host {
     display: block;
     min-height: 500px;
-    position: relative; /* For overlay positioning */
+    position: relative;
 }
 
-/* Progress overlay during bulk operations */
+// Progress overlay during bulk operations
 .bulk-progress-overlay {
     position: absolute;
     top: 0;
@@ -28,82 +27,50 @@
     }
 }
 
-/* Virtual scroll viewport */
+// Results count (Triggarr-style "Showing X of Y results")
+.results-count {
+    font-size: 0.75rem;
+    color: var(--app-muted-text);
+    margin-bottom: 8px;
+}
+
+// Card container for the file list (Triggarr-style)
+.file-card {
+    background-color: var(--app-header-bg);
+    border: 1px solid var(--app-file-border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+// Virtual scroll viewport
 .file-viewport {
-    /* Fill available height - header is ~37px, selection banner ~50px, bulk actions ~50px */
-    height: calc(100vh - 200px);
+    height: calc(100vh - 240px);
     width: 100%;
-    /* Minimum height ensures viewport works even in small/headless browser windows */
     min-height: 500px;
-    /* Enable internal scrolling so file-actions-bar stays visible above */
     overflow-y: auto;
 }
 
-#file-list #header {
-    display: none;
-}
+// Select-all header row — minimal, inside card
+#header {
+    border-bottom: 1px solid var(--app-file-border-color);
+    padding: 8px 12px;
 
-/* Striped rows and separators are now handled in file.component.scss */
-/* using .even-row class for virtual scrolling compatibility */
-
-
-/* Medium and large screens */
-@media only screen and (min-width: $medium-min-width) {
-    #file-list #header {
-        display: flex;
-    }
-
-    #file-list #header {
-        border-left: 3px solid transparent;
-    }
-
-    /* width */
-    /* NOTE: make sure this is in-sync with ".file .content" */
-    #header .checkbox   {width: 40px; min-width: 40px;}
-    #header .status     {width: 100px; min-width: 100px;}
-    #header .name       {flex-grow: 1; flex-basis: 0; min-width: 120px;}
-    #header .speed      {width: 100px; min-width: 100px;}
-    #header .eta        {width: 100px; min-width: 100px;}
-    #header .size       {width: 20%; min-width: 20%;}
-
-    /* Timestamp headers hidden on medium — shown on large */
-    #header .remote-timestamp {display: none;}
-    #header .local-timestamp  {display: none;}
-
-    /* header and content elements */
-    #header > div {
-        padding: 10px 8px;
-        text-align: center;
-        vertical-align: top;
-    }
-    #header .name {text-align: left;}
-
-    /* header checkbox alignment */
-    #header .checkbox {
+    .header-inner {
         display: flex;
         align-items: center;
-        justify-content: center;
+        gap: 10px;
 
         input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
+            width: 15px;
+            height: 15px;
             cursor: pointer;
+            accent-color: var(--app-selection-border);
+        }
+
+        .header-label {
+            font-size: 0.75rem;
+            color: var(--app-muted-text);
+            user-select: none;
         }
     }
-
-    /* header color */
-    #header div {
-        font-weight: 600;
-        font-size: 0.8rem;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-        color: var(--app-file-header-color);
-        background-color: var(--app-file-header-bg);
-    }
-}
-
-/* XL screens: show timestamp header columns (need 1200px+ for all columns to fit) */
-@media only screen and (min-width: $xlarge-min-width) {
-    #header .remote-timestamp {display: block; width: 140px; min-width: 140px;}
-    #header .local-timestamp  {display: block; width: 140px; min-width: 140px;}
 }

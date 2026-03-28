@@ -50,15 +50,15 @@
         }
 
         &.info {
-            color: #e9e6ff;
+            color: var(--app-selection-text-emphasis);
         }
 
         &.warning {
-            color: #f0883e;
+            color: $warning;
         }
 
         &.error, &.critical {
-            color: #f85149;
+            color: $danger;
         }
 
         span.traceback {
