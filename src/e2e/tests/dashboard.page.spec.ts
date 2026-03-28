@@ -38,11 +38,12 @@ test.describe('Testing dashboard page', () => {
         dashboardPage = new DashboardPage(page);
         // Wait for at least 2 files to load (we access index 1)
         await dashboardPage.waitForFileCount(2);
-        expect(await dashboardPage.isFileActionsVisible(1)).toBe(false);
+        const actionsBar = page.locator('app-file-actions-bar .file-actions-bar');
+        await expect(actionsBar).not.toBeVisible();
         await dashboardPage.selectFile(1);
-        expect(await dashboardPage.isFileActionsVisible(1)).toBe(true);
+        await expect(actionsBar).toBeVisible();
         await dashboardPage.selectFile(1);
-        expect(await dashboardPage.isFileActionsVisible(1)).toBe(false);
+        await expect(actionsBar).not.toBeVisible();
     });
 
     test('should show action buttons for most recent file selected', async ({ page }) => {

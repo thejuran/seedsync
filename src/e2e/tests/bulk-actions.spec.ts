@@ -95,8 +95,8 @@ class BulkActionsDashboardPage extends DashboardPage {
     }
 
     // Helper methods
-    async clickFileCheckbox(index: number) {
-        await this.getFileCheckbox(index).click();
+    async clickFileCheckbox(index: number, modifiers?: ('Shift' | 'Control' | 'Meta')[]) {
+        await this.getFileCheckbox(index).click({ modifiers });
         // Allow Angular change detection to propagate (longer in CI/QEMU environments)
         await this.page.waitForTimeout(process.env.CI ? 500 : 100);
     }
@@ -338,15 +338,13 @@ test.describe('Bulk File Actions', () => {
             await expect(dashboardPage.selectionBanner).not.toBeVisible();
         });
 
-        test('4.3-4.5 - Shift+click selects range', async ({ page }) => {
+        test('4.3-4.5 - Shift+click selects range', async () => {
             // Click on file 1 and wait for banner to show 1 selected
             await dashboardPage.clickFileCheckbox(1);
             await expect(dashboardPage.selectionCount).toContainText('1');
 
-            // Hold shift and click on file 4 to select range [1-4]
-            await page.keyboard.down('Shift');
-            await dashboardPage.clickFileCheckbox(4);
-            await page.keyboard.up('Shift');
+            // Shift+click on file 4 to select range [1-4]
+            await dashboardPage.clickFileCheckbox(4, ['Shift']);
 
             // Wait for banner to show 4 files selected (range of 4 files)
             await expect(dashboardPage.selectionCount).toContainText('4');
