@@ -17,5 +17,7 @@
 - M003: UI Redesign — Earthy Palette ✅ (rethemed from terminal/hacker to clean modern dark UI)
 - M004: Polish & Dependency Updates ✅ (R017, R040, 20 deps updated, code review)
 - M005: Dashboard Polish & v3.3.0 Release 🔄 (fix alignment/fonts, tag release)
+- M006: Triggarr-Style Layout + Deep Moss Palette ✅ (flat file rows, card containers, Deep Moss + Amber palette)
+- M007: Settings Redesign, Documentation & v3.3.0 Release 📋 (planned)
 
 **Repo:** https://github.com/thejuran/seedsync
