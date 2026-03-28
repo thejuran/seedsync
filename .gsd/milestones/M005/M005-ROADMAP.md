@@ -30,7 +30,7 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Dashboard layout & typography polish** `risk:low` `depends:[]`
+- [x] **S01: Dashboard layout & typography polish** `risk:low` `depends:[]`
   > After this: dashboard headers align with row data, font sizes are consistent and well-proportioned
 - [ ] **S02: Tag v3.3.0 release** `risk:low` `depends:[S01]`
   > After this: v3.3.0 is tagged, CI publishes Docker image and Deb packages to ghcr.io and GitHub Releases

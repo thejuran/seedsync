@@ -43,6 +43,8 @@
 
 .file {
     padding: 10px;
+    /* On mobile, padding provides inner spacing.
+       On desktop, horizontal padding is zeroed so columns align with #header. */
 }
 
 /* selected file (details panel selection) */
@@ -74,7 +76,9 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
     padding: 8px 0;
+    height: 100%;
 }
 
 .content div {
@@ -95,11 +99,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 62px;
 
     input[type="checkbox"] {
-        width: 18px;
-        height: 18px;
+        width: 16px;
+        height: 16px;
         cursor: pointer;
         accent-color: var(--app-selection-border);
         /* Disable default browser transition to make checkbox state changes appear instant */
@@ -120,6 +123,7 @@
     display: flex;
     flex-direction: row;
     min-width: 0;
+    font-size: 0.875rem;
 
     .text {
         display: flex;
@@ -141,8 +145,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 62px;
-    max-height: 62px;
 
     /* Status dot (DASH-05): replaces 8 SVG status icons */
     .status-dot {
@@ -165,11 +167,11 @@
 
     .text {
         margin-top: 3px;
-        font-size: 0.7rem;
+        font-size: 0.75rem;
     }
 
     .import-badge {
-        font-size: 0.6rem;
+        font-size: 0.65rem;
         padding: 2px 5px;
         line-height: 1;
         margin-top: 1px;
@@ -236,6 +238,11 @@
 
 /* Medium and large screens */
 @media only screen and (min-width: $medium-min-width) {
+    /* Zero out horizontal padding so columns align with #header */
+    .file {
+        padding: 0;
+    }
+
     /* enable row hover */
     .file:not(.selected):not(.bulk-selected):hover {
         background-color: var(--app-selection-bg-subtle);
