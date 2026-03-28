@@ -53,6 +53,11 @@ export const ROUTES: Routes = [
         component: SettingsPageComponent
     },
     {
+        path: "autoqueue",
+        redirectTo: "/settings",
+        pathMatch: "full"
+    },
+    {
         path: "logs",
         component: LogsPageComponent
     },

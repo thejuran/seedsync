@@ -2,6 +2,7 @@ import {Injectable} from "@angular/core";
 import {Subject, Observable} from "rxjs";
 
 export interface Toast {
+    id: number;
     message: string;
     type: "success" | "info" | "warning" | "danger";
     autohide: boolean;
@@ -17,6 +18,7 @@ export interface Toast {
 @Injectable({providedIn: "root"})
 export class ToastService {
     private _toasts$ = new Subject<Toast>();
+    private _nextId = 0;
 
     get toasts$(): Observable<Toast> {
         return this._toasts$.asObservable();
@@ -24,6 +26,7 @@ export class ToastService {
 
     show(toast: Partial<Toast> & {message: string}): void {
         this._toasts$.next({
+            id: this._nextId++,
             type: toast.type ?? "info",
             autohide: toast.autohide ?? true,
             delay: toast.delay ?? 5000,
