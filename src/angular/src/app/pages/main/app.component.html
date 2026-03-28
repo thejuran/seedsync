@@ -32,18 +32,25 @@
   <div class="toast-container position-fixed top-0 end-0 p-3">
     @for (toast of toasts; track toast.message) {
       <div
-        class="toast show moss-toast"
+        class="toast show moss-toast toast-enter"
         [attr.data-type]="toast.type"
         role="alert"
         aria-live="assertive"
         aria-atomic="true">
-        <div class="d-flex align-items-center">
-          <div class="toast-body">
-            {{toast.message}}
-          </div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto"
+        <div class="toast-inner">
+          <span class="toast-icon">
+            @switch (toast.type) {
+              @case ('success') { ✓ }
+              @case ('danger') { ✕ }
+              @case ('warning') { ⚠ }
+              @default { ℹ }
+            }
+          </span>
+          <span class="toast-message">{{toast.message}}</span>
+          <button type="button" class="toast-dismiss"
             (click)="dismissToast(toast)"
             aria-label="Close">
+            ×
           </button>
         </div>
       </div>
