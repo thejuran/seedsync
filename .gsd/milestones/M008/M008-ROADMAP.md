@@ -35,9 +35,9 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Merge AutoQueue into Settings page** `risk:high` `depends:[]`
+- [x] **S01: Merge AutoQueue into Settings page** `risk:high` `depends:[]`
   > After this: AutoQueue enable/disable, pattern restrict toggle, auto-extraction toggle, and pattern list CRUD all live inside a Settings card; standalone AutoQueue page, route, and nav link are deleted
-- [ ] **S02: API token in Settings & toast polish** `risk:low` `depends:[]`
+- [x] **S02: API token in Settings & toast polish** `risk:low` `depends:[]`
   > After this: Authenticated users see their API token in Settings with reveal/hide/copy; toast notifications use Triggarr-style clean styling; stale gsd/* branches deleted
 
 ## Boundary Map
