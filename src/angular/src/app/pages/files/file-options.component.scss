@@ -4,152 +4,137 @@
     position: static;
     z-index: $zindex-file-options;
     background-color: var(--app-header-bg);
-    padding: 0 8px 8px 8px;
+    padding: 12px 8px;
+}
 
+// ============================================================================
+// Filter Bar — Triggarr-style inline pill toggles
+// ============================================================================
+.filter-bar {
     display: flex;
-    flex-direction: row;
     flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+}
 
-    #filter-search {
-        flex-grow: 1;
+// Group: label + pills
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.filter-label {
+    font-size: 0.75rem;
+    color: var(--app-muted-text);
+    user-select: none;
+}
+
+// Pill button
+.filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid var(--app-separator-color);
+    background: transparent;
+    color: var(--app-muted-text);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    white-space: nowrap;
+    user-select: none;
+
+    &:hover:not(:disabled) {
+        color: #e9e6ff;
+        border-color: var(--app-selection-border);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+
+    // Active state — generic (sort pills, "All" pill)
+    &.active {
+        background-color: rgba(115, 104, 59, 0.25);
+        color: #e9e6ff;
+        border-color: var(--app-selection-border);
+    }
+
+    // Active state — status-colored pills
+    &.pill-downloading.active {
+        background-color: rgba(63, 185, 80, 0.2);
+        color: #3fb950;
+        border-color: rgba(63, 185, 80, 0.4);
+    }
+    &.pill-downloaded.active {
+        background-color: rgba(35, 134, 54, 0.2);
+        color: #238636;
+        border-color: rgba(35, 134, 54, 0.4);
+    }
+    &.pill-queued.active {
+        background-color: rgba(240, 136, 62, 0.2);
+        color: #f0883e;
+        border-color: rgba(240, 136, 62, 0.4);
+    }
+    &.pill-stopped.active {
+        background-color: rgba(248, 81, 73, 0.2);
+        color: #f85149;
+        border-color: rgba(248, 81, 73, 0.4);
+    }
+    &.pill-extracting.active,
+    &.pill-extracted.active {
+        background-color: rgba(88, 166, 255, 0.2);
+        color: #58a6ff;
+        border-color: rgba(88, 166, 255, 0.4);
+    }
+
+    // Status dots inside pills
+    .status-dot {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        flex-shrink: 0;
+
+        &.dot-downloading { background-color: #3fb950; }
+        &.dot-downloaded  { background-color: #238636; }
+        &.dot-queued      { background-color: #f0883e; }
+        &.dot-stopped     { background-color: #f85149; }
+        &.dot-extracting  { background-color: #58a6ff; }
+        &.dot-extracted   { background-color: #58a6ff; }
+    }
+}
+
+// Search input — fills remaining space
+.filter-search {
+    flex: 1;
+    min-width: 150px;
+
+    input {
+        width: 100%;
+        border-radius: 5px;
+        padding: 3px 15px;
+        font-size: 0.85rem;
+    }
+}
+
+// ============================================================================
+// Responsive
+// ============================================================================
+
+// Small screens: stack groups vertically
+@media only screen and (max-width: $small-max-width) {
+    .filter-bar {
+        gap: 8px;
+    }
+
+    .filter-search {
         flex-basis: 100%;
-
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        flex-wrap: wrap;
-
-        input {
-            border-radius: 5px;
-            padding: 3px 15px;
-            width: 100%;
-        }
-
-        .input-group{
-            flex-grow: 1;
-            display: inline;
-        }
-    }
-
-    // Dropdown button and menu styling
-    #filter-status,
-    #sort-status {
-        button {
-            height: 34px;
-            cursor: default;
-            user-select: none;
-
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            flex-wrap: nowrap;
-
-            .title {
-                white-space: nowrap;
-            }
-
-            .selection {
-                margin-left: 5px;
-
-                .sel-item {
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    flex-wrap: nowrap;
-
-                    .icon {
-                        width: 20px;
-                        height: 20px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .text {
-                        margin-left: 5px;
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        .dropdown-menu {
-            padding: 0;
-            cursor: default;
-            user-select: none;
-
-            .dropdown-item {
-                height: 32px;
-
-                display: flex;
-                flex-direction: row;
-                align-items: center;
-                flex-wrap: nowrap;
-
-                .icon {
-                    width: 20px;
-                    height: 20px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
-                .text {
-                    margin-left: 5px;
-                }
-            }
-        }
-
-        // Status dot styling for filter dropdown
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-
-            &.dot-downloading { background-color: #3fb950; }
-            &.dot-downloaded  { background-color: #238636; }
-            &.dot-queued      { background-color: #f0883e; }
-            &.dot-stopped     { background-color: #f85149; }
-            &.dot-extracting  { background-color: #58a6ff; }
-            &.dot-extracted   { background-color: #58a6ff; }
-        }
-    }
-
-    // Margins for all the buttons
-    #filter-status,
-    #sort-status {
-        margin-top: 10px;
-    }
-
-    // Margins for the non-first buttons
-    #sort-status {
-        margin-left: 5px;
-    }
-}
-
-
-/* Medium and large screens */
-@media only screen and (min-width: $medium-min-width) {
-    #file-options {
-        #filter-status,
-        #sort-status {
-            button .selection .sel-item .text {
-                // Show the text labels in selection
-                display: inherit;
-            }
-        }
-    }
-
-    // Margins for the non-first buttons
-    #sort-status {
-        margin-left: 10px;
-    }
-}
-
-// Large screens
-@media only screen and (min-width: $large-min-width) {
-    // Bit of extra padding at top when title disappears
-    #file-options {
-        padding-top: 8px;
+        order: -1;
     }
 }

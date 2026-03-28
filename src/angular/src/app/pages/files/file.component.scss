@@ -109,7 +109,7 @@
 
 /* content elements */
 .content > div {
-    padding: 4px 4px;
+    padding: 4px 8px;
     text-align: center;
     vertical-align: top;
 }
@@ -165,11 +165,11 @@
 
     .text {
         margin-top: 3px;
-        font-size: 70%;
+        font-size: 0.7rem;
     }
 
     .import-badge {
-        font-size: 60%;
+        font-size: 0.6rem;
         padding: 2px 5px;
         line-height: 1;
         margin-top: 1px;
@@ -178,22 +178,22 @@
 
 /* Speed */
 .content .speed {
-    font-size: 90%;
+    font-size: 0.85rem;
 }
 
 .content .size_info {
-    font-size: 85%;
+    font-size: 0.8rem;
 }
 
 /* Hide the outer eta and timestamps on mobile */
 .content .eta {display: none;}
 .content .remote-timestamp {display: none;}
 .content .local-timestamp {display: none;}
-.content .speed .speed-eta {font-size: 90%;}
+.content .speed .speed-eta {font-size: 0.8rem;}
 
 /* Timestamp font size */
-.content .remote-timestamp {font-size: 80%;}
-.content .local-timestamp {font-size: 80%;}
+.content .remote-timestamp {font-size: 0.8rem;}
+.content .local-timestamp {font-size: 0.8rem;}
 
 /* actions - hidden for virtual scroll, but migrated to Bootstrap for consistency */
 .actions {

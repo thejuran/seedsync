@@ -1,12 +1,12 @@
 # GSD State
 
-**Active Milestone:** none
-**Active Slice:** none
-**Active Task:** none
-**Phase:** idle
-**Slice Branch:** none
+**Active Milestone:** M005 — Dashboard Polish & v3.3.0 Release
+**Active Slice:** S01 — Dashboard layout & typography polish
+**Active Task:** none (planning)
+**Phase:** planning
+**Slice Branch:** gsd/M005/S01
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Plan next milestone or tag v3.3.0 release
+**Next Action:** Plan S01 tasks, fix dashboard alignment/fonts
 **Last Updated:** 2026-03-28
 
 ## Recent Decisions

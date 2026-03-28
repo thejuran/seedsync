@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit} from "@angular/core";
+import {ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit} from "@angular/core";
 import { AsyncPipe } from "@angular/common";
 import {FormsModule} from "@angular/forms";
 import {Observable, Subject} from "rxjs";
@@ -12,12 +12,7 @@ import {ViewFile} from "../../services/files/view-file";
 import {ViewFileService} from "../../services/files/view-file.service";
 import {DomService} from "../../services/utils/dom.service";
 
-interface BootstrapDropdown {
-    getInstance(element: Element): { hide: () => void } | null;
-}
-declare const bootstrap: {
-    Dropdown: BootstrapDropdown;
-};
+
 
 @Component({
     selector: "app-file-options",
@@ -50,26 +45,12 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
 
     private destroy$ = new Subject<void>();
 
-    private scrollHandler = (): void => {
-        const openToggles = document.querySelectorAll(".dropdown-toggle.show");
-        openToggles.forEach(toggle => {
-            const dropdownInstance = bootstrap.Dropdown.getInstance(toggle);
-            if (dropdownInstance) {
-                dropdownInstance.hide();
-            }
-        });
-    };
 
-    private statusDropdownShowHandler = (): void => {
-        this.statusCounts = this.computeStatusCounts(this._latestFiles);
-        this._changeDetector.detectChanges();
-    };
 
     constructor(private _changeDetector: ChangeDetectorRef,
                 private viewFileOptionsService: ViewFileOptionsService,
                 private _viewFileService: ViewFileService,
-                private _domService: DomService,
-                private _ngZone: NgZone) {
+                private _domService: DomService) {
         this.headerHeight = this._domService.headerHeight;
     }
 
@@ -109,26 +90,10 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
             this._changeDetector.detectChanges();
         });
 
-        // Close dropdowns on scroll to prevent orphaned menus
-        this._ngZone.runOutsideAngular(() => {
-            window.addEventListener("scroll", this.scrollHandler, { passive: true });
-        });
 
-        // Add Bootstrap dropdown event listener for on-demand count refresh
-        this._ngZone.runOutsideAngular(() => {
-            const statusDropdown = document.getElementById("filter-status");
-            if (statusDropdown) {
-                statusDropdown.addEventListener("show.bs.dropdown", this.statusDropdownShowHandler);
-            }
-        });
     }
 
     ngOnDestroy(): void {
-        window.removeEventListener("scroll", this.scrollHandler);
-        const statusDropdown = document.getElementById("filter-status");
-        if (statusDropdown) {
-            statusDropdown.removeEventListener("show.bs.dropdown", this.statusDropdownShowHandler);
-        }
         this.destroy$.next();
         this.destroy$.complete();
     }

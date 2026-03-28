@@ -1,162 +1,86 @@
 <div id="file-options"
   [style.top.px]="headerHeight | async">
-  <div id="filter-search">
-    <div class="input-group">
+
+  <!-- Filter bar: Triggarr-style inline pill toggles -->
+  <div class="filter-bar">
+
+    <!-- Status filter pills -->
+    <div class="filter-group">
+      <span class="filter-label">Status:</span>
+      <button class="filter-pill"
+        [class.active]="latestOptions?.selectedStatusFilter == null"
+        (click)="onFilterByStatus(null)">
+        All ({{ formatCount(null) }})
+      </button>
+      <button class="filter-pill pill-downloading"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING"
+        [disabled]="!isDownloadingStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.DOWNLOADING)">
+        <span class="status-dot dot-downloading"></span>
+        Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})
+      </button>
+      <button class="filter-pill pill-queued"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED"
+        [disabled]="!isQueuedStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.QUEUED)">
+        <span class="status-dot dot-queued"></span>
+        Queued ({{ formatCount(ViewFile.Status.QUEUED) }})
+      </button>
+      <button class="filter-pill pill-downloaded"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED"
+        [disabled]="!isDownloadedStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.DOWNLOADED)">
+        <span class="status-dot dot-downloaded"></span>
+        Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})
+      </button>
+      <button class="filter-pill pill-stopped"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED"
+        [disabled]="!isStoppedStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.STOPPED)">
+        <span class="status-dot dot-stopped"></span>
+        Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})
+      </button>
+      <button class="filter-pill pill-extracting"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING"
+        [disabled]="!isExtractingStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.EXTRACTING)">
+        <span class="status-dot dot-extracting"></span>
+        Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})
+      </button>
+      <button class="filter-pill pill-extracted"
+        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED"
+        [disabled]="!isExtractedStatusEnabled"
+        (click)="onFilterByStatus(ViewFile.Status.EXTRACTED)">
+        <span class="status-dot dot-extracted"></span>
+        Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})
+      </button>
+    </div>
+
+    <!-- Sort pills -->
+    <div class="filter-group">
+      <span class="filter-label">Sort:</span>
+      <button class="filter-pill"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS"
+        (click)="onSort(ViewFileOptions.SortMethod.STATUS)">
+        Status
+      </button>
+      <button class="filter-pill"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC"
+        (click)="onSort(ViewFileOptions.SortMethod.NAME_ASC)">
+        Name A→Z
+      </button>
+      <button class="filter-pill"
+        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC"
+        (click)="onSort(ViewFileOptions.SortMethod.NAME_DESC)">
+        Name Z→A
+      </button>
+    </div>
+
+    <!-- Search input -->
+    <div class="filter-search">
       <input class="form-control" placeholder="Filter by name..." type="search"
         [ngModel]="latestOptions?.nameFilter"
         (ngModelChange)="onFilterByName($event)">
-    </div>
-  </div>
-
-  <div id="filter-status" class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle"
-      type="button"
-      data-bs-toggle="dropdown">
-      <div class="title">
-        Status:
-      </div>
-      <div class="selection">
-        @if (latestOptions?.selectedStatusFilter == null) {
-          <div class="sel-item" id="sel-item-all">
-            <span class="text">All ({{ formatCount(null) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED) {
-          <div class="sel-item">
-            <span class="status-dot dot-extracted"></span>
-            <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING) {
-          <div class="sel-item">
-            <span class="status-dot dot-extracting"></span>
-            <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED) {
-          <div class="sel-item">
-            <span class="status-dot dot-downloaded"></span>
-            <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING) {
-          <div class="sel-item">
-            <span class="status-dot dot-downloading"></span>
-            <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED) {
-          <div class="sel-item">
-            <span class="status-dot dot-queued"></span>
-            <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
-          </div>
-        }
-        @if (latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED) {
-          <div class="sel-item">
-            <span class="status-dot dot-stopped"></span>
-            <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
-          </div>
-        }
-      </div>
-    </button>
-    <div class="dropdown-menu dropdown-menu-end">
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == null"
-        (click)="onFilterByStatus(null)">
-        <span class="text">All ({{ formatCount(null) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTED"
-        [class.disabled]="isExtractedStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTED) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.EXTRACTED) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTED) : null">
-        <span class="status-dot dot-extracted"></span>
-        <span class="text">Extracted ({{ formatCount(ViewFile.Status.EXTRACTED) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.EXTRACTING"
-        [class.disabled]="isExtractingStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.EXTRACTING) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.EXTRACTING) > 0 ? onFilterByStatus(ViewFile.Status.EXTRACTING) : null">
-        <span class="status-dot dot-extracting"></span>
-        <span class="text">Extracting ({{ formatCount(ViewFile.Status.EXTRACTING) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADED"
-        [class.disabled]="isDownloadedStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADED) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.DOWNLOADED) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADED) : null">
-        <span class="status-dot dot-downloaded"></span>
-        <span class="text">Downloaded ({{ formatCount(ViewFile.Status.DOWNLOADED) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.DOWNLOADING"
-        [class.disabled]="isDownloadingStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.DOWNLOADING) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.DOWNLOADING) > 0 ? onFilterByStatus(ViewFile.Status.DOWNLOADING) : null">
-        <span class="status-dot dot-downloading"></span>
-        <span class="text">Downloading ({{ formatCount(ViewFile.Status.DOWNLOADING) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.QUEUED"
-        [class.disabled]="isQueuedStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.QUEUED) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.QUEUED) > 0 ? onFilterByStatus(ViewFile.Status.QUEUED) : null">
-        <span class="status-dot dot-queued"></span>
-        <span class="text">Queued ({{ formatCount(ViewFile.Status.QUEUED) }})</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.selectedStatusFilter == ViewFile.Status.STOPPED"
-        [class.disabled]="isStoppedStatusEnabled ? null : true"
-        [attr.aria-disabled]="getCount(ViewFile.Status.STOPPED) === 0 ? true : null"
-        (click)="getCount(ViewFile.Status.STOPPED) > 0 ? onFilterByStatus(ViewFile.Status.STOPPED) : null">
-        <span class="status-dot dot-stopped"></span>
-        <span class="text">Stopped ({{ formatCount(ViewFile.Status.STOPPED) }})</span>
-      </div>
-    </div>
-  </div>
-
-  <div id="sort-status" class="dropdown">
-    <button class="btn btn-secondary dropdown-toggle"
-      type="button"
-      data-bs-toggle="dropdown">
-      <div class="title">
-        Sort:
-      </div>
-      <div class="selection">
-        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS) {
-          <div class="sel-item">
-            <span class="text">Status</span>
-          </div>
-        }
-        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC) {
-          <div class="sel-item">
-            <span class="text">Name A&#8594;Z</span>
-          </div>
-        }
-        @if (latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC) {
-          <div class="sel-item">
-            <span class="text">Name Z&#8594;A</span>
-          </div>
-        }
-      </div>
-    </button>
-    <div class="dropdown-menu dropdown-menu-end">
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.STATUS"
-        (click)="onSort(ViewFileOptions.SortMethod.STATUS)">
-        <span class="text">Status</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_ASC"
-        (click)="onSort(ViewFileOptions.SortMethod.NAME_ASC)">
-        <span class="text">Name A&#8594;Z</span>
-      </div>
-      <div class="dropdown-item"
-        [class.active]="latestOptions?.sortMethod === ViewFileOptions.SortMethod.NAME_DESC"
-        (click)="onSort(ViewFileOptions.SortMethod.NAME_DESC)">
-        <span class="text">Name Z&#8594;A</span>
-      </div>
     </div>
   </div>
 </div>

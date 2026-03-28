@@ -61,7 +61,7 @@
     /* NOTE: make sure this is in-sync with ".file .content" */
     #header .checkbox   {width: 40px; min-width: 40px;}
     #header .status     {width: 100px; min-width: 100px;}
-    #header .name       {flex-grow: 1; min-width: 120px;}
+    #header .name       {flex-grow: 1; flex-basis: 0; min-width: 120px;}
     #header .speed      {width: 100px; min-width: 100px;}
     #header .eta        {width: 100px; min-width: 100px;}
     #header .size       {width: 20%; min-width: 20%;}
@@ -71,12 +71,12 @@
     #header .local-timestamp  {display: none;}
 
     /* header and content elements */
-    #header > div, .content > div {
-        padding: 8px 8px;
+    #header > div {
+        padding: 10px 8px;
         text-align: center;
         vertical-align: top;
     }
-    #header .name, .content .name {text-align: left;}
+    #header .name {text-align: left;}
 
     /* header checkbox alignment */
     #header .checkbox {
@@ -93,7 +93,10 @@
 
     /* header color */
     #header div {
-        font-weight: bold;
+        font-weight: 600;
+        font-size: 0.8rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
         color: var(--app-file-header-color);
         background-color: var(--app-file-header-bg);
     }
