@@ -96,14 +96,17 @@ class BulkActionsDashboardPage extends DashboardPage {
 
     // Helper methods
     async clickFileCheckbox(index: number, modifiers?: ('Shift' | 'Control' | 'Meta')[]) {
-        await this.getFileCheckbox(index).click({ modifiers });
+        const checkbox = this.getFileCheckbox(index);
+        await checkbox.scrollIntoViewIfNeeded();
+        await checkbox.click({ modifiers });
         // Allow Angular change detection to propagate (longer in CI/QEMU environments)
-        await this.page.waitForTimeout(process.env.CI ? 500 : 100);
+        await this.page.waitForTimeout(process.env.CI ? 1000 : 100);
     }
 
     async clickHeaderCheckbox() {
+        await this.headerCheckbox.scrollIntoViewIfNeeded();
         await this.headerCheckbox.click();
-        await this.page.waitForTimeout(process.env.CI ? 500 : 100);
+        await this.page.waitForTimeout(process.env.CI ? 1000 : 100);
     }
 
     async isFileRowBulkSelected(index: number): Promise<boolean> {
@@ -221,15 +224,16 @@ test.describe('Bulk File Actions', () => {
         });
 
         test('1.5 - selection count in banner matches selected files', async () => {
-            // Click checkboxes and wait for banner count to update after each
+            // Click checkboxes and wait for banner to appear and count to update
             await dashboardPage.clickFileCheckbox(0);
-            await expect(dashboardPage.selectionCount).toContainText('1');
+            await expect(dashboardPage.selectionBanner).toBeVisible({ timeout: 5000 });
+            await expect(dashboardPage.selectionCount).toContainText('1', { timeout: 5000 });
 
             await dashboardPage.clickFileCheckbox(1);
-            await expect(dashboardPage.selectionCount).toContainText('2');
+            await expect(dashboardPage.selectionCount).toContainText('2', { timeout: 5000 });
 
             await dashboardPage.clickFileCheckbox(2);
-            await expect(dashboardPage.selectionCount).toContainText('3');
+            await expect(dashboardPage.selectionCount).toContainText('3', { timeout: 5000 });
         });
     });
 
@@ -283,7 +287,7 @@ test.describe('Bulk File Actions', () => {
         test('3.1 - selecting 1 file shows banner with count', async () => {
             await dashboardPage.clickFileCheckbox(0);
 
-            await expect(dashboardPage.selectionBanner).toBeVisible();
+            await expect(dashboardPage.selectionBanner).toBeVisible({ timeout: 5000 });
             const text = await dashboardPage.selectionCount.textContent();
             expect(text).toContain('1');
             expect(text).toContain('selected');
@@ -293,14 +297,15 @@ test.describe('Bulk File Actions', () => {
             // Click checkboxes and wait for banner count to update after each
             for (let i = 0; i < 5; i++) {
                 await dashboardPage.clickFileCheckbox(i);
-                await expect(dashboardPage.selectionCount).toContainText(`${i + 1}`);
+                await expect(dashboardPage.selectionBanner).toBeVisible({ timeout: 5000 });
+                await expect(dashboardPage.selectionCount).toContainText(`${i + 1}`, { timeout: 5000 });
             }
         });
 
         test('3.3 - clicking Clear button clears selection', async () => {
             await dashboardPage.clickFileCheckbox(0);
             await dashboardPage.clickFileCheckbox(1);
-            await expect(dashboardPage.selectionBanner).toBeVisible();
+            await expect(dashboardPage.selectionBanner).toBeVisible({ timeout: 5000 });
 
             await dashboardPage.clearSelectionButton.click();
 
