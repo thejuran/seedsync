@@ -72,4 +72,10 @@ See [License.txt](https://github.com/thejuran/seedsync/blob/master/LICENSE.txt) 
 
 
 
-![SeedSync Dashboard](src/python/docs/images/dashboard.png)
+## Screenshots
+
+### Dashboard
+![SeedSync Dashboard](doc/images/screenshot-dashboard.png)
+
+### Settings
+![SeedSync Settings](doc/images/screenshot-settings.png)

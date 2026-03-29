@@ -71,10 +71,16 @@ For detailed installation instructions, see the [Installation Guide](install.md)
 
 ---
 
-## Screenshot
+## Screenshots
 
+### Dashboard
 <p align="center">
     <img src="images/dashboard.png" alt="SeedSync Dashboard" />
+</p>
+
+### Settings
+<p align="center">
+    <img src="images/settings.png" alt="SeedSync Settings" />
 </p>
 
 ---
