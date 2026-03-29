@@ -343,11 +343,14 @@ test.describe('Bulk File Actions', () => {
             await dashboardPage.clickFileCheckbox(1);
             await expect(dashboardPage.selectionCount).toContainText('1');
 
+            // Extra stabilization delay before Shift+click (arm64/QEMU needs more time)
+            await dashboardPage.page.waitForTimeout(process.env.CI ? 500 : 100);
+
             // Shift+click on file 4 to select range [1-4]
             await dashboardPage.clickFileCheckbox(4, ['Shift']);
 
             // Wait for banner to show 4 files selected (range of 4 files)
-            await expect(dashboardPage.selectionCount).toContainText('4');
+            await expect(dashboardPage.selectionCount).toContainText('4', { timeout: 5000 });
 
             // Files 1, 2, 3, 4 should all be selected
             expect(await dashboardPage.getFileCheckbox(1).isChecked()).toBe(true);

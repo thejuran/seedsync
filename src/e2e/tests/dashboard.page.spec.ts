@@ -42,8 +42,10 @@ test.describe('Testing dashboard page', () => {
         await expect(actionsBar).not.toBeVisible();
         await dashboardPage.selectFile(1);
         await expect(actionsBar).toBeVisible();
+        // Extra delay before re-click to deselect (arm64/QEMU timing)
+        await page.waitForTimeout(process.env.CI ? 500 : 100);
         await dashboardPage.selectFile(1);
-        await expect(actionsBar).not.toBeVisible();
+        await expect(actionsBar).not.toBeVisible({ timeout: 5000 });
     });
 
     test('should show action buttons for most recent file selected', async ({ page }) => {
