@@ -6,7 +6,7 @@
 **Phase:** idle
 **Slice Branch:** n/a
 **Active Workspace:** /Users/julianamacbook/seedsync
-**Next Action:** Plan next milestone (screenshots/docs/v3.3.0 release or new feature work)
+**Next Action:** Ready for next feature work
 **Last Updated:** 2026-03-28
 
 ## Completed Milestones
@@ -15,11 +15,11 @@
 - M007: ✅ Settings Redesign & Multi-Select Polish
 - M008: ✅ AutoQueue Migration, Token UI & Toast Polish
 - M009: ✅ Full Codebase Deep Review Fixes (55 issues)
+- M010: ✅ Screenshots, Docs & v4.0.0 Release
 
 ## Recent Decisions
 
-- D023: Bare except in config.py kept — CI mock prevents RequestException catch
-- D024: pexpect close uses explicit except blocks, not finally
+- D025: Major version bump to 4.0.0 — reflects scope of UI redesign + security hardening
 
 ## Blockers
 

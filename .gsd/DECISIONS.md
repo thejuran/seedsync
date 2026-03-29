@@ -34,3 +34,4 @@ Added `.github/dependabot.yml` ignoring major bumps for Angular, TypeScript, web
 | D022 | M008 | convention | Triggarr-style toasts with type icons and slide-in animation | ✓✕⚠ℹ icons, colored per type | No |
 | D023 | M009 | arch | Keep bare except in config.py test connection handlers | CI mock prevents RequestException class resolution | No |
 | D024 | M009 | arch | pexpect close uses explicit except blocks, not finally | Preserves post-close attribute access for error reporting | No |
+| D025 | M010 | scope | Major version bump to 4.0.0 (not 3.3.0) | UI redesign + security hardening = breaking change scope | No |
