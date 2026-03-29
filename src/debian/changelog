@@ -1,4 +1,4 @@
-seedsync (3.3.0) stable; urgency=low
+seedsync (4.0.0) stable; urgency=low
 
   * UI Redesign: Deep Moss + Amber palette, Triggarr-style layout
   * Settings page: flat card sections, no accordion
