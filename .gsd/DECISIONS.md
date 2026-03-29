@@ -26,3 +26,11 @@ Added `.github/dependabot.yml` ignoring major bumps for Angular, TypeScript, web
 | D012 | M003 | convention | Status colors | Keep functional green/amber/red/blue | Semantic colors independent of theme palette | No |
 | D013 | M003 | convention | Progress display | Percentage + size text replacing ASCII bar | Clean text over decorative ASCII visualization | No |
 | D014 | M003 | convention | Branding | Text-only "SeedSync" in accent color, no logo image | Matches Triggarr's text branding pattern | No |
+| D017 | M007 | convention | Settings cards use .settings-card pattern, no Bootstrap accordion JS | Flat layout, labels above inputs | No |
+| D018 | M007 | arch | Merge selection-banner into bulk-actions-bar as single unified bar | One bar for both single and bulk actions | No |
+| D019 | M007 | scope | Defer screenshots/docs/v3.3.0 release to future milestone | Not blocking dev work | Yes |
+| D020 | M008 | arch | Merge AutoQueue page into Settings card with inline pattern CRUD | Reduces nav, all config in one place | No |
+| D021 | M008 | arch | Hide file-actions-bar during bulk selection (single bar only) | Cleaner UX, no competing action bars | No |
+| D022 | M008 | convention | Triggarr-style toasts with type icons and slide-in animation | ✓✕⚠ℹ icons, colored per type | No |
+| D023 | M009 | arch | Keep bare except in config.py test connection handlers | CI mock prevents RequestException class resolution | No |
+| D024 | M009 | arch | pexpect close uses explicit except blocks, not finally | Preserves post-close attribute access for error reporting | No |

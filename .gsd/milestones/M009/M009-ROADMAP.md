@@ -35,13 +35,13 @@ This milestone is complete only when all are true:
 
 ## Slices
 
-- [ ] **S01: Security — command injection fixes** `risk:high` `depends:[]`
+- [x] **S01: Security — command injection fixes** `risk:high` `depends:[]`
   > After this: LFTP escape() rejects newline/CR/null characters; remote scanner shell commands use shlex.quote(); credentials redacted from debug logs
-- [ ] **S02: Concurrency & data integrity fixes** `risk:high` `depends:[]`
+- [x] **S02: Concurrency & data integrity fixes** `risk:high` `depends:[]`
   > After this: Model reads in __process_commands are locked; __pending_auto_deletes has its own threading.Lock; shallow copy fixes parent references; webhook import loop lock optimization
-- [ ] **S03: Frontend bugs & TypeScript fixes** `risk:medium` `depends:[]`
+- [x] **S03: Frontend bugs & TypeScript fixes** `risk:medium` `depends:[]`
   > After this: SSE subscription stored and cancelled on reconnect; view-file indices updated on add; pexpect TIMEOUT handled; inner Observable subscription connected to teardown; all TS quality items fixed
-- [ ] **S04: Python code quality & style fixes** `risk:low` `depends:[]`
+- [x] **S04: Python code quality & style fixes** `risk:low` `depends:[]`
   > After this: Bare except handlers narrowed; BFS uses deque; log levels corrected; Optional types specified; pexpect process closed on exception; version files synced; remaining Python quality items addressed
 
 ## Boundary Map
