@@ -291,7 +291,7 @@ class TestRemoteScanner(unittest.TestCase):
         scanner.scan()
         self.assertEqual(2, self.mock_ssh.shell.call_count)
         self.mock_ssh.shell.assert_called_with(
-            "'/remote/path/to/scan/script' '/remote/path/to/scan'"
+            "/remote/path/to/scan/script /remote/path/to/scan"
         )
 
     def test_raises_nonrecoverable_error_on_first_failed_ssh(self):
