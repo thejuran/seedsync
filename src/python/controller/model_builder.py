@@ -1,5 +1,6 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import collections
 import os
 import logging
 import time
@@ -328,10 +329,10 @@ class ModelBuilder:
             status: LFTP status for transfer state lookup
         """
         # Frontier contains (remote, local, status, parent_model_file) tuples
-        frontier = [(remote, local, status, root_model_file)]
+        frontier = collections.deque([(remote, local, status, root_model_file)])
 
         while frontier:
-            parent_remote, parent_local, parent_status, parent_model_file = frontier.pop(0)
+            parent_remote, parent_local, parent_status, parent_model_file = frontier.popleft()
 
             remote_children = {sf.name: sf for sf in parent_remote.children} if parent_remote else {}
             local_children = {sf.name: sf for sf in parent_local.children} if parent_local else {}
@@ -503,11 +504,11 @@ class ModelBuilder:
         Returns False if there are no downloadable (remote) children — a directory
         with no remote files should not be marked DOWNLOADED.
         """
-        frontier = list(model_file.get_children())
+        frontier = collections.deque(model_file.get_children())
         has_downloadable_children = False
 
         while frontier:
-            child_file = frontier.pop(0)
+            child_file = frontier.popleft()
             # Only check non-directory files that exist remotely
             if not child_file.is_dir and child_file.remote_size is not None:
                 has_downloadable_children = True

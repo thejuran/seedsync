@@ -1,3 +1,15 @@
+seedsync (3.3.0-dev.1) stable; urgency=low
+
+  * UI Redesign: Deep Moss + Amber palette, Triggarr-style layout
+  * Settings page: flat card sections, no accordion
+  * Dashboard: unified multi-select bar
+  * AutoQueue page merged into Settings
+  * Triggarr-style toast notifications
+  * Security: command injection fixes, credential redaction
+  * Concurrency: model lock, auto-delete thread safety
+
+ -- SeedSync Maintainer <maintainer@seedsync.local>  Fri, 28 Mar 2026 19:00:00 -0400
+
 seedsync (3.1.2) stable; urgency=low
 
   * Fix CSP violations blocking GitHub API and inline event handlers

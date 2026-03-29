@@ -11,3 +11,4 @@ htmlcov/
 # SSH private keys
 id_rsa
 *.pem.gsd/activity/
+.planning/

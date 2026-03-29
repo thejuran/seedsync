@@ -1,6 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from abc import ABC, abstractmethod
+import collections
 import threading
 from typing import Dict, List, Optional, Tuple
 from threading import Lock
@@ -174,6 +175,7 @@ class Controller:
 
         # Pending auto-delete timers: file_name -> Timer
         self.__pending_auto_deletes: Dict[str, threading.Timer] = {}
+        self.__auto_delete_lock = threading.Lock()
 
         self.__started = False
 
@@ -210,10 +212,11 @@ class Controller:
         self.logger.debug("Exiting controller")
         if self.__started:
             # Cancel all pending auto-delete timers
-            for file_name, timer in list(self.__pending_auto_deletes.items()):
-                timer.cancel()
-                self.logger.debug("Canceled pending auto-delete for '{}'".format(file_name))
-            self.__pending_auto_deletes.clear()
+            with self.__auto_delete_lock:
+                for file_name, timer in list(self.__pending_auto_deletes.items()):
+                    timer.cancel()
+                    self.logger.debug("Canceled pending auto-delete for '{}'".format(file_name))
+                self.__pending_auto_deletes.clear()
 
             self.__lftp_manager.exit()
             self.__scan_manager.stop()
@@ -252,7 +255,7 @@ class Controller:
         """
         result = filename in self.__persist.downloaded_file_names
         if not result:
-            self.logger.info(
+            self.logger.debug(
                 "File '{}' not in downloaded list (size={}, evictions={})".format(
                     filename,
                     len(self.__persist.downloaded_file_names),
@@ -362,12 +365,15 @@ class Controller:
             new_file = copy.copy(file)
             # noinspection PyProtectedMember
             new_file._unfreeze()
+            # Fix parent references after shallow copy so children point to new_file
+            for child in new_file.get_children():
+                child._ModelFile__parent = new_file
             new_file.import_status = ModelFile.ImportStatus.IMPORTED
             model.update_file(new_file)
 
     def _update_active_file_tracking(self,
                                      lftp_statuses: Optional[List[LftpJobStatus]],
-                                     extract_statuses: Optional[object]) -> None:
+                                     extract_statuses: Optional[ExtractStatusResult]) -> None:
         """
         Update the lists of actively downloading and extracting files.
 
@@ -392,11 +398,11 @@ class Controller:
         )
 
     def _feed_model_builder(self,
-                            remote_scan: Optional[object],
-                            local_scan: Optional[object],
-                            active_scan: Optional[object],
+                            remote_scan: Optional[ScannerResult],
+                            local_scan: Optional[ScannerResult],
+                            active_scan: Optional[ScannerResult],
                             lftp_statuses: Optional[List[LftpJobStatus]],
-                            extract_statuses: Optional[object],
+                            extract_statuses: Optional[ExtractStatusResult],
                             extracted_results: List) -> None:
         """
         Feed the model builder with all collected data.
@@ -527,7 +533,7 @@ class Controller:
             self.__persist.extracted_file_names.difference_update(remove_extracted_file_names)
             self.__model_builder.set_extracted_files(self.__persist.extracted_file_names)
 
-    def _prune_downloaded_files(self, latest_remote_scan: Optional[object]) -> None:
+    def _prune_downloaded_files(self, latest_remote_scan: Optional[ScannerResult]) -> None:
         """
         Prune downloaded files tracking list.
 
@@ -579,7 +585,7 @@ class Controller:
             self._detect_and_track_queued(diff)
             self._detect_and_track_download(diff)
 
-    def _build_and_apply_model(self, latest_remote_scan: Optional[object]) -> None:
+    def _build_and_apply_model(self, latest_remote_scan: Optional[ScannerResult]) -> None:
         """
         Build a new model and apply changes if the model builder has updates.
 
@@ -621,8 +627,8 @@ class Controller:
             self._prune_downloaded_files(latest_remote_scan)
 
     def _update_controller_status(self,
-                                  remote_scan: Optional[object],
-                                  local_scan: Optional[object]) -> None:
+                                  remote_scan: Optional[ScannerResult],
+                                  local_scan: Optional[ScannerResult]) -> None:
         """
         Update the controller status with latest scan information.
 
@@ -706,43 +712,46 @@ class Controller:
                     root_file = self.__model.get_file(root_name)
                     if root_file.is_dir:
                         # BFS over children to collect all child names
-                        frontier = list(root_file.get_children())
+                        frontier = collections.deque(root_file.get_children())
                         while frontier:
-                            child = frontier.pop(0)
+                            child = frontier.popleft()
                             name_to_root[child.name.lower()] = root_name
                             frontier.extend(child.get_children())
                 except ModelError:
-                    pass
+                    self.logger.debug("ModelError looking up '{}' for webhook mapping".format(root_name))
 
         # Process outside lock -- webhook_manager only touches its own thread-safe Queue
         newly_imported = self.__webhook_manager.process(name_to_root)
 
-        for file_name in newly_imported:
-            self.__persist.imported_file_names.add(file_name)
-            self.logger.info("Recorded webhook import: '{}'".format(file_name))
-            # Window 2: Update model file import status for UI badge under lock
+        if newly_imported:
+            # Window 2: Update model import status for all newly imported files under single lock
             with self.__model_lock:
-                self._set_import_status(self.__model, file_name)
+                for file_name in newly_imported:
+                    self.__persist.imported_file_names.add(file_name)
+                    self.logger.info("Recorded webhook import: '{}'".format(file_name))
+                    self._set_import_status(self.__model, file_name)
 
-            # Schedule auto-delete outside lock -- only starts a Timer, no model access
+            # Schedule auto-deletes outside lock -- Timer operations only
             if self.__context.config.autodelete.enabled:
-                self.__schedule_auto_delete(file_name)
+                for file_name in newly_imported:
+                    self.__schedule_auto_delete(file_name)
 
     def __schedule_auto_delete(self, file_name: str):
         """Schedule auto-delete of local file after safety delay."""
-        # Cancel existing timer if file was re-detected
-        if file_name in self.__pending_auto_deletes:
-            self.__pending_auto_deletes[file_name].cancel()
-            del self.__pending_auto_deletes[file_name]
+        with self.__auto_delete_lock:
+            # Cancel existing timer if file was re-detected
+            if file_name in self.__pending_auto_deletes:
+                self.__pending_auto_deletes[file_name].cancel()
+                del self.__pending_auto_deletes[file_name]
 
-        delay = self.__context.config.autodelete.delay_seconds
-        timer = threading.Timer(delay, self.__execute_auto_delete, args=[file_name])
-        timer.daemon = True  # Don't prevent process exit
-        self.__pending_auto_deletes[file_name] = timer
-        timer.start()
-        self.logger.info(
-            "Scheduled auto-delete of '{}' in {} seconds".format(file_name, delay)
-        )
+            delay = self.__context.config.autodelete.delay_seconds
+            timer = threading.Timer(delay, self.__execute_auto_delete, args=[file_name])
+            timer.daemon = True  # Don't prevent process exit
+            self.__pending_auto_deletes[file_name] = timer
+            timer.start()
+            self.logger.info(
+                "Scheduled auto-delete of '{}' in {} seconds".format(file_name, delay)
+            )
 
     def __execute_auto_delete(self, file_name: str):
         """Execute auto-delete of local file (called by Timer after delay).
@@ -756,7 +765,8 @@ class Controller:
         the `file` reference is safe to use after releasing the lock.
         """
         # Remove from tracking dict
-        self.__pending_auto_deletes.pop(file_name, None)
+        with self.__auto_delete_lock:
+            self.__pending_auto_deletes.pop(file_name, None)
 
         # Re-check config -- user might have disabled auto-delete after timer was scheduled
         if not self.__context.config.autodelete.enabled:
@@ -887,11 +897,12 @@ class Controller:
         while not self.__command_queue.empty():
             command = self.__command_queue.get()
             self.logger.info("Received command {} for file {}".format(str(command.action), command.filename))
-            try:
-                file = self.__model.get_file(command.filename)
-            except ModelError:
-                _notify_failure(command, "File '{}' not found".format(command.filename), 404)
-                continue
+            with self.__model_lock:
+                try:
+                    file = self.__model.get_file(command.filename)
+                except ModelError:
+                    _notify_failure(command, "File '{}' not found".format(command.filename), 404)
+                    continue
 
             success = False
             error_msg = None

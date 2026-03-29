@@ -2,10 +2,10 @@
 
 import logging
 import json
-from typing import List
+from typing import List, Optional
 import os
-from typing import Optional
 import hashlib
+import shlex
 
 from .scanner_process import IScanner, ScannerError
 from common import overrides, Localization
@@ -66,9 +66,9 @@ class RemoteScanner(IScanner):
             self.__install_done = True
 
         try:
-            out = self.__ssh.shell("'{}' '{}'".format(
-                self.__remote_path_to_scan_script,
-                self.__remote_path_to_scan)
+            out = self.__ssh.shell("{} {}".format(
+                shlex.quote(self.__remote_path_to_scan_script),
+                shlex.quote(self.__remote_path_to_scan))
             )
         except SshcpError as e:
             self.logger.warning("Caught an SshcpError: {}".format(str(e)))
@@ -110,7 +110,7 @@ class RemoteScanner(IScanner):
             local_md5sum = hashlib.md5(f.read()).hexdigest()
         self.logger.debug("Local scanfs md5sum = {}".format(local_md5sum))
         try:
-            out = self.__ssh.shell("md5sum {} | awk '{{print $1}}' || echo".format(self.__remote_path_to_scan_script))
+            out = self.__ssh.shell("md5sum {} | awk '{{print $1}}' || echo".format(shlex.quote(self.__remote_path_to_scan_script)))
             out = out.decode('utf-8').strip()
             if out == local_md5sum:
                 self.logger.info("Skipping remote scanfs installation: already installed")

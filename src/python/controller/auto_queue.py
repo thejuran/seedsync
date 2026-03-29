@@ -268,7 +268,7 @@ class AutoQueue:
         for name, pattern in files_to_queue_dict.items():
             is_stopped = self.__controller.is_file_stopped(name)
             is_downloaded = self.__controller.is_file_downloaded(name)
-            self.logger.info(
+            self.logger.debug(
                 "Filter check '{}': stopped={}, downloaded={}".format(
                     name, is_stopped, is_downloaded
                 )
@@ -370,7 +370,7 @@ class AutoQueue:
                     if accept(file) and self.__match(new_pattern, file):
                         files_matched[file.name] = new_pattern
 
-        return list(zip(files_matched.keys(), files_matched.values()))
+        return list(files_matched.items())
 
     @staticmethod
     def __match(pattern: AutoQueuePattern, file: ModelFile) -> bool:

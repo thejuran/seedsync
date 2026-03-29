@@ -132,7 +132,7 @@ class ConfigHandler(IHandler):
                 body=json.dumps({"success": False, "error": "Connection timed out"}),
                 content_type="application/json"
             )
-        except Exception:
+        except (requests.RequestException, ValueError, KeyError):
             return HTTPResponse(
                 body=json.dumps({"success": False, "error": "An unexpected error occurred"}),
                 content_type="application/json"
@@ -197,7 +197,7 @@ class ConfigHandler(IHandler):
                 body=json.dumps({"success": False, "error": "Connection timed out"}),
                 content_type="application/json"
             )
-        except Exception:
+        except (requests.RequestException, ValueError, KeyError):
             return HTTPResponse(
                 body=json.dumps({"success": False, "error": "An unexpected error occurred"}),
                 content_type="application/json"

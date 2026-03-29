@@ -76,6 +76,7 @@ export class StreamDispatchService implements OnDestroy {
     private _timeoutCheckInterval: ReturnType<typeof setInterval> | null = null;
     private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     private _currentEventSource: EventSource | null = null;
+    private _currentSubscription: { unsubscribe(): void } | null = null;
 
     constructor(private _logger: LoggerService,
                 private _zone: NgZone) {
@@ -176,6 +177,10 @@ export class StreamDispatchService implements OnDestroy {
     }
 
     private createSseObserver(): void {
+        // Tear down previous subscription to prevent stale event delivery
+        this._currentSubscription?.unsubscribe();
+        this._currentSubscription = null;
+
         const observable = new Observable(observer => {
             const eventSource = EventSourceFactory.createEventSource(this.STREAM_URL);
 
@@ -224,7 +229,7 @@ export class StreamDispatchService implements OnDestroy {
                 this._currentEventSource = null;
             };
         });
-        observable.subscribe({
+        this._currentSubscription = observable.subscribe({
             next: (x) => {
                 const eventName = x["event"];
                 const eventData = x["data"];

@@ -55,13 +55,18 @@ class Context:
         child_context.logger = self.logger.getChild(context_name)
         return child_context
 
+    # Keys whose values must be redacted in log output
+    _REDACTED_KEYS = {"password", "api_key", "api_token", "secret", "webhook_secret", "remote_password"}
+
     def print_to_log(self):
-        # Print the config
+        # Print the config (redacting credentials)
         self.logger.debug("Config:")
         config_dict = self.config.as_dict()
         for section in config_dict.keys():
             for option in config_dict[section].keys():
                 value = config_dict[section][option]
+                if option in self._REDACTED_KEYS:
+                    value = "***REDACTED***" if value else "(empty)"
                 self.logger.debug("  {}.{}: {}".format(section, option, value))
 
         self.logger.debug("Args:")

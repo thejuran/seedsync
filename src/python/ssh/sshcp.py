@@ -144,7 +144,11 @@ class Sshcp:
         except pexpect.exceptions.TIMEOUT:
             self.logger.exception("Timed out")
             self.logger.error("Command output before:\n{}".format(sp.before))
+            sp.close()
             raise SshcpError("Timed out")
+        except SshcpError:
+            sp.close()
+            raise
         sp.close()
         end_time = time.time()
 

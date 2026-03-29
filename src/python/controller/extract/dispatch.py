@@ -1,5 +1,6 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+import collections
 from enum import Enum
 from typing import List
 import queue
@@ -117,9 +118,9 @@ class ExtractDispatch:
         if model_file.is_dir:
             # For a directory, try and find all archives
             # Loop through all directories using BFS
-            frontier = [model_file]
+            frontier = collections.deque([model_file])
             while frontier:
-                curr_file = frontier.pop(0)
+                curr_file = frontier.popleft()
                 if curr_file.is_dir:
                     frontier += curr_file.get_children()
                 else:

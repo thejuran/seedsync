@@ -178,10 +178,9 @@ export class ViewFileService implements OnDestroy {
 
         if (reSort && this._sortComparator != null) {
             this._logger.debug("Re-sorting view files");
-            updateIndices = true;
             newViewFiles = newViewFiles.sort(this._sortComparator).toList();
         }
-        if (updateIndices) {
+        if (updateIndices || reSort) {
             this._indices.clear();
             newViewFiles.forEach(
                 (value, index) => this._indices.set(value.name, index)
@@ -473,10 +472,11 @@ export class ViewFileService implements OnDestroy {
                 observer.next(new WebReaction(false, null, `File '${file.name}' not found`));
             } else {
                 const modelFile = this._prevModelFiles.get(file.name);
-                action(modelFile).subscribe(reaction => {
+                const sub = action(modelFile).subscribe(reaction => {
                     this._logger.debug("Received model reaction: %O", reaction);
                     observer.next(reaction);
                 });
+                return () => sub.unsubscribe();
             }
         });
     }

@@ -98,7 +98,7 @@ export class BulkCommandService {
         return new Observable<BulkActionResult>(observer => {
             const body = {action, files};
 
-            this._http.post<BulkActionResponse | BulkErrorResponse>(this.BULK_URL, body)
+            const sub = this._http.post<BulkActionResponse | BulkErrorResponse>(this.BULK_URL, body)
                 .subscribe({
                     next: (data) => {
                         this._logger.debug("%s bulk response: %O", this.BULK_URL, data);
@@ -128,6 +128,8 @@ export class BulkCommandService {
                         observer.next(new BulkActionResult(false, null, errorMessage));
                     }
                 });
+
+            return () => sub.unsubscribe();
         }).pipe(shareReplay(1));
     }
 }

@@ -103,7 +103,7 @@ class WebhookHandler(IHandler):
         # Parse JSON body
         try:
             body = request.json
-        except Exception:
+        except (ValueError, json.JSONDecodeError):
             return HTTPResponse(status=400, body="Invalid JSON")
 
         if not body:

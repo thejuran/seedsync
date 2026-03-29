@@ -129,13 +129,14 @@ class Lftp:
         except pexpect.exceptions.TIMEOUT:
             self.logger.warning("Lftp timeout exception")
         finally:
-            out = self.__process.before.decode('utf8', 'replace')
+            before = self.__process.before
+            out = before.decode('utf8', 'replace') if isinstance(before, bytes) else ""
             out = out.strip()  # remove any CRs
 
             if self.__log_command_output:
                 self.logger.debug("out ({} bytes):\n {}".format(len(out), out))
-                after = self.__process.after.decode('utf8', 'replace').strip() \
-                    if self.__process.after not in (pexpect.TIMEOUT, None) else ""
+                after_raw = self.__process.after
+                after = after_raw.decode('utf8', 'replace').strip() if isinstance(after_raw, bytes) else ""
                 self.logger.debug("after: {}".format(after))
 
         # let's try and detect some errors
@@ -339,7 +340,10 @@ class Lftp:
         :return:
         """
         # Escape single and double quotes in any string used in queue command
+        # Also reject newline/CR/null which could inject arbitrary LFTP commands via sendline()
         def escape(s: str) -> str:
+            if '\n' in s or '\r' in s or '\x00' in s:
+                raise LftpError("Invalid characters in filename: {}".format(repr(s)))
             return s.replace("'", "\\'").replace("\"", "\\\"")
 
         command = " ".join([
