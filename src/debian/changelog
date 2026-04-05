@@ -1,3 +1,12 @@
+seedsync (4.0.1) stable; urgency=medium
+
+  * Security: bump lodash to 4.18.x (code injection + prototype pollution)
+  * Security: bump Pygments to 2.20.0 (ReDoS fix)
+  * Dependency updates: 22 npm packages including TypeScript 6.0
+  * TypeScript 6.0 strict mode migration (583 type fixes)
+
+ -- thejuran <thejuran@users.noreply.github.com>  Sat, 05 Apr 2026 19:30:00 -0400
+
 seedsync (4.0.0) stable; urgency=low
 
   * UI Redesign: Deep Moss + Amber palette, Triggarr-style layout
