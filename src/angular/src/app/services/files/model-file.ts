@@ -135,10 +135,10 @@ export namespace ModelFile {
             full_path: json.full_path,
             is_extractable: json.is_extractable != null ? json.is_extractable : false,
             import_status: importStatus,
-            local_created_timestamp: localCreatedTimestamp ?? new Date(0),
-            local_modified_timestamp: localModifiedTimestamp ?? new Date(0),
-            remote_created_timestamp: remoteCreatedTimestamp ?? new Date(0),
-            remote_modified_timestamp: remoteModifiedTimestamp ?? new Date(0),
+            local_created_timestamp: localCreatedTimestamp ?? undefined,
+            local_modified_timestamp: localModifiedTimestamp ?? undefined,
+            remote_created_timestamp: remoteCreatedTimestamp ?? undefined,
+            remote_modified_timestamp: remoteModifiedTimestamp ?? undefined,
             children: Set<ModelFile>(children)
         });
     }

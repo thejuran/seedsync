@@ -96,7 +96,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         const selected = this.selectionService.selectedFiles();
         // Check if this file is in the selection
         // Note: this.file may be undefined during initial render
-        return this.file?.name ? selected.has(this.file.name) : false;
+        return this.file?.name != null ? selected.has(this.file.name) : false;
     });
 
     /**
