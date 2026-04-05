@@ -13,7 +13,7 @@ describe("Testing version check service", () => {
     let notifService: NotificationService;
     let restService: RestService;
 
-    let sendRequestSpy = null;
+    let sendRequestSpy: jasmine.Spy | null = null;
 
     beforeEach(() => {
         TestBed.configureTestingModule({
