@@ -38,10 +38,10 @@ interface IModelFile {
     full_path: string;
     is_extractable: boolean;
     import_status: ModelFile.ImportStatus;
-    local_created_timestamp: Date;
-    local_modified_timestamp: Date;
-    remote_created_timestamp: Date;
-    remote_modified_timestamp: Date;
+    local_created_timestamp: Date | null;
+    local_modified_timestamp: Date | null;
+    remote_created_timestamp: Date | null;
+    remote_modified_timestamp: Date | null;
     children: Set<ModelFile>;
 }
 
@@ -57,10 +57,10 @@ const DefaultModelFile: IModelFile = {
     full_path: "",
     is_extractable: false,
     import_status: "none" as ModelFile.ImportStatus,
-    local_created_timestamp: new Date(0),
-    local_modified_timestamp: new Date(0),
-    remote_created_timestamp: new Date(0),
-    remote_modified_timestamp: new Date(0),
+    local_created_timestamp: null,
+    local_modified_timestamp: null,
+    remote_created_timestamp: null,
+    remote_modified_timestamp: null,
     children: Set<ModelFile>()
 };
 const ModelFileRecord = Record(DefaultModelFile);

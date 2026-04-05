@@ -46,7 +46,7 @@ describe("Testing view file options service", () => {
             next: options => {
                 expect(options.sortMethod).toBe(ViewFileOptions.SortMethod.STATUS);
                 expect(options.selectedStatusFilter).toBeNull();
-                expect(options.nameFilter).toBeNull();
+                expect(options.nameFilter).toBe("");
                 count++;
             }
         });
