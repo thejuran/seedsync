@@ -6,7 +6,7 @@ import { Pipe, PipeTransform } from "@angular/core";
 @Pipe({name: "eta", standalone: true})
 export class EtaPipe implements PipeTransform {
 
-  private units = {
+  private units: {[key: string]: number} = {
       "h": 3600,
       "m": 60,
       "s": 1

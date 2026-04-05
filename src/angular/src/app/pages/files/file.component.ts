@@ -50,7 +50,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
     };
 
     get statusBadgeClass(): string {
-        return FileComponent.BADGE_CLASSES[this.file?.status] ?? "status-badge badge-default";
+        return FileComponent.BADGE_CLASSES[this.file?.status!] ?? "status-badge badge-default";
     }
 
     // Inject FileSelectionService for signal-based selection
@@ -62,8 +62,8 @@ export class FileComponent implements OnChanges, AfterViewInit {
     // Entire div element
     @ViewChild("fileElement", {static: false}) fileElement!: ElementRef<HTMLDivElement>;
 
-    @Input() file: ViewFile;
-    @Input() options: ViewFileOptions;
+    @Input() file!: ViewFile;
+    @Input() options!: ViewFileOptions;
     // Note: @Input() bulkSelected removed - now computed from FileSelectionService signal
 
     @Output() queueEvent = new EventEmitter<ViewFile>();
@@ -96,7 +96,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         const selected = this.selectionService.selectedFiles();
         // Check if this file is in the selection
         // Note: this.file may be undefined during initial render
-        return this.file ? selected.has(this.file.name) : false;
+        return this.file?.name != null ? selected.has(this.file.name) : false;
     });
 
     /**
@@ -214,7 +214,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         }
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_LOCAL_TITLE,
-            Localization.Modal.DELETE_LOCAL_MESSAGE(file.name),
+            Localization.Modal.DELETE_LOCAL_MESSAGE(file.name!),
             () => {
                 this.activeAction = FileAction.DELETE_LOCAL;
                 // Pass to parent component
@@ -229,7 +229,7 @@ export class FileComponent implements OnChanges, AfterViewInit {
         }
         this.showDeleteConfirmation(
             Localization.Modal.DELETE_REMOTE_TITLE,
-            Localization.Modal.DELETE_REMOTE_MESSAGE(file.name),
+            Localization.Modal.DELETE_REMOTE_MESSAGE(file.name!),
             () => {
                 this.activeAction = FileAction.DELETE_REMOTE;
                 // Pass to parent component

@@ -244,7 +244,7 @@ describe("Testing autoqueue service", () => {
                actualCount++;
             }
         });
-        aqService.add(null).subscribe({
+        aqService.add(null as unknown as string).subscribe({
             next: reaction => {
                expect(reaction.success).toBe(false);
                expect(reaction.errorMessage).toBe("Cannot add an empty autoqueue pattern.");
@@ -391,7 +391,7 @@ describe("Testing autoqueue service", () => {
                actualCount++;
             }
         });
-        aqService.remove(null).subscribe({
+        aqService.remove(null as unknown as string).subscribe({
             next: reaction => {
                expect(reaction.success).toBe(false);
                expect(reaction.errorMessage).toBe("Pattern 'null' not found.");

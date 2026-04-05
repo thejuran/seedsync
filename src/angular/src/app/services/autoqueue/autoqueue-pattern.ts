@@ -4,15 +4,15 @@ interface IAutoQueuePattern {
     pattern: string;
 }
 const DefaultAutoQueuePattern: IAutoQueuePattern = {
-    pattern: null
+    pattern: ""
 };
 const AutoQueuePatternRecord = Record(DefaultAutoQueuePattern);
 
 
 export class AutoQueuePattern extends AutoQueuePatternRecord implements IAutoQueuePattern {
-    pattern: string;
+    pattern!: string;
 
-    constructor(props) {
+    constructor(props: Partial<AutoQueuePattern>) {
         super(props);
     }
 }

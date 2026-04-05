@@ -48,7 +48,7 @@ describe("Testing model file service", () => {
 
     it("should send correct model on an init event", fakeAsync(() => {
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;
@@ -110,7 +110,7 @@ describe("Testing model file service", () => {
         modelFileService.notifyEvent("model-init", JSON.stringify(initialModelFiles));
 
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;
@@ -187,7 +187,7 @@ describe("Testing model file service", () => {
         modelFileService.notifyEvent("model-init", JSON.stringify(initialModelFiles));
 
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;
@@ -236,7 +236,7 @@ describe("Testing model file service", () => {
         modelFileService.notifyEvent("model-init", JSON.stringify(initialModelFiles));
 
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;
@@ -295,7 +295,7 @@ describe("Testing model file service", () => {
 
     it("should not crash on malformed JSON in init event", fakeAsync(() => {
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;
@@ -337,7 +337,7 @@ describe("Testing model file service", () => {
 
     it("should send empty model on disconnect", fakeAsync(() => {
         let count = 0;
-        let latestModel: Immutable.Map<string, ModelFile> = null;
+        let latestModel: Immutable.Map<string, ModelFile> = null!;
         modelFileService.files.subscribe({
             next: modelFiles => {
                 count++;

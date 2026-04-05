@@ -6,7 +6,7 @@ import {EventSourceFactory} from "../../../../services/base/stream-service.regis
 
 
 class TestBaseStreamService extends BaseStreamService {
-    eventList = [];
+    eventList: [string, string][] = [];
 
     public registerEventName(eventName: string): void {
         super.registerEventName(eventName);

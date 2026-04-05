@@ -3,8 +3,8 @@ import * as Immutable from "immutable";
 import {ModelFile} from "../../../../services/files/model-file";
 
 describe("Testing model file initialization", () => {
-    let baseJson;
-    let baseModelFile;
+    let baseJson: any;
+    let baseModelFile: any;
 
     beforeEach(() => {
         baseJson = {
@@ -133,40 +133,40 @@ describe("Testing model file initialization", () => {
         baseModelFile = ModelFile.fromJson(baseJson);
         expect(baseModelFile.children.size).toBe(2);
 
-        const a = baseModelFile.children.find(value => {return value.name === "a";});
-        expect(a.name).toBe("a");
-        expect(a.is_dir).toBe(true);
-        expect(a.local_size).toBe(1);
-        expect(a.remote_size).toBe(11);
-        expect(a.state).toBe(ModelFile.State.DEFAULT);
-        expect(a.downloading_speed).toBe(111);
-        expect(a.eta).toBe(1111);
-        expect(a.full_path).toBe("root/a");
-        expect(a.is_extractable).toBe(true);
-        expect(a.children.size).toBe(1);
+        const a = baseModelFile.children.find((value: ModelFile) => {return value.name === "a";});
+        expect(a!.name).toBe("a");
+        expect(a!.is_dir).toBe(true);
+        expect(a!.local_size).toBe(1);
+        expect(a!.remote_size).toBe(11);
+        expect(a!.state).toBe(ModelFile.State.DEFAULT);
+        expect(a!.downloading_speed).toBe(111);
+        expect(a!.eta).toBe(1111);
+        expect(a!.full_path).toBe("root/a");
+        expect(a!.is_extractable).toBe(true);
+        expect(a!.children.size).toBe(1);
 
-        const aa = a.children.find(value => {return value.name === "aa";});
-        expect(aa.name).toBe("aa");
-        expect(aa.is_dir).toBe(false);
-        expect(aa.local_size).toBe(1);
-        expect(aa.remote_size).toBe(11);
-        expect(aa.state).toBe(ModelFile.State.DEFAULT);
-        expect(aa.downloading_speed).toBe(111);
-        expect(aa.eta).toBe(1111);
-        expect(aa.full_path).toBe("root/a/aa");
-        expect(aa.is_extractable).toBe(true);
-        expect(aa.children.size).toBe(0);
+        const aa = a!.children.find((value: ModelFile) => {return value.name === "aa";});
+        expect(aa!.name).toBe("aa");
+        expect(aa!.is_dir).toBe(false);
+        expect(aa!.local_size).toBe(1);
+        expect(aa!.remote_size).toBe(11);
+        expect(aa!.state).toBe(ModelFile.State.DEFAULT);
+        expect(aa!.downloading_speed).toBe(111);
+        expect(aa!.eta).toBe(1111);
+        expect(aa!.full_path).toBe("root/a/aa");
+        expect(aa!.is_extractable).toBe(true);
+        expect(aa!.children.size).toBe(0);
 
-        const b = baseModelFile.children.find(value => {return value.name === "b";});
-        expect(b.name).toBe("b");
-        expect(b.is_dir).toBe(false);
-        expect(b.local_size).toBe(2);
-        expect(b.remote_size).toBe(22);
-        expect(b.state).toBe(ModelFile.State.DEFAULT);
-        expect(b.downloading_speed).toBe(222);
-        expect(b.eta).toBe(2222);
-        expect(b.full_path).toBe("root/b");
-        expect(b.is_extractable).toBe(false);
-        expect(b.children.size).toBe(0);
+        const b = baseModelFile.children.find((value: ModelFile) => {return value.name === "b";});
+        expect(b!.name).toBe("b");
+        expect(b!.is_dir).toBe(false);
+        expect(b!.local_size).toBe(2);
+        expect(b!.remote_size).toBe(22);
+        expect(b!.state).toBe(ModelFile.State.DEFAULT);
+        expect(b!.downloading_speed).toBe(222);
+        expect(b!.eta).toBe(2222);
+        expect(b!.full_path).toBe("root/b");
+        expect(b!.is_extractable).toBe(false);
+        expect(b!.children.size).toBe(0);
     });
 });

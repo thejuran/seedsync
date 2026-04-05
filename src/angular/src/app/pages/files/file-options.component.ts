@@ -102,7 +102,7 @@ export class FileOptionsComponent implements OnInit, OnDestroy {
         this.viewFileOptionsService.setNameFilter(name);
     }
 
-    onFilterByStatus(status: ViewFile.Status): void {
+    onFilterByStatus(status: ViewFile.Status | null): void {
         this.viewFileOptionsService.setSelectedStatusFilter(status);
     }
 

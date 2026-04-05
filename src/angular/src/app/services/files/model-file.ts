@@ -14,8 +14,8 @@ export interface ModelFileJson {
     downloading_speed: number;
     eta: number;
     full_path: string;
-    is_extractable?: boolean;
-    import_status?: string;
+    is_extractable?: boolean | null;
+    import_status?: string | null;
     local_created_timestamp?: number | null;
     local_modified_timestamp?: number | null;
     remote_created_timestamp?: number | null;
@@ -38,30 +38,30 @@ interface IModelFile {
     full_path: string;
     is_extractable: boolean;
     import_status: ModelFile.ImportStatus;
-    local_created_timestamp: Date;
-    local_modified_timestamp: Date;
-    remote_created_timestamp: Date;
-    remote_modified_timestamp: Date;
+    local_created_timestamp: Date | null;
+    local_modified_timestamp: Date | null;
+    remote_created_timestamp: Date | null;
+    remote_modified_timestamp: Date | null;
     children: Set<ModelFile>;
 }
 
 // Boiler plate code to set up an immutable class
 const DefaultModelFile: IModelFile = {
-    name: null,
-    is_dir: null,
-    local_size: null,
-    remote_size: null,
-    state: null,
-    downloading_speed: null,
-    eta: null,
-    full_path: null,
-    is_extractable: null,
-    import_status: null,
+    name: "",
+    is_dir: false,
+    local_size: 0,
+    remote_size: 0,
+    state: "default" as ModelFile.State,
+    downloading_speed: 0,
+    eta: 0,
+    full_path: "",
+    is_extractable: false,
+    import_status: "none" as ModelFile.ImportStatus,
     local_created_timestamp: null,
     local_modified_timestamp: null,
     remote_created_timestamp: null,
     remote_modified_timestamp: null,
-    children: null
+    children: Set<ModelFile>()
 };
 const ModelFileRecord = Record(DefaultModelFile);
 
@@ -72,23 +72,23 @@ const ModelFileRecord = Record(DefaultModelFile);
  *                      -immutable-js-js
  */
 export class ModelFile extends ModelFileRecord implements IModelFile {
-    name: string;
-    is_dir: boolean;
-    local_size: number;
-    remote_size: number;
-    state: ModelFile.State;
-    downloading_speed: number;
-    eta: number;
-    full_path: string;
-    is_extractable: boolean;
-    import_status: ModelFile.ImportStatus;
-    local_created_timestamp: Date;
-    local_modified_timestamp: Date;
-    remote_created_timestamp: Date;
-    remote_modified_timestamp: Date;
-    children: Set<ModelFile>;
+    name!: string;
+    is_dir!: boolean;
+    local_size!: number;
+    remote_size!: number;
+    state!: ModelFile.State;
+    downloading_speed!: number;
+    eta!: number;
+    full_path!: string;
+    is_extractable!: boolean;
+    import_status!: ModelFile.ImportStatus;
+    local_created_timestamp!: Date;
+    local_modified_timestamp!: Date;
+    remote_created_timestamp!: Date;
+    remote_modified_timestamp!: Date;
+    children!: Set<ModelFile>;
 
-    constructor(props) {
+    constructor(props: Partial<ModelFile>) {
         super(props);
     }
 }
@@ -133,12 +133,12 @@ export namespace ModelFile {
             downloading_speed: json.downloading_speed,
             eta: json.eta,
             full_path: json.full_path,
-            is_extractable: json.is_extractable != null ? json.is_extractable : null,
+            is_extractable: json.is_extractable != null ? json.is_extractable : false,
             import_status: importStatus,
-            local_created_timestamp: localCreatedTimestamp,
-            local_modified_timestamp: localModifiedTimestamp,
-            remote_created_timestamp: remoteCreatedTimestamp,
-            remote_modified_timestamp: remoteModifiedTimestamp,
+            local_created_timestamp: localCreatedTimestamp ?? undefined,
+            local_modified_timestamp: localModifiedTimestamp ?? undefined,
+            remote_created_timestamp: remoteCreatedTimestamp ?? undefined,
+            remote_modified_timestamp: remoteModifiedTimestamp ?? undefined,
             children: Set<ModelFile>(children)
         });
     }

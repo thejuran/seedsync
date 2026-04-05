@@ -62,7 +62,7 @@ export class BulkActionResult {
      * Check if the bulk operation had partial failures.
      */
     get hasPartialFailure(): boolean {
-        return this.success && this.response?.summary.failed > 0;
+        return this.success && (this.response?.summary.failed ?? 0) > 0;
     }
 
     /**

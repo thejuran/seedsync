@@ -7,21 +7,21 @@ interface INotification {
     dismissible: boolean;
 }
 const DefaultNotification: INotification = {
-    level: null,
-    text: null,
-    timestamp: null,
+    level: "info" as Notification.Level,
+    text: "",
+    timestamp: 0,
     dismissible: false,
 };
 const NotificationRecord = Record(DefaultNotification);
 
 
 export class Notification extends NotificationRecord implements INotification {
-    level: Notification.Level;
-    text: string;
-    timestamp: number;
-    dismissible: boolean;
+    level!: Notification.Level;
+    text!: string;
+    timestamp!: number;
+    dismissible!: boolean;
 
-    constructor(props) {
+    constructor(props: Partial<Notification>) {
         props.timestamp = Date.now();
 
         super(props);

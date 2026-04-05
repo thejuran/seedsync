@@ -27,7 +27,7 @@ describe("Testing view file filter service", () => {
             ]
         });
         viewFileService = TestBed.inject(ViewFileService) as unknown as MockViewFileService;
-        filterCriteria = undefined;  // Reset before each test
+        filterCriteria = undefined as unknown as ViewFileFilterCriteria;  // Reset before each test
         spyOn(viewFileService, "setFilterCriteria").and.callFake(
             value => filterCriteria = value
         );

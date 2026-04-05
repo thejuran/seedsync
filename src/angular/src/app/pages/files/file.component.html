@@ -27,7 +27,7 @@
     }
     <span class="name" [title]="file.name">{{file.name}}</span>
     <span class="meta-right">
-      @if (file.downloadingSpeed > 0) {
+      @if (file.downloadingSpeed != null && file.downloadingSpeed > 0) {
         <span class="speed">{{file.downloadingSpeed | fileSize:3}}/s</span>
       }
       @if (file.status === ViewFile.Status.DOWNLOADING && file.eta) {

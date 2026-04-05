@@ -20,7 +20,7 @@ import {ViewFileOptions} from "./view-file-options";
  */
 const StatusComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): number => {
     if (a.status !== b.status) {
-        const statusPriorities = {
+        const statusPriorities: {[key: string]: number} = {
             [ViewFile.Status.EXTRACTING]: 0,
             [ViewFile.Status.DOWNLOADING]: 1,
             [ViewFile.Status.QUEUED]: 2,
@@ -30,11 +30,11 @@ const StatusComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): number 
             [ViewFile.Status.DEFAULT]: 6,
             [ViewFile.Status.DELETED]: 6  // intermix deleted and default
         };
-        if (statusPriorities[a.status] !== statusPriorities[b.status]) {
-            return statusPriorities[a.status] - statusPriorities[b.status];
+        if (statusPriorities[a.status!] !== statusPriorities[b.status!]) {
+            return statusPriorities[a.status!] - statusPriorities[b.status!];
         }
     }
-    return a.name.localeCompare(b.name);
+    return (a.name ?? "").localeCompare(b.name ?? "");
 };
 
 /**
@@ -46,7 +46,7 @@ const StatusComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): number 
  * @constructor
  */
 const NameAscendingComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): number => {
-    return a.name.localeCompare(b.name);
+    return (a.name ?? "").localeCompare(b.name ?? "");
 };
 
 /**
@@ -58,7 +58,7 @@ const NameAscendingComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): 
  * @constructor
  */
 const NameDescendingComparator: ViewFileComparator = (a: ViewFile, b: ViewFile): number => {
-    return b.name.localeCompare(a.name);
+    return (b.name ?? "").localeCompare(a.name ?? "");
 };
 
 /**
@@ -71,7 +71,7 @@ const NameDescendingComparator: ViewFileComparator = (a: ViewFile, b: ViewFile):
 @Injectable()
 export class ViewFileSortService implements OnDestroy {
     private destroy$ = new Subject<void>();
-    private _sortMethod: ViewFileOptions.SortMethod = null;
+    private _sortMethod: ViewFileOptions.SortMethod | null = null;
 
     constructor(private _logger: LoggerService,
                 private _viewFileService: ViewFileService,

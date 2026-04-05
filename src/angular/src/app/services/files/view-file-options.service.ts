@@ -26,14 +26,14 @@ export class ViewFileOptionsService {
         const sortMethod: ViewFileOptions.SortMethod =
             this._storage.get(StorageKeys.VIEW_OPTION_SORT_METHOD) ||
                 ViewFileOptions.SortMethod.STATUS;
-        const defaultStatusFilter: ViewFile.Status =
+        const defaultStatusFilter: ViewFile.Status | null =
             this._storage.get(StorageKeys.VIEW_OPTION_DEFAULT_STATUS_FILTER) || null;
 
         this._options = new BehaviorSubject(
             new ViewFileOptions({
                 sortMethod: sortMethod,
                 selectedStatusFilter: defaultStatusFilter,
-                nameFilter: null,
+                nameFilter: "",
             })
         );
     }
@@ -52,7 +52,7 @@ export class ViewFileOptionsService {
         }
     }
 
-    public setSelectedStatusFilter(status: ViewFile.Status): void {
+    public setSelectedStatusFilter(status: ViewFile.Status | null): void {
         const options = this._options.getValue();
         if (options.selectedStatusFilter !== status) {
             const newOptions = new ViewFileOptions(options.set("selectedStatusFilter", status));

@@ -15,9 +15,9 @@ export interface ConfirmModalOptions {
 })
 export class ConfirmModalService {
     private renderer: Renderer2;
-    private modalElement: HTMLElement = null;
-    private backdropElement: HTMLElement = null;
-    private previouslyFocusedElement: HTMLElement = null;
+    private modalElement: HTMLElement | null = null;
+    private backdropElement: HTMLElement | null = null;
+    private previouslyFocusedElement: HTMLElement | null = null;
     private keydownHandler: ((event: KeyboardEvent) => void) | null = null;
 
     constructor(rendererFactory: RendererFactory2) {
@@ -97,7 +97,7 @@ export class ConfirmModalService {
         this.renderer.setAttribute(this.modalElement, "aria-modal", "true");
         this.renderer.setAttribute(this.modalElement, "aria-labelledby", "confirm-modal-title");
 
-        this.modalElement.innerHTML = `
+        this.modalElement!.innerHTML = `
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -119,8 +119,8 @@ export class ConfirmModalService {
         this.renderer.addClass(document.body, "modal-open");
 
         // Handle button clicks
-        const cancelButton = this.modalElement.querySelector("[data-action=\"cancel\"]") as HTMLElement;
-        const okButton = this.modalElement.querySelector("[data-action=\"ok\"]") as HTMLElement;
+        const cancelButton = this.modalElement!.querySelector("[data-action=\"cancel\"]") as HTMLElement;
+        const okButton = this.modalElement!.querySelector("[data-action=\"ok\"]") as HTMLElement;
 
         const closeModal = (result: boolean): void => {
             this.destroyModal();
@@ -131,7 +131,7 @@ export class ConfirmModalService {
         okButton.addEventListener("click", () => closeModal(true));
 
         // Close on backdrop click
-        this.modalElement.addEventListener("click", (event) => {
+        this.modalElement!.addEventListener("click", (event) => {
             if (event.target === this.modalElement) {
                 closeModal(false);
             }
@@ -161,7 +161,7 @@ export class ConfirmModalService {
                 }
             }
         };
-        this.modalElement.addEventListener("keydown", this.keydownHandler);
+        this.modalElement!.addEventListener("keydown", this.keydownHandler);
 
         // Focus the cancel button (safe default) after DOM has settled
         setTimeout(() => cancelButton.focus(), 0);

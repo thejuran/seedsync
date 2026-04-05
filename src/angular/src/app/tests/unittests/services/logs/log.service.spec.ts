@@ -33,7 +33,7 @@ describe("Testing log service", () => {
 
     it("should send correct record on event", fakeAsync(() => {
         let count = 0;
-        let latestRecord: LogRecord = null;
+        let latestRecord: LogRecord = null!;
         logService.logs.subscribe({
             next: record => {
                 count++;
@@ -96,7 +96,7 @@ describe("Testing log service", () => {
 
     it("should cache records", fakeAsync(() => {
         let count = 0;
-        let latestRecord: LogRecord = null;
+        let latestRecord: LogRecord = null!;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const data1: any = {
             level_name: "WARNING",

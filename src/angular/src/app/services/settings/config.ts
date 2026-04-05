@@ -12,7 +12,7 @@ interface IGeneral {
     debug: boolean;
 }
 const DefaultGeneral: IGeneral = {
-    debug: null
+    debug: false
 };
 const GeneralRecord = Record(DefaultGeneral);
 
@@ -36,20 +36,20 @@ interface ILftp {
     use_temp_file: boolean;
 }
 const DefaultLftp: ILftp = {
-    remote_address: null,
-    remote_username: null,
-    remote_password: null,
-    remote_port: null,
-    remote_path: null,
-    local_path: null,
-    remote_path_to_scan_script: null,
-    use_ssh_key: null,
-    num_max_parallel_downloads: null,
-    num_max_parallel_files_per_download: null,
-    num_max_connections_per_root_file: null,
-    num_max_connections_per_dir_file: null,
-    num_max_total_connections: null,
-    use_temp_file: null,
+    remote_address: "",
+    remote_username: "",
+    remote_password: "",
+    remote_port: 0,
+    remote_path: "",
+    local_path: "",
+    remote_path_to_scan_script: "",
+    use_ssh_key: false,
+    num_max_parallel_downloads: 0,
+    num_max_parallel_files_per_download: 0,
+    num_max_connections_per_root_file: 0,
+    num_max_connections_per_dir_file: 0,
+    num_max_total_connections: 0,
+    use_temp_file: false,
 };
 const LftpRecord = Record(DefaultLftp);
 
@@ -64,11 +64,11 @@ interface IController {
     use_local_path_as_extract_path: boolean;
 }
 const DefaultController: IController = {
-    interval_ms_remote_scan: null,
-    interval_ms_local_scan: null,
-    interval_ms_downloading_scan: null,
-    extract_path: null,
-    use_local_path_as_extract_path: null,
+    interval_ms_remote_scan: 0,
+    interval_ms_local_scan: 0,
+    interval_ms_downloading_scan: 0,
+    extract_path: "",
+    use_local_path_as_extract_path: false,
 };
 const ControllerRecord = Record(DefaultController);
 
@@ -79,7 +79,7 @@ interface IWeb {
     port: number;
 }
 const DefaultWeb: IWeb = {
-    port: null
+    port: 0
 };
 const WebRecord = Record(DefaultWeb);
 
@@ -92,9 +92,9 @@ interface IAutoQueue {
     auto_extract: boolean;
 }
 const DefaultAutoQueue: IAutoQueue = {
-    enabled: null,
-    patterns_only: null,
-    auto_extract: null,
+    enabled: false,
+    patterns_only: false,
+    auto_extract: false,
 };
 const AutoQueueRecord = Record(DefaultAutoQueue);
 
@@ -107,9 +107,9 @@ interface ISonarr {
     sonarr_api_key: string;
 }
 const DefaultSonarr: ISonarr = {
-    enabled: null,
-    sonarr_url: null,
-    sonarr_api_key: null,
+    enabled: false,
+    sonarr_url: "",
+    sonarr_api_key: "",
 };
 const SonarrRecord = Record(DefaultSonarr);
 
@@ -122,9 +122,9 @@ interface IRadarr {
     radarr_api_key: string;
 }
 const DefaultRadarr: IRadarr = {
-    enabled: null,
-    radarr_url: null,
-    radarr_api_key: null,
+    enabled: false,
+    radarr_url: "",
+    radarr_api_key: "",
 };
 const RadarrRecord = Record(DefaultRadarr);
 
@@ -137,9 +137,9 @@ interface IAutoDelete {
     delay_seconds: number;
 }
 const DefaultAutoDelete: IAutoDelete = {
-    enabled: null,
-    dry_run: null,
-    delay_seconds: null,
+    enabled: false,
+    dry_run: false,
+    delay_seconds: 0,
 };
 const AutoDeleteRecord = Record(DefaultAutoDelete);
 
@@ -157,29 +157,29 @@ export interface IConfig {
     autodelete: IAutoDelete;
 }
 const DefaultConfig: IConfig = {
-    general: null,
-    lftp: null,
-    controller: null,
-    web: null,
-    autoqueue: null,
-    sonarr: null,
-    radarr: null,
-    autodelete: null,
+    general: DefaultGeneral,
+    lftp: DefaultLftp,
+    controller: DefaultController,
+    web: DefaultWeb,
+    autoqueue: DefaultAutoQueue,
+    sonarr: DefaultSonarr,
+    radarr: DefaultRadarr,
+    autodelete: DefaultAutoDelete,
 };
 const ConfigRecord = Record(DefaultConfig);
 
 
 export class Config extends ConfigRecord implements IConfig {
-    general: IGeneral;
-    lftp: ILftp;
-    controller: IController;
-    web: IWeb;
-    autoqueue: IAutoQueue;
-    sonarr: ISonarr;
-    radarr: IRadarr;
-    autodelete: IAutoDelete;
+    general!: IGeneral;
+    lftp!: ILftp;
+    controller!: IController;
+    web!: IWeb;
+    autoqueue!: IAutoQueue;
+    sonarr!: ISonarr;
+    radarr!: IRadarr;
+    autodelete!: IAutoDelete;
 
-    constructor(props) {
+    constructor(props: Partial<IConfig>) {
         // Create immutable members
         super({
             general: GeneralRecord(props.general),

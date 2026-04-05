@@ -45,7 +45,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
     public OptionType = OptionType;
 
-    public config: Observable<Config>;
+    public config: Observable<Config | null>;
 
     public commandsEnabled: boolean;
 
@@ -138,7 +138,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
 
                     // Hide bad value notification, if any
                     if (this._badValueNotifs.has(notifKey)) {
-                        this._notifService.hide(this._badValueNotifs.get(notifKey));
+                        this._notifService.hide(this._badValueNotifs.get(notifKey)!);
                         this._badValueNotifs.delete(notifKey);
                     }
 
@@ -149,10 +149,10 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                     const notif = new Notification({
                         level: Notification.Level.DANGER,
                         dismissible: true,
-                        text: reaction.errorMessage
+                        text: reaction.errorMessage ?? "Unknown error"
                     });
                     if (this._badValueNotifs.has(notifKey)) {
-                        this._notifService.hide(this._badValueNotifs.get(notifKey));
+                        this._notifService.hide(this._badValueNotifs.get(notifKey)!);
                     }
                     this._notifService.show(notif);
                     this._badValueNotifs.set(notifKey, notif);
@@ -189,7 +189,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                     const notif = new Notification({
                         level: Notification.Level.DANGER,
                         dismissible: true,
-                        text: reaction.errorMessage
+                        text: reaction.errorMessage ?? "Unknown error"
                     });
                     this._notifService.show(notif);
                 }
@@ -207,7 +207,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                     const notif = new Notification({
                         level: Notification.Level.DANGER,
                         dismissible: true,
-                        text: reaction.errorMessage
+                        text: reaction.errorMessage ?? "Unknown error"
                     });
                     this._notifService.show(notif);
                 }
@@ -237,7 +237,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                 this.testSonarrConnectionLoading = false;
                 if (reaction.success) {
                     try {
-                        const result = JSON.parse(reaction.data);
+                        const result = JSON.parse(reaction.data!);
                         if (result.success) {
                             this.testSonarrConnectionResult = {
                                 success: true,
@@ -276,7 +276,7 @@ export class SettingsPageComponent implements OnInit, OnDestroy {
                 this.testRadarrConnectionLoading = false;
                 if (reaction.success) {
                     try {
-                        const result = JSON.parse(reaction.data);
+                        const result = JSON.parse(reaction.data!);
                         if (result.success) {
                             this.testRadarrConnectionResult = {
                                 success: true,

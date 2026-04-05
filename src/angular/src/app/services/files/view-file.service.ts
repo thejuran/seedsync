@@ -82,8 +82,8 @@ export class ViewFileService implements OnDestroy {
 
     private _prevModelFiles: Immutable.Map<string, ModelFile> = Immutable.Map<string, ModelFile>();
 
-    private _filterCriteria: ViewFileFilterCriteria = null;
-    private _sortComparator: ViewFileComparator = null;
+    private _filterCriteria: ViewFileFilterCriteria | null = null;
+    private _sortComparator: ViewFileComparator | null = null;
 
     constructor(private _logger: LoggerService,
                 private _streamServiceRegistry: StreamServiceRegistry,
@@ -148,9 +148,9 @@ export class ViewFileService implements OnDestroy {
         // Do the updates first before indices change (re-sort may be required)
         updatedNames.forEach(
             name => {
-                const index = this._indices.get(name);
-                const oldViewFile = newViewFiles.get(index);
-                const newViewFile = ViewFileService.createViewFile(modelFiles.get(name), oldViewFile.isSelected);
+                const index = this._indices.get(name)!;
+                const oldViewFile = newViewFiles.get(index) as ViewFile;
+                const newViewFile = ViewFileService.createViewFile(modelFiles.get(name)!, !!oldViewFile.isSelected);
                 newViewFiles = newViewFiles.set(index, newViewFile);
                 if (this._sortComparator != null && this._sortComparator(oldViewFile, newViewFile) !== 0) {
                     reSort = true;
@@ -161,7 +161,7 @@ export class ViewFileService implements OnDestroy {
         addedNames.forEach(
             name => {
                 reSort = true;
-                const viewFile = ViewFileService.createViewFile(modelFiles.get(name));
+                const viewFile = ViewFileService.createViewFile(modelFiles.get(name)!);
                 newViewFiles = newViewFiles.push(viewFile);
                 this._indices.set(name, newViewFiles.size - 1);
             }
@@ -183,7 +183,7 @@ export class ViewFileService implements OnDestroy {
         if (updateIndices || reSort) {
             this._indices.clear();
             newViewFiles.forEach(
-                (value, index) => this._indices.set(value.name, index)
+                (value, index) => this._indices.set(value.name!, index!)
             );
         }
 
@@ -212,11 +212,11 @@ export class ViewFileService implements OnDestroy {
         //       but that would duplicate state and can introduce
         //       bugs, so we just search instead
         let viewFiles = this._files;
-        const unSelectIndex = viewFiles.findIndex(value => value.isSelected);
+        const unSelectIndex = viewFiles.findIndex(value => !!value.isSelected);
 
         // Unset the previously selected file, if any
         if (unSelectIndex >= 0) {
-            let unSelectViewFile = viewFiles.get(unSelectIndex);
+            let unSelectViewFile = viewFiles.get(unSelectIndex)!;
 
             // Do nothing if file is already selected
             if (unSelectViewFile.name === file.name) { return; }
@@ -226,9 +226,9 @@ export class ViewFileService implements OnDestroy {
         }
 
         // Set the new selected file
-        if (this._indices.has(file.name)) {
-            const index = this._indices.get(file.name);
-            let viewFile = viewFiles.get(index);
+        if (this._indices.has(file.name!)) {
+            const index = this._indices.get(file.name!)!;
+            let viewFile = viewFiles.get(index) as ViewFile;
             viewFile = new ViewFile(viewFile.set("isSelected", true));
             viewFiles = viewFiles.set(index, viewFile);
         } else {
@@ -246,11 +246,11 @@ export class ViewFileService implements OnDestroy {
     public unsetSelected(): void {
         // Unset the previously selected file, if any
         let viewFiles = this._files;
-        const unSelectIndex = viewFiles.findIndex(value => value.isSelected);
+        const unSelectIndex = viewFiles.findIndex(value => !!value.isSelected);
 
         // Unset the previously selected file, if any
         if (unSelectIndex >= 0) {
-            let unSelectViewFile = viewFiles.get(unSelectIndex);
+            let unSelectViewFile = viewFiles.get(unSelectIndex)!;
 
             unSelectViewFile = new ViewFile(unSelectViewFile.set("isSelected", false));
             viewFiles = viewFiles.set(unSelectIndex, unSelectViewFile);
@@ -316,7 +316,7 @@ export class ViewFileService implements OnDestroy {
      * Clears bulk file selection when filter changes.
      * @param {ViewFileFilterCriteria} criteria
      */
-    public setFilterCriteria(criteria: ViewFileFilterCriteria): void {
+    public setFilterCriteria(criteria: ViewFileFilterCriteria | null): void {
         this._filterCriteria = criteria;
         this._fileSelectionService.clearSelection();
         this.pushViewFiles();
@@ -327,7 +327,7 @@ export class ViewFileService implements OnDestroy {
      * Clears bulk file selection when sort changes.
      * @param {ViewFileComparator} comparator
      */
-    public setComparator(comparator: ViewFileComparator): void {
+    public setComparator(comparator: ViewFileComparator | null): void {
         this._sortComparator = comparator;
         this._fileSelectionService.clearSelection();
 
@@ -340,7 +340,7 @@ export class ViewFileService implements OnDestroy {
         this._files = newViewFiles;
         this._indices.clear();
         newViewFiles.forEach(
-            (value, index) => this._indices.set(value.name, index)
+            (value, index) => this._indices.set(value.name!, index!)
         );
 
         this.pushViewFiles();
@@ -466,12 +466,12 @@ export class ViewFileService implements OnDestroy {
                          action: (file: ModelFile) => Observable<WebReaction>)
             : Observable<WebReaction> {
         return new Observable<WebReaction>(observer => {
-            if (!this._prevModelFiles.has(file.name)) {
+            if (!this._prevModelFiles.has(file.name!)) {
                 // File not found, exit early
                 this._logger.error("File to queue not found: " + file.name);
                 observer.next(new WebReaction(false, null, `File '${file.name}' not found`));
             } else {
-                const modelFile = this._prevModelFiles.get(file.name);
+                const modelFile = this._prevModelFiles.get(file.name!)!;
                 const sub = action(modelFile).subscribe(reaction => {
                     this._logger.debug("Received model reaction: %O", reaction);
                     observer.next(reaction);
@@ -488,8 +488,9 @@ export class ViewFileService implements OnDestroy {
         // Filtered files
         let filteredFiles = this._files;
         if (this._filterCriteria != null) {
+            const criteria = this._filterCriteria;
             filteredFiles = Immutable.List<ViewFile>(
-                this._files.filter(f => this._filterCriteria.meetsCriteria(f))
+                this._files.filter(f => criteria.meetsCriteria(f))
             );
         }
         this._filteredFilesSubject.next(filteredFiles);

@@ -65,17 +65,17 @@ describe("FileComponent", () => {
         });
 
         it("should return true when file is selected", () => {
-            fileSelectionService.select(testFile.name);
+            fileSelectionService.select(testFile.name!);
             expect(component.isSelected()).toBe(true);
         });
 
         it("should update when selection changes", () => {
             expect(component.isSelected()).toBe(false);
 
-            fileSelectionService.select(testFile.name);
+            fileSelectionService.select(testFile.name!);
             expect(component.isSelected()).toBe(true);
 
-            fileSelectionService.deselect(testFile.name);
+            fileSelectionService.deselect(testFile.name!);
             expect(component.isSelected()).toBe(false);
         });
 
@@ -90,12 +90,12 @@ describe("FileComponent", () => {
         });
 
         it("should handle bulk selection correctly", () => {
-            fileSelectionService.selectMultiple(["file1", testFile.name, "file3"]);
+            fileSelectionService.selectMultiple(["file1", testFile.name!, "file3"]);
             expect(component.isSelected()).toBe(true);
         });
 
         it("should handle clear selection", () => {
-            fileSelectionService.select(testFile.name);
+            fileSelectionService.select(testFile.name!);
             expect(component.isSelected()).toBe(true);
 
             fileSelectionService.clearSelection();
@@ -167,8 +167,8 @@ describe("FileComponent", () => {
         it("should reset activeAction on status change in ngOnChanges", () => {
             component.activeAction = FileAction.QUEUE;
 
-            const oldFile = new ViewFile({name: "test", status: "Queued"});
-            const newFile = new ViewFile({name: "test", status: "Downloading"});
+            const oldFile = new ViewFile({name: "test", status: ViewFile.Status.QUEUED});
+            const newFile = new ViewFile({name: "test", status: ViewFile.Status.DOWNLOADING});
 
             component.ngOnChanges({
                 file: new SimpleChange(oldFile, newFile, false)
@@ -180,8 +180,8 @@ describe("FileComponent", () => {
         it("should not reset activeAction when status unchanged", () => {
             component.activeAction = FileAction.QUEUE;
 
-            const oldFile = new ViewFile({name: "test", status: "Queued"});
-            const newFile = new ViewFile({name: "test", status: "Queued"});
+            const oldFile = new ViewFile({name: "test", status: ViewFile.Status.QUEUED});
+            const newFile = new ViewFile({name: "test", status: ViewFile.Status.QUEUED});
 
             component.ngOnChanges({
                 file: new SimpleChange(oldFile, newFile, false)
@@ -193,7 +193,7 @@ describe("FileComponent", () => {
         it("should handle null previousValue in ngOnChanges", () => {
             component.activeAction = FileAction.QUEUE;
 
-            const newFile = new ViewFile({name: "test", status: "Queued"});
+            const newFile = new ViewFile({name: "test", status: ViewFile.Status.QUEUED});
 
             // Should not throw
             component.ngOnChanges({
@@ -347,11 +347,11 @@ describe("FileComponent", () => {
             newComponent.options = testOptions;
 
             // Select the file before view is initialized
-            fileSelectionService.select(testFile.name);
+            fileSelectionService.select(testFile.name!);
 
             // Trigger ngOnChanges manually before ngAfterViewInit
-            const oldFile = new ViewFile({name: "test", status: "Default"});
-            const newFile = new ViewFile({name: "test", status: "Queued", isSelected: true});
+            const oldFile = new ViewFile({name: "test", status: ViewFile.Status.DEFAULT});
+            const newFile = new ViewFile({name: "test", status: ViewFile.Status.QUEUED, isSelected: true});
 
             // This should not throw even though fileElement may not be ready
             expect(() => {
@@ -369,9 +369,9 @@ describe("FileComponent", () => {
     describe("Edge cases", () => {
         it("should handle rapid selection/deselection", () => {
             for (let i = 0; i < 100; i++) {
-                fileSelectionService.select(testFile.name);
+                fileSelectionService.select(testFile.name!);
                 expect(component.isSelected()).toBe(true);
-                fileSelectionService.deselect(testFile.name);
+                fileSelectionService.deselect(testFile.name!);
                 expect(component.isSelected()).toBe(false);
             }
         });

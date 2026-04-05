@@ -37,8 +37,8 @@ describe("Testing confirm modal service", () => {
 
         const modal = document.querySelector(".modal");
         expect(modal).toBeTruthy();
-        expect(modal.querySelector(".modal-title").textContent).toBe("Test Title");
-        expect(modal.querySelector(".modal-body p").textContent).toBe("Test Body");
+        expect(modal!.querySelector(".modal-title")!.textContent).toBe("Test Title");
+        expect(modal!.querySelector(".modal-body p")!.textContent).toBe("Test Body");
     }));
 
     it("should create backdrop", fakeAsync(() => {
@@ -52,7 +52,7 @@ describe("Testing confirm modal service", () => {
 
         const backdrop = document.querySelector(".modal-backdrop");
         expect(backdrop).toBeTruthy();
-        expect(backdrop.classList.contains("show")).toBe(true);
+        expect(backdrop!.classList.contains("show")).toBe(true);
     }));
 
     it("should add modal-open class to body", fakeAsync(() => {
@@ -74,11 +74,11 @@ describe("Testing confirm modal service", () => {
         };
 
         let result: boolean | undefined;
-        service.confirm(options).then(r => result = r);
+        service.confirm(options).then((r: boolean) => result = r);
         tick();
 
         const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLButtonElement;
-        okButton.click();
+        okButton!.click();
         tick();
 
         expect(result).toBe(true);
@@ -91,11 +91,11 @@ describe("Testing confirm modal service", () => {
         };
 
         let result: boolean | undefined;
-        service.confirm(options).then(r => result = r);
+        service.confirm(options).then((r: boolean) => result = r);
         tick();
 
         const cancelButton = document.querySelector("[data-action=\"cancel\"]") as HTMLButtonElement;
-        cancelButton.click();
+        cancelButton!.click();
         tick();
 
         expect(result).toBe(false);
@@ -108,11 +108,11 @@ describe("Testing confirm modal service", () => {
         };
 
         let result: boolean | undefined;
-        service.confirm(options).then(r => result = r);
+        service.confirm(options).then((r: boolean) => result = r);
         tick();
 
         const modal = document.querySelector(".modal") as HTMLElement;
-        modal.click();
+        modal!.click();
         tick();
 
         expect(result).toBe(false);
@@ -125,11 +125,11 @@ describe("Testing confirm modal service", () => {
         };
 
         let result: boolean | undefined;
-        service.confirm(options).then(r => result = r);
+        service.confirm(options).then((r: boolean) => result = r);
         tick();
 
         const modalContent = document.querySelector(".modal-content") as HTMLElement;
-        modalContent.click();
+        modalContent!.click();
         tick();
 
         expect(result).toBeUndefined();
@@ -145,7 +145,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLButtonElement;
-        okButton.click();
+        okButton!.click();
         tick();
 
         expect(document.querySelector(".modal")).toBeNull();
@@ -165,8 +165,8 @@ describe("Testing confirm modal service", () => {
         const okButton = document.querySelector("[data-action=\"ok\"]");
         const cancelButton = document.querySelector("[data-action=\"cancel\"]");
 
-        expect(okButton.textContent).toBe("OK");
-        expect(cancelButton.textContent).toBe("Cancel");
+        expect(okButton!.textContent).toBe("OK");
+        expect(cancelButton!.textContent).toBe("Cancel");
     }));
 
     it("should use custom button text", fakeAsync(() => {
@@ -183,8 +183,8 @@ describe("Testing confirm modal service", () => {
         const okButton = document.querySelector("[data-action=\"ok\"]");
         const cancelButton = document.querySelector("[data-action=\"cancel\"]");
 
-        expect(okButton.textContent).toBe("Delete");
-        expect(cancelButton.textContent).toBe("Keep");
+        expect(okButton!.textContent).toBe("Delete");
+        expect(cancelButton!.textContent).toBe("Keep");
     }));
 
     it("should use default button classes", fakeAsync(() => {
@@ -199,10 +199,10 @@ describe("Testing confirm modal service", () => {
         const okButton = document.querySelector("[data-action=\"ok\"]");
         const cancelButton = document.querySelector("[data-action=\"cancel\"]");
 
-        expect(okButton.classList.contains("btn")).toBe(true);
-        expect(okButton.classList.contains("btn-primary")).toBe(true);
-        expect(cancelButton.classList.contains("btn")).toBe(true);
-        expect(cancelButton.classList.contains("btn-secondary")).toBe(true);
+        expect(okButton!.classList.contains("btn")).toBe(true);
+        expect(okButton!.classList.contains("btn-primary")).toBe(true);
+        expect(cancelButton!.classList.contains("btn")).toBe(true);
+        expect(cancelButton!.classList.contains("btn-secondary")).toBe(true);
     }));
 
     it("should use custom button classes", fakeAsync(() => {
@@ -219,8 +219,8 @@ describe("Testing confirm modal service", () => {
         const okButton = document.querySelector("[data-action=\"ok\"]");
         const cancelButton = document.querySelector("[data-action=\"cancel\"]");
 
-        expect(okButton.classList.contains("btn-danger")).toBe(true);
-        expect(cancelButton.classList.contains("btn-outline-secondary")).toBe(true);
+        expect(okButton!.classList.contains("btn-danger")).toBe(true);
+        expect(cancelButton!.classList.contains("btn-outline-secondary")).toBe(true);
     }));
 
     it("should not show skip message when skipCount is not provided", fakeAsync(() => {
@@ -233,7 +233,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modalBody = document.querySelector(".modal-body");
-        expect(modalBody.querySelectorAll("p").length).toBe(1);
+        expect(modalBody!.querySelectorAll("p").length).toBe(1);
     }));
 
     it("should not show skip message when skipCount is 0", fakeAsync(() => {
@@ -247,7 +247,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modalBody = document.querySelector(".modal-body");
-        expect(modalBody.querySelectorAll("p").length).toBe(1);
+        expect(modalBody!.querySelectorAll("p").length).toBe(1);
     }));
 
     it("should show skip message for single file", fakeAsync(() => {
@@ -261,7 +261,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modalBody = document.querySelector(".modal-body");
-        const paragraphs = modalBody.querySelectorAll("p");
+        const paragraphs = modalBody!.querySelectorAll("p");
         expect(paragraphs.length).toBe(2);
         expect(paragraphs[1].textContent).toContain("1 file will be skipped");
     }));
@@ -277,7 +277,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modalBody = document.querySelector(".modal-body");
-        const paragraphs = modalBody.querySelectorAll("p");
+        const paragraphs = modalBody!.querySelectorAll("p");
         expect(paragraphs.length).toBe(2);
         expect(paragraphs[1].textContent).toContain("5 files will be skipped");
     }));
@@ -293,8 +293,8 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const skipMessage = document.querySelectorAll(".modal-body p")[1];
-        expect(skipMessage.classList.contains("text-muted")).toBe(true);
-        expect(skipMessage.classList.contains("small")).toBe(true);
+        expect(skipMessage!.classList.contains("text-muted")).toBe(true);
+        expect(skipMessage!.classList.contains("small")).toBe(true);
     }));
 
     it("should sanitize HTML in title and body to prevent XSS", fakeAsync(() => {
@@ -307,16 +307,16 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modal = document.querySelector(".modal");
-        const modalTitle = modal.querySelector(".modal-title");
-        const modalBodyP = modal.querySelector(".modal-body p");
+        const modalTitle = modal!.querySelector(".modal-title");
+        const modalBodyP = modal!.querySelector(".modal-body p");
 
         // The literal tag strings should appear as text content, not as injected elements
-        expect(modalTitle.textContent).toContain("<script>");
-        expect(modalBodyP.textContent).toContain("<img src=x onerror=alert(1)>");
+        expect(modalTitle!.textContent).toContain("<script>");
+        expect(modalBodyP!.textContent).toContain("<img src=x onerror=alert(1)>");
 
         // No actual script or img elements should be injected inside the modal
-        expect(modal.querySelector("script")).toBeNull();
-        expect(modal.querySelector("img")).toBeNull();
+        expect(modal!.querySelector("script")).toBeNull();
+        expect(modal!.querySelector("img")).toBeNull();
     }));
 
     it("should render HTML entities as literal text in body", fakeAsync(() => {
@@ -331,10 +331,10 @@ describe("Testing confirm modal service", () => {
         const modalBodyP = document.querySelector(".modal-body p");
 
         // The <b> tags should appear as literal text, not as a bold element
-        expect(modalBodyP.textContent).toContain("<b>file.txt</b>");
+        expect(modalBodyP!.textContent).toContain("<b>file.txt</b>");
 
         // No actual <b> element should be created inside the modal body paragraph
-        expect(modalBodyP.querySelector("b")).toBeNull();
+        expect(modalBodyP!.querySelector("b")).toBeNull();
     }));
 
     it("should focus cancel button when modal opens", fakeAsync(() => {
@@ -357,11 +357,11 @@ describe("Testing confirm modal service", () => {
         };
 
         let result: boolean | undefined;
-        service.confirm(options).then(r => result = r);
+        service.confirm(options).then((r: boolean) => result = r);
         tick();
 
         const modal = document.querySelector(".modal") as HTMLElement;
-        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+        modal!.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
         tick();
 
         expect(result).toBe(false);
@@ -382,8 +382,8 @@ describe("Testing confirm modal service", () => {
         const modal = document.querySelector(".modal") as HTMLElement;
 
         // Move focus to ok button, then Tab should wrap to cancel button
-        okButton.focus();
-        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+        okButton!.focus();
+        modal!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
 
         expect(document.activeElement).toBe(cancelButton);
     }));
@@ -402,8 +402,8 @@ describe("Testing confirm modal service", () => {
         const modal = document.querySelector(".modal") as HTMLElement;
 
         // Cancel button is focused by default; Shift+Tab should wrap to ok button
-        cancelButton.focus();
-        modal.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
+        cancelButton!.focus();
+        modal!.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true }));
 
         expect(document.activeElement).toBe(okButton);
     }));
@@ -425,7 +425,7 @@ describe("Testing confirm modal service", () => {
 
         // Focus has moved to modal cancel button
         const okButton = document.querySelector("[data-action=\"ok\"]") as HTMLButtonElement;
-        okButton.click();
+        okButton!.click();
         tick();
 
         expect(document.activeElement).toBe(triggerButton);
@@ -444,7 +444,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modal = document.querySelector(".modal");
-        expect(modal.getAttribute("aria-modal")).toBe("true");
+        expect(modal!.getAttribute("aria-modal")).toBe("true");
     }));
 
     it("should set aria-labelledby on modal element", fakeAsync(() => {
@@ -457,7 +457,7 @@ describe("Testing confirm modal service", () => {
         tick();
 
         const modal = document.querySelector(".modal");
-        expect(modal.getAttribute("aria-labelledby")).toBe("confirm-modal-title");
-        expect(modal.querySelector("#confirm-modal-title")).toBeTruthy();
+        expect(modal!.getAttribute("aria-labelledby")).toBe("confirm-modal-title");
+        expect(modal!.querySelector("#confirm-modal-title")).toBeTruthy();
     }));
 });

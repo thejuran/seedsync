@@ -25,7 +25,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
     private readonly SONARR_TEST_URL = "/server/config/sonarr/test-connection";
     private readonly RADARR_TEST_URL = "/server/config/radarr/test-connection";
 
-    private _config: BehaviorSubject<Config> = new BehaviorSubject(null);
+    private _config: BehaviorSubject<Config | null> = new BehaviorSubject<Config | null>(null);
 
     constructor(_streamServiceProvider: StreamServiceRegistry,
                 private _restService: RestService,
@@ -37,7 +37,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
      * Returns an observable that provides that latest Config
      * @returns {Observable<Config>}
      */
-    get config(): Observable<Config> {
+    get config(): Observable<Config | null> {
         return this._config.asObservable();
     }
 
@@ -51,7 +51,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
     public set(section: string, option: string, value: string | number | boolean): Observable<WebReaction> {
         const valueStr = String(value);
         const currentConfig = this._config.getValue();
-        if (!currentConfig.has(section as keyof IConfig) ||
+        if (!currentConfig || !currentConfig.has(section as keyof IConfig) ||
             !(currentConfig.get(section as keyof IConfig) as unknown as {has: (key: string) => boolean}).has(option)) {
             return new Observable<WebReaction>(observer => {
                 observer.next(new WebReaction(false, null, `Config has no option named ${section}.${option}`));
@@ -72,6 +72,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
                     if (reaction.success) {
                         // Update our copy and notify clients
                         const config = this._config.getValue();
+                        if (!config) { return; }
                         const newConfig = new Config(config.updateIn([section, option], (_) => value));
                         this._config.next(newConfig);
                     }
@@ -116,7 +117,7 @@ export class ConfigService extends BaseWebService implements OnDestroy {
         this._restService.sendRequest(this.CONFIG_GET_URL).pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 if (reaction.success) {
-                    const config_json: IConfig = JSON.parse(reaction.data);
+                    const config_json: IConfig = JSON.parse(reaction.data!);
                     this._config.next(new Config(config_json));
                 } else {
                     this._config.next(null);
