@@ -12,8 +12,8 @@ import {LogService} from "../../../../services/logs/log.service";
 
 
 class MockStreamService implements IStreamService {
-    eventList = [];
-    connectedSeq = [];
+    eventList: [string, string][] = [];
+    connectedSeq: boolean[] = [];
 
     getEventNames(): string[] {
         throw new Error("Method not implemented.");
@@ -91,21 +91,21 @@ describe("Testing stream dispatch service", () => {
     }));
 
     it("should forward name and data correctly", fakeAsync(() => {
-        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data1a"});
+        mockEventSource.listeners.get("event1a")!(<MessageEvent>{data: "data1a"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"]
         ]);
         expect(mockService2.eventList).toEqual([]);
 
-        mockEventSource.listeners.get("event1b")(<MessageEvent>{data: "data1b"});
+        mockEventSource.listeners.get("event1b")!(<MessageEvent>{data: "data1b"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"], ["event1b", "data1b"]
         ]);
         expect(mockService2.eventList).toEqual([]);
 
-        mockEventSource.listeners.get("event2a")(<MessageEvent>{data: "data2a"});
+        mockEventSource.listeners.get("event2a")!(<MessageEvent>{data: "data2a"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"], ["event1b", "data1b"]
@@ -114,7 +114,7 @@ describe("Testing stream dispatch service", () => {
             ["event2a", "data2a"]
         ]);
 
-        mockEventSource.listeners.get("event2b")(<MessageEvent>{data: "data2b"});
+        mockEventSource.listeners.get("event2b")!(<MessageEvent>{data: "data2b"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"], ["event1b", "data1b"]
@@ -123,7 +123,7 @@ describe("Testing stream dispatch service", () => {
             ["event2a", "data2a"], ["event2b", "data2b"]
         ]);
 
-        mockEventSource.listeners.get("event1b")(<MessageEvent>{data: "data1bbb"});
+        mockEventSource.listeners.get("event1b")!(<MessageEvent>{data: "data1bbb"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"], ["event1b", "data1b"], ["event1b", "data1bbb"]
@@ -147,7 +147,7 @@ describe("Testing stream dispatch service", () => {
 
         // Fire the event via the existing listener — it will reach the next handler
         // but find no mapped service, triggering the warn path
-        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data-orphan"});
+        mockEventSource.listeners.get("event1a")!(<MessageEvent>{data: "data-orphan"});
         tick();
 
         // The warn guard should have been hit
@@ -157,20 +157,20 @@ describe("Testing stream dispatch service", () => {
         expect(mockService1.eventList).toEqual([]);
 
         // Verify stream still works for other events
-        mockEventSource.listeners.get("event2a")(<MessageEvent>{data: "data2a"});
+        mockEventSource.listeners.get("event2a")!(<MessageEvent>{data: "data2a"});
         tick();
         expect(mockService2.eventList).toEqual([["event2a", "data2a"]]);
     }));
 
     it("should call connect on open", fakeAsync(() => {
-        mockEventSource.onopen(new Event("connected"));
+        mockEventSource.onopen!(new Event("connected"));
         tick();
         expect(mockService1.connectedSeq).toEqual([true]);
         expect(mockService2.connectedSeq).toEqual([true]);
     }));
 
     it("should call disconnect on error", fakeAsync(() => {
-        mockEventSource.onerror(new Event("bad event"));
+        mockEventSource.onerror!(new Event("bad event"));
         tick();
         expect(mockService1.connectedSeq).toEqual([false]);
         expect(mockService2.connectedSeq).toEqual([false]);
@@ -178,19 +178,19 @@ describe("Testing stream dispatch service", () => {
     }));
 
     it("should send events after reconnect", fakeAsync(() => {
-        mockEventSource.onopen(new Event("connected"));
+        mockEventSource.onopen!(new Event("connected"));
         tick();
-        mockEventSource.onerror(new Event("bad event"));
+        mockEventSource.onerror!(new Event("bad event"));
         tick(4000);
-        mockEventSource.onopen(new Event("connected"));
+        mockEventSource.onopen!(new Event("connected"));
         tick();
-        mockEventSource.listeners.get("event1a")(<MessageEvent>{data: "data1a"});
+        mockEventSource.listeners.get("event1a")!(<MessageEvent>{data: "data1a"});
         tick();
         expect(mockService1.eventList).toEqual([
             ["event1a", "data1a"]
         ]);
         expect(mockService2.eventList).toEqual([]);
-        mockEventSource.listeners.get("event2b")(<MessageEvent>{data: "data2b"});
+        mockEventSource.listeners.get("event2b")!(<MessageEvent>{data: "data2b"});
         tick();
         expect(mockService1.eventList).toEqual([["event1a", "data1a"]]);
         expect(mockService2.eventList).toEqual([["event2b", "data2b"]]);
@@ -202,20 +202,20 @@ describe("Testing stream dispatch service", () => {
 describe("Testing stream service registry", () => {
     let registry: StreamServiceRegistry;
 
-    let mockDispatch;
+    let mockDispatch: any;
 
-    let mockModelFileService;
-    let mockServerStatusService;
-    let mockConnectedService;
-    let mockLogService;
+    let mockModelFileService: any;
+    let mockServerStatusService: any;
+    let mockConnectedService: any;
+    let mockLogService: any;
 
-    let registered;
+    let registered: any[];
 
     beforeEach(() => {
         registered = [];
 
         mockDispatch = jasmine.createSpyObj("mockDispatch", ["registerService"]);
-        mockDispatch.registerService.and.callFake(value => registered.push(value));
+        mockDispatch.registerService.and.callFake((value: any) => registered.push(value));
 
         mockModelFileService = jasmine.createSpy("mockModelFileService");
         mockServerStatusService = jasmine.createSpy("mockServerStatusService");

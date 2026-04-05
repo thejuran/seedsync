@@ -60,30 +60,30 @@ const ViewFileRecord = Record(DefaultViewFile);
  * Immutable class that implements the interface
  */
 export class ViewFile extends ViewFileRecord implements IViewFile {
-    name: string | null;
-    isDir: boolean | null;
-    localSize: number | null;
-    remoteSize: number | null;
-    percentDownloaded: number | null;
-    status: ViewFile.Status | null;
-    downloadingSpeed: number | null;
-    eta: number | null;
+    name!: string | null;
+    isDir!: boolean | null;
+    localSize!: number | null;
+    remoteSize!: number | null;
+    percentDownloaded!: number | null;
+    status!: ViewFile.Status | null;
+    downloadingSpeed!: number | null;
+    eta!: number | null;
     // noinspection JSUnusedGlobalSymbols
-    fullPath: string | null;
-    isArchive: boolean | null;
-    isSelected: boolean | null;
-    isQueueable: boolean | null;
-    isStoppable: boolean | null;
-    isExtractable: boolean | null;
-    isLocallyDeletable: boolean | null;
-    isRemotelyDeletable: boolean | null;
-    localCreatedTimestamp: Date | null;
-    localModifiedTimestamp: Date | null;
-    remoteCreatedTimestamp: Date | null;
-    remoteModifiedTimestamp: Date | null;
-    importStatus: ViewFile.ImportStatus | null;
+    fullPath!: string | null;
+    isArchive!: boolean | null;
+    isSelected!: boolean | null;
+    isQueueable!: boolean | null;
+    isStoppable!: boolean | null;
+    isExtractable!: boolean | null;
+    isLocallyDeletable!: boolean | null;
+    isRemotelyDeletable!: boolean | null;
+    localCreatedTimestamp!: Date | null;
+    localModifiedTimestamp!: Date | null;
+    remoteCreatedTimestamp!: Date | null;
+    remoteModifiedTimestamp!: Date | null;
+    importStatus!: ViewFile.ImportStatus | null;
 
-    constructor(props) {
+    constructor(props: Partial<ViewFile>) {
         super(props);
     }
 }

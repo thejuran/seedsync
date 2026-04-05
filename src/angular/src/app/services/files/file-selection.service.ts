@@ -165,7 +165,7 @@ export class FileSelectionService {
      * @param visibleFiles List of currently visible ViewFiles
      */
     selectAllVisible(visibleFiles: ViewFile[]): void {
-        const fileNames = visibleFiles.map(f => f.name);
+        const fileNames = visibleFiles.map(f => f.name).filter((n): n is string => n != null);
         this.selectMultiple(fileNames);
     }
 

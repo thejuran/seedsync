@@ -10,39 +10,39 @@ interface IServerStatus {
     };
 
     controller: {
-        latestLocalScanTime: Date;
-        latestRemoteScanTime: Date;
+        latestLocalScanTime: Date | null;
+        latestRemoteScanTime: Date | null;
         latestRemoteScanFailed: boolean;
         latestRemoteScanError: string;
     };
 }
 const DefaultServerStatus: IServerStatus = {
     server: {
-        up: null,
-        errorMessage: null
+        up: false,
+        errorMessage: ""
     },
     controller: {
         latestLocalScanTime: null,
         latestRemoteScanTime: null,
-        latestRemoteScanFailed: null,
-        latestRemoteScanError: null
+        latestRemoteScanFailed: false,
+        latestRemoteScanError: ""
     }
 };
 const ServerStatusRecord = Record(DefaultServerStatus);
 export class ServerStatus extends ServerStatusRecord implements IServerStatus {
-    server: {
+    server!: {
         up: boolean;
         errorMessage: string;
     };
 
-    controller: {
-        latestLocalScanTime: Date;
-        latestRemoteScanTime: Date;
+    controller!: {
+        latestLocalScanTime: Date | null;
+        latestRemoteScanTime: Date | null;
         latestRemoteScanFailed: boolean;
         latestRemoteScanError: string;
     };
 
-    constructor(props) {
+    constructor(props: Partial<IServerStatus>) {
         super(props);
     }
 }
@@ -50,13 +50,13 @@ export class ServerStatus extends ServerStatusRecord implements IServerStatus {
 
 export namespace ServerStatus {
     export function fromJson(json: ServerStatusJson): ServerStatus {
-        let latestLocalScanTime: Date = null;
+        let latestLocalScanTime: Date | null = null;
         if (json.controller.latest_local_scan_time != null) {
             // str -> number, then sec -> ms
             latestLocalScanTime = new Date(1000 * +json.controller.latest_local_scan_time);
         }
 
-        let latestRemoteScanTime: Date = null;
+        let latestRemoteScanTime: Date | null = null;
         if (json.controller.latest_remote_scan_time != null) {
             // str -> number, then sec -> ms
             latestRemoteScanTime = new Date(1000 * +json.controller.latest_remote_scan_time);

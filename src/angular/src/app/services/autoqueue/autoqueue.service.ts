@@ -22,7 +22,7 @@ export class AutoQueueService extends BaseWebService implements OnDestroy {
     private readonly AUTOQUEUE_REMOVE_URL = (pattern: string): string => `/server/autoqueue/remove/${pattern}`;
 
     private _patterns: BehaviorSubject<Immutable.List<AutoQueuePattern>> =
-            new BehaviorSubject(Immutable.List([]));
+            new BehaviorSubject<Immutable.List<AutoQueuePattern>>(Immutable.List<AutoQueuePattern>());
 
     constructor(_streamServiceProvider: StreamServiceRegistry,
                 private _restService: RestService,
@@ -139,7 +139,7 @@ export class AutoQueueService extends BaseWebService implements OnDestroy {
         this._restService.sendRequest(this.AUTOQUEUE_GET_URL).pipe(takeUntil(this.destroy$)).subscribe({
             next: reaction => {
                 if (reaction.success) {
-                    const parsed: AutoQueuePatternJson[] = JSON.parse(reaction.data);
+                    const parsed: AutoQueuePatternJson[] = JSON.parse(reaction.data!);
                     const newPatterns: AutoQueuePattern[] = [];
                     for (const patternJson of parsed) {
                         newPatterns.push(new AutoQueuePattern({

@@ -57,7 +57,7 @@ describe("Testing view file options service", () => {
 
     it("should forward updates to sortMethod", fakeAsync(() => {
         let count = 0;
-        let sortMethod = null;
+        let sortMethod: ViewFileOptions.SortMethod | null = null;
         viewOptionsService.options.subscribe({
             next: options => {
                 sortMethod = options.sortMethod;
@@ -69,18 +69,18 @@ describe("Testing view file options service", () => {
 
         viewOptionsService.setSortMethod(ViewFileOptions.SortMethod.NAME_ASC);
         tick();
-        expect(sortMethod).toBe(ViewFileOptions.SortMethod.NAME_ASC);
+        expect(sortMethod!).toBe(ViewFileOptions.SortMethod.NAME_ASC);
         expect(count).toBe(2);
 
         viewOptionsService.setSortMethod(ViewFileOptions.SortMethod.NAME_DESC);
         tick();
-        expect(sortMethod).toBe(ViewFileOptions.SortMethod.NAME_DESC);
+        expect(sortMethod!).toBe(ViewFileOptions.SortMethod.NAME_DESC);
         expect(count).toBe(3);
 
         // Setting same value shouldn't trigger an update
         viewOptionsService.setSortMethod(ViewFileOptions.SortMethod.NAME_DESC);
         tick();
-        expect(sortMethod).toBe(ViewFileOptions.SortMethod.NAME_DESC);
+        expect(sortMethod!).toBe(ViewFileOptions.SortMethod.NAME_DESC);
         expect(count).toBe(3);
     }));
 
@@ -95,7 +95,7 @@ describe("Testing view file options service", () => {
         viewOptionsService = createViewOptionsService();
 
         let count = 0;
-        let sortMethod = null;
+        let sortMethod: ViewFileOptions.SortMethod | null = null;
         viewOptionsService.options.subscribe({
             next: options => {
                 sortMethod = options.sortMethod;
@@ -104,7 +104,7 @@ describe("Testing view file options service", () => {
         });
         tick();
         expect(count).toBe(1);
-        expect(sortMethod).toBe(ViewFileOptions.SortMethod.NAME_ASC);
+        expect(sortMethod!).toBe(ViewFileOptions.SortMethod.NAME_ASC);
     }));
 
     it("should save sortMethod to storage", fakeAsync(() => {
@@ -123,7 +123,7 @@ describe("Testing view file options service", () => {
 
     it("should forward updates to selectedStatusFilter", fakeAsync(() => {
         let count = 0;
-        let selectedStatusFilter = null;
+        let selectedStatusFilter: ViewFile.Status | null = null;
         viewOptionsService.options.subscribe({
             next: options => {
                 selectedStatusFilter = options.selectedStatusFilter;
@@ -135,22 +135,22 @@ describe("Testing view file options service", () => {
 
         viewOptionsService.setSelectedStatusFilter(ViewFile.Status.EXTRACTED);
         tick();
-        expect(selectedStatusFilter).toBe(ViewFile.Status.EXTRACTED);
+        expect(selectedStatusFilter!).toBe(ViewFile.Status.EXTRACTED);
         expect(count).toBe(2);
 
         viewOptionsService.setSelectedStatusFilter(ViewFile.Status.QUEUED);
         tick();
-        expect(selectedStatusFilter).toBe(ViewFile.Status.QUEUED);
+        expect(selectedStatusFilter!).toBe(ViewFile.Status.QUEUED);
         expect(count).toBe(3);
 
         // Setting same value shouldn't trigger an update
         viewOptionsService.setSelectedStatusFilter(ViewFile.Status.QUEUED);
         tick();
-        expect(selectedStatusFilter).toBe(ViewFile.Status.QUEUED);
+        expect(selectedStatusFilter!).toBe(ViewFile.Status.QUEUED);
         expect(count).toBe(3);
 
         // Null should be allowed
-        viewOptionsService.setSelectedStatusFilter(null);
+        viewOptionsService.setSelectedStatusFilter(null as unknown as ViewFile.Status);
         tick();
         expect(selectedStatusFilter).toBeNull();
         expect(count).toBe(4);
@@ -158,7 +158,7 @@ describe("Testing view file options service", () => {
 
     it("should forward updates to nameFilter", fakeAsync(() => {
         let count = 0;
-        let nameFilter = null;
+        let nameFilter: string | null = null;
         viewOptionsService.options.subscribe({
             next: options => {
                 nameFilter = options.nameFilter;
@@ -170,22 +170,22 @@ describe("Testing view file options service", () => {
 
         viewOptionsService.setNameFilter("tofu");
         tick();
-        expect(nameFilter).toBe("tofu");
+        expect(nameFilter!).toBe("tofu");
         expect(count).toBe(2);
 
         viewOptionsService.setNameFilter("flower");
         tick();
-        expect(nameFilter).toBe("flower");
+        expect(nameFilter!).toBe("flower");
         expect(count).toBe(3);
 
         // Setting same value shouldn't trigger an update
         viewOptionsService.setNameFilter("flower");
         tick();
-        expect(nameFilter).toBe("flower");
+        expect(nameFilter!).toBe("flower");
         expect(count).toBe(3);
 
         // Null should be allowed
-        viewOptionsService.setNameFilter(null);
+        viewOptionsService.setNameFilter(null as unknown as string);
         tick();
         expect(nameFilter).toBeNull();
         expect(count).toBe(4);

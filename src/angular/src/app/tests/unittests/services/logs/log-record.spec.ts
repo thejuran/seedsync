@@ -4,7 +4,7 @@ import {LogRecord} from "../../../../services/logs/log-record";
 
 
 describe("Testing log record initialization", () => {
-    let baseJson;
+    let baseJson: any;
     let baseLogRecord: LogRecord;
 
     beforeEach(() => {

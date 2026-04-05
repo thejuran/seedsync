@@ -230,7 +230,7 @@ export class StreamDispatchService implements OnDestroy {
             };
         });
         this._currentSubscription = observable.subscribe({
-            next: (x) => {
+            next: (x: any) => {
                 const eventName = x["event"];
                 const eventData = x["data"];
                 // this._logger.debug("Received event:", eventName);

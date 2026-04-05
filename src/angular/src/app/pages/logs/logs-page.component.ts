@@ -29,13 +29,13 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
 
     public headerHeight: Observable<number>;
 
-    @ViewChild("templateRecord", {static: false}) templateRecord;
+    @ViewChild("templateRecord", {static: false}) templateRecord: any;
 
     // Where to insert the cloned content
-    @ViewChild("container", {static: false, read: ViewContainerRef}) container;
+    @ViewChild("container", {static: false, read: ViewContainerRef}) container: any;
 
-    @ViewChild("logHead", {static: false}) logHead;
-    @ViewChild("logTail", {static: false}) logTail;
+    @ViewChild("logHead", {static: false}) logHead: any;
+    @ViewChild("logTail", {static: false}) logTail: any;
 
     public showScrollToTopButton = false;
     public showScrollToBottomButton = false;
@@ -150,7 +150,7 @@ export class LogsPageComponent implements OnInit, AfterViewInit, AfterContentChe
     }
 
     // Source: https://stackoverflow.com/a/7557433
-    private static isElementInViewport(el): boolean {
+    private static isElementInViewport(el: HTMLElement): boolean {
         const rect = el.getBoundingClientRect();
         return (
             rect.top >= 0 &&

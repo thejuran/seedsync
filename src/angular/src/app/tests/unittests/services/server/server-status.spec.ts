@@ -38,7 +38,7 @@ describe("Testing log record initialization", () => {
     it("should correctly initialize controller latest local scan time", () => {
         expect(baseStatus.controller.latestLocalScanTime).toEqual(new Date(1514776875943));
         // Allow null
-        baseJson.controller.latest_local_scan_time = null;
+        baseJson.controller.latest_local_scan_time = null as unknown as string;
         const newStatus = ServerStatus.fromJson(baseJson);
         expect(newStatus.controller.latestLocalScanTime).toBeNull();
     });
@@ -46,7 +46,7 @@ describe("Testing log record initialization", () => {
     it("should correctly initialize controller latest remote scan time", () => {
         expect(baseStatus.controller.latestRemoteScanTime).toEqual(new Date(1524743857345));
         // Allow null
-        baseJson.controller.latest_remote_scan_time = null;
+        baseJson.controller.latest_remote_scan_time = null as unknown as string;
         const newStatus = ServerStatus.fromJson(baseJson);
         expect(newStatus.controller.latestRemoteScanTime).toBeNull();
     });

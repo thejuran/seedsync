@@ -59,7 +59,7 @@ export class FileListComponent {
     public selectedFiles$: Observable<Set<string>>;
 
     // Single selected file for actions bar (detail panel selection)
-    public selectedFile$: Observable<ViewFile | null>;
+    public selectedFile$!: Observable<ViewFile | null>;
 
     // Track last clicked file name for shift+click range selection (name-based for filter resilience)
     private _lastClickedFileName: string | null = null;
@@ -85,7 +85,7 @@ export class FileListComponent {
 
         // Single selected file for actions bar (derived from files list)
         this.selectedFile$ = this.files.pipe(
-            map(files => files.find(f => f.isSelected) || null)
+            map(files => files.find(f => !!f.isSelected) || null)
         );
 
         // Keep a cached copy of files for range selection
@@ -108,7 +108,7 @@ export class FileListComponent {
                 if (files.size === 0 || selectedFiles.size === 0) {
                     return "none";
                 }
-                const visibleSelectedCount = files.filter(f => selectedFiles.has(f.name)).size;
+                const visibleSelectedCount = files.filter(f => f.name != null && selectedFiles.has(f.name)).size;
                 if (visibleSelectedCount === 0) {
                     return "none";
                 } else if (visibleSelectedCount === files.size) {
@@ -128,7 +128,7 @@ export class FileListComponent {
                     this._firstEmission = false;
                     files.forEach(file => {
                         if (file.importStatus) {
-                            this._prevImportStatuses.set(file.name, file.importStatus);
+                            this._prevImportStatuses.set(file.name!, file.importStatus);
                         }
                     });
                     return;
@@ -138,7 +138,7 @@ export class FileListComponent {
                 // with a non-IMPORTED status — files appearing for the first time
                 // as IMPORTED are persisted from a previous session, not new events)
                 files.forEach(file => {
-                    const prevStatus = this._prevImportStatuses.get(file.name);
+                    const prevStatus = this._prevImportStatuses.get(file.name!);
                     if (file.importStatus === ViewFile.ImportStatus.IMPORTED &&
                         prevStatus !== undefined &&
                         prevStatus !== ViewFile.ImportStatus.IMPORTED) {
@@ -146,7 +146,7 @@ export class FileListComponent {
                     }
                     // Update tracked status
                     if (file.importStatus) {
-                        this._prevImportStatuses.set(file.name, file.importStatus);
+                        this._prevImportStatuses.set(file.name!, file.importStatus);
                     }
                 });
 
@@ -257,7 +257,7 @@ export class FileListComponent {
      * @param item
      */
     static identify(index: number, item: ViewFile): string {
-        return item.name;
+        return item.name!;
     }
 
     onSelect(file: ViewFile): void {
@@ -319,7 +319,7 @@ export class FileListComponent {
      */
     onHeaderCheckboxClick(files: List<ViewFile>): void {
         const selectedFiles = this.fileSelectionService.getSelectedFiles();
-        const visibleSelectedCount = files.filter(f => selectedFiles.has(f.name)).size;
+        const visibleSelectedCount = files.filter(f => f.name != null && selectedFiles.has(f.name)).size;
 
         if (visibleSelectedCount === files.size && files.size > 0) {
             // All visible are selected - clear selection
@@ -359,19 +359,19 @@ export class FileListComponent {
                 const rangeNames: string[] = [];
                 for (let i = start; i <= end; i++) {
                     const file = this._currentFiles.get(i);
-                    if (file) {
+                    if (file?.name) {
                         rangeNames.push(file.name);
                     }
                 }
                 this.fileSelectionService.setSelection(rangeNames);
             } else {
                 // Anchor no longer visible - just toggle the clicked file and set new anchor
-                this.fileSelectionService.toggle(event.file.name);
+                this.fileSelectionService.toggle(event.file.name!);
                 this._lastClickedFileName = event.file.name;
             }
         } else {
             // Normal click: toggle the single file and update anchor
-            this.fileSelectionService.toggle(event.file.name);
+            this.fileSelectionService.toggle(event.file.name!);
             this._lastClickedFileName = event.file.name;
         }
     }

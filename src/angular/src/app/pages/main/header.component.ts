@@ -28,9 +28,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     private _serverStatusService: ServerStatusService;
 
-    private _prevServerNotification: Notification;
-    private _prevWaitingForRemoteScanNotification: Notification;
-    private _prevRemoteServerErrorNotification: Notification;
+    private _prevServerNotification: Notification | null;
+    private _prevWaitingForRemoteScanNotification: Notification | null;
+    private _prevRemoteServerErrorNotification: Notification | null = null;
     private destroy$ = new Subject<void>();
 
     constructor(private _logger: LoggerService,

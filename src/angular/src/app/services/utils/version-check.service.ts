@@ -43,7 +43,7 @@ export class VersionCheckService implements OnDestroy {
                     let latestVersion;
                     let url;
                     try {
-                        jsonResponse = JSON.parse(reaction.data);
+                        jsonResponse = JSON.parse(reaction.data!);
                         latestVersion = jsonResponse.tag_name;
                         url = jsonResponse.html_url;
                     } catch (e) {

@@ -384,7 +384,7 @@ describe("BulkActionsBarComponent", () => {
             }
 
             // Select all 500 files
-            const allFileNames = new Set(largeFileList.map(f => f.name));
+            const allFileNames = new Set(largeFileList.map(f => f.name!));
 
             // Measure computation time
             const start = performance.now();
@@ -412,7 +412,7 @@ describe("BulkActionsBarComponent", () => {
                     isRemotelyDeletable: true
                 }));
             }
-            const allFileNames = new Set(files.map(f => f.name));
+            const allFileNames = new Set(files.map(f => f.name!));
             setInputsAndDetectChanges(List(files), allFileNames);
 
             // Access all getters multiple times
@@ -443,7 +443,7 @@ describe("BulkActionsBarComponent", () => {
                 }));
             }
             const filesList = List(files);
-            const selectedFiles = new Set(files.map(f => f.name));
+            const selectedFiles = new Set(files.map(f => f.name!));
             setInputsAndDetectChanges(filesList, selectedFiles);
 
             const initialCounts = component.actionCounts;

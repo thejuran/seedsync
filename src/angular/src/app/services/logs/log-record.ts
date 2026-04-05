@@ -12,21 +12,21 @@ interface ILogRecord {
     exceptionTraceback: string;
 }
 const DefaultLogRecord: ILogRecord = {
-    time: null,
-    level: null,
-    loggerName: null,
-    message: null,
-    exceptionTraceback: null,
+    time: new Date(0),
+    level: "INFO" as LogRecord.Level,
+    loggerName: "",
+    message: "",
+    exceptionTraceback: "",
 };
 const LogRecordRecord = Record(DefaultLogRecord);
 export class LogRecord extends LogRecordRecord implements ILogRecord {
-    time: Date;
-    level: LogRecord.Level;
-    loggerName: string;
-    message: string;
-    exceptionTraceback: string;
+    time!: Date;
+    level!: LogRecord.Level;
+    loggerName!: string;
+    message!: string;
+    exceptionTraceback!: string;
 
-    constructor(props) {
+    constructor(props: Partial<LogRecord>) {
         super(props);
     }
 }
@@ -37,7 +37,7 @@ export namespace LogRecord {
         return new LogRecord({
             // str -> number, then sec -> ms
             time: new Date(1000 * +json.time),
-            level: LogRecord.Level[json.level_name],
+            level: LogRecord.Level[json.level_name as keyof typeof LogRecord.Level],
             loggerName: json.logger_name,
             message: json.message,
             exceptionTraceback: json.exc_tb

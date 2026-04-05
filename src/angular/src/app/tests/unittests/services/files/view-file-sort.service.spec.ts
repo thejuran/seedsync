@@ -27,7 +27,7 @@ describe("Testing view file sort service", () => {
             ]
         });
         viewFileService = TestBed.inject(ViewFileService) as unknown as MockViewFileService;
-        sortComparator = undefined;  // Reset before each test
+        sortComparator = undefined as unknown as ViewFileComparator;  // Reset before each test
         spyOn(viewFileService, "setComparator").and.callFake(
             value => sortComparator = value
         );

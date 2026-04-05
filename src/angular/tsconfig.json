@@ -1,6 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "strict": true,
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "outDir": "./dist/out-tsc",
     "esModuleInterop": true,
@@ -12,6 +14,7 @@
     "experimentalDecorators": true,
     "target": "ES2022",
     "useDefineForClassFields": false,
+    "types": ["jasmine"],
     "typeRoots": [
       "node_modules/@types"
     ]

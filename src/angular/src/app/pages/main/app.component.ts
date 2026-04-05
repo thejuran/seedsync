@@ -20,14 +20,14 @@ import {HeaderComponent} from "./header.component";
     imports: [RouterOutlet, RouterLink, RouterLinkActive, HeaderComponent]
 })
 export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild("topHeader", {static: false}) topHeader: ElementRef;
+    @ViewChild("topHeader", {static: false}) topHeader!: ElementRef;
 
     routeInfos = ROUTE_INFOS;
     version: string = appVersion;
     toasts: Toast[] = [];
 
     private destroy$ = new Subject<void>();
-    private _resizeObserver: ResizeObserver;
+    private _resizeObserver!: ResizeObserver;
 
     constructor(private router: Router,
                 private _domService: DomService,

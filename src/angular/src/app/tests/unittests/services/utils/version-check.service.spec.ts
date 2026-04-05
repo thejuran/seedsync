@@ -55,7 +55,7 @@ describe("Testing version check service", () => {
 
     it("should fail gracefully on failed request to github", fakeAsync(() => {
         const subject = new Subject<WebReaction>();
-        sendRequestSpy.and.returnValue(subject);
+        sendRequestSpy!.and.returnValue(subject);
 
         // Recreate the service
         versionCheckService = createVersionCheckService();
@@ -67,7 +67,7 @@ describe("Testing version check service", () => {
 
     it("should fail gracefully on garbage data from github", fakeAsync(() => {
         const subject = new Subject<WebReaction>();
-        sendRequestSpy.and.returnValue(subject);
+        sendRequestSpy!.and.returnValue(subject);
 
         // Recreate the service
         versionCheckService = createVersionCheckService();
@@ -79,7 +79,7 @@ describe("Testing version check service", () => {
 
     it("should fire a notification on new version", fakeAsync(() => {
         const subject = new Subject<WebReaction>();
-        sendRequestSpy.and.returnValue(subject);
+        sendRequestSpy!.and.returnValue(subject);
 
         // Note: can't spy on compareVersions, so just replace the private method instead
         spyOn(VersionCheckService as unknown as {isVersionNewer: (v: string) => boolean}, "isVersionNewer").and.returnValue(true);
@@ -94,7 +94,7 @@ describe("Testing version check service", () => {
 
     it("should not fire a notification on old version", fakeAsync(() => {
         const subject = new Subject<WebReaction>();
-        sendRequestSpy.and.returnValue(subject);
+        sendRequestSpy!.and.returnValue(subject);
 
         // Note: can't spy on compareVersions, so just replace the private method instead
         spyOn(VersionCheckService as unknown as {isVersionNewer: (v: string) => boolean}, "isVersionNewer").and.returnValue(false);

@@ -86,7 +86,7 @@ export class BulkActionsBarComponent implements OnChanges {
     private _recomputeCachedValues(): void {
         // Compute selected view files once
         this._cachedSelectedViewFiles = this.visibleFiles
-            .filter(f => this.selectedFiles.has(f.name))
+            .filter(f => f.name != null && this.selectedFiles.has(f.name))
             .toArray();
 
         // Compute action-specific lists in a single pass
@@ -97,6 +97,7 @@ export class BulkActionsBarComponent implements OnChanges {
         const remotelyDeletable: string[] = [];
 
         for (const file of this._cachedSelectedViewFiles) {
+            if (!file.name) { continue; }
             if (file.isQueueable) {
                 queueable.push(file.name);
             }

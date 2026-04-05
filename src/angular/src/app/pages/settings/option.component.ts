@@ -14,10 +14,10 @@ import {debounceTime, distinctUntilChanged, takeUntil} from "rxjs/operators";
     imports: [FormsModule]
 })
 export class OptionComponent implements OnInit, OnDestroy {
-    @Input() type: OptionType;
-    @Input() label: string;
-    @Input() value: string | number | boolean;
-    @Input() description: string;
+    @Input() type!: OptionType;
+    @Input() label!: string;
+    @Input() value!: string | number | boolean;
+    @Input() description!: string;
 
     @Output() changeEvent = new EventEmitter<string | number | boolean>();
 

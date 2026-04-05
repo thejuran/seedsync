@@ -35,18 +35,18 @@ describe("Testing dom service", () => {
 
         domService.setHeaderHeight(10);
         tick();
-        expect(headerHeight).toBe(10);
+        expect(headerHeight!).toBe(10);
         expect(count).toBe(2);
 
         domService.setHeaderHeight(20);
         tick();
-        expect(headerHeight).toBe(20);
+        expect(headerHeight!).toBe(20);
         expect(count).toBe(3);
 
         // Setting same value shouldn't trigger an update
         domService.setHeaderHeight(20);
         tick();
-        expect(headerHeight).toBe(20);
+        expect(headerHeight!).toBe(20);
         expect(count).toBe(3);
     }));
 });

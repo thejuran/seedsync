@@ -11,7 +11,7 @@ interface IViewFileOptions {
     sortMethod: ViewFileOptions.SortMethod;
 
     // Status filter setting
-    selectedStatusFilter: ViewFile.Status;
+    selectedStatusFilter: ViewFile.Status | null;
 
     // Name filter setting
     nameFilter: string;
@@ -20,9 +20,9 @@ interface IViewFileOptions {
 
 // Boiler plate code to set up an immutable class
 const DefaultViewFileOptions: IViewFileOptions = {
-    sortMethod: null,
+    sortMethod: 0 as ViewFileOptions.SortMethod,
     selectedStatusFilter: null,
-    nameFilter: null,
+    nameFilter: "",
 };
 const ViewFileOptionsRecord = Record(DefaultViewFileOptions);
 
@@ -31,11 +31,11 @@ const ViewFileOptionsRecord = Record(DefaultViewFileOptions);
  * Immutable class that implements the interface
  */
 export class ViewFileOptions extends ViewFileOptionsRecord implements IViewFileOptions {
-    sortMethod: ViewFileOptions.SortMethod;
-    selectedStatusFilter: ViewFile.Status;
-    nameFilter: string;
+    sortMethod!: ViewFileOptions.SortMethod;
+    selectedStatusFilter!: ViewFile.Status | null;
+    nameFilter!: string;
 
-    constructor(props) {
+    constructor(props: Partial<ViewFileOptions>) {
         super(props);
     }
 }

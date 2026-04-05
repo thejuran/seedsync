@@ -14,7 +14,7 @@ import {ViewFileFilterCriteria} from "../../../../services/files/view-file.servi
 import {FileSelectionService} from "../../../../services/files/file-selection.service";
 
 // Type for test vectors: [[ModelFile.State, localSize, remoteSize], [expectedResult, ViewFile.Status]]
-type TestVector = [[ModelFile.State, number | null, number | null], [boolean, ViewFile.Status]];
+type TestVector = [[ModelFile.State, number | null | undefined, number | null | undefined], [boolean, ViewFile.Status]];
 
 
 describe("Testing view file service", () => {
@@ -87,7 +87,7 @@ describe("Testing view file service", () => {
             is_extractable: true,
             local_created_timestamp: new Date("November 9, 2018 21:40:18"),
             local_modified_timestamp: new Date(1541828418943),
-            remote_created_timestamp: null,
+            remote_created_timestamp: null as unknown as Date,
             remote_modified_timestamp: new Date(1541828418943),
         }));
         mockModelService._files.next(model);
@@ -97,20 +97,20 @@ describe("Testing view file service", () => {
         viewService.files.subscribe({
             next: list => {
                 expect(list.size).toBe(1);
-                const file = list.get(0);
-                expect(file.name).toBe("a");
-                expect(file.isDir).toBe(true);
-                expect(file.localSize).toBe(0);
-                expect(file.remoteSize).toBe(11);
-                expect(file.status).toBe(ViewFile.Status.DEFAULT);
-                expect(file.downloadingSpeed).toBe(111);
-                expect(file.eta).toBe(1111);
-                expect(file.fullPath).toBe("root/a");
-                expect(file.isArchive).toBe(true);
-                expect(file.localCreatedTimestamp).toEqual(new Date("November 9, 2018 21:40:18"));
-                expect(file.localModifiedTimestamp).toEqual(new Date(1541828418943));
-                expect(file.remoteCreatedTimestamp).toBeNull();
-                expect(file.remoteModifiedTimestamp).toEqual(new Date(1541828418943));
+                const file = list.get(0)!;
+                expect(file!.name).toBe("a");
+                expect(file!.isDir).toBe(true);
+                expect(file!.localSize).toBe(0);
+                expect(file!.remoteSize).toBe(11);
+                expect(file!.status).toBe(ViewFile.Status.DEFAULT);
+                expect(file!.downloadingSpeed).toBe(111);
+                expect(file!.eta).toBe(1111);
+                expect(file!.fullPath).toBe("root/a");
+                expect(file!.isArchive).toBe(true);
+                expect(file!.localCreatedTimestamp).toEqual(new Date("November 9, 2018 21:40:18"));
+                expect(file!.localModifiedTimestamp).toEqual(new Date(1541828418943));
+                expect(file!.remoteCreatedTimestamp).toBeNull();
+                expect(file!.remoteModifiedTimestamp).toEqual(new Date(1541828418943));
                 count++;
             }
         });
@@ -145,8 +145,8 @@ describe("Testing view file service", () => {
         viewService.files.subscribe({
             next: list => {
                 expect(list.size).toBe(1);
-                const file = list.get(0);
-                expect(file.status).toBe(expectedStates[count++]);
+                const file = list.get(0)!;
+                expect(file!.status).toBe(expectedStates[count++]);
             }
         });
         tick();
@@ -209,8 +209,8 @@ describe("Testing view file service", () => {
         let model = Immutable.Map<string, ModelFile>();
         model = model.set("a", new ModelFile({
             name: "a",
-            local_size: null,
-            remote_size: null,
+            local_size: null as unknown as number,
+            remote_size: null as unknown as number,
         }));
         mockModelService._files.next(model);
         tick();
@@ -219,9 +219,9 @@ describe("Testing view file service", () => {
         viewService.files.subscribe({
             next: list => {
                 expect(list.size).toBe(1);
-                const file = list.get(0);
-                expect(file.localSize).toBe(0);
-                expect(file.remoteSize).toBe(0);
+                const file = list.get(0)!;
+                expect(file!.localSize).toBe(0);
+                expect(file!.remoteSize).toBe(0);
                 count++;
             }
         });
@@ -235,8 +235,8 @@ describe("Testing view file service", () => {
             [0, 10, 0],
             [5, 10, 50],
             [10, 10, 100],
-            [null, 10, 0],
-            [10, null, 100]
+            [null as unknown as number, 10, 0],
+            [10, null as unknown as number, 100]
         ];
 
         let count = -1;
@@ -245,8 +245,8 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
-                    expect(file.percentDownloaded).toBe(testVectors[count][2]);
+                    const file = list.get(0)!;
+                    expect(file!.percentDownloaded).toBe(testVectors[count][2]);
                 }
                 count++;
             }
@@ -274,15 +274,15 @@ describe("Testing view file service", () => {
         // result - [isQueueable, ViewFile.Status]
         const testVectors: TestVector[] = [
             // Default remote file is queueable
-            [[ModelFile.State.DEFAULT, null, 100], [true, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, null as unknown as number, 100], [true, ViewFile.Status.DEFAULT]],
             // Default local file is NOT queueable
-            [[ModelFile.State.DEFAULT, 100, null], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, 100, null as unknown as number], [false, ViewFile.Status.DEFAULT]],
             // Stopped file is queueable
             [[ModelFile.State.DEFAULT, 50, 100], [true, ViewFile.Status.STOPPED]],
             // Deleted file is queueable
-            [[ModelFile.State.DELETED, null, 100], [true, ViewFile.Status.DELETED]],
+            [[ModelFile.State.DELETED, null as unknown as number, 100], [true, ViewFile.Status.DELETED]],
             // Queued file is NOT queueable
-            [[ModelFile.State.QUEUED, null, 100], [false, ViewFile.Status.QUEUED]],
+            [[ModelFile.State.QUEUED, null as unknown as number, 100], [false, ViewFile.Status.QUEUED]],
             // Downloading file is NOT queueable
             [[ModelFile.State.DOWNLOADING, 10, 100], [false, ViewFile.Status.DOWNLOADING]],
             // Downloaded file is NOT queueable
@@ -290,7 +290,7 @@ describe("Testing view file service", () => {
             // Extracting file is NOT queueable
             [[ModelFile.State.EXTRACTING, 100, 100], [false, ViewFile.Status.EXTRACTING]],
             // Extracting local-only file is NOT queueable
-            [[ModelFile.State.EXTRACTING, 100, null], [false, ViewFile.Status.EXTRACTING]],
+            [[ModelFile.State.EXTRACTING, 100, null as unknown as number], [false, ViewFile.Status.EXTRACTING]],
             // Extracted file is NOT queueable
             [[ModelFile.State.EXTRACTED, 100, 100], [false, ViewFile.Status.EXTRACTED]],
         ];
@@ -301,10 +301,10 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
+                    const file = list.get(0)!;
                     const resultVector = testVectors[count][1];
-                    expect(file.isQueueable).toBe(resultVector[0]);
-                    expect(file.status).toBe(resultVector[1]);
+                    expect(file!.isQueueable).toBe(resultVector[0]);
+                    expect(file!.status).toBe(resultVector[1]);
                 }
                 count++;
             }
@@ -319,8 +319,8 @@ describe("Testing view file service", () => {
             model = model.set("a", new ModelFile({
                 name: "a",
                 state: testVector[0],
-                local_size: testVector[1],
-                remote_size: testVector[2],
+                local_size: testVector[1] ?? undefined,
+                remote_size: testVector[2] ?? undefined,
             }));
             mockModelService._files.next(model);
             tick();
@@ -334,15 +334,15 @@ describe("Testing view file service", () => {
         // result - [isStoppable, ViewFile.Status]
         const testVectors: TestVector[] = [
             // Default remote file is NOT stoppable
-            [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, null as unknown as number, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is NOT stoppable
-            [[ModelFile.State.DEFAULT, 100, null], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, 100, null as unknown as number], [false, ViewFile.Status.DEFAULT]],
             // Stopped file is NOT stoppable
             [[ModelFile.State.DEFAULT, 50, 100], [false, ViewFile.Status.STOPPED]],
             // Deleted file is NOT stoppable
-            [[ModelFile.State.DELETED, null, 100], [false, ViewFile.Status.DELETED]],
+            [[ModelFile.State.DELETED, null as unknown as number, 100], [false, ViewFile.Status.DELETED]],
             // Queued file is stoppable
-            [[ModelFile.State.QUEUED, null, 100], [true, ViewFile.Status.QUEUED]],
+            [[ModelFile.State.QUEUED, null as unknown as number, 100], [true, ViewFile.Status.QUEUED]],
             // Downloading file is stoppable
             [[ModelFile.State.DOWNLOADING, 10, 100], [true, ViewFile.Status.DOWNLOADING]],
             // Downloaded file is NOT stoppable
@@ -359,10 +359,10 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
+                    const file = list.get(0)!;
                     const resultVector = testVectors[count][1];
-                    expect(file.isStoppable).toBe(resultVector[0]);
-                    expect(file.status).toBe(resultVector[1]);
+                    expect(file!.isStoppable).toBe(resultVector[0]);
+                    expect(file!.status).toBe(resultVector[1]);
                 }
                 count++;
             }
@@ -377,8 +377,8 @@ describe("Testing view file service", () => {
             model = model.set("a", new ModelFile({
                 name: "a",
                 state: testVector[0],
-                local_size: testVector[1],
-                remote_size: testVector[2],
+                local_size: testVector[1] ?? undefined,
+                remote_size: testVector[2] ?? undefined,
             }));
             mockModelService._files.next(model);
             tick();
@@ -392,15 +392,15 @@ describe("Testing view file service", () => {
         // result - [isExtractable, ViewFile.Status]
         const testVectors: TestVector[] = [
             // Default remote file is NOT extractable
-            [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, null as unknown as number, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is extractable
-            [[ModelFile.State.DEFAULT, 100, null], [true, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, 100, null as unknown as number], [true, ViewFile.Status.DEFAULT]],
             // Stopped file is extractable
             [[ModelFile.State.DEFAULT, 50, 100], [true, ViewFile.Status.STOPPED]],
             // Deleted file is NOT extractable
-            [[ModelFile.State.DELETED, null, 100], [false, ViewFile.Status.DELETED]],
+            [[ModelFile.State.DELETED, null as unknown as number, 100], [false, ViewFile.Status.DELETED]],
             // Queued file is NOT extractable
-            [[ModelFile.State.QUEUED, null, 100], [false, ViewFile.Status.QUEUED]],
+            [[ModelFile.State.QUEUED, null as unknown as number, 100], [false, ViewFile.Status.QUEUED]],
             // Downloading file is NOT extractable
             [[ModelFile.State.DOWNLOADING, 10, 100], [false, ViewFile.Status.DOWNLOADING]],
             // Downloaded file is extractable
@@ -417,10 +417,10 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
+                    const file = list.get(0)!;
                     const resultVector = testVectors[count][1];
-                    expect(file.isExtractable).toBe(resultVector[0]);
-                    expect(file.status).toBe(resultVector[1]);
+                    expect(file!.isExtractable).toBe(resultVector[0]);
+                    expect(file!.status).toBe(resultVector[1]);
                 }
                 count++;
             }
@@ -435,8 +435,8 @@ describe("Testing view file service", () => {
             model = model.set("a", new ModelFile({
                 name: "a",
                 state: testVector[0],
-                local_size: testVector[1],
-                remote_size: testVector[2],
+                local_size: testVector[1] ?? undefined,
+                remote_size: testVector[2] ?? undefined,
             }));
             mockModelService._files.next(model);
             tick();
@@ -490,8 +490,8 @@ describe("Testing view file service", () => {
     //             expect(list.size).toBe(resultVector.length);
     //             resultVector.forEach((item, index) => {
     //                 let file = list.get(index);
-    //                 expect(file.name).toBe(item[0]);
-    //                 expect(file.status).toBe(item[1]);
+    //                 expect(file!.name).toBe(item[0]);
+    //                 expect(file!.status).toBe(item[1]);
     //             });
     //             count++;
     //         }
@@ -517,9 +517,9 @@ describe("Testing view file service", () => {
             next: list => {
                 viewFileList = list;
                 expect(list.size).toBe(3);
-                expect(list.get(0).name).toBe("a");
-                expect(list.get(1).name).toBe("b");
-                expect(list.get(2).name).toBe("c");
+                expect(list.get(0)!.name).toBe("a");
+                expect(list.get(1)!.name).toBe("b");
+                expect(list.get(2)!.name).toBe("c");
                 list.forEach((item, index) => {
                     // Only 1 file is selected at a time
                     if(index === expectedSelectedFileIndex) {
@@ -537,7 +537,7 @@ describe("Testing view file service", () => {
 
         // select "a"
         expectedSelectedFileIndex = 0;
-        viewService.setSelected(viewFileList.get(0));
+        viewService.setSelected(viewFileList!.get(0));
         tick();
         expect(count).toBe(2);
 
@@ -549,19 +549,19 @@ describe("Testing view file service", () => {
 
         // select "b"
         expectedSelectedFileIndex = 1;
-        viewService.setSelected(viewFileList.get(1));
+        viewService.setSelected(viewFileList!.get(1));
         tick();
         expect(count).toBe(4);
 
         // select "c"
         expectedSelectedFileIndex = 2;
-        viewService.setSelected(viewFileList.get(2));
+        viewService.setSelected(viewFileList!.get(2));
         tick();
         expect(count).toBe(5);
 
         // select "b" again
         expectedSelectedFileIndex = 1;
-        viewService.setSelected(viewFileList.get(1));
+        viewService.setSelected(viewFileList!.get(1));
         tick();
         expect(count).toBe(6);
 
@@ -578,15 +578,15 @@ describe("Testing view file service", () => {
         // result - [isLocallyDeletable, ViewFile.Status]
         const testVectors: TestVector[] = [
             // Default remote file is NOT locally deletable
-            [[ModelFile.State.DEFAULT, null, 100], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, null as unknown as number, 100], [false, ViewFile.Status.DEFAULT]],
             // Default local file is locally deletable
-            [[ModelFile.State.DEFAULT, 100, null], [true, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, 100, null as unknown as number], [true, ViewFile.Status.DEFAULT]],
             // Stopped file is locally deletable
             [[ModelFile.State.DEFAULT, 50, 100], [true, ViewFile.Status.STOPPED]],
             // Deleted file is NOT locally deletable
-            [[ModelFile.State.DELETED, null, 100], [false, ViewFile.Status.DELETED]],
+            [[ModelFile.State.DELETED, null as unknown as number, 100], [false, ViewFile.Status.DELETED]],
             // Queued file is NOT locally deletable
-            [[ModelFile.State.QUEUED, null, 100], [false, ViewFile.Status.QUEUED]],
+            [[ModelFile.State.QUEUED, null as unknown as number, 100], [false, ViewFile.Status.QUEUED]],
             // Downloading file is NOT locally deletable
             [[ModelFile.State.DOWNLOADING, 10, 100], [false, ViewFile.Status.DOWNLOADING]],
             // Downloaded file is locally deletable
@@ -603,10 +603,10 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
+                    const file = list.get(0)!;
                     const resultVector = testVectors[count][1];
-                    expect(file.isLocallyDeletable).toBe(resultVector[0]);
-                    expect(file.status).toBe(resultVector[1]);
+                    expect(file!.isLocallyDeletable).toBe(resultVector[0]);
+                    expect(file!.status).toBe(resultVector[1]);
                 }
                 count++;
             }
@@ -621,8 +621,8 @@ describe("Testing view file service", () => {
             model = model.set("a", new ModelFile({
                 name: "a",
                 state: testVector[0],
-                local_size: testVector[1],
-                remote_size: testVector[2],
+                local_size: testVector[1] ?? undefined,
+                remote_size: testVector[2] ?? undefined,
             }));
             mockModelService._files.next(model);
             tick();
@@ -636,15 +636,15 @@ describe("Testing view file service", () => {
         // result - [isRemotelyDeletable, ViewFile.Status]
         const testVectors: TestVector[] = [
             // Default remote file is remotely deletable
-            [[ModelFile.State.DEFAULT, null, 100], [true, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, null as unknown as number, 100], [true, ViewFile.Status.DEFAULT]],
             // Default local file is NOT remotely deletable
-            [[ModelFile.State.DEFAULT, 100, null], [false, ViewFile.Status.DEFAULT]],
+            [[ModelFile.State.DEFAULT, 100, null as unknown as number], [false, ViewFile.Status.DEFAULT]],
             // Stopped file is remotely deletable
             [[ModelFile.State.DEFAULT, 50, 100], [true, ViewFile.Status.STOPPED]],
             // Deleted file is remotely deletable
-            [[ModelFile.State.DELETED, null, 100], [true, ViewFile.Status.DELETED]],
+            [[ModelFile.State.DELETED, null as unknown as number, 100], [true, ViewFile.Status.DELETED]],
             // Queued file is NOT remotely deletable
-            [[ModelFile.State.QUEUED, null, 100], [false, ViewFile.Status.QUEUED]],
+            [[ModelFile.State.QUEUED, null as unknown as number, 100], [false, ViewFile.Status.QUEUED]],
             // Downloading file is NOT remotely deletable
             [[ModelFile.State.DOWNLOADING, 10, 100], [false, ViewFile.Status.DOWNLOADING]],
             // Downloaded file is remotely deletable
@@ -661,10 +661,10 @@ describe("Testing view file service", () => {
                 // Ignore first
                 if(count >= 0) {
                     expect(list.size).toBe(1);
-                    const file = list.get(0);
+                    const file = list.get(0)!;
                     const resultVector = testVectors[count][1];
-                    expect(file.isRemotelyDeletable).toBe(resultVector[0]);
-                    expect(file.status).toBe(resultVector[1]);
+                    expect(file!.isRemotelyDeletable).toBe(resultVector[0]);
+                    expect(file!.status).toBe(resultVector[1]);
                 }
                 count++;
             }
@@ -679,8 +679,8 @@ describe("Testing view file service", () => {
             model = model.set("a", new ModelFile({
                 name: "a",
                 state: testVector[0],
-                local_size: testVector[1],
-                remote_size: testVector[2],
+                local_size: testVector[1] ?? undefined,
+                remote_size: testVector[2] ?? undefined,
             }));
             mockModelService._files.next(model);
             tick();
@@ -702,7 +702,7 @@ describe("Testing view file service", () => {
         mockModelService._files.next(model);
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
         viewService.filteredFiles.subscribe({
             next: list => {
                 viewFiles = list;
@@ -738,13 +738,13 @@ describe("Testing view file service", () => {
         tick();
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
-        let viewFilesMap: Map<string, ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
+        let viewFilesMap: Map<string, ViewFile> = null!;
         viewService.filteredFiles.subscribe({
             next: list => {
                 viewFiles = list;
                 viewFilesMap = new Map<string, ViewFile>();
-                list.forEach(value => viewFilesMap.set(value.name, value));
+                list.forEach(value => viewFilesMap.set(value.name!, value));
                 count++;
             }
         });
@@ -771,13 +771,13 @@ describe("Testing view file service", () => {
         viewService.setFilterCriteria(new TestCriteria(true));
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
-        let viewFilesMap: Map<string, ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
+        let viewFilesMap: Map<string, ViewFile> = null!;
         viewService.filteredFiles.subscribe({
             next: list => {
                 viewFiles = list;
                 viewFilesMap = new Map<string, ViewFile>();
-                list.forEach(value => viewFilesMap.set(value.name, value));
+                list.forEach(value => viewFilesMap.set(value.name!, value));
                 count++;
             }
         });
@@ -823,7 +823,7 @@ describe("Testing view file service", () => {
         mockModelService._files.next(model);
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
         viewService.files.subscribe({
             next: list => {
                 viewFiles = list;
@@ -833,20 +833,20 @@ describe("Testing view file service", () => {
         tick();
         expect(count).toBe(1);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("aaaa");
-        expect(viewFiles.get(1).name).toBe("tofu");
-        expect(viewFiles.get(2).name).toBe("flower");
-        expect(viewFiles.get(3).name).toBe("power");
-        expect(viewFiles.get(4).name).toBe("max");
-        expect(viewFiles.get(5).name).toBe("mrx");
-        expect(viewFiles.get(6).name).toBe("blueman");
-        expect(viewFiles.get(7).name).toBe("spicy");
+        expect(viewFiles.get(0)!.name).toBe("aaaa");
+        expect(viewFiles.get(1)!.name).toBe("tofu");
+        expect(viewFiles.get(2)!.name).toBe("flower");
+        expect(viewFiles.get(3)!.name).toBe("power");
+        expect(viewFiles.get(4)!.name).toBe("max");
+        expect(viewFiles.get(5)!.name).toBe("mrx");
+        expect(viewFiles.get(6)!.name).toBe("blueman");
+        expect(viewFiles.get(7)!.name).toBe("spicy");
     }));
 
     it("should sort new model correctly", fakeAsync(() => {
         const comparator: ViewFileComparator = function(a: ViewFile, b: ViewFile) {
             // alphabetical order
-            return a.name.localeCompare(b.name);
+            return a.name!.localeCompare(b.name!);
         };
         viewService.setComparator(comparator);
 
@@ -863,7 +863,7 @@ describe("Testing view file service", () => {
         mockModelService._files.next(model);
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
         viewService.files.subscribe({
             next: list => {
                 viewFiles = list;
@@ -873,14 +873,14 @@ describe("Testing view file service", () => {
         tick();
         expect(count).toBe(1);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("aaaa");
-        expect(viewFiles.get(1).name).toBe("blueman");
-        expect(viewFiles.get(2).name).toBe("flower");
-        expect(viewFiles.get(3).name).toBe("max");
-        expect(viewFiles.get(4).name).toBe("mrx");
-        expect(viewFiles.get(5).name).toBe("power");
-        expect(viewFiles.get(6).name).toBe("spicy");
-        expect(viewFiles.get(7).name).toBe("tofu");
+        expect(viewFiles.get(0)!.name).toBe("aaaa");
+        expect(viewFiles.get(1)!.name).toBe("blueman");
+        expect(viewFiles.get(2)!.name).toBe("flower");
+        expect(viewFiles.get(3)!.name).toBe("max");
+        expect(viewFiles.get(4)!.name).toBe("mrx");
+        expect(viewFiles.get(5)!.name).toBe("power");
+        expect(viewFiles.get(6)!.name).toBe("spicy");
+        expect(viewFiles.get(7)!.name).toBe("tofu");
     }));
 
     it("should sort existing model on setComparator", fakeAsync(() => {
@@ -897,7 +897,7 @@ describe("Testing view file service", () => {
         mockModelService._files.next(model);
 
         let count = 0;
-        let viewFiles: Immutable.List<ViewFile> = null;
+        let viewFiles: Immutable.List<ViewFile> = null!;
         viewService.files.subscribe({
             next: list => {
                 viewFiles = list;
@@ -909,21 +909,21 @@ describe("Testing view file service", () => {
 
         const comparator: ViewFileComparator = function(a: ViewFile, b: ViewFile) {
             // reverse alphabetical order
-            return -1 * a.name.localeCompare(b.name);
+            return -1 * a.name!.localeCompare(b.name!);
         };
         viewService.setComparator(comparator);
         tick();
 
         expect(count).toBe(2);
         expect(viewFiles.size).toBe(8);
-        expect(viewFiles.get(0).name).toBe("tofu");
-        expect(viewFiles.get(1).name).toBe("spicy");
-        expect(viewFiles.get(2).name).toBe("power");
-        expect(viewFiles.get(3).name).toBe("mrx");
-        expect(viewFiles.get(4).name).toBe("max");
-        expect(viewFiles.get(5).name).toBe("flower");
-        expect(viewFiles.get(6).name).toBe("blueman");
-        expect(viewFiles.get(7).name).toBe("aaaa");
+        expect(viewFiles.get(0)!.name).toBe("tofu");
+        expect(viewFiles.get(1)!.name).toBe("spicy");
+        expect(viewFiles.get(2)!.name).toBe("power");
+        expect(viewFiles.get(3)!.name).toBe("mrx");
+        expect(viewFiles.get(4)!.name).toBe("max");
+        expect(viewFiles.get(5)!.name).toBe("flower");
+        expect(viewFiles.get(6)!.name).toBe("blueman");
+        expect(viewFiles.get(7)!.name).toBe("aaaa");
     }));
 
     // =========================================================================
@@ -972,7 +972,7 @@ describe("Testing view file service", () => {
 
         // Change sort comparator
         const comparator: ViewFileComparator = (a: ViewFile, b: ViewFile) => {
-            return a.name.localeCompare(b.name);
+            return a.name!.localeCompare(b.name!);
         };
         viewService.setComparator(comparator);
 
