@@ -37,7 +37,7 @@ class TestFileOperationManager(unittest.TestCase):
         """Test that __init__ creates ExtractProcess with local_path when configured."""
         self.mock_context.config.controller.use_local_path_as_extract_path = True
 
-        manager = FileOperationManager(
+        manager = FileOperationManager(  # noqa: F841
             self.mock_context,
             self.mock_mp_logger,
             self.mock_force_local_scan,
@@ -54,7 +54,7 @@ class TestFileOperationManager(unittest.TestCase):
         """Test that __init__ creates ExtractProcess with extract_path when configured."""
         self.mock_context.config.controller.use_local_path_as_extract_path = False
 
-        manager = FileOperationManager(
+        manager = FileOperationManager(  # noqa: F841
             self.mock_context,
             self.mock_mp_logger,
             self.mock_force_local_scan,

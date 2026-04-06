@@ -1,11 +1,10 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import logging
-import os
 import sys
 import time
 from dataclasses import dataclass
-from typing import Optional, Dict, Any, Callable
+from typing import Optional, Dict, Callable
 
 try:
     import resource

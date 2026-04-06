@@ -1,7 +1,6 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-import time
 
 from controller.memory_monitor import MemoryMonitor, MemoryStats
 

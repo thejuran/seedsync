@@ -1,12 +1,17 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
+from __future__ import annotations
+
 import logging
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 import time
 import copy
 from threading import Lock
 
 from ..web_app import IStreamHandler
+
+if TYPE_CHECKING:
+    from ..web_app import WebApp
 from ..utils import StreamQueue
 from ..serialize import SerializeLogRecord
 from common import overrides

@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-from unittest.mock import MagicMock, call
+from unittest.mock import MagicMock
 
 from controller import ControllerJob
 

@@ -4,7 +4,7 @@ import hmac
 import hashlib
 import json
 import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 from web.handler.webhook import WebhookHandler
 

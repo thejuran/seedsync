@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 from queue import Queue, Empty
-from typing import Dict, List, Set
+from typing import Dict, List
 
 from common import Context
 

@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 from controller import ScanManager
 
@@ -40,7 +40,7 @@ class TestScanManager(unittest.TestCase):
             self, mock_remote_scanner, mock_local_scanner,
             mock_active_scanner, mock_scanner_process):
         """Test that __init__ creates all scanners and processes."""
-        manager = ScanManager(self.mock_context, self.mock_mp_logger)
+        manager = ScanManager(self.mock_context, self.mock_mp_logger)  # noqa: F841
 
         # Verify scanners were created with correct arguments
         mock_active_scanner.assert_called_once_with("/local/path")
@@ -237,7 +237,7 @@ class TestScanManager(unittest.TestCase):
         """Test that SSH key mode uses None for password."""
         self.mock_context.config.lftp.use_ssh_key = True
 
-        manager = ScanManager(self.mock_context, self.mock_mp_logger)
+        manager = ScanManager(self.mock_context, self.mock_mp_logger)  # noqa: F841
 
         # Verify remote scanner was called with password=None
         call_kwargs = mock_remote_scanner.call_args.kwargs

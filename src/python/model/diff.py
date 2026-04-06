@@ -2,7 +2,6 @@
 
 from enum import Enum
 from typing import List, Optional
-import copy
 
 # my libs
 from .file import ModelFile
