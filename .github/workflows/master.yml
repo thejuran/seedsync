@@ -245,6 +245,12 @@ jobs:
           STAGING_VERSION=${{ github.run_number }} \
           RELEASE_REGISTRY=ghcr.io/thejuran \
           RELEASE_VERSION=latest
+      - name: Push to GHCR (tag main)
+        run: make docker-image-release \
+          STAGING_REGISTRY=${{ env.staging_registry }} \
+          STAGING_VERSION=${{ github.run_number }} \
+          RELEASE_REGISTRY=ghcr.io/thejuran \
+          RELEASE_VERSION=main
 
   publish-docker-image-dev:
     name: Publish Docker Image (:dev)
@@ -284,6 +290,18 @@ jobs:
           STAGING_VERSION=${{ github.run_number }} \
           RELEASE_REGISTRY=ghcr.io/thejuran \
           RELEASE_VERSION=dev
+      - name: Push to GHCR (tag latest)
+        run: make docker-image-release \
+          STAGING_REGISTRY=${{ env.staging_registry }} \
+          STAGING_VERSION=${{ github.run_number }} \
+          RELEASE_REGISTRY=ghcr.io/thejuran \
+          RELEASE_VERSION=latest
+      - name: Push to GHCR (tag main)
+        run: make docker-image-release \
+          STAGING_REGISTRY=${{ env.staging_registry }} \
+          STAGING_VERSION=${{ github.run_number }} \
+          RELEASE_REGISTRY=ghcr.io/thejuran \
+          RELEASE_VERSION=main
 
   publish-deb:
     name: Publish Deb packages
