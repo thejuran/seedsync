@@ -22,14 +22,11 @@ jobs:
     name: Python unit tests
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Build package
       - name: Run Python unit tests
         run: make run-tests-python
-
 
   unittests-angular:
     name: Angular unit tests
@@ -39,10 +36,37 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Build package
       - name: Run Angular unit tests
         run: make run-tests-angular
 
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ruff
+        run: pip install ruff
+
+      - name: Python lint
+        run: ruff check src/python/
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Angular dependencies
+        run: cd src/angular && npm ci
+
+      - name: Angular lint
+        run: cd src/angular && npm run lint
 
   build-deb:
     name: Build Deb (${{ matrix.arch }})
