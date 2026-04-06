@@ -456,7 +456,7 @@ if __name__ == "__main__":
         except ServiceRestart:
             Seedsync.logger.info("Restarting...")
             continue
-        except Exception as e:
+        except Exception:
             Seedsync.logger.exception("Caught exception")
             raise
 

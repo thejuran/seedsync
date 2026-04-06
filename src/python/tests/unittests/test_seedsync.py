@@ -1,11 +1,9 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-import sys
-import copy
 from unittest.mock import MagicMock
 
-from common import overrides, Config
+from common import Config
 from seedsync import Seedsync
 
 

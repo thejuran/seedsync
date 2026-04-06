@@ -1,13 +1,12 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-from unittest.mock import MagicMock, patch, call
-from queue import Queue
+from unittest.mock import MagicMock, patch
 
 from controller import Controller
 from controller.controller import ControllerError
 from controller.controller_persist import ControllerPersist
-from model import ModelFile, ModelError, IModelListener, ModelDiff, Model
+from model import ModelFile, IModelListener, ModelDiff, Model
 from lftp import LftpError, LftpJobStatus, LftpJobStatusParserError
 
 

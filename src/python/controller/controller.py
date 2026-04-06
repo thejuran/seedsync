@@ -14,7 +14,7 @@ from .scan_manager import ScanManager
 from .lftp_manager import LftpManager
 from .file_operation_manager import FileOperationManager
 from .webhook_manager import WebhookManager
-from .extract import ExtractStatus, ExtractStatusResult, ExtractCompletedResult
+from .extract import ExtractStatusResult, ExtractCompletedResult
 from .model_builder import ModelBuilder
 from .scan import ScannerResult
 from .memory_monitor import MemoryMonitor

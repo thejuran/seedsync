@@ -1,7 +1,7 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
 import unittest
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from threading import Timer
 
 from tests.integration.test_web.test_web_app import BaseTestWebApp

@@ -1,7 +1,6 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
-import logging
-from typing import List, Optional, Tuple, Callable
+from typing import List, Optional, Callable
 
 from common import Context, MultiprocessingLogger, AppOneShotProcess
 from model import ModelFile

@@ -3,7 +3,7 @@
 import os
 import re
 from abc import ABC, abstractmethod
-from typing import List, Optional, Tuple
+from typing import List, Optional
 import logging
 
 from common import AppError
@@ -749,7 +749,7 @@ class LftpJobStatusParser:
         lines = [s.strip() for s in output.splitlines()]
         lines = list(filter(None, lines))  # remove blank lines
         # remove all lines before the first 'jobs -v'
-        start = next((i + 1 for i, l in enumerate(lines) if l == "jobs -v"), 0)
+        start = next((i + 1 for i, line in enumerate(lines) if line == "jobs -v"), 0)
         lines = lines[start:]
         # remove any remaining 'jobs -v' lines
         lines = list(filter(lambda s: s != "jobs -v", lines))

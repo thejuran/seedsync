@@ -1,16 +1,16 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
-from .lftp import Lftp, LftpError
-from .job_status import LftpJobStatus
+from .lftp import Lftp as Lftp, LftpError as LftpError
+from .job_status import LftpJobStatus as LftpJobStatus
 from .job_status_parser import (
-    LftpJobStatusParser,
-    LftpJobStatusParserError,
-    RegexPatterns,
-    TransferStateParser,
-    BaseJobParser,
-    PgetJobParser,
-    MirrorJobParser,
-    JobParserFactory,
-    QueueParser,
-    ActiveJobsParser,
+    LftpJobStatusParser as LftpJobStatusParser,
+    LftpJobStatusParserError as LftpJobStatusParserError,
+    RegexPatterns as RegexPatterns,
+    TransferStateParser as TransferStateParser,
+    BaseJobParser as BaseJobParser,
+    PgetJobParser as PgetJobParser,
+    MirrorJobParser as MirrorJobParser,
+    JobParserFactory as JobParserFactory,
+    QueueParser as QueueParser,
+    ActiveJobsParser as ActiveJobsParser,
 )

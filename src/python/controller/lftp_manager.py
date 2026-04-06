@@ -1,6 +1,5 @@
 # Copyright 2017, Inderpreet Singh, All rights reserved.
 
-import logging
 from typing import List, Optional
 
 from common import Context, Constants

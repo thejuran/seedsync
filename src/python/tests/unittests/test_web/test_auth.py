@@ -6,9 +6,7 @@ from unittest.mock import MagicMock
 
 from webtest import TestApp
 
-from common import Config
 from web.web_app import WebApp
-from seedsync import Seedsync
 
 
 def _make_web_app(api_token: str = "") -> WebApp:

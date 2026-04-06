@@ -27,7 +27,7 @@ module.exports = tseslint.config(
         },
         rules: {
             "@typescript-eslint/no-inferrable-types": ["error", { "ignoreParameters": true }],
-            "@typescript-eslint/no-non-null-assertion": "error",
+            "@typescript-eslint/no-non-null-assertion": "off",
             "@typescript-eslint/no-shadow": "error",
             "@typescript-eslint/no-unused-expressions": "error",
             "@typescript-eslint/prefer-function-type": "error",

@@ -37,7 +37,7 @@ class TestLftpManager(unittest.TestCase):
         mock_lftp = MagicMock()
         mock_lftp_class.return_value = mock_lftp
 
-        manager = LftpManager(self.mock_context)
+        manager = LftpManager(self.mock_context)  # noqa: F841
 
         # Verify Lftp was created with correct arguments
         mock_lftp_class.assert_called_once_with(
@@ -62,7 +62,7 @@ class TestLftpManager(unittest.TestCase):
         mock_lftp = MagicMock()
         mock_lftp_class.return_value = mock_lftp
 
-        manager = LftpManager(self.mock_context)
+        manager = LftpManager(self.mock_context)  # noqa: F841
 
         # Verify Lftp was created with password=None
         call_args = mock_lftp_class.call_args

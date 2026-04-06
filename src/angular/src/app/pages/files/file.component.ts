@@ -50,7 +50,8 @@ export class FileComponent implements OnChanges, AfterViewInit {
     };
 
     get statusBadgeClass(): string {
-        return FileComponent.BADGE_CLASSES[this.file?.status!] ?? "status-badge badge-default";
+        const status = this.file?.status;
+        return (status != null ? FileComponent.BADGE_CLASSES[status] : undefined) ?? "status-badge badge-default";
     }
 
     // Inject FileSelectionService for signal-based selection
