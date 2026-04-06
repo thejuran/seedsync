@@ -1,3 +1,12 @@
+seedsync (4.0.2) stable; urgency=medium
+
+  * CI: add lint job (ruff + eslint)
+  * Fix: resolve 130 ruff lint errors and ESLint failures
+  * Security: override vite ^7.3.2 (CVE server.fs.deny bypass)
+  * CI: add :main tag to all releases, restrict :latest to stable only
+
+ -- thejuran <thejuran@users.noreply.github.com>  Sun, 06 Apr 2026 19:30:00 -0400
+
 seedsync (4.0.1) stable; urgency=medium
 
   * Security: bump lodash to 4.18.x (code injection + prototype pollution)
