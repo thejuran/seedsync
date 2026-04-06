@@ -147,7 +147,7 @@ class TestConfigHandlerTestSonarrConnection(unittest.TestCase):
         mock_socket.gaierror = socket.gaierror
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"version": "4.0.1"}
+        mock_response.json.return_value = {"version": "4.0.2"}
         mock_requests.get.return_value = mock_response
         mock_requests.ConnectionError = requests.ConnectionError
         mock_requests.Timeout = requests.Timeout
@@ -163,14 +163,14 @@ class TestConfigHandlerTestSonarrConnection(unittest.TestCase):
         mock_socket.gaierror = socket.gaierror
         mock_response = MagicMock()
         mock_response.status_code = 200
-        mock_response.json.return_value = {"version": "4.0.1"}
+        mock_response.json.return_value = {"version": "4.0.2"}
         mock_requests.get.return_value = mock_response
         mock_requests.ConnectionError = requests.ConnectionError
         mock_requests.Timeout = requests.Timeout
         response = self.handler._ConfigHandler__handle_test_sonarr_connection()
         body = json.loads(response.body)
         self.assertTrue(body["success"])
-        self.assertEqual("4.0.1", body["version"])
+        self.assertEqual("4.0.2", body["version"])
 
     @patch('web.handler.config.requests')
     @patch('web.handler.config.socket')
