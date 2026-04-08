@@ -32,7 +32,7 @@ The README and docs will include:
 
 > SeedSyncarr evolved from [SeedSync](https://github.com/ipsingh06/seedsync) by Inderpreet Singh. The original project inspired this work, and we're grateful for the foundation it provided.
 
-The old `thejuran/seedsync` repo will be archived with a pointer to the new project.
+The old `thejuran/seedsync` repo will be archived with a pointer to the new project. Any open issues worth keeping will be recreated in the new repo before archiving.
 
 ## Execution Phases
 
