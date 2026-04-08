@@ -1,81 +1,14 @@
-<p align="center">
-    <img src="https://user-images.githubusercontent.com/12875506/85908858-c637a100-b7cb-11ea-8ab3-75c0c0ddf756.png" alt="SeedSync" />
-</p>
+# SeedSync — DEPRECATED
 
-> **Note**: This is a maintained fork of [ipsingh06/seedsync](https://github.com/ipsingh06/seedsync).
+> **This project has moved to [SeedSyncarr](https://github.com/thejuran/seedsyncarr).**
 
-<p align="center">
-  <a href="https://github.com/thejuran/seedsync">
-    <img src="https://img.shields.io/github/stars/thejuran/seedsync" alt="Stars">
-  </a>
-  <a href="https://ghcr.io/thejuran/seedsync">
-    <img src="https://img.shields.io/badge/ghcr.io-thejuran%2Fseedsync-blue" alt="GHCR">
-  </a>
-  <a href="https://github.com/thejuran/seedsync/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/thejuran/seedsync" alt="License">
-  </a>
-</p>
+SeedSync has been rebranded and is now actively developed as **SeedSyncarr**.
 
-SeedSync is a tool to sync the files on a remote Linux server (like your seedbox, for example).
-It uses LFTP to transfer files fast!
+All new features, bug fixes, and releases happen at the new repository:
 
-## Features
+**[https://github.com/thejuran/seedsyncarr](https://github.com/thejuran/seedsyncarr)**
 
-* Built on top of [LFTP](http://lftp.tech/), the fastest file transfer program ever
-* Web UI - track and control your transfers from anywhere
-* Automatically extract your files after sync
-* Auto-Queue - only sync the files you want based on pattern matching
-* Delete local and remote files easily
-* Fully open source!
+- Docker: `ghcr.io/thejuran/seedsyncarr:latest`
+- Documentation: [thejuran.github.io/seedsyncarr](https://thejuran.github.io/seedsyncarr)
 
-## How it works
-
-Install SeedSync on a local machine.
-SeedSync will connect to your remote server and sync files to the local machine as
-they become available.
-
-You don't need to install anything on the remote server.
-All you need are the SSH credentials for the remote server.
-
-## Supported Platforms
-
-* Linux (amd64 and arm64)
-* Raspberry Pi (v3, v4, v5)
-* Windows (via Docker)
-* macOS (via Docker)
-
-
-## Installation and Usage
-
-Please refer to the [documentation](https://thejuran.github.io/seedsync/).
-
-
-## Report an Issue
-
-Please report any issues on the [issues](../../issues) page.
-Please post the logs as well. The logs are available at:
-* Deb install: `<user home directory>/.seedsync/log/seedsync.log`
-* Docker: Run `docker logs <container id>`
-
-
-## Contribute
-
-Contributions to SeedSync are welcome!
-Please take a look at the [Developer Readme](doc/DeveloperReadme.md) for instructions
-on environment setup and the build process.
-
-
-## License
-
-SeedSync is distributed under Apache License Version 2.0.
-See [License.txt](https://github.com/thejuran/seedsync/blob/master/LICENSE.txt) for more information.
-
-
-
-## Screenshots
-
-### Dashboard
-![SeedSync Dashboard](doc/images/screenshot-dashboard.png)
-
-### Settings
-![SeedSync Settings](doc/images/screenshot-settings.png)
+This repository is archived and read-only. No new issues or pull requests will be accepted.
