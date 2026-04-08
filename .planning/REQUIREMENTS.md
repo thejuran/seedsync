@@ -1,136 +1,67 @@
-# Requirements: SeedSync v3.2 Security Hardening II
+# Requirements: SeedSync v4.0.3 Dependency Fixes & CI
 
-**Defined:** 2026-02-25
+**Defined:** 2026-04-08
 **Core Value:** Reliable file sync from seedbox to local with automated media library integration
 
-## v3.2 Requirements
+## v4.0.3 Requirements
 
-Requirements for v3.2 milestone. Each maps to roadmap phases.
+Requirements for v4.0.3 milestone.
 
-### Path Safety
+### Security — Dependabot Alerts
 
-- [x] **PATH-01**: File delete endpoint rejects filenames that resolve outside the configured local_path via realpath() + is_relative_to() check
-- [x] **PATH-02**: File extract endpoint rejects archive paths that resolve outside the configured local_path or output directory
-- [x] **PATH-03**: Path traversal attempts return 400 Bad Request with no path details in the error body
+- [x] **SEC-01**: hono updated to ^4.12.12 (resolves 4.12.12), closing Dependabot alerts #45-#49 — Phase 52
+- [x] **SEC-02**: @hono/node-server updated to ^1.19.13 (resolves 1.19.13), closing Dependabot alert #44 — Phase 52
+- [ ] **SEC-03**: Zero open Dependabot security alerts on the repository after merge to master — verify post-merge
 
-### Config Hardening
+### CI — Uniform Pipeline (already implemented in v4.0.2)
 
-- [x] **CONF-01**: Config file (settings.cfg) is written with 0600 permissions (owner read/write only)
-- [x] **CONF-02**: Existing config files with overly permissive permissions are fixed to 0600 on startup load
-- [x] **CONF-03**: API config endpoint redacts remote_address, remote_username, and remote_path in addition to existing password/API key redaction
-- [x] **CONF-04**: Settings UI continues to function correctly with additional fields redacted (uses local state, not API roundtrip for display)
+- [x] **CI-01**: CI pipeline runs ruff lint on Python code — already in master.yml lint job
+- [x] **CI-02**: CI pipeline runs eslint on Angular code — already in master.yml lint job
+- [x] **CI-03**: All release paths publish `:main` tag to GHCR — already in publish-docker-image and publish-docker-image-dev jobs
 
-### API Authentication
+## Validated (Previous Milestones)
 
-- [ ] **AUTH-01**: Bottle before_request hook validates Authorization: Bearer token on all /server/* API endpoints
-- [ ] **AUTH-02**: API token is generated with secrets.token_urlsafe(32) and stored in config file
-- [ ] **AUTH-03**: SSE stream endpoint is exempt from token auth (EventSource cannot send custom headers)
-- [ ] **AUTH-04**: Webhook endpoints are exempt from token auth (use existing HMAC authentication)
-- [ ] **AUTH-05**: When no token is configured, all requests are allowed (backward compatibility) with startup warning
-- [ ] **AUTH-06**: Angular RestService sends Bearer token in Authorization header on all API requests via HttpClient interceptor
-- [ ] **AUTH-07**: API token is injected into Angular SPA at serve time via meta tag in index.html (avoids circular fetch)
-- [ ] **AUTH-08**: Token comparison uses hmac.compare_digest() for timing-safe validation
-
-### Webhook Hardening
-
-- [x] **WHOOK-01**: Webhook endpoints reject payloads exceeding 1MB with 413 status before reading body
-- [x] **WHOOK-02**: Startup log emits WARNING when webhook_secret is not configured
-
-### DNS Rebinding Prevention
-
-- [ ] **DNS-01**: Before_request hook validates Host header against allowlist (localhost, 127.0.0.1, [::1], configured hostname)
-- [ ] **DNS-02**: Requests with non-allowlisted Host header receive 400 Bad Request with no body
-- [ ] **DNS-03**: User can configure an additional allowed hostname in settings for reverse proxy setups
-
-### Endpoint Hygiene
-
-- [x] **ENDP-01**: Restart endpoint uses POST method instead of GET
-- [x] **ENDP-02**: Angular frontend sends restart request as POST (RestService update)
-
-### Log Redaction
-
-- [x] **LOG-01**: SSH command logs redact user@host patterns from debug output
-- [x] **LOG-02**: SSE log stream does not expose SSH connection topology (user, host, path)
-- [x] **LOG-03**: Redaction pattern does not false-positive on non-SSH log lines (e.g., email addresses in unrelated context)
-
-### CSP Hardening
-
-- [ ] **CSP-01**: Angular build uses autoCsp option to generate hash-based Content-Security-Policy meta tag
-- [ ] **CSP-02**: Bottle after_request CSP header is scoped to directives not covered by autoCsp (default-src, img-src, connect-src, font-src, frame-ancestors)
-- [ ] **CSP-03**: unsafe-inline is removed from both script-src and style-src directives
-- [ ] **CSP-04**: No CSP violations in browser console during normal app usage (file list, settings, logs, about pages)
-
-### Startup Warnings
-
-- [x] **WARN-01**: Startup log emits WARNING when no API token is configured
-- [x] **WARN-02**: Startup log emits WARNING when app is bound to 0.0.0.0 without API token
-- [x] **WARN-03**: Startup warnings do not block application startup
+All v3.2 security requirements (32 total) completed across Phases 47-49 and M002:
+- PATH-01 through PATH-03 (path traversal guards) — Phase 49
+- CONF-01 through CONF-04 (config hardening) — Phases 47-48
+- AUTH-01 through AUTH-08 (API token auth) — M002
+- WHOOK-01 through WHOOK-02 (webhook hardening) — Phase 48
+- DNS-01 through DNS-03 (DNS rebinding prevention) — M002
+- ENDP-01 through ENDP-02 (endpoint hygiene) — Phase 47
+- LOG-01 through LOG-03 (log redaction) — Phase 47
+- CSP-01 through CSP-04 (CSP hardening) — M002
+- WARN-01 through WARN-03 (startup warnings) — Phase 48
 
 ## Future Requirements
 
-Deferred to future milestone.
-
-### SSRF Hardening
-
-- **SSRF-01**: Outbound SSRF validation resolves DNS once and pins the IP for the subsequent HTTP request (resolve-once pattern)
-- **SSRF-02**: Custom HTTPAdapter subclass prevents DNS rebinding TOCTOU between validation and connection
+- **SSRF-01**: Resolve-once DNS pattern for outbound SSRF validation (low ROI — *arr endpoints are localhost)
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Full login UI (username + password form) | Over-engineered for single-user self-hosted; static token is ecosystem standard (Sonarr, Radarr, Jellyfin) |
-| JWT tokens with expiry/refresh | No benefit over static token for single-user app; adds library dependency and complexity |
-| IP allowlisting as primary auth | IPs change; use reverse proxy for IP restriction instead of application code |
-| Nonce-based CSP (server-side injection) | Conflicts with static Angular SPA serving; autoCsp hash-based approach is correct for Bottle + Angular |
-| SSRF resolve-once DNS fix | High complexity (custom HTTP adapter); marginal ROI when Sonarr/Radarr are always localhost |
-| Rate limiting on every endpoint | Cargo-cult security for single-user app; existing bulk endpoint limits are sufficient |
-| Persistent audit log | Over-engineering for personal tool; structured application logging is sufficient |
+| Full dependency audit beyond Dependabot alerts | Scope creep — only address flagged alerts |
+| Angular major version bump | Not needed — Angular 21 is current |
+| Python major version bump | Not needed — Python 3.12+ compatible |
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| PATH-01 | Phase 49 | Complete |
-| PATH-02 | Phase 49 | Complete |
-| PATH-03 | Phase 49 | Complete |
-| CONF-01 | Phase 47 | Complete |
-| CONF-02 | Phase 47 | Complete |
-| CONF-03 | Phase 48 | Complete |
-| CONF-04 | Phase 48 | Complete |
-| AUTH-01 | Phase 50 | Pending |
-| AUTH-02 | Phase 50 | Pending |
-| AUTH-03 | Phase 50 | Pending |
-| AUTH-04 | Phase 50 | Pending |
-| AUTH-05 | Phase 50 | Pending |
-| AUTH-06 | Phase 50 | Pending |
-| AUTH-07 | Phase 50 | Pending |
-| AUTH-08 | Phase 50 | Pending |
-| WHOOK-01 | Phase 48 | Complete |
-| WHOOK-02 | Phase 48 | Complete |
-| DNS-01 | Phase 50 | Pending |
-| DNS-02 | Phase 50 | Pending |
-| DNS-03 | Phase 50 | Pending |
-| ENDP-01 | Phase 47 | Complete |
-| ENDP-02 | Phase 47 | Complete |
-| LOG-01 | Phase 47 | Complete |
-| LOG-02 | Phase 47 | Complete |
-| LOG-03 | Phase 47 | Complete |
-| CSP-01 | Phase 51 | Pending |
-| CSP-02 | Phase 51 | Pending |
-| CSP-03 | Phase 51 | Pending |
-| CSP-04 | Phase 51 | Pending |
-| WARN-01 | Phase 48 | Complete |
-| WARN-02 | Phase 48 | Complete |
-| WARN-03 | Phase 48 | Complete |
+| SEC-01 | Phase 52 | Complete |
+| SEC-02 | Phase 52 | Complete |
+| SEC-03 | Phase 52 | Pending (verify post-merge) |
+| CI-01 | v4.0.2 | Complete |
+| CI-02 | v4.0.2 | Complete |
+| CI-03 | v4.0.2 | Complete |
 
 **Coverage:**
-- v3.2 requirements: 32 total
-- Mapped to phases: 32
+- v4.0.3 requirements: 6 total
+- Mapped to phases: 6
 - Unmapped: 0
+- Complete: 5 (SEC-01, SEC-02, CI-01, CI-02, CI-03)
+- Pending post-merge verification: 1 (SEC-03)
 
 ---
-*Requirements defined: 2026-02-25*
-*Last updated: 2026-02-25 after roadmap creation — all 32 requirements mapped*
+*Requirements defined: 2026-04-08*
+*Last updated: 2026-04-08 after Phase 52 execution*

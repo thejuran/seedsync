@@ -14,7 +14,18 @@
 - ✅ **v2.0 Dark Mode & Polish** - Phases 29-32 (shipped 2026-02-12)
 - ✅ **v3.0 Terminal UI Overhaul** - Phases 33-38 (shipped 2026-02-17)
 - ✅ **v3.1 Harden & Fix** - Phases 39-46 (shipped 2026-02-24)
-- 🚧 **v3.2 Security Hardening II** - Phases 47-51 (in progress)
+- ✅ **v3.2 Security Hardening II** - Phases 47-49 (shipped 2026-02-26, phases 50-51 completed via M002)
+- ✅ **M001: Angular 21 Migration** - 3 slices (shipped 2026-03-21, released as v3.2.0)
+- ✅ **M002: Finish v3.2 Security** - 3 slices (shipped 2026-03-22)
+- ✅ **M003: UI Redesign — Earthy Palette** - 6 slices (shipped 2026-03-25)
+- ✅ **M004: Polish & Dependency Updates** - 4 slices (shipped 2026-03-24)
+- ✅ **M005: Dashboard Polish & v3.3.0** - 2 slices (shipped 2026-03-24)
+- ✅ **M006: Triggarr-Style Layout + Deep Moss Palette** - 3 slices (shipped 2026-03-25)
+- ✅ **M007: Settings Redesign & Multi-Select Polish** - 2 slices (shipped 2026-03-26)
+- ✅ **M008: AutoQueue Migration, Token UI & Toast Polish** - 2 slices (shipped 2026-03-27)
+- ✅ **M009: Full Codebase Deep Review Fixes** - 4 slices (shipped 2026-03-28)
+- ✅ **M010: Screenshots, Docs & v4.0.0 Release** - (shipped 2026-03-28, tagged v4.0.0)
+- ✅ **v4.0.3 Dependency Fixes & CI** - Phase 52 (shipped 2026-04-08)
 
 ## Phases
 
@@ -160,7 +171,7 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 
 </details>
 
-### 🚧 v3.2 Security Hardening II (In Progress)
+### ✅ v3.2 Security Hardening II (Shipped 2026-02-26, completed via M002)
 
 **Milestone Goal:** Close remaining security gaps identified by Huntarr-inspired audit — path traversal, authentication, config hardening, and defense-in-depth improvements.
 
@@ -169,8 +180,8 @@ See `.planning/milestones/v3.1-ROADMAP.md` for full details.
 - [x] **Phase 47: Isolated Backend Hardening** - Config file permissions, restart POST, SSH log redaction (completed 2026-02-25)
 - [x] **Phase 48: Config and Webhook Layer** - Extended redaction, webhook payload limit, startup warnings (completed 2026-02-26)
 - [x] **Phase 49: Path Traversal Guards** - realpath()-based containment on delete and extract endpoints (completed 2026-02-26)
-- [ ] **Phase 50: API Token Authentication** - Bearer token middleware, Angular interceptor, DNS rebinding prevention
-- [ ] **Phase 51: CSP Hardening** - Remove unsafe-inline via nonce-based or hash-based policy
+- [x] **Phase 50: API Token Authentication** - Bearer token middleware, Angular interceptor, DNS rebinding prevention (completed via M002, 2026-03-22)
+- [x] **Phase 51: CSP Hardening** - Remove unsafe-inline via Angular autoCsp hash-based policy (completed via M002, 2026-03-22)
 
 ## Phase Details
 
@@ -241,6 +252,27 @@ Plans:
   4. The Bottle after_request CSP header covers directives not handled by the Angular build (default-src, img-src, connect-src, font-src, frame-ancestors) without conflicting with the build-generated policy
 **Plans**: TBD
 
+### ✅ v4.0.3 Dependency Fixes & CI (Shipped 2026-04-08)
+
+**Milestone Goal:** Close all 6 open Dependabot security alerts and confirm CI lint + release tag coverage.
+
+#### Phase Summary
+
+- [x] **Phase 52: Dependency Fixes & CI Validation** — Update hono deps, verify zero alerts, confirm CI coverage (SEC-01, SEC-02, SEC-03, CI-01, CI-02, CI-03) — completed 2026-04-08
+
+### Phase 52: Dependency Fixes & CI Validation
+**Goal**: All Dependabot security alerts closed via dependency updates; CI lint and release tag coverage confirmed
+**Depends on**: None (standalone maintenance)
+**Requirements**: SEC-01, SEC-02, SEC-03, CI-01, CI-02, CI-03
+**Success Criteria** (what must be TRUE):
+  1. `npm ls hono` shows hono >=4.12.12 and @hono/node-server >=1.19.13
+  2. `gh api repos/thejuran/seedsync/dependabot/alerts --jq '[.[] | select(.state=="open")] | length'` returns 0 after merge to master
+  3. CI master.yml contains lint job with ruff (Python) and eslint (Angular) — already present, just verify
+  4. CI publish-docker-image and publish-docker-image-dev jobs both push `:main` tag — already present, just verify
+  5. All unit tests pass (`make run-tests-angular` or local `npm test`)
+**Plans**: 1 plan
+- [x] 52-01-PLAN.md — Update hono transitive deps and verify alerts closed — completed 2026-04-08
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -260,11 +292,21 @@ Plans:
 | 47. Isolated Backend Hardening | 3/3 | Complete    | 2026-02-25 | - |
 | 48. Config and Webhook Layer | 2/2 | Complete    | 2026-02-26 | - |
 | 49. Path Traversal Guards | 1/1 | Complete    | 2026-02-26 | - |
-| 50. API Token Authentication | v3.2 | 0/TBD | Not started | - |
-| 51. CSP Hardening | v3.2 | 0/TBD | Not started | - |
+| 50. API Token Authentication | v3.2/M002 | 3/3 | Complete (M002) | 2026-03-22 |
+| 51. CSP Hardening | v3.2/M002 | 1/1 | Complete (M002) | 2026-03-22 |
+| M001. Angular 21 Migration | M001 | 3 slices | Complete | 2026-03-21 |
+| M002. Finish v3.2 Security | M002 | 3 slices | Complete | 2026-03-22 |
+| M003. UI Redesign — Earthy Palette | M003 | 6 slices | Complete | 2026-03-25 |
+| M004. Polish & Dependencies | M004 | 4 slices | Complete | 2026-03-24 |
+| M005. Dashboard Polish | M005 | 2 slices | Complete | 2026-03-24 |
+| M006. Deep Moss + Layout | M006 | 3 slices | Complete | 2026-03-25 |
+| M007. Settings Redesign | M007 | 2 slices | Complete | 2026-03-26 |
+| M008. AutoQueue + Token UI | M008 | 2 slices | Complete | 2026-03-27 |
+| M009. Deep Review Fixes | M009 | 4 slices | Complete | 2026-03-28 |
+| M010. Docs & v4.0.0 Release | M010 | — | Complete | 2026-03-28 |
+| 52. Dependency Fixes & CI | v4.0.3 | 1/1 | Complete | 2026-04-08 |
 
 ---
 
-*Last updated: 2026-02-25 after v3.2 roadmap created*
-*13 milestones shipped, 46 phases complete, 88 plans complete*
-*v3.2 in progress: phases 47-51, 32 requirements*
+*Last updated: 2026-04-08 after v4.0.3 roadmap created*
+*23 milestones shipped, 51 phases + 29 slices complete, v4.0.3 in progress*
